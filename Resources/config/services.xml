@@ -1,0 +1,2144 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="cart.url.image.product">http://dev.mobile-cart.local/</parameter>
+        <parameter key="cart.upload.temp">/tmp</parameter>
+        <parameter key="cart.upload.product">./bundles/mobilecartcore/uploads/product/</parameter>
+        <parameter key="cart.upload.category">./bundles/mobilecartcore/uploads/category/</parameter>
+        <parameter key="cart.class.login">MobileCart\CoreBundle\EventListener\Security\Login</parameter>
+        <parameter key="cart.class.login.failed">MobileCart\CoreBundle\EventListener\Security\LoginFailed</parameter>
+        <parameter key="cart.class.auth.token">MobileCart\CoreBundle\Service\GuardTokenAuthService</parameter>
+        <parameter key="cart.class.logout">MobileCart\CoreBundle\EventListener\Security\Logout</parameter>
+        <parameter key="cart.class.search.doctrine">MobileCart\CoreBundle\Service\MysqlSearchServiceV2</parameter>
+        <parameter key="cart.class.currency">MobileCart\CoreBundle\Service\CurrencyService</parameter>
+        <parameter key="cart.class.entity">MobileCart\CoreBundle\Service\MysqlEntityService</parameter>
+        <parameter key="cart.class.image">MobileCart\CoreBundle\Service\ImageService</parameter>
+        <parameter key="cart.class.order">MobileCart\CoreBundle\Service\OrderService</parameter>
+        <parameter key="cart.class.twig.frontend">MobileCart\CoreBundle\Twig\Extension\FrontendExtension</parameter>
+        <parameter key="cart.class.cart">MobileCart\CoreBundle\Service\CartService</parameter>
+        <parameter key="cart.class.cart.session">MobileCart\CoreBundle\Service\CartSessionService</parameter>
+        <parameter key="cart.class.cart.total">MobileCart\CoreBundle\Service\CartTotalService</parameter>
+        <parameter key="cart.class.checkout.session">MobileCart\CoreBundle\Service\CheckoutSessionService</parameter>
+        <parameter key="cart.class.discount">MobileCart\CoreBundle\Service\DiscountService</parameter>
+        <parameter key="cart.class.geography">MobileCart\CoreBundle\Service\GeographyService</parameter>
+        <parameter key="cart.class.payment">MobileCart\CoreBundle\Service\PaymentService</parameter>
+        <parameter key="cart.class.shipping">MobileCart\CoreBundle\Service\ShippingService</parameter>
+        <parameter key="cart.class.tax">MobileCart\CoreBundle\Service\TaxService</parameter>
+        <parameter key="cart.class.theme">MobileCart\CoreBundle\Service\ThemeService</parameter>
+        <parameter key="cart.class.theme.config">MobileCart\CoreBundle\Service\ThemeConfig</parameter>
+        <parameter key="cart.repo.admin_user">MobileCartCoreBundle:AdminUser</parameter>
+        <parameter key="cart.repo.cart">MobileCartCoreBundle:Cart</parameter>
+        <parameter key="cart.repo.cart_item">MobileCartCoreBundle:CartItem</parameter>
+        <parameter key="cart.repo.category">MobileCartCoreBundle:Category</parameter>
+        <parameter key="cart.repo.category_image">MobileCartCoreBundle:CategoryImage</parameter>
+        <parameter key="cart.repo.category_var_value_datetime">MobileCartCoreBundle:CategoryVarValueDatetime</parameter>
+        <parameter key="cart.repo.category_var_value_decimal">MobileCartCoreBundle:CategoryVarValueDecimal</parameter>
+        <parameter key="cart.repo.category_var_value_int">MobileCartCoreBundle:CategoryVarValueInt</parameter>
+        <parameter key="cart.repo.category_var_value_text">MobileCartCoreBundle:CategoryVarValueText</parameter>
+        <parameter key="cart.repo.category_var_value_varchar">MobileCartCoreBundle:CategoryVarValueVarchar</parameter>
+        <parameter key="cart.repo.category_product">MobileCartCoreBundle:CategoryProduct</parameter>
+        <parameter key="cart.repo.content">MobileCartCoreBundle:Content</parameter>
+        <parameter key="cart.repo.content_image">MobileCartCoreBundle:ContentImage</parameter>
+        <parameter key="cart.repo.content_var_value_datetime">MobileCartCoreBundle:ContentVarValueDatetime</parameter>
+        <parameter key="cart.repo.content_var_value_decimal">MobileCartCoreBundle:ContentVarValueDecimal</parameter>
+        <parameter key="cart.repo.content_var_value_int">MobileCartCoreBundle:ContentVarValueInt</parameter>
+        <parameter key="cart.repo.content_var_value_text">MobileCartCoreBundle:ContentVarValueText</parameter>
+        <parameter key="cart.repo.content_var_value_varchar">MobileCartCoreBundle:ContentVarValueVarchar</parameter>
+        <parameter key="cart.repo.customer">MobileCartCoreBundle:Customer</parameter>
+        <parameter key="cart.repo.customer_var_value_datetime">MobileCartCoreBundle:CategoryVarValueDatetime</parameter>
+        <parameter key="cart.repo.customer_var_value_decimal">MobileCartCoreBundle:CategoryVarValueDecimal</parameter>
+        <parameter key="cart.repo.customer_var_value_int">MobileCartCoreBundle:CategoryVarValueInt</parameter>
+        <parameter key="cart.repo.customer_var_value_text">MobileCartCoreBundle:CategoryVarValueText</parameter>
+        <parameter key="cart.repo.customer_var_value_varchar">MobileCartCoreBundle:CategoryVarValueVarchar</parameter>
+        <parameter key="cart.repo.discount">MobileCartCoreBundle:Discount</parameter>
+        <parameter key="cart.repo.item">MobileCartCoreBundle:Item</parameter>
+        <parameter key="cart.repo.item_var">MobileCartCoreBundle:ItemVar</parameter>
+        <parameter key="cart.repo.item_var_option">MobileCartCoreBundle:ItemVarOption</parameter>
+        <parameter key="cart.repo.item_var_option_datetime">MobileCartCoreBundle:ItemVarOptionDatetime</parameter>
+        <parameter key="cart.repo.item_var_option_decimal">MobileCartCoreBundle:ItemVarOptionDecimal</parameter>
+        <parameter key="cart.repo.item_var_option_int">MobileCartCoreBundle:ItemVarOptionInt</parameter>
+        <parameter key="cart.repo.item_var_option_text">MobileCartCoreBundle:ItemVarOptionText</parameter>
+        <parameter key="cart.repo.item_var_option_varchar">MobileCartCoreBundle:ItemVarOptionVarchar</parameter>
+        <parameter key="cart.repo.item_var_set">MobileCartCoreBundle:ItemVarSet</parameter>
+        <parameter key="cart.repo.item_var_set_var">MobileCartCoreBundle:ItemVarSetVar</parameter>
+        <parameter key="cart.repo.order">MobileCartCoreBundle:Order</parameter>
+        <parameter key="cart.repo.order_var_value_datetime">MobileCartCoreBundle:OrderVarValueDatetime</parameter>
+        <parameter key="cart.repo.order_var_value_decimal">MobileCartCoreBundle:OrderVarValueDecimal</parameter>
+        <parameter key="cart.repo.order_var_value_int">MobileCartCoreBundle:OrderVarValueInt</parameter>
+        <parameter key="cart.repo.order_var_value_text">MobileCartCoreBundle:OrderVarValueText</parameter>
+        <parameter key="cart.repo.order_var_value_varchar">MobileCartCoreBundle:OrderVarValueVarchar</parameter>
+        <parameter key="cart.repo.order_item">MobileCartCoreBundle:OrderItem</parameter>
+        <parameter key="cart.repo.order_shipment">MobileCartCoreBundle:OrderShipment</parameter>
+        <!-- todo: add column <parameter key="cart.repo.order_shipment_item">MobileCartCoreBundle:OrderShipmentItem</parameter> -->
+        <parameter key="cart.repo.order_invoice">MobileCartCoreBundle:OrderInvoice</parameter>
+        <parameter key="cart.repo.order_payment">MobileCartCoreBundle:OrderPayment</parameter>
+        <parameter key="cart.repo.order_refund">MobileCartCoreBundle:OrderRefund</parameter>
+        <parameter key="cart.repo.product">MobileCartCoreBundle:Product</parameter>
+        <parameter key="cart.repo.product_image">MobileCartCoreBundle:ProductImage</parameter>
+        <parameter key="cart.repo.product_var_value_datetime">MobileCartCoreBundle:ProductVarValueDatetime</parameter>
+        <parameter key="cart.repo.product_var_value_decimal">MobileCartCoreBundle:ProductVarValueDecimal</parameter>
+        <parameter key="cart.repo.product_var_value_int">MobileCartCoreBundle:ProductVarValueInt</parameter>
+        <parameter key="cart.repo.product_var_value_text">MobileCartCoreBundle:ProductVarValueText</parameter>
+        <parameter key="cart.repo.product_var_value_varchar">MobileCartCoreBundle:ProductVarValueVarchar</parameter>
+        <parameter key="cart.repo.ref_country_region">MobileCartCoreBundle:RefCountryRegion</parameter>
+        <parameter key="cart.repo.shipping_method">MobileCartCoreBundle:ShippingMethod</parameter>
+        <parameter key="cart.repo.url_rewrite">MobileCartCoreBundle:UrlRewrite</parameter>
+        <parameter key="cart.load.currency">cart.currency</parameter>
+        <parameter key="cart.load.admin">cart.search.doctrine</parameter>
+        <parameter key="cart.load.frontend">cart.entity</parameter>
+        <parameter key="cart.search.frontend">cart.search.doctrine</parameter>
+    </parameters>
+
+    <services>
+
+        <!-- Homepage Listener -->
+        <service id="cart.listener.home.view.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Home\ViewReturn">
+            <tag name="kernel.event_listener" event="home.view.return" method="onHomeViewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+
+        <!-- Login Listener -->
+        <service id="cart.login" lazy="true" class="%cart.class.login%">
+            <argument type="service" id="security.http_utils" />
+            <call method="setCartSessionService">
+                <argument type="service" id="cart.session" />
+            </call>
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+
+        <!-- Login Failed Listener -->
+        <service id="cart.login.failed" lazy="true" class="%cart.class.login.failed%">
+            <tag name="monolog.logger" channel="security" />
+            <argument type="service" id="http_kernel" />
+            <argument type="service" id="security.http_utils" />
+            <argument type="collection" /> <!-- Options -->
+            <argument type="service" id="logger" on-invalid="null" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+
+        <!-- Logout Listener -->
+        <service id="cart.logout" lazy="true" class="%cart.class.logout%">
+            <argument type="service" id="security.http_utils" />
+            <argument>/</argument>
+            <call method="setCartSessionService">
+                <argument type="service" id="cart.session" />
+            </call>
+        </service>
+
+        <!-- Guard Auth Service -->
+        <service id="cart.auth.token" class="%cart.class.auth.token%">
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+
+        <!-- Currency Service -->
+        <service id="cart.currency" lazy="true" class="%cart.class.currency%">
+            <call method="setBaseCurrency">
+                <argument type="string">USD</argument>
+            </call>
+            <call method="addRate">
+                <argument type="string">USD/EUR</argument>
+                <argument type="string">0.92</argument>
+                <argument type="string">4</argument>
+                <argument type="string">.</argument>
+                <argument type="string">,</argument>
+                <argument type="string">-1</argument>
+            </call>
+        </service>
+
+        <!-- Theme Rendering Service -->
+        <service id="cart.theme" lazy="true" class="%cart.class.theme%">
+            <call method="setTemplating">
+                <argument type="service" id="templating" />
+            </call>
+            <call method="setThemeConfig">
+                <argument type="service" id="cart.theme.config" />
+            </call>
+        </service>
+
+        <!-- Theme Config : (de-coupled from cart.theme for Twig extensions) -->
+        <service id="cart.theme.config" lazy="true" class="%cart.class.theme.config%">
+            <call method="setTheme">
+                <argument type="string">frontend</argument>
+                <argument type="string">MobileCartFrontendBundle::frontend-layout.html.twig</argument>
+                <argument type="string">MobileCartFrontendBundle:</argument>
+                <argument type="string">0</argument>
+            </call>
+            <call method="setTheme">
+                <argument type="string">email</argument>
+                <argument type="string">MobileCartFrontendBundle::email-layout.html.twig</argument>
+                <argument type="string">MobileCartFrontendBundle:</argument>
+            </call>
+            <call method="setTheme">
+                <argument type="string">admin</argument>
+                <argument type="string">MobileCartAdminBundle::admin-layout.html.twig</argument>
+                <argument type="string">MobileCartAdminBundle:</argument>
+            </call>
+            <call method="addAdminEditRoute">
+                <argument type="string">category</argument>
+                <argument type="string">cart_admin_category</argument>
+            </call>
+            <call method="addAdminEditRoute">
+                <argument type="string">content</argument>
+                <argument type="string">cart_admin_content</argument>
+            </call>
+            <call method="addAdminEditRoute">
+                <argument type="string">customer</argument>
+                <argument type="string">cart_admin_customer</argument>
+            </call>
+            <call method="addAdminEditRoute">
+                <argument type="string">discount</argument>
+                <argument type="string">cart_admin_discount</argument>
+            </call>
+            <call method="addAdminEditRoute">
+                <argument type="string">image_var</argument>
+                <argument type="string">cart_admin_image_var</argument>
+            </call>
+            <call method="addAdminEditRoute">
+                <argument type="string">image_var_option</argument>
+                <argument type="string">cart_admin_item_var_option</argument>
+            </call>
+            <call method="addAdminEditRoute">
+                <argument type="string">item_var_set</argument>
+                <argument type="string">cart_admin_item_var_set</argument>
+            </call>
+            <call method="addAdminEditRoute">
+                <argument type="string">order</argument>
+                <argument type="string">cart_admin_order</argument>
+            </call>
+            <call method="addAdminEditRoute">
+                <argument type="string">product</argument>
+                <argument type="string">cart_admin_product</argument>
+            </call>
+            <call method="addAdminEditRoute">
+                <argument type="string">shipping_method</argument>
+                <argument type="string">cart_admin_shipping_method</argument>
+            </call>
+            <call method="addAdminEditRoute">
+                <argument type="string">url_rewrite</argument>
+                <argument type="string">cart_admin_url_rewrite</argument>
+            </call>
+        </service>
+
+        <!-- Twig Extension -->
+        <service id="cart.twig.frontend" lazy="true" class="%cart.class.twig.frontend%">
+            <tag name="twig.extension" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setCurrencyService">
+                <argument type="service" id="cart.currency" />
+            </call>
+            <call method="setCartSessionService">
+                <argument type="service" id="cart.session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+            <call method="setThemeConfig">
+                <argument type="service" id="cart.theme.config" />
+            </call>
+        </service>
+
+        <!-- Order Service -->
+        <service id="cart.order" lazy="true" class="%cart.class.order%">
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setCartService">
+                <argument type="service" id="cart" />
+            </call>
+            <call method="setPaymentService">
+                <argument type="service" id="cart.payment" />
+            </call>
+            <call method="setEnableCreateInvoice">
+                <argument type="string">1</argument>
+            </call>
+            <call method="setEnableCreatePayment">
+                <argument type="string">1</argument>
+            </call>
+            <call method="setEnableCreateShipment">
+                <argument type="string">1</argument>
+            </call>
+        </service>
+
+        <!-- Cart Service : (mostly) de-coupled from cart.session for API handling (APIs dont have cookies) -->
+        <service id="cart" lazy="true" class="%cart.class.cart%">
+            <call method="setCartTotalService">
+                <argument type="service" id="cart.total" />
+            </call>
+            <call method="setShippingService">
+                <argument type="service" id="cart.shipping" />
+            </call>
+            <call method="setTaxService">
+                <argument type="service" id="cart.tax" />
+            </call>
+            <call method="setGeographyService">
+                <argument type="service" id="cart.geography" />
+            </call>
+            <call method="setAllowedCountryIds">
+                <argument type="string">US,GB</argument>
+            </call>
+            <call method="setAllowGuestCheckout">
+                <argument type="string">0</argument>
+            </call>
+        </service>
+
+        <!-- Cart Session Service -->
+        <service id="cart.session" lazy="true" class="%cart.class.cart.session%">
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setCartService">
+                <argument type="service" id="cart" />
+            </call>
+        </service>
+
+        <!-- Checkout Session/Config Service -->
+        <service id="cart.checkout.session" lazy="true" class="%cart.class.checkout.session%">
+            <call method="setCartSessionService">
+                <argument type="service" id="cart.session" />
+            </call>
+            <call method="setOrderService">
+                <argument type="service" id="cart.order" />
+            </call>
+        </service>
+
+        <!-- Tax Service -->
+        <service id="cart.tax" lazy="true" class="%cart.class.tax%">
+            <call method="setIsTaxEnabled">
+                <argument type="string">0</argument>
+            </call>
+            <call method="addRate">
+                <argument type="string">USD</argument>
+                <argument type="string">US</argument>
+                <argument type="string">GA</argument>
+                <argument type="string">.06</argument>
+            </call>
+        </service>
+
+        <!-- Shipping Service : Rate Collector -->
+        <service id="cart.shipping" lazy="true" class="%cart.class.shipping%">
+            <call method="setIsShippingEnabled">
+                <argument type="string">0</argument>
+            </call>
+            <call method="setEventDispatcher">
+                <argument type="service" id="event_dispatcher" />
+            </call>
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+
+        <!-- Event Listener: build billing address form -->
+        <service id="cart.checkout.form.billing.address" lazy="true" class="MobileCart\CoreBundle\EventListener\Checkout\CheckoutBillingAddressForm">
+            <tag name="kernel.event_listener" event="checkout.form" method="onCheckoutForm" priority="100" />
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+            <call method="setCheckoutSessionService">
+                <argument type="service" id="cart.checkout.session" />
+            </call>
+        </service>
+
+        <!-- Event Listener: build shipping address form -->
+        <service id="cart.checkout.form.shipping.address" lazy="true" class="MobileCart\CoreBundle\EventListener\Checkout\CheckoutShippingAddressForm">
+            <tag name="kernel.event_listener" event="checkout.form" method="onCheckoutForm" priority="90" />
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+            <call method="setCheckoutSessionService">
+                <argument type="service" id="cart.checkout.session" />
+            </call>
+        </service>
+
+        <!-- Event Listener: build shipping method form . collect shipping methods, set to session, set to form -->
+        <service id="cart.checkout.form.shipping.methods" lazy="true" class="MobileCart\CoreBundle\EventListener\Checkout\CheckoutShippingMethodForm">
+            <tag name="kernel.event_listener" event="checkout.form" method="onCheckoutForm" priority="80" />
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+            <call method="setCheckoutSessionService">
+                <argument type="service" id="cart.checkout.session" />
+            </call>
+            <call method="setShippingService">
+                <argument type="service" id="cart.shipping" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Finish building checkout form -->
+        <service id="cart.checkout.form" lazy="true" class="MobileCart\CoreBundle\EventListener\Checkout\CheckoutForm">
+            <tag name="kernel.event_listener" event="checkout.form" method="onCheckoutForm" priority="50" />
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+            <call method="setPaymentService">
+                <argument type="service" id="cart.payment" />
+            </call>
+            <call method="setCheckoutSessionService">
+                <argument type="service" id="cart.checkout.session" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+
+        <!-- Event Listener: return view data for checkout -->
+        <service id="cart.checkout.view.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Checkout\CheckoutViewReturn">
+            <tag name="kernel.event_listener" event="checkout.view.return" method="onCheckoutViewReturn" priority="50" />
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+            <call method="setPaymentService">
+                <argument type="service" id="cart.payment" />
+            </call>
+            <call method="setCartSession">
+                <argument type="service" id="cart.session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+
+        <!-- Event Listener: update/validate billing address in checkout -->
+        <service id="cart.checkout.update.billing.address" lazy="true" class="MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdateBillingAddress">
+            <tag name="kernel.event_listener" event="checkout.update.billing.address" method="onCheckoutUpdateBillingAddress" priority="50" />
+            <call method="setCheckoutSessionService">
+                <argument type="service" id="cart.checkout.session" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+        </service>
+
+        <!-- Event Listener: render Totals and Discounts section of checkout -->
+        <service id="cart.checkout.totals.discounts" lazy="true" class="MobileCart\CoreBundle\EventListener\Checkout\CheckoutTotalsDiscounts">
+            <tag name="kernel.event_listener" event="checkout.totals.discounts" method="onCheckoutTotalsDiscounts" priority="50" />
+            <call method="setCartSession">
+                <argument type="service" id="cart.session" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+
+        <!-- Event Listener: render Order Confirmation step/modal -->
+        <service id="cart.checkout.confirm.order" lazy="true" class="MobileCart\CoreBundle\EventListener\Checkout\CheckoutConfirmOrder">
+            <tag name="kernel.event_listener" event="checkout.confirm.order" method="onCheckoutConfirmOrder" priority="50" />
+            <call method="setCartSession">
+                <argument type="service" id="cart.session" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+
+        <!-- Event Listener: after billing address is updated, collect payment methods, set to session, set to form -->
+        <service id="cart.checkout.update.payment.methods" lazy="true" class="MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdatePaymentMethods">
+            <tag name="kernel.event_listener" event="checkout.update.billing.address" method="onCheckoutUpdateBillingAddress" priority="40" />
+            <call method="setCheckoutSessionService">
+                <argument type="service" id="cart.checkout.session" />
+            </call>
+            <call method="setPaymentService">
+                <argument type="service" id="cart.payment" />
+            </call>
+        </service>
+
+        <!-- Event Listener: update/validate shipping address in checkout -->
+        <service id="cart.checkout.update.shipping.address" lazy="true" class="MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdateShippingAddress">
+            <tag name="kernel.event_listener" event="checkout.update.shipping.address" method="onCheckoutUpdateShippingAddress" priority="50" />
+            <call method="setCheckoutSessionService">
+                <argument type="service" id="cart.checkout.session" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+        </service>
+
+        <!-- Event Listener: after shipping address is updated, collect shipping methods, set to session, set to form -->
+        <service id="cart.checkout.update.shipping.methods" lazy="true" class="MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdateShippingMethods">
+            <tag name="kernel.event_listener" event="checkout.update.shipping.address" method="onCheckoutUpdateShippingAddress" priority="40" />
+            <call method="setCheckoutSessionService">
+                <argument type="service" id="cart.checkout.session" />
+            </call>
+            <call method="setShippingService">
+                <argument type="service" id="cart.shipping" />
+            </call>
+        </service>
+
+        <!-- Event Listener: update/validate shipping method in checkout -->
+        <service id="cart.checkout.update.shipping.method" lazy="true" class="MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdateShippingMethod">
+            <tag name="kernel.event_listener" event="checkout.update.shipping.method" method="onCheckoutUpdateShippingMethod" priority="50" />
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+            <call method="setCheckoutSessionService">
+                <argument type="service" id="cart.checkout.session" />
+            </call>
+        </service>
+
+        <!-- Event Listener: update/validate cart changes, totals, discounts being submitted in checkout -->
+        <service id="cart.checkout.update.totals.discounts" lazy="true" class="MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdateTotalsDiscounts">
+            <tag name="kernel.event_listener" event="checkout.update.totals.discounts" method="onCheckoutUpdateTotalsDiscounts" priority="50" />
+            <call method="setCheckoutSessionService">
+                <argument type="service" id="cart.checkout.session" />
+            </call>
+        </service>
+
+        <!-- Event Listener: update/validate payment data in checkout (prior to payment capture) -->
+        <service id="cart.checkout.update.payment.method" lazy="true" class="MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdatePaymentMethod">
+            <tag name="kernel.event_listener" event="checkout.update.payment.method" method="onCheckoutUpdatePaymentMethod" priority="50" />
+            <call method="setCheckoutSessionService">
+                <argument type="service" id="cart.checkout.session" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Submit Order via Checkout Form -->
+        <service id="cart.checkout.submit.order" lazy="true" class="MobileCart\CoreBundle\EventListener\Checkout\CheckoutSubmitOrder">
+            <tag name="kernel.event_listener" event="checkout.submit.order" method="onCheckoutSubmitOrder" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+            <call method="setCheckoutSessionService">
+                <argument type="service" id="cart.checkout.session" />
+            </call>
+            <call method="setOrderService">
+                <argument type="service" id="cart.order" />
+            </call>
+        </service>
+
+        <!-- Event Listener : Build View Data for Checkout Success page, and clear cart -->
+        <service id="cart.checkout.success.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Checkout\CheckoutSuccessReturn">
+            <tag name="kernel.event_listener" event="checkout.success.return" method="onCheckoutSuccessReturn" priority="50" />
+            <call method="setCheckoutSessionService">
+                <argument type="service" id="cart.checkout.session" />
+            </call>
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Shipping Method : Flat Rate -->
+        <service id="cart.listener.shipping_rate.flatrate" lazy="true" class="MobileCart\CoreBundle\EventListener\Shipping\FlatRate">
+            <tag name="kernel.event_listener" event="shipping_rate.collect" method="onShippingRateCollect" priority="50" />
+            <call method="set">
+                <argument type="string">id</argument>
+                <argument type="string">Standard_Method</argument><!-- avoid numerical values here -->
+            </call>
+            <call method="set">
+                <argument type="string">price</argument>
+                <argument type="string">5.00</argument>
+            </call>
+            <call method="set">
+                <argument type="string">company</argument>
+                <argument type="string">Standard</argument>
+            </call>
+            <call method="set">
+                <argument type="string">method</argument>
+                <argument type="string">Method</argument>
+            </call>
+        </service>
+
+        <!-- Event Listener: Shipping Methods from Database (example: Flat Rate can be imported and have conditions saved/edited) in admin -->
+        <service id="cart.listener.shipping_rate.db" lazy="true" class="MobileCart\CoreBundle\EventListener\Shipping\DB">
+            <tag name="kernel.event_listener" event="shipping_rate.collect" method="onShippingRateCollect" priority="60" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+
+        <!-- Image Service / Manager -->
+        <service id="cart.image" lazy="true" class="%cart.class.image%">
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="addImageSize">
+                <argument>product</argument>
+                <argument>list_grid</argument>
+                <argument>320</argument>
+                <argument>150</argument>
+            </call>
+            <call method="addImageSize">
+                <argument>product</argument>
+                <argument>list_row</argument>
+                <argument>320</argument>
+                <argument>150</argument>
+            </call>
+            <call method="addImageSize">
+                <argument>product</argument>
+                <argument>view_jumbo</argument>
+                <argument>800</argument>
+                <argument>300</argument>
+            </call>
+            <call method="addImageSize">
+                <argument>product</argument>
+                <argument>cart_row</argument>
+                <argument>320</argument>
+                <argument>150</argument>
+            </call>
+            <call method="addImageSize">
+                <argument>product</argument>
+                <argument>cart_mini</argument>
+                <argument>320</argument>
+                <argument>150</argument>
+            </call>
+            <call method="addImageSize">
+                <argument>category</argument>
+                <argument>view_jumbo</argument>
+                <argument>800</argument>
+                <argument>300</argument>
+            </call>
+            <call method="addImageSize">
+                <argument>content</argument>
+                <argument>view_jumbo</argument>
+                <argument>800</argument>
+                <argument>300</argument>
+            </call>
+        </service>
+
+        <!-- Entity Manager Service : MySQL / Doctrine (could potentially be replaced with any kind of Model) -->
+        <service id="cart.entity" lazy="true" class="%cart.class.entity%">
+            <call method="setDoctrine">
+                <argument type="service" id="doctrine" />
+            </call>
+            <call method="addProductType">
+                <argument>1</argument>
+                <argument>Simple</argument>
+            </call>
+            <call method="addProductType">
+                <argument>2</argument>
+                <argument>Configurable</argument>
+            </call>
+            <!--
+            <call method="addProductType">
+                <argument>3</argument>
+                <argument>Group</argument>
+            </call>
+            <call method="addProductType">
+                <argument>4</argument>
+                <argument>Bundle</argument>
+            </call>
+            -->
+            <call method="addObjectRepository">
+                <argument>item_var</argument>
+                <argument>%cart.repo.item_var%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>item_var_set</argument>
+                <argument>%cart.repo.item_var_set%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>item_var_set_var</argument>
+                <argument>%cart.repo.item_var_set_var%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>item_var_option_datetime</argument>
+                <argument>%cart.repo.item_var_option_datetime%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>item_var_option_decimal</argument>
+                <argument>%cart.repo.item_var_option_decimal%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>item_var_option_int</argument>
+                <argument>%cart.repo.item_var_option_int%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>item_var_option_varchar</argument>
+                <argument>%cart.repo.item_var_option_varchar%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>item_var_option_text</argument>
+                <argument>%cart.repo.item_var_option_text%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>item_var_set_var</argument>
+                <argument>%cart.repo.item_var_set_var%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>admin_user</argument>
+                <argument>%cart.repo.admin_user%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>cart</argument>
+                <argument>%cart.repo.cart%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>cart_item</argument>
+                <argument>%cart.repo.cart_item%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>category</argument>
+                <argument>%cart.repo.category%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>category_image</argument>
+                <argument>%cart.repo.category_image%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>category_product</argument>
+                <argument>%cart.repo.category_product%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>category_var_value_datetime</argument>
+                <argument>%cart.repo.category_var_value_datetime%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>category_var_value_decimal</argument>
+                <argument>%cart.repo.category_var_value_decimal%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>category_var_value_int</argument>
+                <argument>%cart.repo.category_var_value_int%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>category_var_value_text</argument>
+                <argument>%cart.repo.category_var_value_text%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>category_var_value_varchar</argument>
+                <argument>%cart.repo.category_var_value_varchar%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>category_product</argument>
+                <argument>%cart.repo.category_product%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>content</argument>
+                <argument>%cart.repo.content%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>content_image</argument>
+                <argument>%cart.repo.content_image%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>content_var_value_datetime</argument>
+                <argument>%cart.repo.content_var_value_datetime%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>content_var_value_decimal</argument>
+                <argument>%cart.repo.content_var_value_decimal%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>content_var_value_int</argument>
+                <argument>%cart.repo.content_var_value_int%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>content_var_value_text</argument>
+                <argument>%cart.repo.content_var_value_text%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>content_var_value_varchar</argument>
+                <argument>%cart.repo.content_var_value_varchar%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>customer</argument>
+                <argument>%cart.repo.customer%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>customer_var_value_datetime</argument>
+                <argument>%cart.repo.customer_var_value_datetime%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>customer_var_value_decimal</argument>
+                <argument>%cart.repo.customer_var_value_decimal%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>customer_var_value_int</argument>
+                <argument>%cart.repo.customer_var_value_int%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>customer_var_value_text</argument>
+                <argument>%cart.repo.customer_var_value_text%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>customer_var_value_varchar</argument>
+                <argument>%cart.repo.customer_var_value_varchar%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>discount</argument>
+                <argument>%cart.repo.discount%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>order</argument>
+                <argument>%cart.repo.order%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>order_var_value_datetime</argument>
+                <argument>%cart.repo.order_var_value_datetime%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>order_var_value_decimal</argument>
+                <argument>%cart.repo.order_var_value_decimal%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>order_var_value_int</argument>
+                <argument>%cart.repo.order_var_value_int%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>order_var_value_text</argument>
+                <argument>%cart.repo.order_var_value_text%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>order_var_value_varchar</argument>
+                <argument>%cart.repo.order_var_value_varchar%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>order_item</argument>
+                <argument>%cart.repo.order_item%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>order_shipment</argument>
+                <argument>%cart.repo.order_shipment%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>order_invoice</argument>
+                <argument>%cart.repo.order_invoice%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>order_payment</argument>
+                <argument>%cart.repo.order_payment%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>order_refund</argument>
+                <argument>%cart.repo.order_refund%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>product</argument>
+                <argument>%cart.repo.product%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>product_image</argument>
+                <argument>%cart.repo.product_image%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>product_var_value_datetime</argument>
+                <argument>%cart.repo.product_var_value_datetime%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>product_var_value_decimal</argument>
+                <argument>%cart.repo.product_var_value_decimal%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>product_var_value_int</argument>
+                <argument>%cart.repo.product_var_value_int%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>product_var_value_text</argument>
+                <argument>%cart.repo.product_var_value_text%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>product_var_value_varchar</argument>
+                <argument>%cart.repo.product_var_value_varchar%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>ref_country_region</argument>
+                <argument>%cart.repo.ref_country_region%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>shipping_method</argument>
+                <argument>%cart.repo.shipping_method%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>url_rewrite</argument>
+                <argument>%cart.repo.url_rewrite%</argument>
+            </call>
+        </service>
+
+        <!-- Search Service : via Doctrine -->
+        <service id="cart.search.doctrine" lazy="true" class="%cart.class.search.doctrine%">
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+
+        <!-- Discount Service -->
+        <service id="cart.discount" lazy="true" class="%cart.class.discount%">
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+
+        <!-- Geography Service -->
+        <service id="cart.geography" lazy="true" class="%cart.class.geography%">
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+
+        <!-- Payment Service : Collect Payment Method Services -->
+        <service id="cart.payment" lazy="true" class="%cart.class.payment%">
+            <call method="setEventDispatcher">
+                <argument type="service" id="event_dispatcher" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Collect Dummy Payment Method Service -->
+        <service id="cart.listener.payment.method.collector.dummy" lazy="true" class="MobileCart\CoreBundle\Payment\Method\Dummy\EventListener">
+            <tag name="kernel.event_listener" event="payment_method.collect" method="onPaymentMethodCollect" priority="50" />
+            <call method="setPaymentMethodService">
+                <argument type="service" id="cart.payment.method.dummy" />
+            </call>
+        </service>
+
+        <!-- Service : Dummy/Test Payment Method Service -->
+        <service id="cart.payment.method.dummy" lazy="true" class="MobileCart\CoreBundle\Payment\Method\Dummy\DummyPaymentService">
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+            <call method="setIsTestMode">
+                <argument type="string">1</argument>
+            </call>
+            <call method="setEnableAuthorize">
+                <argument type="string">1</argument>
+            </call>
+            <call method="setEnableCaptureOnInvoice">
+                <argument type="string">1</argument>
+            </call>
+        </service>
+
+        <!-- Cart Total Service -->
+        <service id="cart.total" lazy="true" class="%cart.class.cart.total%">
+            <call method="setEventDispatcher">
+                <argument type="service" id="event_dispatcher" />
+            </call>
+            <call method="setCurrencyService">
+                <argument type="service" id="cart.currency" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Return view data to Cart View page -->
+        <service id="cart.listener.cart.view.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Cart\ViewReturn">
+            <tag name="kernel.event_listener" event="cart.view.return" method="onCartViewReturn" priority="50" />
+            <call method="setCartSessionService">
+                <argument type="service" id="cart.session" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Add Product to Cart : from a User Session, not for APIs -->
+        <service id="cart.listener.cart.add.product" lazy="true" class="MobileCart\CoreBundle\EventListener\Cart\AddProduct">
+            <tag name="kernel.event_listener" event="cart.add.product" method="onCartAddProduct" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+            <call method="setCartSessionService">
+                <argument type="service" id="cart.session" />
+            </call>
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Remove Product from Cart : from a User Session, not for APIs -->
+        <service id="cart.listener.cart.remove.product" lazy="true" class="MobileCart\CoreBundle\EventListener\Cart\RemoveProduct">
+            <tag name="kernel.event_listener" event="cart.remove.product" method="onCartRemoveProduct" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+            <call method="setCartSessionService">
+                <argument type="service" id="cart.session" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Remove all Products from Cart : from a User Session, not for APIs -->
+        <service id="cart.listener.cart.remove.products" lazy="true" class="MobileCart\CoreBundle\EventListener\Cart\RemoveProducts">
+            <tag name="kernel.event_listener" event="cart.remove.products" method="onCartRemoveProducts" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+            <call method="setCartSessionService">
+                <argument type="service" id="cart.session" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Add Shipment to Cart : from a User Session, not for APIs -->
+        <service id="cart.listener.cart.add.shipment" lazy="true" class="MobileCart\CoreBundle\EventListener\Cart\AddShipment">
+            <tag name="kernel.event_listener" event="cart.add.shipment" method="onCartAddShipment" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+            <call method="setCartSessionService">
+                <argument type="service" id="cart.session" />
+            </call>
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Cart Total : Items/Products -->
+        <service id="cart.listener.cart.total.item" lazy="true" class="MobileCart\CoreBundle\EventListener\Cart\ItemTotal">
+            <tag name="kernel.event_listener" event="cart.total" method="onCartTotalCollect" priority="90" />
+        </service>
+
+        <!-- Event Listener: Cart Total : Shipping -->
+        <service id="cart.listener.cart.total.shipping" lazy="true" class="MobileCart\CoreBundle\EventListener\Cart\ShipmentTotal">
+            <tag name="kernel.event_listener" event="cart.total" method="onCartTotalCollect" priority="70" />
+        </service>
+
+        <!-- Event Listener: Cart Total : Tax -->
+        <service id="cart.listener.cart.total.tax" lazy="true" class="MobileCart\CoreBundle\EventListener\Cart\TaxTotal">
+            <tag name="kernel.event_listener" event="cart.total" method="onCartTotalCollect" priority="50" />
+            <call method="setTaxService">
+                <argument type="service" id="cart.tax" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Cart Total : Discount -->
+        <service id="cart.listener.cart.total.discount" lazy="true" class="MobileCart\CoreBundle\EventListener\Cart\DiscountTotal">
+            <tag name="kernel.event_listener" event="cart.total" method="onCartTotalCollect" priority="30" />
+            <call method="setDiscountService">
+                <argument type="service" id="cart.discount" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Cart Total : Grand Total -->
+        <service id="cart.listener.cart.total.grand" lazy="true" class="MobileCart\CoreBundle\EventListener\Cart\GrandTotal">
+            <tag name="kernel.event_listener" event="cart.total" method="onCartTotalCollect" priority="1" />
+        </service>
+
+        <!-- Event Listener : Product Search -->
+        <service id="cart.listener.product.search" lazy="true" class="MobileCart\CoreBundle\EventListener\Product\ProductSearch">
+            <tag name="kernel.event_listener" event="product.search" method="onProductSearch" priority="50" />
+        </service>
+
+        <!-- Event Listener: Product Listing : for frontend, not for APIs -->
+        <service id="cart.listener.product.list" lazy="true" class="MobileCart\CoreBundle\EventListener\Product\ProductList">
+            <tag name="kernel.event_listener" event="product.list" method="onProductList" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+
+        <!-- Event Listener: Build Product Form in Admin -->
+        <service id="cart.listener.product.admin.form" lazy="true" class="MobileCart\CoreBundle\EventListener\Product\ProductAdminForm">
+            <tag name="kernel.event_listener" event="product.admin.form" method="onProductAdminForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setCurrencyService">
+                <argument type="service" id="cart.currency" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Return View Data to Admin Product Create page -->
+        <service id="cart.listener.product.create.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Product\ProductCreateReturn">
+            <tag name="kernel.event_listener" event="product.create.return" method="onProductCreateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.product.update.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Product\ProductUpdateReturn">
+            <tag name="kernel.event_listener" event="product.update.return" method="onProductUpdateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.product.edit.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Product\ProductEditReturn">
+            <tag name="kernel.event_listener" event="product.edit.return" method="onProductEditReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setImageService">
+                <argument type="service" id="cart.image" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+        <service id="cart.listener.product.new.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Product\ProductNewReturn">
+            <tag name="kernel.event_listener" event="product.new.return" method="onProductNewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setImageService">
+                <argument type="service" id="cart.image" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.product.view.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Product\ProductViewReturn">
+            <tag name="kernel.event_listener" event="product.view.return" method="onProductViewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setImageService">
+                <argument type="service" id="cart.image" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+        <service id="cart.listener.product.update" lazy="true" class="MobileCart\CoreBundle\EventListener\Product\ProductUpdate">
+            <tag name="kernel.event_listener" event="product.update" method="onProductUpdate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.product.insert" lazy="true" class="MobileCart\CoreBundle\EventListener\Product\ProductInsert">
+            <tag name="kernel.event_listener" event="product.insert" method="onProductInsert" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.product.delete" lazy="true" class="MobileCart\CoreBundle\EventListener\Product\ProductDelete">
+            <tag name="kernel.event_listener" event="product.delete" method="onProductDelete" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+
+        <!-- Category Services and Listeners -->
+        <service id="cart.listener.category.search" lazy="true" class="MobileCart\CoreBundle\EventListener\Category\CategorySearch">
+            <tag name="kernel.event_listener" event="category.search" method="onCategorySearch" priority="50" />
+        </service>
+        <service id="cart.listener.category.list" lazy="true" class="MobileCart\CoreBundle\EventListener\Category\CategoryList">
+            <tag name="kernel.event_listener" event="category.list" method="onCategoryList" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.category.create.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Category\CategoryCreateReturn">
+            <tag name="kernel.event_listener" event="category.create.return" method="onCategoryCreateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.category.update.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Category\CategoryUpdateReturn">
+            <tag name="kernel.event_listener" event="category.update.return" method="onCategoryUpdateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.category.edit.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Category\CategoryEditReturn">
+            <tag name="kernel.event_listener" event="category.edit.return" method="onCategoryEditReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setImageService">
+                <argument type="service" id="cart.image" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+        <service id="cart.listener.category.new.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Category\CategoryNewReturn">
+            <tag name="kernel.event_listener" event="category.new.return" method="onCategoryNewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setImageService">
+                <argument type="service" id="cart.image" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.category.update" lazy="true" class="MobileCart\CoreBundle\EventListener\Category\CategoryUpdate">
+            <tag name="kernel.event_listener" event="category.update" method="onCategoryUpdate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.category.insert" lazy="true" class="MobileCart\CoreBundle\EventListener\Category\CategoryInsert">
+            <tag name="kernel.event_listener" event="category.insert" method="onCategoryInsert" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.category.delete" lazy="true" class="MobileCart\CoreBundle\EventListener\Category\CategoryDelete">
+            <tag name="kernel.event_listener" event="category.delete" method="onCategoryDelete" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.category.admin.form" lazy="true" class="MobileCart\CoreBundle\EventListener\Category\CategoryAdminForm">
+            <tag name="kernel.event_listener" event="category.admin.form" method="onCategoryAdminForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+        </service>
+
+        <!-- Content Services and Listeners -->
+        <service id="cart.listener.content.search" lazy="true" class="MobileCart\CoreBundle\EventListener\Content\ContentSearch">
+            <tag name="kernel.event_listener" event="content.search" method="onContentSearch" priority="50" />
+        </service>
+        <service id="cart.listener.content.list" lazy="true" class="MobileCart\CoreBundle\EventListener\Content\ContentList">
+            <tag name="kernel.event_listener" event="content.list" method="onContentList" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.content.edit.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Content\ContentEditReturn">
+            <tag name="kernel.event_listener" event="content.edit.return" method="onContentEditReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setImageService">
+                <argument type="service" id="cart.image" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.content.new.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Content\ContentNewReturn">
+            <tag name="kernel.event_listener" event="content.new.return" method="onContentNewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setImageService">
+                <argument type="service" id="cart.image" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.content.create.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Content\ContentCreateReturn">
+            <tag name="kernel.event_listener" event="content.create.return" method="onContentCreateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.content.update.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Content\ContentUpdateReturn">
+            <tag name="kernel.event_listener" event="content.update.return" method="onContentUpdateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.content.update" lazy="true" class="MobileCart\CoreBundle\EventListener\Content\ContentUpdate">
+            <tag name="kernel.event_listener" event="content.update" method="onContentUpdate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.content.insert" lazy="true" class="MobileCart\CoreBundle\EventListener\Content\ContentInsert">
+            <tag name="kernel.event_listener" event="content.insert" method="onContentInsert" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.content.delete" lazy="true" class="MobileCart\CoreBundle\EventListener\Content\ContentDelete">
+            <tag name="kernel.event_listener" event="content.delete" method="onContentDelete" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.content.admin.form" lazy="true" class="MobileCart\CoreBundle\EventListener\Content\ContentAdminForm">
+            <tag name="kernel.event_listener" event="content.admin.form" method="onContentAdminForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+        </service>
+
+        <!-- Customer Services and Listeners -->
+        <service id="cart.listener.customer.search" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerSearch">
+            <tag name="kernel.event_listener" event="customer.search" method="onCustomerSearch" priority="50" />
+        </service>
+        <service id="cart.listener.customer.list" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerList">
+            <tag name="kernel.event_listener" event="customer.list" method="onCustomerList" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.customer.navigation" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerNavigation">
+            <tag name="kernel.event_listener" event="customer.navigation" method="onCustomerNavigation" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+        </service>
+        <service id="cart.listener.customer.edit.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerEditReturn">
+            <tag name="kernel.event_listener" event="customer.edit.return" method="onCustomerEditReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.customer.new.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerNewReturn">
+            <tag name="kernel.event_listener" event="customer.new.return" method="onCustomerNewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.customer.create.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerCreateReturn">
+            <tag name="kernel.event_listener" event="customer.create.return" method="onCustomerCreateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.customer.update.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerUpdateReturn">
+            <tag name="kernel.event_listener" event="customer.update.return" method="onCustomerUpdateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+
+        <!-- Event Listener : Create Register Form -->
+        <service id="cart.listener.customer.register.form" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerRegisterForm">
+            <tag name="kernel.event_listener" event="customer.register.form" method="onCustomerRegisterForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setCurrencyService">
+                <argument type="service" id="cart.currency" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+        </service>
+
+        <!-- Event Listener : Create Admin Form -->
+        <service id="cart.listener.customer.admin.form" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerAdminForm">
+            <tag name="kernel.event_listener" event="customer.admin.form" method="onCustomerAdminForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setCurrencyService">
+                <argument type="service" id="cart.currency" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+            <!-- For Allowed Country IDs -->
+            <call method="setCartService">
+                <argument type="service" id="cart" />
+            </call>
+        </service>
+
+        <service id="cart.listener.customer.register.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerRegisterReturn">
+            <tag name="kernel.event_listener" event="customer.register.return" method="onCustomerRegisterReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.customer.register" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerRegister">
+            <tag name="kernel.event_listener" event="customer.register" method="onCustomerRegister" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setMailer">
+                <argument type="service" id="mailer" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+            <call method="setSecurityPasswordEncoder">
+                <argument type="service" id="security.password_encoder" />
+            </call>
+        </service>
+        <service id="cart.listener.customer.register.checkemail.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerRegisterCheckEmailReturn">
+            <tag name="kernel.event_listener" event="customer.register.checkemail.return" method="onCustomerRegisterCheckEmailReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+        <service id="cart.listener.customer.register.confirm" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerRegisterConfirm">
+            <tag name="kernel.event_listener" event="customer.register.confirm" method="onCustomerRegisterConfirm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.customer.register.confirm.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerRegisterConfirmReturn">
+            <tag name="kernel.event_listener" event="customer.register.confirm.return" method="onCustomerRegisterConfirmReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+        <service id="cart.listener.customer.register.post.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerRegisterPostReturn">
+            <tag name="kernel.event_listener" event="customer.register.post.return" method="onCustomerRegisterPostReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Build Customer Account/Profile Form -->
+        <service id="cart.listener.customer.profile.form" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerProfileForm">
+            <tag name="kernel.event_listener" event="customer.profile.form" method="onCustomerProfileForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setCurrencyService">
+                <argument type="service" id="cart.currency" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+            <call method="setCartService">
+                <argument type="service" id="cart" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Return data to Customer Account/Profile page -->
+        <service id="cart.listener.customer.profile.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerProfileReturn">
+            <tag name="kernel.event_listener" event="customer.profile.return" method="onCustomerProfileReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Return data to Customer Order History page -->
+        <service id="cart.listener.customer.orders.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerOrdersReturn">
+            <tag name="kernel.event_listener" event="customer.orders.return" method="onCustomerOrdersReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+
+        <service id="cart.listener.customer.forgotpassword.form" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPasswordForm">
+            <tag name="kernel.event_listener" event="customer.forgotpassword.form" method="onCustomerForgotPasswordForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+        </service>
+
+        <!-- Event Listener : Insert Customer -->
+        <service id="cart.listener.customer.insert" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerInsert">
+            <tag name="kernel.event_listener" event="customer.insert" method="onCustomerInsert" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setSecurityPasswordEncoder">
+                <argument type="service" id="security.password_encoder" />
+            </call>
+        </service>
+
+        <!-- Event Listener : Update Customer -->
+        <service id="cart.listener.customer.update" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerUpdate">
+            <tag name="kernel.event_listener" event="customer.update" method="onCustomerUpdate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setSecurityPasswordEncoder">
+                <argument type="service" id="security.password_encoder" />
+            </call>
+        </service>
+
+        <service id="cart.listener.customer.delete" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerDelete">
+            <tag name="kernel.event_listener" event="customer.delete" method="onCustomerDelete" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+
+        <!-- Discount -->
+        <service id="cart.listener.discount.search" lazy="true" class="MobileCart\CoreBundle\EventListener\Discount\DiscountSearch">
+            <tag name="kernel.event_listener" event="discount.search" method="onDiscountSearch" priority="50" />
+        </service>
+        <service id="cart.listener.discount.list" lazy="true" class="MobileCart\CoreBundle\EventListener\Discount\DiscountList">
+            <tag name="kernel.event_listener" event="discount.list" method="onDiscountList" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.discount.new.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Discount\DiscountNewReturn">
+            <tag name="kernel.event_listener" event="discount.new.return" method="onDiscountNewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.discount.insert" lazy="true" class="MobileCart\CoreBundle\EventListener\Discount\DiscountInsert">
+            <tag name="kernel.event_listener" event="discount.insert" method="onDiscountInsert" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.discount.edit.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Discount\DiscountEditReturn">
+            <tag name="kernel.event_listener" event="discount.edit.return" method="onDiscountEditReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.discount.update" lazy="true" class="MobileCart\CoreBundle\EventListener\Discount\DiscountUpdate">
+            <tag name="kernel.event_listener" event="discount.update" method="onDiscountUpdate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.discount.delete" lazy="true" class="MobileCart\CoreBundle\EventListener\Discount\DiscountDelete">
+            <tag name="kernel.event_listener" event="discount.delete" method="onDiscountDelete" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.discount.create.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Discount\DiscountCreateReturn">
+            <tag name="kernel.event_listener" event="discount.create.return" method="onDiscountCreateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.discount.update.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Discount\DiscountUpdateReturn">
+            <tag name="kernel.event_listener" event="discount.update.return" method="onDiscountUpdateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.discount.admin.form" lazy="true" class="MobileCart\CoreBundle\EventListener\Discount\DiscountAdminForm">
+            <tag name="kernel.event_listener" event="discount.admin.form" method="onDiscountAdminForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+        </service>
+
+        <!-- ItemVar -->
+        <service id="cart.listener.item_var.search" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVar\ItemVarSearch">
+            <tag name="kernel.event_listener" event="item_var.search" method="onItemVarSearch" priority="50" />
+        </service>
+        <service id="cart.listener.item_var.list" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVar\ItemVarList">
+            <tag name="kernel.event_listener" event="item_var.list" method="onItemVarList" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.item_var.edit.return" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVar\ItemVarEditReturn">
+            <tag name="kernel.event_listener" event="item_var.edit.return" method="onItemVarEditReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.item_var.new.return" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVar\ItemVarNewReturn">
+            <tag name="kernel.event_listener" event="item_var.new.return" method="onItemVarNewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.item_var.create.return" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVar\ItemVarCreateReturn">
+            <tag name="kernel.event_listener" event="item_var.create.return" method="onItemVarCreateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var.update.return" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVar\ItemVarUpdateReturn">
+            <tag name="kernel.event_listener" event="item_var.update.return" method="onItemVarUpdateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var.update" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVar\ItemVarUpdate">
+            <tag name="kernel.event_listener" event="item_var.update" method="onItemVarUpdate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var.insert" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVar\ItemVarInsert">
+            <tag name="kernel.event_listener" event="item_var.insert" method="onItemVarInsert" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var.delete" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVar\ItemVarDelete">
+            <tag name="kernel.event_listener" event="item_var.delete" method="onItemVarDelete" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var.admin.form" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVar\ItemVarAdminForm">
+            <tag name="kernel.event_listener" event="item_var.admin.form" method="onItemVarAdminForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+        </service>
+
+        <!-- ItemVarOption -->
+        <service id="cart.listener.item_var_option.search" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarOption\ItemVarOptionSearch">
+            <tag name="kernel.event_listener" event="item_var_option.search" method="onItemVarOptionSearch" priority="50" />
+        </service>
+        <service id="cart.listener.item_var_option.list" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarOption\ItemVarOptionList">
+            <tag name="kernel.event_listener" event="item_var_option.list" method="onItemVarOptionList" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.item_var_option.edit.return" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarOption\ItemVarOptionEditReturn">
+            <tag name="kernel.event_listener" event="item_var_option.edit.return" method="onItemVarOptionEditReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.item_var_option.new.return" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarOption\ItemVarOptionNewReturn">
+            <tag name="kernel.event_listener" event="item_var_option.new.return" method="onItemVarOptionNewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.item_var_option.update" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarOption\ItemVarOptionUpdate">
+            <tag name="kernel.event_listener" event="item_var_option.update" method="onItemVarOptionUpdate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var_option.insert" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarOption\ItemVarOptionInsert">
+            <tag name="kernel.event_listener" event="item_var_option.insert" method="onItemVarOptionInsert" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var_option.create.return" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarOption\ItemVarOptionCreateReturn">
+            <tag name="kernel.event_listener" event="item_var_option.create.return" method="onItemVarOptionCreateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var_option.update.return" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarOption\ItemVarOptionUpdateReturn">
+            <tag name="kernel.event_listener" event="item_var_option.update.return" method="onItemVarOptionUpdateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var_option.delete" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarOption\ItemVarOptionDelete">
+            <tag name="kernel.event_listener" event="item_var_option.delete" method="onItemVarOptionDelete" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var_option.admin.form" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarOption\ItemVarOptionAdminForm">
+            <tag name="kernel.event_listener" event="item_var_option.admin.form" method="onItemVarOptionAdminForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+        </service>
+
+        <!-- ItemVarSet -->
+        <service id="cart.listener.item_var_set.search" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSet\ItemVarSetSearch">
+            <tag name="kernel.event_listener" event="item_var_set.search" method="onItemVarSetSearch" priority="50" />
+        </service>
+        <service id="cart.listener.item_var_set.list" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSet\ItemVarSetList">
+            <tag name="kernel.event_listener" event="item_var_set.list" method="onItemVarSetList" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.item_var_set.edit.return" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSet\ItemVarSetEditReturn">
+            <tag name="kernel.event_listener" event="item_var_set.edit.return" method="onItemVarSetEditReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.item_var_set.new.return" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSet\ItemVarSetNewReturn">
+            <tag name="kernel.event_listener" event="item_var_set.new.return" method="onItemVarSetNewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.item_var_set.update" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSet\ItemVarSetUpdate">
+            <tag name="kernel.event_listener" event="item_var_set.update" method="onItemVarSetUpdate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var_set.insert" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSet\ItemVarSetInsert">
+            <tag name="kernel.event_listener" event="item_var_set.insert" method="onItemVarSetInsert" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var_set.create.return" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSet\ItemVarSetCreateReturn">
+            <tag name="kernel.event_listener" event="item_var_set.create.return" method="onItemVarSetCreateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var_set.update.return" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSet\ItemVarSetUpdateReturn">
+            <tag name="kernel.event_listener" event="item_var_set.update.return" method="onItemVarSetUpdateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var_set.delete" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSet\ItemVarSetDelete">
+            <tag name="kernel.event_listener" event="item_var_set.delete" method="onItemVarSetDelete" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var_set.admin.form" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSet\ItemVarSetAdminForm">
+            <tag name="kernel.event_listener" event="item_var_set.admin.form" method="onItemVarSetAdminForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+        </service>
+
+        <!-- Order Services and Listeners -->
+        <service id="cart.listener.order.search" lazy="true" class="MobileCart\CoreBundle\EventListener\Order\OrderSearch">
+            <tag name="kernel.event_listener" event="order.search" method="onOrderSearch" priority="50" />
+        </service>
+        <service id="cart.listener.order.list" lazy="true" class="MobileCart\CoreBundle\EventListener\Order\OrderList">
+            <tag name="kernel.event_listener" event="order.list" method="onOrderList" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.order.edit.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Order\OrderEditReturn">
+            <tag name="kernel.event_listener" event="order.edit.return" method="onOrderEditReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setCurrencyService">
+                <argument type="service" id="cart.currency" />
+            </call>
+            <call method="setPaymentService">
+                <argument type="service" id="cart.payment" />
+            </call>
+            <call method="setShippingService">
+                <argument type="service" id="cart.shipping" />
+            </call>
+            <call method="setCartTotalService">
+                <argument type="service" id="cart.total" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+        <service id="cart.listener.order.admin.form" lazy="true" class="MobileCart\CoreBundle\EventListener\Order\OrderAdminForm">
+            <tag name="kernel.event_listener" event="order.admin.form" method="onOrderAdminForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setCurrencyService">
+                <argument type="service" id="cart.currency" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+            <!-- For Allowed Country IDs -->
+            <call method="setCartService">
+                <argument type="service" id="cart" />
+            </call>
+        </service>
+        <service id="cart.listener.order.new.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Order\OrderNewReturn">
+            <tag name="kernel.event_listener" event="order.new.return" method="onOrderNewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setCurrencyService">
+                <argument type="service" id="cart.currency" />
+            </call>
+            <call method="setPaymentService">
+                <argument type="service" id="cart.payment" />
+            </call>
+            <call method="setShippingService">
+                <argument type="service" id="cart.shipping" />
+            </call>
+            <call method="setCartTotalService">
+                <argument type="service" id="cart.total" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+        <service id="cart.listener.order.update" lazy="true" class="MobileCart\CoreBundle\EventListener\Order\OrderUpdate">
+            <tag name="kernel.event_listener" event="order.update" method="onOrderUpdate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setCurrencyService">
+                <argument type="service" id="cart.currency" />
+            </call>
+        </service>
+        <service id="cart.listener.order.insert" lazy="true" class="MobileCart\CoreBundle\EventListener\Order\OrderInsert">
+            <tag name="kernel.event_listener" event="order.insert" method="onOrderInsert" priority="50" />
+            <call method="setOrderService">
+                <argument type="service" id="cart.order" />
+            </call>
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setCurrencyService">
+                <argument type="service" id="cart.currency" />
+            </call>
+        </service>
+        <service id="cart.listener.order.create.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Order\OrderCreateReturn">
+            <tag name="kernel.event_listener" event="order.create.return" method="onOrderCreateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.order.update.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Order\OrderUpdateReturn">
+            <tag name="kernel.event_listener" event="order.update.return" method="onOrderUpdateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.order.delete" lazy="true" class="MobileCart\CoreBundle\EventListener\Order\OrderDelete">
+            <tag name="kernel.event_listener" event="order.delete" method="onOrderDelete" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.order.update.shipping" lazy="true" class="MobileCart\CoreBundle\EventListener\Order\OrderUpdateShipping">
+            <tag name="kernel.event_listener" event="order.update.shipping" method="onOrderUpdateShipping" priority="50" />
+            <call method="setCartSession">
+                <argument type="service" id="cart.session" />
+            </call>
+            <call method="setCartTotalService">
+                <argument type="service" id="cart.total" />
+            </call>
+            <call method="setDiscountService">
+                <argument type="service" id="cart.discount" />
+            </call>
+        </service>
+        <service id="cart.listener.order.update.customer" lazy="true" class="MobileCart\CoreBundle\EventListener\Order\OrderUpdateCustomer">
+            <tag name="kernel.event_listener" event="order.update.customer" method="onOrderUpdateCustomer" priority="50" />
+            <call method="setCartSession">
+                <argument type="service" id="cart.session" />
+            </call>
+            <call method="setCartTotalService">
+                <argument type="service" id="cart.total" />
+            </call>
+            <call method="setDiscountService">
+                <argument type="service" id="cart.discount" />
+            </call>
+        </service>
+        <service id="cart.listener.order.add.item" lazy="true" class="MobileCart\CoreBundle\EventListener\Order\OrderAddItem">
+            <tag name="kernel.event_listener" event="order.add.item" method="onOrderAddItem" priority="50" />
+            <call method="setCartSession">
+                <argument type="service" id="cart.session" />
+            </call>
+            <call method="setCartTotalService">
+                <argument type="service" id="cart.total" />
+            </call>
+            <call method="setDiscountService">
+                <argument type="service" id="cart.discount" />
+            </call>
+        </service>
+        <service id="cart.listener.order.remove.item" lazy="true" class="MobileCart\CoreBundle\EventListener\Order\OrderRemoveItem">
+            <tag name="kernel.event_listener" event="order.remove.item" method="onOrderRemoveItem" priority="50" />
+            <call method="setCartSession">
+                <argument type="service" id="cart.session" />
+            </call>
+            <call method="setCartTotalService">
+                <argument type="service" id="cart.total" />
+            </call>
+            <call method="setDiscountService">
+                <argument type="service" id="cart.discount" />
+            </call>
+        </service>
+        <service id="cart.listener.order.add.discount" lazy="true" class="MobileCart\CoreBundle\EventListener\Order\OrderAddDiscount">
+            <tag name="kernel.event_listener" event="order.add.discount" method="onOrderAddDiscount" priority="50" />
+            <call method="setCartSession">
+                <argument type="service" id="cart.session" />
+            </call>
+            <call method="setCartTotalService">
+                <argument type="service" id="cart.total" />
+            </call>
+            <call method="setDiscountService">
+                <argument type="service" id="cart.discount" />
+            </call>
+        </service>
+        <service id="cart.listener.order.remove.discount" lazy="true" class="MobileCart\CoreBundle\EventListener\Order\OrderRemoveDiscount">
+            <tag name="kernel.event_listener" event="order.remove.discount" method="onOrderRemoveDiscount" priority="50" />
+            <call method="setCartSession">
+                <argument type="service" id="cart.session" />
+            </call>
+            <call method="setCartTotalService">
+                <argument type="service" id="cart.total" />
+            </call>
+            <call method="setDiscountService">
+                <argument type="service" id="cart.discount" />
+            </call>
+        </service>
+
+        <!-- Shipping Method admin -->
+        <service id="cart.listener.shipping_method.search" lazy="true" class="MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodSearch">
+            <tag name="kernel.event_listener" event="shipping_method.search" method="onShippingMethodSearch" priority="50" />
+        </service>
+        <service id="cart.listener.shipping_method.list" lazy="true" class="MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodList">
+            <tag name="kernel.event_listener" event="shipping_method.list" method="onShippingMethodList" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+            <call method="setShippingService">
+                <argument type="service" id="cart.shipping" />
+            </call>
+        </service>
+        <service id="cart.listener.shipping_method.admin.form" lazy="true" class="MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodAdminForm">
+            <tag name="kernel.event_listener" event="shipping_method.admin.form" method="onShippingMethodAdminForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setCurrencyService">
+                <argument type="service" id="cart.currency" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+        </service>
+        <service id="cart.listener.shipping_method.new.return" lazy="true" class="MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodNewReturn">
+            <tag name="kernel.event_listener" event="shipping_method.new.return" method="onShippingMethodNewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.shipping_method.insert" lazy="true" class="MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodInsert">
+            <tag name="kernel.event_listener" event="shipping_method.insert" method="onShippingMethodInsert" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.shipping_method.edit.return" lazy="true" class="MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodEditReturn">
+            <tag name="kernel.event_listener" event="shipping_method.edit.return" method="onShippingMethodEditReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.shipping_method.delete" lazy="true" class="MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodDelete">
+            <tag name="kernel.event_listener" event="shipping_method.delete" method="onShippingMethodDelete" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+
+        <!-- UrlRewrite -->
+        <service id="cart.listener.url_rewrite.search" lazy="true" class="MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteSearch">
+            <tag name="kernel.event_listener" event="url_rewrite.search" method="onUrlRewriteSearch" priority="50" />
+        </service>
+        <service id="cart.listener.url_rewrite.list" lazy="true" class="MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteList">
+            <tag name="kernel.event_listener" event="url_rewrite.list" method="onUrlRewriteList" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.url_rewrite.edit.return" lazy="true" class="MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteEditReturn">
+            <tag name="kernel.event_listener" event="url_rewrite.edit.return" method="onUrlRewriteEditReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.url_rewrite.new.return" lazy="true" class="MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteNewReturn">
+            <tag name="kernel.event_listener" event="url_rewrite.new.return" method="onUrlRewriteNewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.url_rewrite.create.return" lazy="true" class="MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteCreateReturn">
+            <tag name="kernel.event_listener" event="url_rewrite.create.return" method="onUrlRewriteCreateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.url_rewrite.update.return" lazy="true" class="MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteUpdateReturn">
+            <tag name="kernel.event_listener" event="url_rewrite.update.return" method="onUrlRewriteUpdateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.url_rewrite.update" lazy="true" class="MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteUpdate">
+            <tag name="kernel.event_listener" event="url_rewrite.update" method="onUrlRewriteUpdate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.url_rewrite.insert" lazy="true" class="MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteInsert">
+            <tag name="kernel.event_listener" event="url_rewrite.insert" method="onUrlRewriteInsert" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.url_rewrite.delete" lazy="true" class="MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteDelete">
+            <tag name="kernel.event_listener" event="url_rewrite.delete" method="onUrlRewriteDelete" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.url_rewrite.admin.form" lazy="true" class="MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteAdminForm">
+            <tag name="kernel.event_listener" event="url_rewrite.admin.form" method="onUrlRewriteAdminForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+        </service>
+    </services>
+    
+</container>

@@ -1,0 +1,18 @@
+{
+    "name": "mobilecart/corebundle",
+    "type": "project",
+    "description": "E-Commerce Shopping Cart built on Symfony",
+    "keywords": ["shopping", "cart", "e-commerce"],
+    "homepage": "http://mobilecart.io",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jesse Hanson",
+            "email": "jesse@mobilecart.io"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.24",
+        "symfony/framework-bundle": "~2.8"
+    }
+}

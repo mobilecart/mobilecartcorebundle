@@ -1,0 +1,59 @@
+# To get started with security, check out the documentation:
+# http://symfony.com/doc/current/book/security.html
+security:
+
+    # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
+    providers:
+        #in_memory:
+        #    memory: ~
+        cart_provider:
+            id: cart.entity
+
+    access_control:
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/customer, roles: ROLE_USER }
+
+    encoders:
+        MobileCart\CoreBundle\Entity\Customer:
+            algorithm:   sha1
+            iterations: 1
+            encode_as_base64: false
+        MobileCart\CoreBundle\Entity\AdminUser:
+            algorithm:   sha1
+            iterations: 1
+            encode_as_base64: false
+
+    firewalls:
+        # disables authentication for assets and the profiler, adapt it according to your needs
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        main:
+            anonymous: ~
+            # activate different ways to authenticate
+
+            form_login:
+                login_path:  /login
+                check_path:  /login_check
+                provider: cart_provider
+                success_handler: cart.login
+                failure_handler: cart.login.failed
+                # dont require previous session for API logins
+                require_previous_session: false
+                use_referer: true
+
+            logout:
+                path:   /logout
+                target: /
+                success_handler: cart.logout
+
+            guard:
+                authenticators:
+                    - cart.auth.token
+
+            # http_basic: ~
+            # http://symfony.com/doc/current/book/security.html#a-configuring-how-your-users-will-authenticate
+
+            # form_login: ~
+            # http://symfony.com/doc/current/cookbook/security/form_login_setup.html

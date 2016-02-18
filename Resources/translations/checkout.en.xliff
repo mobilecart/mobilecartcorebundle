@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" datatype="plaintext" original="file.ext">
+        <body>
+            <trans-unit id="1">
+                <source>email</source>
+                <target>Email</target>
+            </trans-unit>
+            <trans-unit id="2">
+                <source>billing.name</source>
+                <target>Billing Name</target>
+            </trans-unit>
+            <trans-unit id="3">
+                 <source>billing.street</source>
+                 <target>Billing Street</target>
+            </trans-unit>
+            <trans-unit id="4">
+                 <source>billing.city</source>
+                 <target>Billing City</target>
+            </trans-unit>
+            <trans-unit id="5">
+                 <source>billing.region</source>
+                 <target>Billing State</target>
+            </trans-unit>
+            <trans-unit id="6">
+                 <source>billing.region</source>
+                 <target>Billing State</target>
+            </trans-unit>
+            <trans-unit id="7">
+                 <source>billing.postcode</source>
+                 <target>Billing Zipcode</target>
+            </trans-unit>
+            <trans-unit id="8">
+                 <source>billing.country</source>
+                 <target>Billing Country</target>
+            </trans-unit>
+            <trans-unit id="9">
+                  <source>shipping.name</source>
+                  <target>Shipping Name</target>
+            </trans-unit>
+            <trans-unit id="10">
+                  <source>shipping.street</source>
+                  <target>Shipping Street</target>
+            </trans-unit>
+            <trans-unit id="11">
+                  <source>shipping.city</source>
+                  <target>Shipping City</target>
+            </trans-unit>
+            <trans-unit id="12">
+                  <source>shipping.region</source>
+                  <target>Shipping State</target>
+            </trans-unit>
+            <trans-unit id="13">
+                  <source>shipping.region</source>
+                  <target>Shipping State</target>
+            </trans-unit>
+            <trans-unit id="14">
+                  <source>shipping.postcode</source>
+                  <target>Shipping Zipcode</target>
+            </trans-unit>
+            <trans-unit id="15">
+                  <source>shipping.country</source>
+                  <target>Shipping Country</target>
+            </trans-unit>
+            <trans-unit id="16">
+                <source>shipping.same</source>
+                <target>Shipping Same As Billing</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

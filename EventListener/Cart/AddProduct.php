@@ -1,0 +1,324 @@
+<?php
+
+namespace MobileCart\CoreBundle\EventListener\Cart;
+
+use Symfony\Component\EventDispatcher\Event;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
+use MobileCart\CoreBundle\Constants\EntityConstants;
+
+class AddProduct
+{
+    public $entityService;
+
+    public $cartSessionService;
+
+    public $shippingService;
+
+    protected $router;
+
+    protected $event;
+
+    protected function setEvent($event)
+    {
+        $this->event = $event;
+        return $this;
+    }
+
+    protected function getEvent()
+    {
+        return $this->event;
+    }
+
+    public function getReturnData()
+    {
+        return $this->getEvent()->getReturnData()
+            ? $this->getEvent()->getReturnData()
+            : [];
+    }
+
+    public function setRouter($router)
+    {
+        $this->router = $router;
+        return $this;
+    }
+
+    public function getRouter()
+    {
+        return $this->router;
+    }
+
+    public function setEntityService($entityService)
+    {
+        $this->entityService = $entityService;
+        return $this;
+    }
+
+    public function getEntityService()
+    {
+        return $this->entityService;
+    }
+
+    public function setCartSessionService($cartSessionService)
+    {
+        $this->cartSessionService = $cartSessionService;
+        return $this;
+    }
+
+    public function getCartSessionService()
+    {
+        return $this->cartSessionService;
+    }
+
+    public function setShippingService($shippingService)
+    {
+        $this->shippingService = $shippingService;
+        return $this;
+    }
+
+    public function getShippingService()
+    {
+        return $this->shippingService;
+    }
+
+    public function onCartAddProduct(Event $event)
+    {
+        $this->setEvent($event);
+        $returnData = $this->getReturnData();
+
+        $request = $event->getRequest();
+        $format = $request->get('format', '');
+
+        // todo : check inventory
+
+        $productId = $request->get('id', '');
+        $qty = $request->get('qty', 1);
+        $simpleProductId = $request->get('simple_id', '');
+        if (!$productId) {
+            $productId = $event->get('product_id');
+            $qty = $event->get('qty');
+        }
+
+        $cart = $this->getCartSessionService()
+            ->initCart()
+            ->getCart();
+
+        $cartId = $cart->getId();
+        $customerId = $cart->getCustomer()->getId();
+        $customerEntity = false;
+
+        $cartEntity = $cartId
+            ? $this->getEntityService()->find(EntityConstants::CART, $cartId)
+            : $this->getEntityService()->getInstance(EntityConstants::CART);
+
+        if (!$cartId && !$cartEntity->getCustomer()) {
+
+            $cartEntity->setJson($cart->toJson())
+                ->setCreatedAt(new \DateTime('now'));
+
+            if ($customerId) {
+
+                $customerEntity = $this->getEntityService()
+                    ->find(EntityConstants::CUSTOMER, $customerId);
+
+                $cartEntity->setCustomer($customerEntity);
+            }
+
+            $this->getEntityService()->persist($cartEntity);
+            $cartId = $cartEntity->getId();
+            $cart->setId($cartId);
+        }
+
+        $event->setProductId($productId)
+            ->setSimpleProductId($simpleProductId)
+            ->setQty($qty);
+
+        if ($this->getCartSessionService()->hasProductId($productId)) {
+
+            if ($event->getIsAdd()) {
+
+                $this->getCartSessionService()
+                    ->addProductQty($productId, $qty);
+
+            } else {
+
+                $this->getCartSessionService()
+                    ->setProductQty($productId, $qty);
+
+            }
+
+            // update db
+            if ($cartItem = $cart->findItem('product_id', $productId)) {
+                if ($cartItem->getId()) {
+                    // update row
+
+                    $cartItemEntity = $this->getEntityService()
+                        ->find(EntityConstants::CART_ITEM, $cartItem->getId());
+
+                    $cartItemEntity->setQty($cartItem->getQty());
+
+                    $this->getEntityService()->persist($cartItemEntity);
+
+                } else {
+                    // insert row
+
+                    $cartItemEntity = $this->getEntityService()
+                        ->getInstance(EntityConstants::CART_ITEM);
+
+                    $cartItemEntity->setCart($cartEntity)
+                        ->setSku($cartItem->getSku())
+                        ->setQty($cartItem->getQty())
+                        ->setJson($cartItem->toJson());
+
+                    $this->getEntityService()->persist($cartItemEntity);
+
+                    $cartItem->setId($cartItemEntity->getId());
+                }
+            }
+
+        } else if ($this->getCartSessionService()->hasProductId($simpleProductId)) {
+
+            if ($this->getIsAdd()) {
+
+                $this->getCartSessionService()
+                    ->addProductQty($simpleProductId, $qty);
+
+            } else {
+
+                $this->getCartSessionService()
+                    ->setProductQty($simpleProductId, $qty);
+            }
+
+            // update db
+            if ($cartItem = $cart->findItem('product_id', $simpleProductId)) {
+                if ($cartItem->getId()) {
+                    // update row
+
+                    $cartItemEntity = $this->getEntityService()
+                        ->find(EntityConstants::CART_ITEM, $cartItem->getId());
+
+                    $cartItemEntity->setQty($cartItem->getQty());
+
+                    $this->getEntityService()->persist($cartItemEntity);
+
+                } else {
+                    // insert row
+
+                    $cartItemEntity = $this->getEntityService()
+                        ->getInstance(EntityConstants::CART_ITEM);
+
+                    $cartItemEntity->setCart($cartEntity)
+                        ->setSku($cartItem->getSku())
+                        ->setQty($cartItem->getQty())
+                        ->setJson($cartItem->toJson());
+
+                    $this->getEntityService()->persist($cartItemEntity);
+
+                    $cartItem->setId($cartItemEntity->getId());
+                }
+            }
+
+        } else if ($productId) {
+
+            $product = $this->getEntityService()->find(EntityConstants::PRODUCT, $productId);
+            if (!$product) {
+                throw new NotFoundHttpException("Product not found with ID: '{$simpleProductId}''");
+            }
+
+            $parentOptions = [];
+            if ($simpleProductId) {
+
+                $child = $this->getEntityService()->find(EntityConstants::PRODUCT, $simpleProductId);
+                if (!$child) {
+                    throw new NotFoundHttpException("Child Product not found with ID: '{$simpleProductId}''");
+                }
+
+                $parentOptions['id'] = $product->getId();
+                $parentOptions['sku'] = $product->getSku();
+                $parentOptions['slug'] = $product->getSlug();
+
+                $this->getCartSessionService()
+                    ->addProduct($child, $qty, $parentOptions);
+
+                // insert row
+                $cartItemEntity = $this->getEntityService()
+                    ->getInstance(EntityConstants::CART_ITEM);
+
+                $cartItemEntity->setCart($cartEntity)
+                    ->setSku($child->getSku())
+                    ->setQty($qty)
+                    ->setJson(json_encode($child->getData()));
+
+                $this->getEntityService()->persist($cartItemEntity);
+
+                $cart->findItem('sku', $child->getSku())
+                    ->setId($cartItemEntity->getId());
+
+            } else {
+
+                $this->getCartSessionService()
+                    ->addProduct($product, $qty, $parentOptions);
+
+                // insert row
+                $cartItemEntity = $this->getEntityService()
+                    ->getInstance(EntityConstants::CART_ITEM);
+
+                $cartItemEntity->setCart($cartEntity)
+                    ->setSku($product->getSku())
+                    ->setQty($qty)
+                    ->setJson(json_encode($product->getData()));
+
+                $this->getEntityService()->persist($cartItemEntity);
+
+                $cart->findItem('sku', $product->getSku())
+                    ->setId($cartItemEntity->getId());
+
+            }
+        }
+
+        $cart = $this->getCartSessionService()
+            ->collectShippingMethods()
+            ->collectTotals()
+            ->getCart();
+
+        // update db
+        $cartEntity->setJson($cart->toJson())
+            ->setCreatedAt(new \DateTime('now'));
+
+        if ($customerId && !$cartEntity->getCustomer()) {
+
+            if (!$customerEntity) {
+
+                $customerEntity = $this->getEntityService()
+                    ->find(EntityConstants::CUSTOMER, $customerId);
+
+            }
+
+            $cartEntity->setCustomer($customerEntity);
+        }
+
+        $this->getEntityService()->persist($cartEntity);
+        $cartId = $cartEntity->getId();
+        $cart->setId($cartId);
+
+        $returnData['cart'] = $cart;
+
+        $response = '';
+        switch($format) {
+            case 'json':
+                $response = new JsonResponse($returnData);
+                break;
+            default:
+                $params = [];
+                $route = 'cart_view';
+                $url = $this->getRouter()->generate($route, $params);
+                $response = new RedirectResponse($url);
+                break;
+        }
+
+        $event->setReturnData($returnData);
+        $event->setResponse($response);
+    }
+}

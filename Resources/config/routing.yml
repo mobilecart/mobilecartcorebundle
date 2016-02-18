@@ -1,0 +1,12 @@
+_home:
+    path:  /
+    defaults: { _controller: MobileCartCoreBundle:Frontend/Home:index }
+
+#url_rewrite:
+#    resource: .
+#    type: rewrite
+
+MobileCartCoreBundle:
+    resource: "@MobileCartCoreBundle/Controller/"
+    type:     annotation
+    prefix:   /
