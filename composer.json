@@ -1,5 +1,10 @@
 {
     "name": "mobilecart/corebundle",
+    "autoload": {
+        "psr-0" : {
+            "MobileCart\\CoreBundle" : "src"
+        }
+    },
     "type": "project",
     "description": "E-Commerce Shopping Cart built on Symfony",
     "keywords": ["shopping", "cart", "e-commerce"],
