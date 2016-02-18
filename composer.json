@@ -1,8 +1,8 @@
 {
     "name": "mobilecart/corebundle",
     "autoload": {
-        "psr-0" : {
-            "MobileCart\\CoreBundle" : ""
+        "psr-4" : {
+            "MobileCart\\CoreBundle" : "src/MobileCart/CoreBundle/"
         }
     },
     "type": "project",
