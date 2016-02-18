@@ -8,6 +8,14 @@ Directions:
 
 Install this bundle into Symfony 2.8 (add the bundle to app/AppKernel.php)
 
+$bundles = array(
+
+...
+
+new MobileCart\CoreBundle\MobileCartCoreBundle(),
+
+);
+
 Run some console commands:
 
 For a fresh install of Symfony 2.8:
