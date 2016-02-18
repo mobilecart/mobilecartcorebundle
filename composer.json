@@ -2,7 +2,7 @@
     "name": "mobilecart/corebundle",
     "autoload": {
         "psr-4" : {
-            "MobileCart\\CoreBundle" : ""
+            "MobileCart\\CoreBundle\\" : ""
         }
     },
     "type": "project",
