@@ -152,6 +152,16 @@ class FrontendExtension extends \Twig_Extension
     }
 
     /**
+     * @return string
+     */
+    public function email()
+    {
+        // todo : in the future, look at hostname
+        $layout = 'email';
+        return $this->layout($layout);
+    }
+
+    /**
      * @return mixed
      */
     public function isSpaEnabled()
@@ -162,11 +172,12 @@ class FrontendExtension extends \Twig_Extension
 
     /**
      * @param $tpl
+     * @param $theme
      * @return string
      */
-    public function templatePath($tpl)
+    public function templatePath($tpl, $theme = 'frontend')
     {
-        return $this->getThemeConfig()->getTemplatePath('frontend') . $tpl;
+        return $this->getThemeConfig()->getTemplatePath($theme) . $tpl;
     }
 
     /**
