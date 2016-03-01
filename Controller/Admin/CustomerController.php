@@ -107,6 +107,10 @@ class CustomerController extends Controller
         }
 
         $entity = $this->get('cart.entity')->getInstance($this->objectType);
+        if ($varSet) {
+            $entity->setItemVarSet($varSet);
+        }
+
         $formEvent = new CoreEvent();
         $formEvent->setObjectType($this->objectType)
             ->setEntity($entity)
@@ -198,6 +202,10 @@ class CustomerController extends Controller
         }
 
         $entity = $this->get('cart.entity')->getInstance($this->objectType);
+        if ($varSet) {
+            $entity->setItemVarSet($varSet);
+        }
+
         $formEvent = new CoreEvent();
         $formEvent->setObjectType($this->objectType)
             ->setEntity($entity)

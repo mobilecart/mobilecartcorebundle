@@ -108,6 +108,10 @@ class OrderController extends Controller
         }
 
         $entity = $this->get('cart.entity')->getInstance($this->objectType);
+        if ($varSet) {
+            $entity->setItemVarSet($varSet);
+        }
+
         $formEvent = new CoreEvent();
         $formEvent->setObjectType($this->objectType)
             ->setEntity($entity)
@@ -191,7 +195,21 @@ class OrderController extends Controller
      */
     public function newAction(Request $request)
     {
-        $entity = $this->get('cart.entity')->getInstance($this->objectType);;
+        $varSet = '';
+        if ($varSetId = $request->get('var_set_id', '')) {
+            $varSet = $this->get('cart.entity')->getVarSet($varSetId);
+        } else {
+            $varSets = $this->get('cart.entity')->getVarSets(EntityConstants::ORDER);
+            if ($varSets) {
+                $varSet = $varSets[0];
+            }
+        }
+
+        $entity = $this->get('cart.entity')->getInstance($this->objectType);
+        if ($varSet) {
+            $entity->setItemVarSet($varSet);
+        }
+
         $formEvent = new CoreEvent();
         $formEvent->setObjectType($this->objectType)
             ->setEntity($entity)

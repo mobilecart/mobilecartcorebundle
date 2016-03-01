@@ -108,6 +108,10 @@ class CategoryController extends Controller
         }
 
         $entity = $this->get('cart.entity')->getInstance(EntityConstants::CATEGORY);
+        if ($varSet) {
+            $entity->setItemVarSet($varSet);
+        }
+
         $formEvent = new CoreEvent();
         $formEvent->setObjectType($this->objectType)
             ->setEntity($entity)
@@ -199,6 +203,10 @@ class CategoryController extends Controller
         }
 
         $entity = $this->get('cart.entity')->getInstance($this->objectType);
+        if ($varSet) {
+            $entity->setItemVarSet($varSet);
+        }
+
         $formEvent = new CoreEvent();
         $formEvent->setObjectType($this->objectType)
             ->setEntity($entity)
