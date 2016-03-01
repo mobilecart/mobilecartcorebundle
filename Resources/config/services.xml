@@ -190,47 +190,47 @@
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">category</argument>
-                <argument type="string">cart_admin_category</argument>
+                <argument type="string">cart_admin_category_edit</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">content</argument>
-                <argument type="string">cart_admin_content</argument>
+                <argument type="string">cart_admin_content_edit</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">customer</argument>
-                <argument type="string">cart_admin_customer</argument>
+                <argument type="string">cart_admin_customer_edit</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">discount</argument>
-                <argument type="string">cart_admin_discount</argument>
+                <argument type="string">cart_admin_discount_edit</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">image_var</argument>
-                <argument type="string">cart_admin_image_var</argument>
+                <argument type="string">cart_admin_image_var_edit</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">image_var_option</argument>
-                <argument type="string">cart_admin_item_var_option</argument>
+                <argument type="string">cart_admin_item_var_option_edit</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">item_var_set</argument>
-                <argument type="string">cart_admin_item_var_set</argument>
+                <argument type="string">cart_admin_item_var_set_edit</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">order</argument>
-                <argument type="string">cart_admin_order</argument>
+                <argument type="string">cart_admin_order_edit</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">product</argument>
-                <argument type="string">cart_admin_product</argument>
+                <argument type="string">cart_admin_product_edit</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">shipping_method</argument>
-                <argument type="string">cart_admin_shipping_method</argument>
+                <argument type="string">cart_admin_shipping_method_edit</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">url_rewrite</argument>
-                <argument type="string">cart_admin_url_rewrite</argument>
+                <argument type="string">cart_admin_url_rewrite_edit</argument>
             </call>
         </service>
 
