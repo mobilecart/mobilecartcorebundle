@@ -508,15 +508,18 @@ class FrontendExtension extends \Twig_Extension
      */
     public function renderGridField($objectType, $field, $value)
     {
+        if ($field == 'id' && $this->getThemeConfig()->getAdminEditRoute($objectType)) {
+            $routeId = $this->getThemeConfig()->getAdminEditRoute($objectType);
+            $url = $this->router->generate($routeId, ['id' => $value]);
+            return '<a href="' . $url . '">' . $value . '</a>';
+        }
+
         switch($objectType) {
             case EntityConstants::PRODUCT:
                 switch($field) {
-                    case 'id':
-                        $url = $this->router->generate('cart_admin_product_edit', ['id' => $value]);
-                        return '<a href="' . $url . '">' . $value . '</a>';
-                        break;
                     case 'type':
                         $types = Product::getTypes();
+                        // todo:
                         //$types = $this->getProductService()->getProductTypes();
                         return isset($types[$value]) ? $types[$value] : $value;
                         break;
@@ -525,108 +528,6 @@ class FrontendExtension extends \Twig_Extension
                         break;
                     case 'is_in_stock':
                         return $value ? 'Yes' : 'No';
-                        break;
-                    default:
-                        return $value;
-                        break;
-                }
-                break;
-            case EntityConstants::CATEGORY:
-                switch($field) {
-                    case 'id':
-                        $url = $this->router->generate('cart_admin_category_edit', ['id' => $value]);
-                        return '<a href="' . $url . '">' . $value . '</a>';
-                        break;
-                    default:
-                        return $value;
-                        break;
-                }
-                break;
-            case EntityConstants::CUSTOMER:
-                switch($field) {
-                    case 'id':
-                        $url = $this->router->generate('cart_admin_customer_edit', ['id' => $value]);
-                        return '<a href="' . $url . '">' . $value . '</a>';
-                        break;
-                    default:
-                        return $value;
-                        break;
-                }
-                break;
-            case EntityConstants::ITEM_VAR:
-                switch($field) {
-                    case 'id':
-                        $url = $this->router->generate('cart_admin_item_var_edit', ['id' => $value]);
-                        return '<a href="' . $url . '">' . $value . '</a>';
-                        break;
-                    default:
-                        return $value;
-                        break;
-                }
-                break;
-            case EntityConstants::ITEM_VAR_SET:
-                switch($field) {
-                    case 'id':
-                        $url = $this->router->generate('cart_admin_item_var_set_edit', ['id' => $value]);
-                        return '<a href="' . $url . '">' . $value . '</a>';
-                        break;
-                    default:
-                        return $value;
-                        break;
-                }
-                break;
-            case EntityConstants::ITEM_VAR_OPTION:
-                switch($field) {
-                    case 'id':
-                        $url = $this->router->generate('cart_admin_item_var_option_edit', ['id' => $value]);
-                        return '<a href="' . $url . '">' . $value . '</a>';
-                        break;
-                    default:
-                        return $value;
-                        break;
-                }
-                break;
-            case EntityConstants::ORDER:
-                switch($field) {
-                    case 'id':
-                        $url = $this->router->generate('cart_admin_order_edit', ['id' => $value]);
-                        return '<a href="' . $url . '">' . $value . '</a>';
-                        break;
-                    default:
-                        return $value;
-                        break;
-                }
-                break;
-            case EntityConstants::CONTENT:
-                switch($field) {
-                    case 'id':
-                        $url = $this->router->generate('cart_admin_content_edit', ['id' => $value]);
-                        return '<a href="' . $url . '">' . $value . '</a>';
-                        break;
-                    default:
-                        return $value;
-                        break;
-                }
-                break;
-            case EntityConstants::SHIPPING_METHOD:
-                switch($field) {
-                    case 'id':
-                        if (!$value) {
-                            return $value;
-                        }
-                        $url = $this->router->generate('cart_admin_shipping_method_edit', ['id' => $value]);
-                        return '<a href="' . $url . '">' . $value . '</a>';
-                        break;
-                    default:
-                        return $value;
-                        break;
-                }
-                break;
-            case EntityConstants::DISCOUNT:
-                switch($field) {
-                    case 'id':
-                        $url = $this->router->generate('cart_admin_discount_edit', ['id' => $value]);
-                        return '<a href="' . $url . '">' . $value . '</a>';
                         break;
                     default:
                         return $value;
