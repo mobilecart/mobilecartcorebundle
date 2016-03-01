@@ -420,18 +420,26 @@ class MysqlEntityService
         if ($formData) {
             foreach($formData as $key => $value) {
 
-                if (substr($key, 0, strlen('var_')) != 'var_') {
-                    continue;
+                $pVar = false;
+                $info = [];
+                if (substr($key, 0, strlen('var_')) == 'var_') {
+                    $info = explode('_', $key);
+                    $varId = isset($info[1]) ? $info[1] : 0;
+                    if (!$varId) {
+                        continue;
+                    }
+
+                    /** @var ItemVar $pVar */
+                    $pVar = $this->getRepository(EntityConstants::ITEM_VAR)->find($varId);
+
+                } else {
+
+                    /** @var ItemVar $pVar */
+                    $pVar = $this->getRepository(EntityConstants::ITEM_VAR)->findOneBy([
+                        'code' => $key,
+                    ]);
                 }
 
-                $info = explode('_', $key);
-                $varId = isset($info[1]) ? $info[1] : 0;
-                if (!$varId) {
-                    continue;
-                }
-
-                /** @var ItemVar $pVar */
-                $pVar = $this->getRepository(EntityConstants::ITEM_VAR)->find($varId);
                 if (!$pVar) {
                     continue;
                 }
@@ -442,11 +450,9 @@ class MysqlEntityService
                         break;
                     case EntityConstants::DECIMAL:
                         $pVarValue = $this->getVarValueInstance($objectType, EntityConstants::DECIMAL);
-                        $value = (double) $value;
                         break;
                     case EntityConstants::INT:
                         $pVarValue = $this->getVarValueInstance($objectType, EntityConstants::INT);
-                        $value = (int) $value;
                         break;
                     case EntityConstants::VARCHAR:
                         $pVarValue = $this->getVarValueInstance($objectType, EntityConstants::VARCHAR);
@@ -459,7 +465,8 @@ class MysqlEntityService
                         break;
                 }
 
-                if (count($info) == 3 && $info[2] == 'option') {
+                if (is_array($value) || (count($info) == 3 && $info[2] == 'option')) {
+
                     if (!is_array($value)) {
                         $value = [$value];
                     }
@@ -470,27 +477,62 @@ class MysqlEntityService
 
                     foreach($value as $aVal) {
 
-                        switch($pVar->getDatatype()) {
-                            case EntityConstants::DATETIME:
-                                $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_DATETIME)->find($aVal);
-                                break;
-                            case EntityConstants::DECIMAL:
-                                $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_DECIMAL)->find($aVal);
-                                $value = (double) $value;
-                                break;
-                            case EntityConstants::INT:
-                                $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_INT)->find($aVal);
-                                $value = (int) $value;
-                                break;
-                            case EntityConstants::VARCHAR:
-                                $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_VARCHAR)->find($aVal);
-                                break;
-                            case EntityConstants::TEXT:
-                                $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_TEXT)->find($aVal);
-                                break;
-                            default:
-                                $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_VARCHAR)->find($aVal);
-                                break;
+                        if (is_numeric($aVal)) {
+
+                            switch($pVar->getDatatype()) {
+                                case EntityConstants::DATETIME:
+                                    $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_DATETIME)->find($aVal);
+                                    break;
+                                case EntityConstants::DECIMAL:
+                                    $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_DECIMAL)->find($aVal);
+                                    break;
+                                case EntityConstants::INT:
+                                    $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_INT)->find($aVal);
+                                    break;
+                                case EntityConstants::VARCHAR:
+                                    $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_VARCHAR)->find($aVal);
+                                    break;
+                                case EntityConstants::TEXT:
+                                    $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_TEXT)->find($aVal);
+                                    break;
+                                default:
+                                    $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_VARCHAR)->find($aVal);
+                                    break;
+                            }
+                        } else {
+
+                            switch($pVar->getDatatype()) {
+                                case EntityConstants::DATETIME:
+                                    $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_DATETIME)->findOneBy([
+                                        'value' => $aVal,
+                                    ]);
+                                    break;
+                                case EntityConstants::DECIMAL:
+                                    $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_DECIMAL)->findOneBy([
+                                        'value' => $aVal,
+                                    ]);
+                                    break;
+                                case EntityConstants::INT:
+                                    $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_INT)->findOneBy([
+                                        'value' => $aVal,
+                                    ]);
+                                    break;
+                                case EntityConstants::VARCHAR:
+                                    $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_VARCHAR)->findOneBy([
+                                        'value' => $aVal,
+                                    ]);
+                                    break;
+                                case EntityConstants::TEXT:
+                                    $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_TEXT)->findOneBy([
+                                        'value' => $aVal,
+                                    ]);
+                                    break;
+                                default:
+                                    $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_VARCHAR)->findOneBy([
+                                        'value' => $aVal,
+                                    ]);
+                                    break;
+                            }
                         }
 
                         if (!$varOption) {
@@ -531,6 +573,8 @@ class MysqlEntityService
      */
     public function handleVarValueUpdate($objectType, $entity, array $formData)
     {
+        // todo: handle keys similar to handleVarValueCreate
+
         $em = $this->getDoctrine()->getManager();
         if ($formData) {
             foreach($formData as $key => $value) {
