@@ -444,28 +444,68 @@ class MysqlEntityService
                     continue;
                 }
 
+                $varOption = false;
                 switch($pVar->getDatatype()) {
                     case EntityConstants::DATETIME:
                         $pVarValue = $this->getVarValueInstance($objectType, EntityConstants::DATETIME);
+                        if (!is_array($value)) {
+                            $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_DATETIME)->findOneBy([
+                                'value' => $value,
+                            ]);
+                        }
                         break;
                     case EntityConstants::DECIMAL:
                         $pVarValue = $this->getVarValueInstance($objectType, EntityConstants::DECIMAL);
+                        if (!is_array($value)) {
+                            $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_DECIMAL)->findOneBy([
+                                'value' => $value,
+                            ]);
+                        }
                         break;
                     case EntityConstants::INT:
                         $pVarValue = $this->getVarValueInstance($objectType, EntityConstants::INT);
+                        if (!is_array($value)) {
+                            $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_INT)->findOneBy([
+                                'value' => $value,
+                            ]);
+                        }
                         break;
                     case EntityConstants::VARCHAR:
                         $pVarValue = $this->getVarValueInstance($objectType, EntityConstants::VARCHAR);
+                        if (!is_array($value)) {
+                            $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_VARCHAR)->findOneBy([
+                                'value' => $value,
+                            ]);
+                        }
                         break;
                     case EntityConstants::TEXT:
                         $pVarValue = $this->getVarValueInstance($objectType, EntityConstants::TEXT);
+                        if (!is_array($value)) {
+                            $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_TEXT)->findOneBy([
+                                'value' => $value,
+                            ]);
+                        }
                         break;
                     default:
                         $pVarValue = $this->getVarValueInstance($objectType, EntityConstants::VARCHAR);
+                        if (!is_array($value)) {
+                            $varOption = $this->getRepository(EntityConstants::ITEM_VAR_OPTION_VARCHAR)->findOneBy([
+                                'value' => $value,
+                            ]);
+                        }
                         break;
                 }
 
-                if (is_array($value) || (count($info) == 3 && $info[2] == 'option')) {
+                if ($varOption) {
+
+                    $pVarValue->setItemVarOption($varOption);
+                    $value = $varOption->getValue();
+                    $pVarValue->setParent($entity);
+                    $pVarValue->setItemVar($pVar);
+                    $pVarValue->setValue($value);
+                    $em->persist($pVarValue);
+
+                } else if (is_array($value) || (count($info) == 3 && $info[2] == 'option')) {
 
                     if (!is_array($value)) {
                         $value = [$value];
