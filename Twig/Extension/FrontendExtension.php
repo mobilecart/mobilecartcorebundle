@@ -324,7 +324,7 @@ class FrontendExtension extends \Twig_Extension
      * @param int $max
      * @return array
      */
-    public function image($object, $imageCode, $max = 1)
+    public function image($object, $imageCode = '', $max = 1)
     {
         $images = [];
         if ($allImages = $object->getImages()) {
