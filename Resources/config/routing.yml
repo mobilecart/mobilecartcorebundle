@@ -6,6 +6,16 @@ _home:
 #    resource: .
 #    type: rewrite
 
+login:
+    pattern: /login
+    defaults: { _controller: MobileCartCoreBundle:Security:login }
+
+login_check:
+    pattern: /login_check
+
+logout:
+    path: /logout
+
 MobileCartCoreBundle:
     resource: "@MobileCartCoreBundle/Controller/"
     type:     annotation

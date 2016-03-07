@@ -36,6 +36,11 @@ class FrontendExtension extends \Twig_Extension
     /**
      * @var
      */
+    protected $imageService;
+
+    /**
+     * @var
+     */
     protected $totals = [];
 
     /**
@@ -69,6 +74,7 @@ class FrontendExtension extends \Twig_Extension
     public function getFunctions()
     {
         return [
+            'image' => new \Twig_Function_Method($this, 'image', ['is_safe' => ['html']]),
             'sortable' => new \Twig_Function_Method($this, 'sortable', ['is_safe' => ['html']]),
             'sortDir' => new \Twig_Function_Method($this, 'sortDir', ['is_safe' => ['html']]),
             'theme' => new \Twig_Function_Method($this, 'theme', array('is_safe' => array('html'))),
@@ -310,6 +316,34 @@ class FrontendExtension extends \Twig_Extension
                 return [];
                 break;
         }
+    }
+
+    /**
+     * @param $object
+     * @param $imageCode
+     * @param int $max
+     * @return array
+     */
+    public function image($object, $imageCode, $max = 1)
+    {
+        $images = [];
+        if ($allImages = $object->getImages()) {
+            foreach($allImages as $image) {
+                if ($imageCode) {
+                    if ($image->getCode() == $imageCode) {
+                        $images[] = $image;
+                    }
+                } else {
+                    $images[] = $image;
+                }
+            }
+        }
+
+        if ($max == 1 && isset($images[0])) {
+            return $images[0];
+        }
+
+        return $images;
     }
 
     /**
