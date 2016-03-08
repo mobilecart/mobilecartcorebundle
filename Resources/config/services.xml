@@ -13,7 +13,7 @@
         <parameter key="cart.class.login.failed">MobileCart\CoreBundle\EventListener\Security\LoginFailed</parameter>
         <parameter key="cart.class.auth.token">MobileCart\CoreBundle\Service\GuardTokenAuthService</parameter>
         <parameter key="cart.class.logout">MobileCart\CoreBundle\EventListener\Security\Logout</parameter>
-        <parameter key="cart.class.search.doctrine">MobileCart\CoreBundle\Service\MysqlSearchServiceV2</parameter>
+        <parameter key="cart.class.search.doctrine">MobileCart\CoreBundle\Service\MysqlSearchService</parameter>
         <parameter key="cart.class.currency">MobileCart\CoreBundle\Service\CurrencyService</parameter>
         <parameter key="cart.class.entity">MobileCart\CoreBundle\Service\MysqlEntityService</parameter>
         <parameter key="cart.class.image">MobileCart\CoreBundle\Service\ImageService</parameter>
@@ -321,7 +321,7 @@
         <!-- Tax Service -->
         <service id="cart.tax" lazy="true" class="%cart.class.tax%">
             <call method="setIsTaxEnabled">
-                <argument type="string">0</argument>
+                <argument type="string">1</argument>
             </call>
             <call method="addRate">
                 <argument type="string">USD</argument>
@@ -334,7 +334,7 @@
         <!-- Shipping Service : Rate Collector -->
         <service id="cart.shipping" lazy="true" class="%cart.class.shipping%">
             <call method="setIsShippingEnabled">
-                <argument type="string">0</argument>
+                <argument type="string">1</argument>
             </call>
             <call method="setEventDispatcher">
                 <argument type="service" id="event_dispatcher" />

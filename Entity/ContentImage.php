@@ -53,7 +53,7 @@ class ContentImage
     /**
      * @var string
      *
-     * @ORM\Column(name="size", type="string", length=16)
+     * @ORM\Column(name="size", type="string", length=16, nullable=true)
      */
     private $size;
 

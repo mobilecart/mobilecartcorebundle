@@ -840,4 +840,32 @@ class Content
     {
         return $this->images;
     }
+
+    /**
+     * @param $code
+     * @return string
+     */
+    public function getImage($code)
+    {
+        if ($this->images) {
+            foreach($this->images as $image) {
+                if ($image->getCode() == $code) {
+                    return $image;
+                }
+            }
+        }
+        return '';
+    }
+
+    /**
+     * @param $code
+     * @return mixed
+     */
+    public function getImagePath($code)
+    {
+        if ($image = $this->getImage($code)) {
+            return $image->getPath();
+        }
+        return '';
+    }
 }
