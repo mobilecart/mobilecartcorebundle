@@ -74,6 +74,7 @@ class FrontendExtension extends \Twig_Extension
     public function getFunctions()
     {
         return [
+            'imagePath' => new \Twig_Function_Method($this, 'imagePath', ['is_safe' => ['html']]),
             'sortable' => new \Twig_Function_Method($this, 'sortable', ['is_safe' => ['html']]),
             'sortDir' => new \Twig_Function_Method($this, 'sortDir', ['is_safe' => ['html']]),
             'theme' => new \Twig_Function_Method($this, 'theme', array('is_safe' => array('html'))),
@@ -125,6 +126,23 @@ class FrontendExtension extends \Twig_Extension
     public function getName()
     {
         return 'mobilecart.corebundle.frontend';
+    }
+
+    /**
+     * @param array $objectData
+     * @param $code
+     * @return string
+     */
+    public function imagePath(array $objectData, $code)
+    {
+        if (isset($objectData['images']) && is_array($objectData['images'])) {
+            foreach($objectData['images'] as $imageData) {
+                if ($imageData['code'] == $code) {
+                    return $imageData['path'];
+                }
+            }
+        }
+        return '';
     }
 
     /**
