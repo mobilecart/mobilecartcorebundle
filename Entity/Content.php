@@ -188,6 +188,13 @@ class Content
 
     public function getBaseData()
     {
+        $images = [];
+        if ($imageObjects = $this->getImages()) {
+            foreach($imageObjects as $imageObject) {
+                $images[] = $imageObject->getData();
+            }
+        }
+
         return [
             'id' => $this->getId(),
             'created_at' => $this->getCreatedAt(),
@@ -203,6 +210,7 @@ class Content
             'meta_keywords' => $this->getMetaKeywords(),
             'meta_title' => $this->getMetaTitle(),
             'author' => $this->getAuthor(),
+            'images' => $images,
         ];
     }
 

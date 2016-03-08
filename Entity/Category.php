@@ -447,6 +447,13 @@ class Category
             $parentCategoryId = $this->getParentCategory()->getId();
         }
 
+        $images = [];
+        if ($imageObjects = $this->getImages()) {
+            foreach($imageObjects as $imageObject) {
+                $images[] = $imageObject->getData();
+            }
+        }
+
         return [
             'id' => $this->getId(),
             'parent_category_id' => $parentCategoryId,
@@ -462,6 +469,7 @@ class Category
             'meta_description' => $this->getMetaDescription(),
             'meta_keywords' => $this->getMetaKeywords(),
             'meta_title' => $this->getMetaTitle(),
+            'images' => $images,
         ];
     }
 
