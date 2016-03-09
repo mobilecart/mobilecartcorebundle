@@ -9,6 +9,7 @@
         <parameter key="cart.upload.temp">/tmp</parameter>
         <parameter key="cart.upload.product">./bundles/mobilecartcore/uploads/product/</parameter>
         <parameter key="cart.upload.category">./bundles/mobilecartcore/uploads/category/</parameter>
+        <parameter key="cart.upload.content">./bundles/mobilecartcore/uploads/content/</parameter>
         <parameter key="cart.class.login">MobileCart\CoreBundle\EventListener\Security\Login</parameter>
         <parameter key="cart.class.login.failed">MobileCart\CoreBundle\EventListener\Security\LoginFailed</parameter>
         <parameter key="cart.class.auth.token">MobileCart\CoreBundle\Service\GuardTokenAuthService</parameter>

@@ -3,6 +3,7 @@
 namespace MobileCart\CoreBundle\EventListener\Category;
 
 use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 
 class CategoryInsert
 {
@@ -43,7 +44,7 @@ class CategoryInsert
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
-
+        $request = $event->getRequest();
         $entity = $event->getEntity();
         $formData = $event->getFormData();
 
@@ -53,6 +54,14 @@ class CategoryInsert
             $this->getEntityService()
                 ->handleVarValueCreate($event->getObjectType(), $entity, $formData);
 
+        }
+
+        // update images
+        if ($imageJson = $request->get('images_json', [])) {
+            $images = (array) @ json_decode($imageJson);
+            if ($images) {
+                $this->getEntityService()->updateImages(EntityConstants::CATEGORY_IMAGE, $entity, $images);
+            }
         }
 
         $event->setReturnData($returnData);

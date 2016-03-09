@@ -51,8 +51,10 @@ class EntityConstants
     const CART = 'cart';
     const CART_ITEM = 'cart_item';
     const CATEGORY = 'category';
+    const CATEGORY_IMAGE = 'category_image';
     const CATEGORY_PRODUCT = 'category_product';
     const CONTENT = 'content';
+    const CONTENT_IMAGE = 'content_image';
     const CUSTOMER = 'customer';
     const DISCOUNT = 'discount';
     const ORDER = 'order';
@@ -62,6 +64,7 @@ class EntityConstants
     const ORDER_PAYMENT = 'order_payment';
     const ORDER_REFUND = 'order_refund';
     const PRODUCT = 'product';
+    const PRODUCT_IMAGE = 'product_image';
     const REF_COUNTRY_REGION = 'ref_country_region';
     const SHIPPING_METHOD = 'shipping_method';
     const URL_REWRITE = 'url_rewrite';

@@ -3,6 +3,7 @@
 namespace MobileCart\CoreBundle\EventListener\Category;
 
 use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 
 class CategoryUpdate
 {
@@ -55,13 +56,13 @@ class CategoryUpdate
             // update var values
             $this->getEntityService()
                 ->handleVarValueUpdate($event->getObjectType(), $entity, $formData);
+        }
 
-            // update images
-            if ($imageJson = $request->get('images_json', [])) {
-                $images = (array) @ json_decode($imageJson);
-                if ($images) {
-                    $this->getEntityService()->updateImages($entity, $images);
-                }
+        // update images
+        if ($imageJson = $request->get('images_json', [])) {
+            $images = (array) @ json_decode($imageJson);
+            if ($images) {
+                $this->getEntityService()->updateImages(EntityConstants::CATEGORY_IMAGE, $entity, $images);
             }
         }
 

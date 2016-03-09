@@ -2,6 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Product;
 
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Component\EventDispatcher\Event;
 
 class ProductUpdate
@@ -63,15 +64,14 @@ class ProductUpdate
             // update var values
             $this->getEntityService()
                 ->handleVarValueUpdate($event->getObjectType(), $entity, $formData);
+        }
 
-            /*
-            // update images
-            if ($imageJson = $request->get('images_json', [])) {
-                $images = (array) @ json_decode($imageJson);
-                if ($images) {
-                    $this->getEntityService()->updateImages($entity, $images);
-                }
-            } //*/
+        // update images
+        if ($imageJson = $request->get('images_json', [])) {
+            $images = (array) @ json_decode($imageJson);
+            if ($images) {
+                $this->getEntityService()->updateImages(EntityConstants::PRODUCT_IMAGE, $entity, $images);
+            }
         }
 
         $event->setReturnData($returnData);
