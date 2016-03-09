@@ -104,7 +104,7 @@ class ImageController extends Controller
         $entityService = $this->get('cart.entity');
         $imageService = $this->get('cart.image');
 
-        $dimensions = $imageService->getImageSize($objectType, $imageCode);
+        $dimensions = $imageService->getImageConfig($objectType, $imageCode);
         if (!$dimensions || !isset($dimensions['width']) || !isset($dimensions['height'])) {
 
             return new JsonResponse([
@@ -113,8 +113,7 @@ class ImageController extends Controller
             ], 400);
         }
 
-        $parameter = 'cart.upload.' . $objectType;
-        $uploadPath = $this->container->getParameter($parameter);
+        $uploadPath = $imageService->getImageUploadPath($objectType);
         $savePath = realpath($uploadPath);
         if (!$savePath) {
 

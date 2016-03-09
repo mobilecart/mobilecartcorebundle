@@ -52,7 +52,7 @@ class ProductUpdate
 
         $fulltextData = $entity->getBaseData();
         foreach($fulltextData as $k => $v) {
-            if (is_numeric($fulltextData[$k])) {
+            if (is_numeric($fulltextData[$k]) || is_array($v)) {
                 unset($fulltextData[$k]);
             }
         }

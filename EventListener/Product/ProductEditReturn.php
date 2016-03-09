@@ -84,7 +84,7 @@ class ProductEditReturn
             'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Image:uploader.html.twig',
             'js_template'  => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Image:uploader_js.html.twig',
             'images'       => $product->getImages(),
-            'image_sizes'  => $this->getImageService()->getImageSizes($objectType),
+            'image_sizes'  => $this->getImageService()->getImageConfigs($objectType),
             'upload_query' => "?object_type={$objectType}&object_id={$product->getId()}",
         ];
 

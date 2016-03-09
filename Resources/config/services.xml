@@ -5,11 +5,7 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="cart.url.image.product">http://dev.mobile-cart.local/</parameter>
         <parameter key="cart.upload.temp">/tmp</parameter>
-        <parameter key="cart.upload.product">./bundles/mobilecartcore/uploads/product/</parameter>
-        <parameter key="cart.upload.category">./bundles/mobilecartcore/uploads/category/</parameter>
-        <parameter key="cart.upload.content">./bundles/mobilecartcore/uploads/content/</parameter>
         <parameter key="cart.class.login">MobileCart\CoreBundle\EventListener\Security\Login</parameter>
         <parameter key="cart.class.login.failed">MobileCart\CoreBundle\EventListener\Security\LoginFailed</parameter>
         <parameter key="cart.class.auth.token">MobileCart\CoreBundle\Service\GuardTokenAuthService</parameter>
@@ -252,6 +248,9 @@
             </call>
             <call method="setThemeConfig">
                 <argument type="service" id="cart.theme.config" />
+            </call>
+            <call method="setImageService">
+                <argument type="service" id="cart.image" />
             </call>
         </service>
 
@@ -570,50 +569,80 @@
 
         <!-- Image Service / Manager -->
         <service id="cart.image" lazy="true" class="%cart.class.image%">
-            <call method="setEntityService">
-                <argument type="service" id="cart.entity" />
+            <call method="addImageUploadPath">
+                <argument>product</argument>
+                <argument>./bundles/mobilecartcore/uploads/product/</argument>
             </call>
-            <call method="addImageSize">
+            <call method="addImageUploadPath">
+                <argument>category</argument>
+                <argument>./bundles/mobilecartcore/uploads/category/</argument>
+            </call>
+            <call method="addImageUploadPath">
+                <argument>content</argument>
+                <argument>./bundles/mobilecartcore/uploads/content/</argument>
+            </call>
+            <call method="addImageConfig">
                 <argument>product</argument>
                 <argument>list_grid</argument>
                 <argument>320</argument>
                 <argument>150</argument>
+                <argument>bundles/mobilecartfrontend/images/800x300.gif</argument>
             </call>
-            <call method="addImageSize">
+            <call method="addImageConfig">
                 <argument>product</argument>
                 <argument>list_row</argument>
                 <argument>320</argument>
                 <argument>150</argument>
+                <argument>bundles/mobilecartfrontend/images/320x150.gif</argument>
             </call>
-            <call method="addImageSize">
+            <call method="addImageConfig">
                 <argument>product</argument>
                 <argument>view_jumbo</argument>
                 <argument>800</argument>
                 <argument>300</argument>
+                <argument>bundles/mobilecartfrontend/images/800x300.gif</argument>
             </call>
-            <call method="addImageSize">
+            <call method="addImageConfig">
                 <argument>product</argument>
                 <argument>cart_row</argument>
                 <argument>320</argument>
                 <argument>150</argument>
+                <argument>bundles/mobilecartfrontend/images/320x150.gif</argument>
             </call>
-            <call method="addImageSize">
+            <call method="addImageConfig">
                 <argument>product</argument>
                 <argument>cart_mini</argument>
                 <argument>320</argument>
                 <argument>150</argument>
+                <argument>bundles/mobilecartfrontend/images/320x150.gif</argument>
             </call>
-            <call method="addImageSize">
+            <call method="addImageConfig">
                 <argument>category</argument>
                 <argument>view_jumbo</argument>
                 <argument>800</argument>
                 <argument>300</argument>
+                <argument>bundles/mobilecartfrontend/images/800x300.gif</argument>
             </call>
-            <call method="addImageSize">
+            <call method="addImageConfig">
+                <argument>category</argument>
+                <argument>list_grid</argument>
+                <argument>320</argument>
+                <argument>150</argument>
+                <argument>bundles/mobilecartfrontend/images/800x300.gif</argument>
+            </call>
+            <call method="addImageConfig">
                 <argument>content</argument>
                 <argument>view_jumbo</argument>
                 <argument>800</argument>
                 <argument>300</argument>
+                <argument>bundles/mobilecartfrontend/images/800x300.gif</argument>
+            </call>
+            <call method="addImageConfig">
+                <argument>content</argument>
+                <argument>list_grid</argument>
+                <argument>320</argument>
+                <argument>150</argument>
+                <argument>bundles/mobilecartfrontend/images/800x300.gif</argument>
             </call>
         </service>
 

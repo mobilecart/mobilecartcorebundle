@@ -129,20 +129,30 @@ class FrontendExtension extends \Twig_Extension
     }
 
     /**
-     * @param array $objectData
+     *
+     * @param $objectType
+     * @param $objectData
      * @param $code
      * @return string
      */
-    public function imagePath(array $objectData, $code)
+    public function imagePath($objectType, $objectData, $code)
     {
-        if (isset($objectData['images']) && is_array($objectData['images'])) {
-            foreach($objectData['images'] as $imageData) {
-                if ($imageData['code'] == $code) {
-                    return $imageData['path'];
+        if (is_array($objectData)) {
+            if (isset($objectData['images']) && is_array($objectData['images'])) {
+                foreach($objectData['images'] as $imageData) {
+                    if ($imageData['code'] == $code) {
+                        return $imageData['path'];
+                    }
                 }
             }
+        } elseif (is_object($objectData) && method_exists($objectData, 'getImagePath')) {
+            $path = $objectData->getImagePath($code);
+            if ($path) {
+                return $path;
+            }
         }
-        return '';
+
+        return $this->getImageService()->getDefaultImage($objectType, $code);
     }
 
     /**
@@ -249,6 +259,24 @@ class FrontendExtension extends \Twig_Extension
     public function getCurrencyService()
     {
         return $this->currencyService;
+    }
+
+    /**
+     * @param $imageService
+     * @return $this
+     */
+    public function setImageService($imageService)
+    {
+        $this->imageService = $imageService;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getImageService()
+    {
+        return $this->imageService;
     }
 
     /**

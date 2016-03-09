@@ -18,42 +18,71 @@ class ImageService
     /**
      * @var array
      */
-    protected $imageSizes = [];
+    protected $imageConfigs = [];
 
     /**
-     * @var mixed
+     * @var array
      */
-    protected $entityService;
+    protected $objectImageType = [];
+
+    /**
+     * @var array
+     */
+    protected $uploadPaths = [];
 
     /**
      * @param $objectType
      * @param string $code
      * @param int $width
      * @param int $height
+     * @param string $defaultPath
      * @return $this
      */
-    public function addImageSize($objectType, $code, $width, $height)
+    public function addImageConfig($objectType, $code, $width, $height, $defaultPath = '')
     {
-        if (!isset($this->imageSizes[$objectType])) {
-            $this->imageSizes[$objectType] = [];
+        if (!isset($this->imageConfigs[$objectType])) {
+            $this->imageConfigs[$objectType] = [];
         }
 
-        $this->imageSizes[$objectType][$code] = [
+        $this->imageConfigs[$objectType][$code] = [
             'width'  => $width,
             'height' => $height,
+            'default_path' => $defaultPath,
         ];
 
         return $this;
     }
 
     /**
+     * @param $objectType
+     * @param $relPath
+     * @return $this
+     */
+    public function addImageUploadPath($objectType, $relPath)
+    {
+        $this->uploadPaths[$objectType] = $relPath;
+        return $this;
+    }
+
+    /**
+     * @param $objectType
+     * @return string
+     */
+    public function getImageUploadPath($objectType)
+    {
+        return isset($this->uploadPaths[$objectType])
+            ? $this->uploadPaths[$objectType]
+            : '';
+    }
+
+    /**
      * @param string $objectType
      * @return array
      */
-    public function getImageSizes($objectType)
+    public function getImageConfigs($objectType)
     {
-        return isset($this->imageSizes[$objectType])
-            ? $this->imageSizes[$objectType]
+        return isset($this->imageConfigs[$objectType])
+            ? $this->imageConfigs[$objectType]
             : [];
     }
 
@@ -62,39 +91,24 @@ class ImageService
      * @param string $code
      * @return array
      */
-    public function getImageSize($objectType, $code)
+    public function getImageConfig($objectType, $code)
     {
-        return isset($this->imageSizes[$objectType][$code])
-            ? $this->imageSizes[$objectType][$code]
+        return isset($this->imageConfigs[$objectType][$code])
+            ? $this->imageConfigs[$objectType][$code]
             : [];
     }
 
     /**
-     * @param $entityService
-     * @return $this
+     * @param $objectType
+     * @param $code
+     * @return string
      */
-    public function setEntityService($entityService)
+    public function getDefaultImage($objectType, $code)
     {
-        $this->entityService = $entityService;
-        return $this;
-    }
+        if ($config = $this->getImageConfig($objectType, $code)) {
+            return $config['default_path'];
+        }
 
-    /**
-     * @return mixed
-     */
-    public function getEntityService()
-    {
-        return $this->entityService;
-    }
-
-    /**
-     * @param string $objectType Image Object Key
-     * @param $parentEntity object|int Entity or Entity ID
-     * @param array $images
-     * @return bool
-     */
-    public function updateImages($objectType, $parentEntity, array $images)
-    {
-        return $this->getEntityService()->updateImages($objectType, $parentEntity, $images);
+        return '';
     }
 }
