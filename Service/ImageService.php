@@ -76,6 +76,14 @@ class ImageService
     }
 
     /**
+     * @return array
+     */
+    public function getImageUploadPaths()
+    {
+        return $this->uploadPaths;
+    }
+
+    /**
      * @param string $objectType
      * @return array
      */
