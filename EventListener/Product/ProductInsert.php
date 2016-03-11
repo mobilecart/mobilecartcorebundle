@@ -69,6 +69,21 @@ class ProductInsert
                 ->handleVarValueCreate($event->getObjectType(), $entity, $formData);
         }
 
+        // update categories
+        $postedIds = $request->get('category_ids', []);
+        if ($postedIds) {
+            $postedIds = array_keys($postedIds); // keys from: r[x] = "on"
+            foreach($postedIds as $categoryId) {
+                $categoryProduct = $this->getEntityService()->getInstance(EntityConstants::CATEGORY_PRODUCT);
+                $category = $this->getEntityService()->find(EntityConstants::CATEGORY, $categoryId);
+                if ($category) {
+                    $categoryProduct->setCategory($category);
+                    $categoryProduct->setProduct($entity);
+                    $this->getEntityService()->persist($categoryProduct);
+                }
+            }
+        }
+
         // update images
         if ($imageJson = $request->get('images_json', [])) {
             $images = (array) @ json_decode($imageJson);

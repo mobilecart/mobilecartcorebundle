@@ -66,6 +66,33 @@ class ProductUpdate
                 ->handleVarValueUpdate($event->getObjectType(), $entity, $formData);
         }
 
+        // update categories
+        $categoryIds = $entity->getCategoryIds();
+        $postedIds = $request->get('category_ids', []);
+        $postedIds = array_keys($postedIds); // keys from: r[x] = "on"
+        $removed = array_diff($categoryIds, $postedIds);
+        $added = array_diff($postedIds, $categoryIds);
+
+        if ($removed) {
+            foreach($entity->getCategoryProducts() as $categoryProduct) {
+                if (in_array($categoryProduct->getCategory()->getId(), $removed)) {
+                    $this->getEntityService()->remove($categoryProduct);
+                }
+            }
+        }
+
+        if ($added) {
+            foreach($added as $categoryId) {
+                $categoryProduct = $this->getEntityService()->getInstance(EntityConstants::CATEGORY_PRODUCT);
+                $category = $this->getEntityService()->find(EntityConstants::CATEGORY, $categoryId);
+                if ($category) {
+                    $categoryProduct->setCategory($category);
+                    $categoryProduct->setProduct($entity);
+                    $this->getEntityService()->persist($categoryProduct);
+                }
+            }
+        }
+
         // update images
         if ($imageJson = $request->get('images_json', [])) {
             $images = (array) @ json_decode($imageJson);

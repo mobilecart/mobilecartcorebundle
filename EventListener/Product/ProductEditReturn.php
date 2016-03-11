@@ -94,7 +94,13 @@ class ProductEditReturn
         if ($productCats) {
             foreach($productCats as $productCat) {
                 $category = $productCat->getCategory();
-                $categories[] = $category;
+                $categoryData = $category->getBaseData();
+                foreach($categoryData as $k => $v) {
+                    if (is_array($v)) {
+                        unset($categoryData[$k]);
+                    }
+                }
+                $categories[] = $categoryData;
                 $categoryIds[] = $category->getId();
             }
         }
