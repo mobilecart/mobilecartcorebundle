@@ -24,7 +24,7 @@ $ composer require doctrine/dbal:2.4.*
 
 $ composer require doctrine/orm:2.4.*
 
-Now, we can install Mobile Cart and the Frontend and Admin themes
+Now, we can install Mobile Cart
 
 $ composer require mobilecart/corebundle:dev-master
 
@@ -53,6 +53,8 @@ $ cp vendor/mobilecart/corebundle/Resources/config/routing.yml ./app/config/
 $ ./app/console cart:create:adminuser admin@fake.com passw0rd
 
 $ ./app/console cart:create:customer customer@fake.com passw0rd
+
+Next, we can install the Admin and Frontend themes
 
 $ composer require mobilecart/adminbundle:dev-master
 
