@@ -14,3 +14,6 @@
 * ensure the service architecture is good enough to accommodate all types of bundles
 * ensure a few payment gateway bundles are released
 * ensure some shipping service bundles are released
+* possibly move Route annotations into routing.yml
+* possibly change services.xml to services.yaml
+* possibly change Injection in services.xml to use constructors instead of setters, but probably keep setters available to other Bundles
