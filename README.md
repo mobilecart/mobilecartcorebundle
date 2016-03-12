@@ -14,7 +14,9 @@ https://github.com/mobilecart/mobilecartfrontendbundle
 
 Directions:
 
-First step: remove Doctrine 2.5.x and install Doctrine 2.4.x
+After a fresh install of Symfony 2.8:
+
+First step is to remove Doctrine 2.5.x and install Doctrine 2.4.x (see the notes at the bottom of the README)
 
 $ composer require doctrine/common:2.4.*
 
@@ -37,8 +39,6 @@ new MobileCart\CoreBundle\MobileCartCoreBundle(),
 );
 
 Run some console commands:
-
-For a fresh install of Symfony 2.8:
 
 $ ./app/console doctrine:schema:create
 
