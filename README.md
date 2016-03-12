@@ -76,6 +76,8 @@ $ ./app/console assets:install --symlink
 
 ...
 
-Note: if you receive a MySQL error which looks like: "ORDER BY clause is not in SELECT list, references column X which is not in SELECT list; this is incompatible with DISTINCT" .. , it is because Doctrine 2.5.x does not yet handle this edge case; specific to MySQL 5.7
+Note: if you receive a MySQL error which looks like: "ORDER BY clause is not in SELECT list,
+references column X which is not in SELECT list; this is incompatible with DISTINCT" .. ,
+it is because the Paginator in Doctrine 2.5.x does not yet handle this "bug" which is specific to MySQL 5.7
 
 
