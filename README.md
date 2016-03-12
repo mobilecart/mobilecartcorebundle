@@ -14,6 +14,20 @@ https://github.com/mobilecart/mobilecartfrontendbundle
 
 Directions:
 
+First step: remove Doctrine 2.5.x and install Doctrine 2.4.x
+
+$ composer require doctrine/common:2.4.*
+
+$ composer require doctrine/dbal:2.4.*
+
+$ composer require doctrine/orm:2.4.*
+
+$ composer require mobilecart/corebundle:dev-master
+
+$ composer require mobilecart/adminbundle:dev-master
+
+$ composer require mobilecart/frontendbundle:dev-master
+
 Install this bundle into Symfony 2.8 (add the bundle to app/AppKernel.php)
 
 $bundles = array(
