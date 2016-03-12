@@ -5,7 +5,7 @@
             "MobileCart\\CoreBundle\\" : ""
         }
     },
-    "type": "project",
+    "type": "symfony-bundle",
     "description": "E-Commerce Shopping Cart built on Symfony",
     "keywords": ["shopping", "cart", "e-commerce"],
     "homepage": "http://mobilecart.io",
@@ -18,6 +18,9 @@
     ],
     "require": {
         "php": ">=5.5.24",
-        "symfony/framework-bundle": "~2.8"
+        "symfony/framework-bundle": "~2.8",
+        "doctrine/common": "2.4.*",
+        "doctrine/dbal": "2.4.*",
+        "doctrine/orm": "2.4.*"
     }
 }
