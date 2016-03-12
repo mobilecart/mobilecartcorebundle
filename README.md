@@ -22,6 +22,8 @@ $ composer require doctrine/dbal:2.4.*
 
 $ composer require doctrine/orm:2.4.*
 
+Now, we can install Mobile Cart and the Frontend and Admin themes
+
 $ composer require mobilecart/corebundle:dev-master
 
 Install this bundle into Symfony 2.8 (add the bundle to app/AppKernel.php)
