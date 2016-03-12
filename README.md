@@ -63,6 +63,7 @@ $bundles = array(
 ...
 
 new MobileCart\CoreBundle\MobileCartAdminBundle(),
+
 new MobileCart\CoreBundle\MobileCartFrontendBundle(),
 
 );
