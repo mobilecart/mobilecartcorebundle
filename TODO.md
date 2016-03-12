@@ -1,7 +1,7 @@
 # From Alpha to Beta:
 
 * better Mass Import functions
-* refactor Entity EAV update to support variant codes, how EAV insert does
+* refactor Entity EAV update to support variant codes, finish how EAV insert does
 * look at refactoring EAV form fields to use variant codes instead of var_X input names
 * some Unit Tests
 * finish Discount handling and Admin editing for Discounts
