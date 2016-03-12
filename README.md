@@ -27,6 +27,7 @@ $ composer require mobilecart/corebundle:dev-master
 Install this bundle into Symfony 2.8 (add the bundle to app/AppKernel.php)
 
 $bundles = array(
+
 ...
 
 new MobileCart\CoreBundle\MobileCartCoreBundle(),
@@ -58,6 +59,7 @@ $ composer require mobilecart/frontendbundle:dev-master
 Install these bundles into Symfony 2.8 (add the bundle to app/AppKernel.php)
 
 $bundles = array(
+
 ...
 
 new MobileCart\CoreBundle\MobileCartAdminBundle(),
