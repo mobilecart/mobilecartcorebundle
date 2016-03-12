@@ -24,14 +24,9 @@ $ composer require doctrine/orm:2.4.*
 
 $ composer require mobilecart/corebundle:dev-master
 
-$ composer require mobilecart/adminbundle:dev-master
-
-$ composer require mobilecart/frontendbundle:dev-master
-
 Install this bundle into Symfony 2.8 (add the bundle to app/AppKernel.php)
 
 $bundles = array(
-
 ...
 
 new MobileCart\CoreBundle\MobileCartCoreBundle(),
@@ -42,17 +37,35 @@ Run some console commands:
 
 For a fresh install of Symfony 2.8:
 
-./app/console doctrine:schema:drop --force
+$ ./app/console doctrine:schema:create
 
-./app/console doctrine:schema:create
+$ ./app/console cart:init:itemvarsets
 
-./app/console cart:init:itemvarsets
+$ ./app/console cart:ref:regions
 
-./app/console cart:ref:regions
+$ cp vendor/mobilecart/corebundle/Resources/config/security.yml ./app/config/
 
-./app/console cart:create:adminuser admin@fake.com passw0rd
+$ cp vendor/mobilecart/corebundle/Resources/config/routing.yml ./app/config/
 
-./app/console cart:create:customer customer@fake.com passw0rd
+$ ./app/console cart:create:adminuser admin@fake.com passw0rd
+
+$ ./app/console cart:create:customer customer@fake.com passw0rd
+
+$ composer require mobilecart/adminbundle:dev-master
+
+$ composer require mobilecart/frontendbundle:dev-master
+
+Install these bundles into Symfony 2.8 (add the bundle to app/AppKernel.php)
+
+$bundles = array(
+...
+
+new MobileCart\CoreBundle\MobileCartAdminBundle(),
+new MobileCart\CoreBundle\MobileCartFrontendBundle(),
+
+);
+
+$ ./app/console assets:install --symlink
 
 ...
 
