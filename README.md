@@ -18,11 +18,11 @@ After a fresh install of Symfony 2.8:
 
 First step is to remove Doctrine 2.5.x and install Doctrine 2.4.x (see the notes at the bottom of the README)
 
+$ composer require doctrine/orm:2.4.*
+
 $ composer require doctrine/common:2.4.*
 
 $ composer require doctrine/dbal:2.4.*
-
-$ composer require doctrine/orm:2.4.*
 
 Now, we can install Mobile Cart
 
