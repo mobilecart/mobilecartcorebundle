@@ -7,6 +7,8 @@
 * finish Discount handling and Admin editing for Discounts
 * release DemoBundle for installing a Demo Store, and a better Frontend theme
 * ensure the service architecture is good enough to accommodate all types of bundles
+* finish documentation
+* admin dashboard
 
 # From Beta to Release Candidate
 

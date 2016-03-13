@@ -103,6 +103,26 @@
             </call>
         </service>
 
+        <!-- Dashboard Listeners -->
+        <service id="cart.listener.dashboard.notifications" lazy="true" class="MobileCart\CoreBundle\EventListener\Dashboard\DashboardNotifications">
+            <tag name="kernel.event_listener" event="dashboard.view.return" method="onDashboardViewReturn" priority="60" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+        <service id="cart.listener.dashboard.view.return" lazy="true" class="MobileCart\CoreBundle\EventListener\Dashboard\DashboardViewReturn">
+            <tag name="kernel.event_listener" event="dashboard.view.return" method="onDashboardViewReturn" priority="10" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+
         <!-- Login Listener -->
         <service id="cart.login" lazy="true" class="%cart.class.login%">
             <argument type="service" id="security.http_utils" />
@@ -1846,6 +1866,83 @@
         </service>
         <service id="cart.listener.item_var_set.admin.form" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSet\ItemVarSetAdminForm">
             <tag name="kernel.event_listener" event="item_var_set.admin.form" method="onItemVarSetAdminForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+        </service>
+
+        <!-- ItemVarSetVar -->
+        <service id="cart.listener.item_var_set_var.search" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSetVar\ItemVarSetVarSearch">
+            <tag name="kernel.event_listener" event="item_var_set_var.search" method="onItemVarSetVarSearch" priority="50" />
+        </service>
+        <service id="cart.listener.item_var_set_var.list" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSetVar\ItemVarSetVarList">
+            <tag name="kernel.event_listener" event="item_var_set_var.list" method="onItemVarSetVarList" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.item_var_set_var.edit.return" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSetVar\ItemVarSetVarEditReturn">
+            <tag name="kernel.event_listener" event="item_var_set_var.edit.return" method="onItemVarSetVarEditReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.item_var_set_var.new.return" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSetVar\ItemVarSetVarNewReturn">
+            <tag name="kernel.event_listener" event="item_var_set_var.new.return" method="onItemVarSetVarNewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.item_var_set_var.create.return" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSetVar\ItemVarSetVarCreateReturn">
+            <tag name="kernel.event_listener" event="item_var_set_var.create.return" method="onItemVarSetVarCreateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var_set_var.update.return" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSetVar\ItemVarSetVarUpdateReturn">
+            <tag name="kernel.event_listener" event="item_var_set_var.update.return" method="onItemVarSetVarUpdateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var_set_var.update" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSetVar\ItemVarSetVarUpdate">
+            <tag name="kernel.event_listener" event="item_var_set_var.update" method="onItemVarSetVarUpdate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var_set_var.insert" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSetVar\ItemVarSetVarInsert">
+            <tag name="kernel.event_listener" event="item_var_set_var.insert" method="onItemVarSetVarInsert" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var_set_var.delete" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSetVar\ItemVarSetVarDelete">
+            <tag name="kernel.event_listener" event="item_var_set_var.delete" method="onItemVarSetVarDelete" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.item_var_set_var.admin.form" lazy="true" class="MobileCart\CoreBundle\EventListener\ItemVarSetVar\ItemVarSetVarAdminForm">
+            <tag name="kernel.event_listener" event="item_var_set_var.admin.form" method="onItemVarSetVarAdminForm" priority="50" />
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>

@@ -14,6 +14,7 @@ namespace MobileCart\CoreBundle\Event;
 final class CoreEvents
 {
     const HOME_VIEW_RETURN = 'home.view.return';
+    const DASHBOARD_VIEW_RETURN = 'dashboard.view.return';
 
     const CART_ADD_PRODUCT = 'cart.add.product';
     const CART_ADD_SHIPMENT = 'cart.add.shipment';
@@ -152,6 +153,18 @@ final class CoreEvents
     const ITEM_VAR_SET_CREATE_RETURN = 'item_var_set.create.return';
     const ITEM_VAR_SET_UPDATE_RETURN = 'item_var_set.update.return';
     const ITEM_VAR_SET_ADMIN_FORM = 'item_var_set.admin.form';
+
+    const ITEM_VAR_SET_VAR_LIST = 'item_var_set_var.list';
+    const ITEM_VAR_SET_VAR_SEARCH = 'item_var_set_var.search';
+    const ITEM_VAR_SET_VAR_UPDATE = 'item_var_set_var.update';
+    const ITEM_VAR_SET_VAR_INSERT = 'item_var_set_var.insert';
+    const ITEM_VAR_SET_VAR_DELETE = 'item_var_set_var.delete';
+    const ITEM_VAR_SET_VAR_SAVE = 'item_var_set_var.save';
+    const ITEM_VAR_SET_VAR_EDIT_RETURN = 'item_var_set_var.edit.return';
+    const ITEM_VAR_SET_VAR_NEW_RETURN = 'item_var_set_var.new.return';
+    const ITEM_VAR_SET_VAR_CREATE_RETURN = 'item_var_set_var.create.return';
+    const ITEM_VAR_SET_VAR_UPDATE_RETURN = 'item_var_set_var.update.return';
+    const ITEM_VAR_SET_VAR_ADMIN_FORM = 'item_var_set_var.admin.form';
 
     const ORDER_LIST = 'order.list';
     const ORDER_SEARCH = 'order.search';
