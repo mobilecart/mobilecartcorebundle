@@ -168,48 +168,49 @@ class CustomerAdminForm
         ];
 
         $customFields = [];
-        $varValues = $entity->getVarValues();
         $varSet = $entity->getItemVarSet();
-        if ($varValues && $varSet) {
+        $vars = $varSet
+            ? $varSet->getItemVars()
+            : [];
+        $varValues = $entity->getVarValues();
 
-            $vars = $varSet->getItemVars();
-            if ($vars) {
-                foreach($vars as $var) {
+        if ($varSet && $vars) {
 
-                    switch($var->getFormInput()) {
-                        case 'select':
-                        case 'multiselect':
-                            $name = 'var_' . $var->getId() . '_option';
-                            $options = $var->getItemVarOptions();
-                            $choices = [];
-                            if ($options) {
-                                foreach($options as $option) {
-                                    $choices[$option->getId()] = $option->getValue();
-                                }
+            foreach($vars as $var) {
+
+                $name = $var->getCode();
+
+                switch($var->getFormInput()) {
+                    case 'select':
+                    case 'multiselect':
+                        $options = $var->getItemVarOptions();
+                        $choices = [];
+                        if ($options) {
+                            foreach($options as $option) {
+                                $choices[$option->getValue()] = $option->getValue();
                             }
+                        }
 
-                            $form->add($name, 'choice', [
-                                'mapped'    => false,
-                                'choices'   => $choices,
-                                'required'  => $var->getIsRequired(),
-                                'label'     => $var->getName(),
-                                'multiple'  => ($var->getFormInput() == 'multiselect'),
-                            ]);
+                        $form->add($name, 'choice', [
+                            'mapped'    => false,
+                            'choices'   => $choices,
+                            'required'  => $var->getIsRequired(),
+                            'label'     => $var->getName(),
+                            'multiple'  => ($var->getFormInput() == 'multiselect'),
+                        ]);
 
-                            $customFields[] = $name;
+                        $customFields[] = $name;
 
-                            break;
-                        default:
-                            $name = 'var_' . $var->getId();
-                            $form->add($name, 'text', [
-                                'mapped' => false,
-                                'label'  => $var->getName(),
-                            ]);
+                        break;
+                    default:
+                        $form->add($name, 'text', [
+                            'mapped' => false,
+                            'label'  => $var->getName(),
+                        ]);
 
-                            $customFields[] = $name;
+                        $customFields[] = $name;
 
-                            break;
-                    }
+                        break;
                 }
             }
 
@@ -218,14 +219,11 @@ class CustomerAdminForm
                 $objectVars = [];
                 foreach($varValues as $varValue) {
                     $var = $varValue->getItemVar();
-                    $name = 'var_' . $var->getId();
-                    $isMultiple = ($var->getFormInput() == 'multiselect');
-                    if ($isMultiple) {
-                        $name .= '_option';
-                    }
+                    $name = $var->getCode();
+                    $isMultiple = ($var->getFormInput() == EntityConstants::INPUT_MULTISELECT);
 
                     $value = ($varValue->getItemVarOption())
-                        ? $varValue->getItemVarOption()->getId()
+                        ? $varValue->getItemVarOption()->getValue()
                         : $varValue->getValue();
 
                     if (isset($objectVars[$name])) {
@@ -256,7 +254,6 @@ class CustomerAdminForm
                 'id' => 'custom',
                 'fields' => $customFields,
             ];
-
         }
 
         $returnData['country_regions'] = $this->getCartService()->getCountryRegions();

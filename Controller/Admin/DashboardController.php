@@ -15,9 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use MobileCart\CoreBundle\Entity\Content;
-use MobileCart\CoreBundle\Form\ContentType;
+use MobileCart\CoreBundle\Event\CoreEvents;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Content controller.
@@ -33,15 +32,15 @@ class DashboardController extends Controller
      * @Route("/", name="cart_admin_dashboard")
      * @Method("GET")
      */
-    public function indexAction()
+    public function indexAction(Request $request)
     {
-        $returnData = [];
+        $event = new CoreEvent();
+        $event->setRequest($request);
 
-        // todo : observer
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::DASHBOARD_VIEW_RETURN, $event);
 
-        $tplPath = $this->get('cart.theme')->getTemplatePath('admin');
-        $view = $tplPath . 'Dashboard:index.html.twig';
-        return $this->render($view, $returnData);
+        return $event->getResponse();
     }
 
 }

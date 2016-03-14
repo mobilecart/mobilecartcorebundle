@@ -81,6 +81,11 @@ class ItemVarOptionList
                 'sort' => 1,
             ],
             [
+                'key' => 'item_var_name',
+                'label' => 'Variant',
+                'sort' => 1,
+            ],
+            [
                 'key' => 'value',
                 'label' => 'Value',
                 'sort' => 1,

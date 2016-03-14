@@ -4,6 +4,7 @@ namespace MobileCart\CoreBundle\EventListener\Content;
 
 use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\Form\ContentType;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 
 class ContentAdminForm
 {
@@ -94,6 +95,95 @@ class ContentAdminForm
                 ]
             ],
         ];
+
+        $customFields = [];
+        $varSet = $entity->getItemVarSet();
+        $vars = $varSet
+            ? $varSet->getItemVars()
+            : [];
+        $varValues = $entity->getVarValues();
+
+        if ($varSet && $vars) {
+
+            foreach($vars as $var) {
+
+                $name = $var->getCode();
+
+                switch($var->getFormInput()) {
+                    case 'select':
+                    case 'multiselect':
+                        $options = $var->getItemVarOptions();
+                        $choices = [];
+                        if ($options) {
+                            foreach($options as $option) {
+                                $choices[$option->getValue()] = $option->getValue();
+                            }
+                        }
+
+                        $form->add($name, 'choice', [
+                            'mapped'    => false,
+                            'choices'   => $choices,
+                            'required'  => $var->getIsRequired(),
+                            'label'     => $var->getName(),
+                            'multiple'  => ($var->getFormInput() == 'multiselect'),
+                        ]);
+
+                        $customFields[] = $name;
+
+                        break;
+                    default:
+                        $form->add($name, 'text', [
+                            'mapped' => false,
+                            'label'  => $var->getName(),
+                        ]);
+
+                        $customFields[] = $name;
+
+                        break;
+                }
+            }
+
+            if ($entity->getId()) {
+
+                $objectVars = [];
+                foreach($varValues as $varValue) {
+                    $var = $varValue->getItemVar();
+                    $name = $var->getCode();
+                    $isMultiple = ($var->getFormInput() == EntityConstants::INPUT_MULTISELECT);
+
+                    $value = ($varValue->getItemVarOption())
+                        ? $varValue->getItemVarOption()->getValue()
+                        : $varValue->getValue();
+
+                    if (isset($objectVars[$name])) {
+                        if ($isMultiple) {
+                            $objectVars[$name]['value'][] = $value;
+                        }
+                    } else {
+                        $value = $isMultiple ? [$value] : $value;
+                        $objectVars[$name] = [
+                            //'var' => $var,
+                            'value' => $value,
+                        ];
+                    }
+                }
+
+                foreach($objectVars as $name => $objectData) {
+                    //$var = $objectData['var'];
+                    $value = $objectData['value'];
+                    $form->get($name)->setData($value);
+                }
+            }
+        }
+
+        if ($customFields) {
+
+            $formSections['custom'] = [
+                'label' => 'Custom',
+                'id' => 'custom',
+                'fields' => $customFields,
+            ];
+        }
 
         $returnData['form_sections'] = $formSections;
         $returnData['form'] = $form;

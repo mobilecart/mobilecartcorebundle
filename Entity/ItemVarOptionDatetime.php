@@ -170,7 +170,8 @@ class ItemVarOptionDatetime
         return [
             'id' => $this->getId(),
             'old_id' => $this->getOldId(),
-            //'item_var' => $this->getItemVar()->getBaseData(),
+            'item_var_id' => $this->getItemVar()->getId(),
+            'item_var_name' => $this->getItemVar()->getName(),
             'value' => $this->getValue(),
             'url_value' => $this->getUrlValue(),
             'is_in_stock' => $this->getIsInStock(),

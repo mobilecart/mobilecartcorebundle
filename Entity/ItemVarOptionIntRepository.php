@@ -29,6 +29,7 @@ class ItemVarOptionIntRepository
     {
         return [
             'id' => 'ID',
+            'item_var_id' => 'Variant',
             'value' => 'Value',
             'is_in_stock' => 'Is In Stock',
             'additional_price' => 'Addt\'l Price'
@@ -45,6 +46,11 @@ class ItemVarOptionIntRepository
                 'code'  => 'id',
                 'label' => 'ID',
                 'type'  => 'number',
+            ),
+            array(
+                'code' => 'item_var_id',
+                'label' => 'Variant',
+                'type' => 'number',
             ),
             array(
                 'code'  => 'value',

@@ -24,7 +24,12 @@ class ItemVarType extends AbstractType
                     new NotBlank(),
                 ],
             ])
-            ->add('url_token')
+            ->add('url_token', 'text', [
+                'required' => 1,
+                'constraints' => [
+                    new NotBlank(),
+                ],
+            ])
             ->add('datatype', 'choice', ['choices' => ItemVar::$types])
             ->add('form_input', 'choice', ['choices' => ItemVar::$formInputs])
             ->add('is_required')

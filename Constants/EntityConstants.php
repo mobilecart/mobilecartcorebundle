@@ -46,6 +46,21 @@ class EntityConstants
         ];
     }
 
+    // Form inputs
+    const INPUT_TEXT = 'text';
+    const INPUT_NUMBER = 'number';
+    const INPUT_DATE = 'date';
+    const INPUT_SELECT = 'select';
+    const INPUT_MULTISELECT = 'multiselect';
+
+    static $formInputs = [
+        self::INPUT_TEXT => 'Text',
+        self::INPUT_NUMBER => 'Number',
+        self::INPUT_DATE => 'Date',
+        self::INPUT_SELECT => 'Select',
+        self::INPUT_MULTISELECT => 'Multiselect',
+    ];
+
     // Parent entities
     const ADMIN_USER = 'admin_user';
     const CART = 'cart';

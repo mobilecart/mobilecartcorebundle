@@ -136,7 +136,7 @@ class ItemVarOptionController extends Controller
     {
         $this->initObjectType($request->get('datatype', ''));
 
-        $entity = $this->get('cart.entity')->getInstance(EntityConstants::ITEM_VAR_OPTION);
+        $entity = $this->get('cart.entity')->getVarOptionInstance($this->dataType);
         $formEvent = new CoreEvent();
         $formEvent->setObjectType($this->objectType)
             ->setEntity($entity)
