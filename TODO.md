@@ -1,14 +1,15 @@
 # From Alpha to Beta:
 
 * better Mass Import and Export functions
-* refactor Entity EAV update to support variant codes, finish how EAV insert does
-* look at refactoring EAV form fields to use variant codes instead of var_X input names
 * some Unit Tests
 * finish Discount handling and Admin editing for Discounts
 * release DemoBundle for installing a Demo Store, and a better Frontend theme
 * ensure the service architecture is good enough to accommodate all types of bundles
 * finish documentation
+* finish order creation, checkout events
 * admin dashboard
+* move choice filters in admin
+* change repository search field to be an array instead of a single value
 
 # From Beta to Release Candidate
 

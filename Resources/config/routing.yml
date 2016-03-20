@@ -6,7 +6,7 @@ _home:
 #    resource: .
 #    type: rewrite
 
-login:
+login_route:
     pattern: /login
     defaults: { _controller: MobileCartCoreBundle:Security:login }
 

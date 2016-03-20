@@ -50,6 +50,11 @@ EOF
 
         // map header row to column number
 
+        // todo : configure key lookup, maybe use event for this
+        // todo : switch on object type
+        // todo : handle key with configurable products: child_skus . since order matters, the logic can store values until all are found
+
+
         // loop on rows
 
             // call persist, handle exception
