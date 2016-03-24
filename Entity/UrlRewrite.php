@@ -64,6 +64,11 @@ class UrlRewrite
      */
     private $redirect_url;
 
+    public function getObjectTypeName()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::URL_REWRITE;
+    }
+
     /**
      * @param $key
      * @param $value

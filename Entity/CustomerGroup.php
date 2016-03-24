@@ -55,6 +55,8 @@ class CustomerGroup
         $this->customers = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
+
+
     /**
      * Get id
      *

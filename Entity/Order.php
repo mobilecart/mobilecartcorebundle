@@ -409,6 +409,11 @@ class Order
         return $this->id;
     }
 
+    public function getObjectTypeName()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::ORDER;
+    }
+
     /**
      * Lazy-loading getter
      *  ideal for usage in the View layer

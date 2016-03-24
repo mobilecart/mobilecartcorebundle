@@ -379,6 +379,11 @@ class Product
         return $this->id;
     }
 
+    public function getObjectTypeName()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::PRODUCT;
+    }
+
     /**
      * @param $key
      * @param $value

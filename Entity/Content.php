@@ -186,6 +186,11 @@ class Content
         return $this->id;
     }
 
+    public function getObjectTypeName()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::CONTENT;
+    }
+
     public function getBaseData()
     {
         $images = [];

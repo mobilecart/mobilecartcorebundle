@@ -112,6 +112,11 @@ class ContentImage
         return $this->id;
     }
 
+    public function getObjectTypeName()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::CONTENT_IMAGE;
+    }
+
     /**
      * @param $key
      * @param $value

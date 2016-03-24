@@ -71,6 +71,11 @@ class Cart
         $this->cart_items = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
+    public function getObjectTypeName()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::CART;
+    }
+
     /**
      * Get id
      *

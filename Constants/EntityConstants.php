@@ -71,6 +71,7 @@ class EntityConstants
     const CONTENT = 'content';
     const CONTENT_IMAGE = 'content_image';
     const CUSTOMER = 'customer';
+    const CUSTOMER_GROUP = 'customer_group';
     const DISCOUNT = 'discount';
     const ORDER = 'order';
     const ORDER_ITEM = 'order_item';

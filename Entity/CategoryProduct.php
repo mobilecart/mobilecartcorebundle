@@ -58,6 +58,11 @@ class CategoryProduct
         return $this->id;
     }
 
+    public function getObjectTypeName()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::CATEGORY_PRODUCT;
+    }
+
     /**
      * Set sort_order
      *

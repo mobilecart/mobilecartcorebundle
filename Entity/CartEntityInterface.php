@@ -19,6 +19,11 @@ interface CartEntityInterface
     public function getId();
 
     /**
+     * @return mixed
+     */
+    public function getObjectTypeName();
+
+    /**
      * @param $key
      * @param $value
      * @return $this

@@ -86,6 +86,11 @@ class ItemVarSetVar
         return $this->id;
     }
 
+    public function getObjectTypeName()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::ITEM_VAR_SET_VAR;
+    }
+
     /**
      * @param $key
      * @param $value

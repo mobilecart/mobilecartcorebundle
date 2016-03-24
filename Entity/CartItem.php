@@ -68,6 +68,11 @@ class CartItem
         return $this->id;
     }
 
+    public function getObjectTypeName()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::CART_ITEM;
+    }
+
     /**
      * @param Cart $cart
      * @return $this

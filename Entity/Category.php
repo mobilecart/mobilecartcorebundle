@@ -199,6 +199,11 @@ class Category
         return $this->id;
     }
 
+    public function getObjectTypeName()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::CATEGORY;
+    }
+
     /**
      * @param $key
      * @param $value

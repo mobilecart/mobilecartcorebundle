@@ -112,6 +112,11 @@ class ProductImage
         return $this->id;
     }
 
+    public function getObjectTypeName()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::PRODUCT_IMAGE;
+    }
+
     /**
      * @param $key
      * @param $value

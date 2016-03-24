@@ -109,6 +109,11 @@ class ShippingMethod
         return $this->id;
     }
 
+    public function getObjectTypeName()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::SHIPPING_METHOD;
+    }
+
     /**
      * @param $id
      * @return $this

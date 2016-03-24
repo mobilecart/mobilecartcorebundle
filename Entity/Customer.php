@@ -299,6 +299,11 @@ class Customer
         return $this->id;
     }
 
+    public function getObjectTypeName()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::CUSTOMER;
+    }
+
     /**
      * @param $key
      * @param $value

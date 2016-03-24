@@ -162,6 +162,11 @@ class ItemVar
         $this->item_var_options_varchar = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
+    public function getObjectTypeName()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::ITEM_VAR;
+    }
+
     /**
      * @param $key
      * @param $value
