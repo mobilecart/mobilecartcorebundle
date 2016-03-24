@@ -12,6 +12,8 @@
         <parameter key="cart.class.logout">MobileCart\CoreBundle\EventListener\Security\Logout</parameter>
         <parameter key="cart.class.search.doctrine">MobileCart\CoreBundle\Service\MysqlSearchService</parameter>
         <parameter key="cart.class.currency">MobileCart\CoreBundle\Service\CurrencyService</parameter>
+        <parameter key="cart.class.customer.register">MobileCart\CoreBundle\EventListener\Customer\CustomerRegister</parameter>
+        <parameter key="cart.class.customer.register.confirm">MobileCart\CoreBundle\EventListener\Customer\CustomerRegisterConfirm</parameter>
         <parameter key="cart.class.entity">MobileCart\CoreBundle\Service\MysqlEntityService</parameter>
         <parameter key="cart.class.image">MobileCart\CoreBundle\Service\ImageService</parameter>
         <parameter key="cart.class.order">MobileCart\CoreBundle\Service\OrderService</parameter>
@@ -1440,7 +1442,7 @@
                 <argument type="service" id="cart.theme"/>
             </call>
         </service>
-        <service id="cart.listener.customer.register" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerRegister">
+        <service id="cart.listener.customer.register" lazy="true" class="%cart.class.customer.register%">
             <tag name="kernel.event_listener" event="customer.register" method="onCustomerRegister" priority="50" />
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
@@ -1467,7 +1469,7 @@
                 <argument type="service" id="cart.theme" />
             </call>
         </service>
-        <service id="cart.listener.customer.register.confirm" lazy="true" class="MobileCart\CoreBundle\EventListener\Customer\CustomerRegisterConfirm">
+        <service id="cart.listener.customer.register.confirm" lazy="true" class="%cart.class.customer.register.confirm%">
             <tag name="kernel.event_listener" event="customer.register.confirm" method="onCustomerRegisterConfirm" priority="50" />
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
