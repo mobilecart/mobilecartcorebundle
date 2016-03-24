@@ -234,6 +234,10 @@
                 <argument type="string">cart_admin_item_var_set_edit</argument>
             </call>
             <call method="addAdminEditRoute">
+                <argument type="string">item_var_set_var</argument>
+                <argument type="string">cart_admin_item_var_set_var_edit</argument>
+            </call>
+            <call method="addAdminEditRoute">
                 <argument type="string">order</argument>
                 <argument type="string">cart_admin_order_edit</argument>
             </call>
