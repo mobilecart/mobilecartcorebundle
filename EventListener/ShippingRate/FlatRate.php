@@ -1,6 +1,6 @@
 <?php
 
-namespace MobileCart\CoreBundle\EventListener\Shipping;
+namespace MobileCart\CoreBundle\EventListener\ShippingRate;
 
 use MobileCart\CoreBundle\Shipping\Rate;
 use Symfony\Component\EventDispatcher\Event;

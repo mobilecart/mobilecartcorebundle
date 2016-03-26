@@ -37,8 +37,8 @@ security:
                 login_path:  /login
                 check_path:  /login_check
                 provider: cart_provider
-                success_handler: cart.login
-                failure_handler: cart.login.failed
+                success_handler: cart.listener.login
+                failure_handler: cart.listener.login.failed
                 # dont require previous session for API logins
                 require_previous_session: false
                 use_referer: true
@@ -46,7 +46,7 @@ security:
             logout:
                 path:   /logout
                 target: /
-                success_handler: cart.logout
+                success_handler: cart.listener.logout
 
             guard:
                 authenticators:
