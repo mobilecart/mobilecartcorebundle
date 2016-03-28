@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 /**
  * MobileCart\CoreBundle\Entity\Product
  *
- * @ORM\Table(name="product", indexes={@ORM\Index(name="slug_idx", columns={"slug"})})
+ * @ORM\Table(name="product", indexes={@ORM\Index(name="product_slug_idx", columns={"slug"})})
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\ProductRepository")
  */
 class Product
@@ -59,6 +59,8 @@ class Product
      * @ORM\Column(name="created_at", type="datetime", nullable=true)
      */
     private $created_at;
+
+    // todo: $updated_at
 
     /**
      * @var integer $old_id

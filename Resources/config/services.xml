@@ -9,7 +9,7 @@
         <parameter key="cart.auth.token.class">MobileCart\CoreBundle\Service\GuardTokenAuthService</parameter>
         <parameter key="cart.search.doctrine.class">MobileCart\CoreBundle\Service\MysqlSearchService</parameter>
         <parameter key="cart.currency.class">MobileCart\CoreBundle\Service\CurrencyService</parameter>
-        <parameter key="cart.entity.class">MobileCart\CoreBundle\Service\MysqlEntityService</parameter>
+        <parameter key="cart.entity.class">MobileCart\CoreBundle\Service\DoctrineEntityService</parameter>
         <parameter key="cart.image.class">MobileCart\CoreBundle\Service\ImageService</parameter>
         <parameter key="cart.order.class">MobileCart\CoreBundle\Service\OrderService</parameter>
         <parameter key="cart.twig.frontend.class">MobileCart\CoreBundle\Twig\Extension\FrontendExtension</parameter>
@@ -390,11 +390,11 @@
                 <argument type="string">cart_admin_discount_edit</argument>
             </call>
             <call method="addAdminEditRoute">
-                <argument type="string">image_var</argument>
-                <argument type="string">cart_admin_image_var_edit</argument>
+                <argument type="string">item_var</argument>
+                <argument type="string">cart_admin_item_var_edit</argument>
             </call>
             <call method="addAdminEditRoute">
-                <argument type="string">image_var_option</argument>
+                <argument type="string">item_var_option</argument>
                 <argument type="string">cart_admin_item_var_option_edit</argument>
             </call>
             <call method="addAdminEditRoute">
@@ -892,10 +892,6 @@
             <call method="addObjectRepository">
                 <argument>item_var_option_text</argument>
                 <argument>%cart.repo.item_var_option_text%</argument>
-            </call>
-            <call method="addObjectRepository">
-                <argument>item_var_set_var</argument>
-                <argument>%cart.repo.item_var_set_var%</argument>
             </call>
             <call method="addObjectRepository">
                 <argument>admin_user</argument>

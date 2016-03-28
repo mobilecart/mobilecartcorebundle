@@ -39,6 +39,14 @@ class ThemeConfig
     protected $adminEditRoutes = [];
 
     /**
+     * Template options for each object_type eg content, product, category, etc
+     *  r[object_type][code] = value
+     *
+     * @var array
+     */
+    protected $objectTypeTemplates = [];
+
+    /**
      * @param $code
      * @param $layout string : layout string
      * @param $tplPath string : template path
@@ -184,5 +192,37 @@ class ThemeConfig
         return isset($this->adminEditRoutes[$objectType])
             ? $this->adminEditRoutes[$objectType]
             : '';
+    }
+
+    /**
+     * @param $objectType
+     * @param $code
+     * @param $value
+     * @param $name
+     * @return $this
+     */
+    public function setObjectTypeTemplate($objectType, $code, $value, $name)
+    {
+        if (!is_array($this->objectTypeTemplates[$objectType])) {
+            $this->objectTypeTemplates[$objectType] = [];
+        }
+
+        $this->objectTypeTemplates[$objectType][$code] = [
+            'value' => $value,
+            'name' => $name,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * @param $objectType
+     * @return array
+     */
+    public function getObjectTypeTemplates($objectType)
+    {
+        return is_array($this->objectTypeTemplates[$objectType])
+            ? $this->objectTypeTemplates[$objectType]
+            : [];
     }
 }

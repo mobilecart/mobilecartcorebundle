@@ -16,7 +16,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
-class MysqlEntityService
+class DoctrineEntityService
     extends AbstractEntityService
     implements UserProviderInterface
 {

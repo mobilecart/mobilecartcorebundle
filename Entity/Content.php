@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 /**
  * Content
  *
- * @ORM\Table(name="content", indexes={@ORM\Index(name="slug_idx", columns={"slug"})})
+ * @ORM\Table(name="content", indexes={@ORM\Index(name="content_slug_idx", columns={"slug"})})
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\ContentRepository")
  */
 class Content
