@@ -27,7 +27,7 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
  *
  */
 class MysqlPdoEntityService
-    extends MysqlEntityService
+    extends DoctrineEntityService
     implements UserProviderInterface
 {
 
@@ -76,7 +76,7 @@ class MysqlPdoEntityService
     public function find($objectType, $id)
     {
         $tableName = $this->getTableName($objectType);
-        $sql = "select * from {$tableName} where `id` = ?";
+        $sql = "select * from {$tableName} where id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindValue(1, $id, \PDO::PARAM_INT);
         $stmt->execute();
@@ -240,7 +240,7 @@ class MysqlPdoEntityService
         $id = $entity->getId();
 
         $tableName = $this->getTableName($objectType);
-        $sql = "delete from {$tableName} where `id`=?";
+        $sql = "delete from {$tableName} where id = ?";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(1, $id, \PDO::PARAM_INT);
@@ -259,7 +259,7 @@ class MysqlPdoEntityService
     public function getProductIdBySku($sku)
     {
         $table = $this->getTableName(EntityConstants::PRODUCT);
-        $sql = "select `id` from {$table} where `sku`=?";
+        $sql = "select id from {$table} where sku = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindParam(1, $sku, \PDO::PARAM_STR);
         $stmt->execute();
@@ -355,7 +355,7 @@ class MysqlPdoEntityService
 
         } else {
 
-            $sql = "insert into `{$tableName}` (`id`";
+            $sql = "insert into {$tableName} (id";
             $baseDataValues = [];
             $x = 0;
             foreach($baseDataKeys as $k) {
@@ -451,7 +451,7 @@ class MysqlPdoEntityService
 
         // build insert sql
 
-        $sql = "insert into `{$tableName}` (`id`";
+        $sql = "insert into {$tableName} (id";
         $baseDataValues = [];
 
         $eavValues = [];
@@ -463,7 +463,7 @@ class MysqlPdoEntityService
             }
 
             $eavValues[$k] = $v;
-            $sql .= ",`{$k}`";
+            $sql .= ",{$k}";
         }
 
         $sql .= ') values (NULL';

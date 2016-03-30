@@ -29,7 +29,10 @@ class ContentController extends Controller
      */
     public function viewAction(Request $request)
     {
-        $entity = $this->get('cart.entity')->findOneBy(EntityConstants::CONTENT, [
+        $entityServiceParam = $this->container->getParameter('cart.load.frontend');
+        $entityService = $this->container->get($entityServiceParam);
+
+        $entity = $entityService->findOneBy(EntityConstants::CONTENT, [
             'slug' => $request->get('slug', ''),
         ]);
 
