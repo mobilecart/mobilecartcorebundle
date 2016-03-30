@@ -34,6 +34,10 @@ class ItemVarType extends AbstractType
             ->add('form_input', 'choice', ['choices' => ItemVar::$formInputs])
             ->add('is_required')
             ->add('is_displayed')
+            ->add('sort_order')
+            ->add('is_sortable')
+            ->add('is_facet')
+            ->add('is_searchable')
         ;
     }
 

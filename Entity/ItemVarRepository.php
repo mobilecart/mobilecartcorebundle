@@ -28,6 +28,10 @@ class ItemVarRepository
             'form_input' => 'Form Input',
             'is_required' => 'Is Required',
             'is_displayed' => 'Is Displayed',
+            'sort_order' => 'Sort Order',
+            'is_facet' => 'Is Facet',
+            'is_sortable' => 'Is Sortable',
+            'is_searchable' => 'Is Searchable',
         ];
     }
 
@@ -66,6 +70,51 @@ class ItemVarRepository
                 'code'  => 'form_input',
                 'label' => 'Form Input',
                 'type'  => 'string',
+            ],
+            [
+                'code'  => 'is_facet',
+                'label' => 'In Facet',
+                'type'  => 'boolean',
+                'choices' => [
+                    [
+                        'value' => 0,
+                        'label' => 'No',
+                    ],
+                    [
+                        'value' => 1,
+                        'label' => 'Yes',
+                    ],
+                ],
+            ],
+            [
+                'code'  => 'is_searchable',
+                'label' => 'Is Searchable',
+                'type'  => 'boolean',
+                'choices' => [
+                    [
+                        'value' => 0,
+                        'label' => 'No',
+                    ],
+                    [
+                        'value' => 1,
+                        'label' => 'Yes',
+                    ],
+                ],
+            ],
+            [
+                'code'  => 'is_required',
+                'label' => 'In Required',
+                'type'  => 'boolean',
+                'choices' => [
+                    [
+                        'value' => 0,
+                        'label' => 'No',
+                    ],
+                    [
+                        'value' => 1,
+                        'label' => 'Yes',
+                    ],
+                ],
             ],
         ];
     }

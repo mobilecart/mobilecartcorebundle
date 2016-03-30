@@ -17,7 +17,7 @@ use MobileCart\CartComponentBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
- * Class MysqlPdoEntityService
+ * Class PdoEntityService
  * @package MobileCart\CoreBundle\Service
  *
  * This service is useful for mass inserts and updates
@@ -26,7 +26,7 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
  *  in order to perform an insert or update
  *
  */
-class MysqlPdoEntityService
+class PdoEntityService
     extends DoctrineEntityService
     implements UserProviderInterface
 {

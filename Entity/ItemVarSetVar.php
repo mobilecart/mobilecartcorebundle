@@ -42,41 +42,6 @@ class ItemVarSetVar
     private $item_var;
 
     /**
-     * @var integer
-     *
-     * @ORM\Column(name="sort_order", type="integer", nullable=true)
-     */
-    private $sort_order;
-
-    /**
-     * @var boolean $is_indexed
-     *
-     * @ORM\Column(name="is_indexed", type="boolean", nullable=true)
-     */
-    private $is_indexed;
-
-    /**
-     * @var boolean $is_facet
-     *
-     * @ORM\Column(name="is_facet", type="boolean", nullable=true)
-     */
-    private $is_facet;
-
-    /**
-     * @var boolean $is_sortable
-     *
-     * @ORM\Column(name="is_sortable", type="boolean", nullable=true)
-     */
-    private $is_sortable;
-
-    /**
-     * @var boolean $is_searchable
-     *
-     * @ORM\Column(name="is_searchable", type="boolean", nullable=true)
-     */
-    private $is_searchable;
-
-    /**
      * Get id
      *
      * @return integer 
@@ -194,11 +159,6 @@ class ItemVarSetVar
             'item_var_id' => $this->getItemVar()->getId(),
             'item_var_set_name' => $this->getItemVarSet()->getName(),
             'item_var_name' => $this->getItemVar()->getName(),
-            'sort_order' => $this->getSortOrder(),
-            'is_indexed' => $this->getIsIndexed(),
-            'is_facet' => $this->getIsFacet(),
-            'is_sortable' => $this->getIsSortable(),
-            'is_searchable' => $this->getIsSearchable(),
         ];
     }
 
@@ -242,107 +202,5 @@ class ItemVarSetVar
     public function getItemVar()
     {
         return $this->item_var;
-    }
-
-    /**
-     * Set sort_order
-     *
-     * @param integer $sortOrder
-     * @return CategoryProduct
-     */
-    public function setSortOrder($sortOrder)
-    {
-        $this->sort_order = $sortOrder;
-        return $this;
-    }
-
-    /**
-     * Get sort_order
-     *
-     * @return integer
-     */
-    public function getSortOrder()
-    {
-        return $this->sort_order;
-    }
-
-    /**
-     * @param $isIndexed
-     * @return $this
-     */
-    public function setIsIndexed($isIndexed)
-    {
-        $this->is_indexed = $isIndexed;
-        return $this;
-    }
-
-    /**
-     * Get is_indexed
-     *
-     * @return boolean
-     */
-    public function getIsIndexed()
-    {
-        return $this->is_indexed;
-    }
-
-    /**
-     * @param $isFacet
-     * @return $this
-     */
-    public function setIsFacet($isFacet)
-    {
-        $this->is_facet = $isFacet;
-        return $this;
-    }
-
-    /**
-     * Get is_facet
-     *
-     * @return boolean
-     */
-    public function getIsFacet()
-    {
-        return $this->is_facet;
-    }
-
-    /**
-     * @param $isSortable
-     * @return $this
-     */
-    public function setIsSortable($isSortable)
-    {
-        $this->is_sortable = $isSortable;
-        return $this;
-    }
-
-    /**
-     * Get is_sortable
-     *
-     * @return boolean
-     */
-    public function getIsSortable()
-    {
-        return $this->is_sortable;
-    }
-
-    /**
-     * @param $isSearchable
-     * @return $this
-     */
-    public function setIsSearchable($isSearchable)
-    {
-        $this->is_searchable = $isSearchable;
-        return $this;
-    }
-
-    /**
-     * Get is_searchable
-     *
-     * @return boolean
-     */
-    public function getIsSearchable()
-    {
-        return $this->is_searchable;
     }
 }

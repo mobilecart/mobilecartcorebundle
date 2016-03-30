@@ -1649,15 +1649,23 @@ abstract class AbstractSearchService
                 $facetCounts[$facetCode]['urlToken'] = $urlToken;
             }
 
-            $urlValue = $this->getRequest()->get($urlToken, '');
+            $urlValue = $urlToken
+                ? $this->getRequest()->get($urlToken, '')
+                : '';
+
             $isActive = (strlen($urlValue) > 0);
             if (!isset($facetCounts[$facetCode]['isActive'])) {
                 $facetCounts[$facetCode]['isActive'] = $isActive;
             }
 
             if (!isset($facetCounts[$facetCode]['label'])) {
+
                 $code = str_replace($this->getFacetPrefix(), '', $facetCode);
-                $label = $this->getVarByCode($code)->getName();
+
+                $label = $this->getVarByCode($code)
+                    ? $this->getVarByCode($code)->getName()
+                    : $code;
+
                 $facetCounts[$facetCode]['label'] = $label;
             }
 

@@ -12,34 +12,18 @@
 namespace MobileCart\CoreBundle\Service;
 
 use Doctrine\ORM\Tools\Pagination\Paginator;
-use Doctrine\ORM\Query;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Entity\CartRepositoryInterface;
 
-class MysqlSearchServiceV2 extends AbstractSearchService
+class DoctrineSearchService extends AbstractSearchService
 {
-
-    protected $filtersSql = '';
-
-    protected $mainSql = '';
-
-    protected $countSql = '';
-
-    protected $bindTypes = [];
-
-    protected $filterParams = [];
-
-    protected $advFilterParams = [];
-
-    protected $facetFilterParams = [];
-
     /**
      * Over-riding, and forcing a like filter here
      *  If you change InnoDB tables to MyISAM
      *  for example, on the product table
      *  then run SQL in CoreBundle/Resources/sql/product_fulltext_add.sql
      *   and return parent::getSearchMethod() here
-     *   the fulltext match() method will be enabled
+     *   the match() method will be enabled
      *
      * @return int|string
      */
@@ -49,67 +33,6 @@ class MysqlSearchServiceV2 extends AbstractSearchService
         return CartRepositoryInterface::SEARCH_METHOD_LIKE;
     }
 
-    protected function bindStatement(&$stmt, array $bindTypes, array $filterParams, array $advFilterParams, array $facetFilterParams)
-    {
-        $x = 0;
-
-        // basic filters
-        if ($filterParams) {
-            foreach($filterParams as $value) {
-                $bindType = $bindTypes[$x];
-                $z = $x + 1;
-                $stmt->bindValue($z, $value, $bindType);
-                $x++;
-            }
-        }
-
-        // search text filter
-        if ($this->getQuery()
-            && $this->getSearchField()
-            && $this->getSearchMethod()) {
-
-            $bindType = $bindTypes[$x];
-            $z = $x + 1;
-
-            if ($this->getSearchMethod() == CartRepositoryInterface::SEARCH_METHOD_FULLTEXT) {
-                $stmt->bindValue($z, $this->sanitize($this->getQuery()), $bindType);
-            } else {
-                $stmt->bindValue($z, '%' . $this->sanitize($this->getQuery()) . '%', $bindType);
-            }
-            $x++;
-        }
-
-        // advanced filters
-        if ($advFilterParams) {
-            foreach($advFilterParams as $value) {
-                $bindType = $bindTypes[$x];
-                $z = $x + 1;
-                $stmt->bindValue($z, $value, $bindType);
-                $x++;
-            }
-        }
-
-        // category filter(s)
-        if ($this->getCategoryId()) {
-            $bindType = $bindTypes[$x];
-            $z = $x + 1;
-            $stmt->bindValue($z, $this->getCategoryId(), $bindType);
-            $x++;
-        }
-
-        // facet filters
-        if ($facetFilterParams) {
-            foreach($facetFilterParams as $i => $value) {
-                $bindType = $bindTypes[$x];
-                $z = $x + ($i * 2);
-                $stmt->bindValue($z + 1, $value, $bindType);
-                $stmt->bindValue($z + 2, $value, $bindType);
-                $x++;
-            }
-        }
-    }
-
-
     /**
      * Main execution of filters, advFilters, facetFilters
      *
@@ -118,7 +41,17 @@ class MysqlSearchServiceV2 extends AbstractSearchService
     protected function executeFilters()
     {
         if ($this->getExecutedFilters()) {
-            return $this;
+            return $this->getFilteredIds();
+        }
+
+        if (!$this->getFacetFilters()
+            && !$this->getFilters()
+            && !$this->getAdvFilters()
+            && !$this->getQuery()
+            && !$this->getCategoryId()) {
+
+            $this->setExecutedFilters(true);
+            return [];
         }
 
         $objectType = $this->getObjectType();
@@ -168,7 +101,7 @@ class MysqlSearchServiceV2 extends AbstractSearchService
                             }
                         }
 
-                        $whereConditions[] = "main.{$field} = ?";
+                        $whereConditions[] = "vv.{$field} = ?";
                         $filterParams[] = $value;
 
                         switch($filterInfo['type']) {
@@ -198,23 +131,19 @@ class MysqlSearchServiceV2 extends AbstractSearchService
         }
 
         // handle fulltext search first
-
-        // note : use setFulltextIds() if you search somewhere else first eg SOLR / Elasticsearch
         if ($this->getFulltextIds()) {
             // ensure IDs are sanitized before you set them
-            $whereConditions[] = "main.id in (" . implode(',', $this->getFulltextIds()) . ")";
+            $whereConditions[] = "vv.id in (" . implode(',', $this->getFulltextIds()) . ")";
         } else if ($this->getQuery()
             && $this->getSearchField()
             && $this->getSearchMethod()) {
 
-            // otherwise, we do our own fulltext / like search
-
             $bindTypes[$x] = \PDO::PARAM_STR;
 
             if ($this->getSearchMethod() == CartRepositoryInterface::SEARCH_METHOD_FULLTEXT) {
-                $whereConditions[] = "match(main.{$this->getSearchField()}) against (? in boolean mode)";
+                $whereConditions[] = "match(vv.{$this->getSearchField()}) against (? in boolean mode)";
             } else {
-                $whereConditions[] = "main.{$this->getSearchField()} like ?";
+                $whereConditions[] = "vv.{$this->getSearchField()} like ?";
             }
 
             $x++;
@@ -273,41 +202,41 @@ class MysqlSearchServiceV2 extends AbstractSearchService
                 switch($op) {
                     case 'contains':
                         $advFilterParams[] = '%'. $value . '%';
-                        $whereConditions[] = "main.{$field} like ?";
+                        $whereConditions[] = "vv.{$field} like ?";
                         break;
                     case 'starts':
                         $advFilterParams[] = $value . '%';
-                        $whereConditions[] = "main.{$field} like ?";
+                        $whereConditions[] = "vv.{$field} like ?";
                         break;
                     case 'ends':
                         $advFilterParams[] = '%'. $value;
-                        $whereConditions[] = "main.{$field} like ?";
+                        $whereConditions[] = "vv.{$field} like ?";
                         break;
                     case 'equals':
                         $advFilterParams[] = $value;
-                        $whereConditions[] = "main.{$field} = ?";
+                        $whereConditions[] = "vv.{$field} = ?";
                         break;
                     case 'gt':
                         $advFilterParams[] = $value;
-                        $whereConditions[] = "main.{$field} > ?";
+                        $whereConditions[] = "vv.{$field} > ?";
                         break;
                     case 'gte':
                         $advFilterParams[] = $value;
-                        $whereConditions[] = "main.{$field} >= ?";
+                        $whereConditions[] = "vv.{$field} >= ?";
                         break;
                     case 'lt':
                         $advFilterParams[] = $value;
-                        $whereConditions[] = "main.{$field} < ?";
+                        $whereConditions[] = "vv.{$field} < ?";
                         break;
                     case 'lte':
                         $advFilterParams[] = $value;
-                        $whereConditions[] = "main.{$field} <= ?";
+                        $whereConditions[] = "vv.{$field} <= ?";
                         break;
                     case 'in':
 
                         // assumes value is CSV
                         $advFilterParams[] = '(' . $value . ')';
-                        $whereConditions[] = "main.{$field} in ?";
+                        $whereConditions[] = "vv.{$field} in ?";
 
                         break;
                     default:
@@ -324,12 +253,9 @@ class MysqlSearchServiceV2 extends AbstractSearchService
             $categoryTable = $this->getEntityService()->getTableName(EntityConstants::CATEGORY_PRODUCT);
             $bindTypes[$x] = \PDO::PARAM_INT;
             // todo : sometime in the future , add a category 'anchor', connecting multiple categories
-            $whereConditions[] = "main.id in (select product_id from {$categoryTable} where category_id = ?)";
+            $whereConditions[] = "vv.id in (select product_id from {$categoryTable} where category_id = ?)";
             $x++;
         }
-
-        // handle stock, visibility filters with products
-
 
         // handle facet filters
         //  ie filters on EAV tables, child tables
@@ -356,26 +282,87 @@ class MysqlSearchServiceV2 extends AbstractSearchService
                     $facetFilterParams[] = $value;
                 }
 
-                $whereConditions[] = "main.id in (select parent_id from {$tblValue} {$pre} left join {$joinTbl} {$joinTblPre} on {$pre}.item_var_option_id={$joinTblPre}.id where ". implode(' AND ', $dqlFilters).")";
+                $whereConditions[] = "vv.id in (select parent_id from {$tblValue} {$pre} left join {$joinTbl} {$joinTblPre} on {$pre}.item_var_option_id={$joinTblPre}.id where ". implode(' AND ', $dqlFilters).")";
                 $dqlFilters = [];
                 $x++;
             }
         }
 
         $conditionsSql = implode(' AND ', $whereConditions);
-        if (!$conditionsSql) {
-            $conditionsSql = '1=1';
+        $sql = "select distinct(vv.id) from {$mainTable} vv where {$conditionsSql}";
+
+        $em = $this->getEntityService()
+            ->getDoctrine()
+            ->getManager();
+
+        $stmt = $em->getConnection()->prepare($sql);
+
+        $x = 0;
+
+        // basic filters
+        if ($filterParams) {
+            foreach($filterParams as $value) {
+                $bindType = $bindTypes[$x];
+                $z = $x + 1;
+                $stmt->bindValue($z, $value, $bindType);
+                $x++;
+            }
         }
 
-        $this->filtersSql = "select distinct(main.id) from {$mainTable} main where {$conditionsSql}";
-        $this->mainSql = "select distinct(main.id), main.* from {$mainTable} main where {$conditionsSql}";
-        $this->countSql = "select count(distinct(main.id)) as count from {$mainTable} main where {$conditionsSql}";
-        $this->bindTypes = $bindTypes;
-        $this->filterParams = $filterParams;
-        $this->advFilterParams = $advFilterParams;
-        $this->facetFilterParams = $facetFilterParams;
+        // search text filter
+        if ($this->getQuery()
+            && $this->getSearchField()
+            && $this->getSearchMethod()) {
+
+            $bindType = $bindTypes[$x];
+            $z = $x + 1;
+
+            if ($this->getSearchMethod() == CartRepositoryInterface::SEARCH_METHOD_FULLTEXT) {
+                $stmt->bindValue($z, $this->sanitize($this->getQuery()), $bindType);
+            } else {
+                $stmt->bindValue($z, '%' . $this->sanitize($this->getQuery()) . '%', $bindType);
+            }
+            $x++;
+        }
+
+        // advanced filters
+        if ($advFilterParams) {
+            foreach($advFilterParams as $value) {
+                $bindType = $bindTypes[$x];
+                $z = $x + 1;
+                $stmt->bindValue($z, $value, $bindType);
+                $x++;
+            }
+        }
+
+        // category filter(s)
+        if ($this->getCategoryId()) {
+            $bindType = $bindTypes[$x];
+            $z = $x + 1;
+            $stmt->bindValue($z, $this->getCategoryId(), $bindType);
+            $x++;
+        }
+
+        // facet filters
+        if ($facetFilterParams) {
+            foreach($facetFilterParams as $i => $value) {
+                $bindType = $bindTypes[$x];
+                $z = $x + ($i * 2);
+                $stmt->bindValue($z + 1, $value, $bindType);
+                $stmt->bindValue($z + 2, $value, $bindType);
+                $x++;
+            }
+        }
+
+        $stmt->execute();
+        while($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $idx = 'id';
+            $this->filteredIds[] = $row[$idx];
+        }
 
         $this->setExecutedFilters(true);
+
+        return $this->getFilteredIds();
     }
 
     /**
@@ -393,8 +380,15 @@ class MysqlSearchServiceV2 extends AbstractSearchService
             return [];
         }
 
-        if (!$this->getExecutedFilters()) {
-            $this->executeFilters();
+        // will use previously retrieved IDs if they exist
+        $ids = $this->getExecutedFilters()
+            ? $this->getFilteredIds()
+            : $this->executeFilters();
+
+        if (!$ids && $this->hasAnyFilters()) {
+            $this->facetCounts = [];
+            $this->setExecutedFacetCounts(true);
+            return $this->facetCounts;
         }
 
         $facetCounts = [];
@@ -414,17 +408,18 @@ class MysqlSearchServiceV2 extends AbstractSearchService
 
             // execute main filters
 
-            $filtersStr = "vv.parent_id in (" . $this->filtersSql . ")";
+            $filtersStr = $ids
+                ? "vv.parent_id in (" . implode(',', $ids) . ")"
+                : "1";
 
             $sql = "SELECT distinct(vv.item_var_option_id), vv.item_var_id, ivo.value, ivo.url_value , iv.name, iv.code, iv.url_token, count(*) as count".
-                " FROM `{$tblValue}` vv inner join `{$tblItemVarOption}` ivo on vv.item_var_option_id=ivo.id".
-                " inner join `{$tblItemVar}` iv on vv.item_var_id=iv.id".
-                " WHERE {$filtersStr} group by vv.item_var_option_id".
-                " order by `vv`.`item_var_id`, count desc";
+                " FROM {$tblValue} vv inner join {$tblItemVarOption} ivo on vv.item_var_option_id=ivo.id".
+                " inner join {$tblItemVar} iv on vv.item_var_id=iv.id and iv.is_facet=1".
+                " WHERE {$filtersStr} group by vv.item_var_option_id, vv.item_var_id".
+                " order by vv.item_var_id, count desc";
 
             $em = $this->getEntityService()->getDoctrine()->getManager();
             $stmt = $em->getConnection()->prepare($sql);
-            $this->bindStatement($stmt, $this->bindTypes, $this->filterParams, $this->advFilterParams, $this->facetFilterParams);
             $stmt->execute();
 
             $currentCode = '';
@@ -523,6 +518,17 @@ class MysqlSearchServiceV2 extends AbstractSearchService
         $sortable = $repo->getSortableFields();
         $offset = ($this->getPage() - 1) * $this->getLimit();
 
+        /*
+         * Note:
+         * Joining tables here in any way
+         * will probably break the ability to use the paginator
+         * since Doctrine complains it cannot count() on joined tables
+         */
+
+        $qb = $em->createQueryBuilder();
+        $qb->select('i')->from($repoStr, 'i');
+        $and = $qb->expr()->andX();
+
         // main filter execution
         //  sets $this->filteredIds
         $this->executeFilters();
@@ -532,33 +538,36 @@ class MysqlSearchServiceV2 extends AbstractSearchService
             ? $this->executeFacetCounts()
             : [];
 
-        // execute count sql
+        if ($this->getExecutedFilters()
+            && $this->hasAnyFilters()) {
 
-        $countStmt = $em->getConnection()->prepare($this->countSql);
-        $this->bindStatement($countStmt, $this->bindTypes, $this->filterParams, $this->advFilterParams, $this->facetFilterParams);
-        $countStmt->execute();
+            if ($this->getFilteredIds()) {
+                $and->add($qb->expr()->in('i', $this->getFilteredIds()));
+            } else {
+                $and->add($qb->expr()->in('i', [0]));
+            }
 
-        $countRow = $countStmt->fetch(\PDO::FETCH_ASSOC);
-        $count = isset($countRow['count'])
-            ? $countRow['count']
-            : 0;
-
-        // get main rows
-        $mainSql = $this->mainSql;
+            $qb->add('where', $and);
+        } else {
+            $qb->add('where', '1=1');
+        }
 
         // sort
         if (isset($sortable[$this->getSortBy()])) {
-            $mainSql .= " order by {$this->getSortBy()} {$this->getSortDir()}";
+            $qb->addOrderBy("i.{$this->getSortBy()}", $this->getSortDir());
         }
 
-        $mainSql .= " limit {$offset},{$this->getLimit()}";
+        $qb->setFirstResult($offset)
+            ->setMaxResults($this->getLimit());
 
         $entities = [];
+
+        $paginator = new Paginator($qb, $fetchJoinCollection = true);
+        $count = $paginator->count();
         if ($count) {
-            $mainStmt = $em->getConnection()->prepare($mainSql);
-            $this->bindStatement($mainStmt, $this->bindTypes, $this->filterParams, $this->advFilterParams, $this->facetFilterParams);
-            $mainStmt->execute();
-            $entities = $mainStmt->fetchAll(\PDO::FETCH_ASSOC);
+            foreach($paginator as $entity) {
+                $entities[] = $entity->getBaseData();
+            }
         }
 
         if ($this->getPopulateVarValues()) {

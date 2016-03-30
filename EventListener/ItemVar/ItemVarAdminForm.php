@@ -104,6 +104,9 @@ class ItemVarAdminForm
                     'form_input',
                     'is_required',
                     'is_displayed',
+                    'sort_order',
+                    'is_searchable',
+                    'is_facet',
                 ],
             ],
         ];

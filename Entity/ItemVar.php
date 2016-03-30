@@ -106,6 +106,34 @@ class ItemVar
     private $is_displayed;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="sort_order", type="integer", nullable=true)
+     */
+    private $sort_order;
+
+    /**
+     * @var boolean $is_facet
+     *
+     * @ORM\Column(name="is_facet", type="boolean", nullable=true)
+     */
+    private $is_facet;
+
+    /**
+     * @var boolean $is_sortable
+     *
+     * @ORM\Column(name="is_sortable", type="boolean", nullable=true)
+     */
+    private $is_sortable;
+
+    /**
+     * @var boolean $is_searchable
+     *
+     * @ORM\Column(name="is_searchable", type="boolean", nullable=true)
+     */
+    private $is_searchable;
+
+    /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarSetVar $item_var_set_vars
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\ItemVarSetVar", mappedBy="item_var")
@@ -278,6 +306,10 @@ class ItemVar
             'form_input' => $this->getFormInput(),
             'is_required' => $this->getIsRequired(),
             'is_displayed' => $this->getIsDisplayed(),
+            'sort_order' => $this->getSortOrder(),
+            'is_facet' => $this->getIsFacet(),
+            'is_sortable' => $this->getIsSortable(),
+            'is_searchable' => $this->getIsSearchable(),
         ];
     }
 
@@ -532,5 +564,87 @@ class ItemVar
     public function getIsRequired()
     {
         return $this->is_required;
+    }
+
+    /**
+     * Set sort_order
+     *
+     * @param integer $sortOrder
+     * @return CategoryProduct
+     */
+    public function setSortOrder($sortOrder)
+    {
+        $this->sort_order = $sortOrder;
+        return $this;
+    }
+
+    /**
+     * Get sort_order
+     *
+     * @return integer
+     */
+    public function getSortOrder()
+    {
+        return $this->sort_order;
+    }
+
+    /**
+     * @param $isFacet
+     * @return $this
+     */
+    public function setIsFacet($isFacet)
+    {
+        $this->is_facet = $isFacet;
+        return $this;
+    }
+
+    /**
+     * Get is_facet
+     *
+     * @return boolean
+     */
+    public function getIsFacet()
+    {
+        return $this->is_facet;
+    }
+
+    /**
+     * @param $isSortable
+     * @return $this
+     */
+    public function setIsSortable($isSortable)
+    {
+        $this->is_sortable = $isSortable;
+        return $this;
+    }
+
+    /**
+     * Get is_sortable
+     *
+     * @return boolean
+     */
+    public function getIsSortable()
+    {
+        return $this->is_sortable;
+    }
+
+    /**
+     * @param $isSearchable
+     * @return $this
+     */
+    public function setIsSearchable($isSearchable)
+    {
+        $this->is_searchable = $isSearchable;
+        return $this;
+    }
+
+    /**
+     * Get is_searchable
+     *
+     * @return boolean
+     */
+    public function getIsSearchable()
+    {
+        return $this->is_searchable;
     }
 }
