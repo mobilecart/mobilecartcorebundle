@@ -60,7 +60,12 @@ class Product
      */
     private $created_at;
 
-    // todo: $updated_at
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="updated_at", type="datetime", nullable=true)
+     */
+    private $updated_at;
 
     /**
      * @var integer $old_id
@@ -89,6 +94,13 @@ class Product
      * @ORM\Column(name="is_searchable", type="boolean", nullable=true)
      */
     private $is_searchable;
+
+    /**
+     * @var string $custom_template
+     *
+     * @ORM\Column(name="custom_template", type="string", length=255, nullable=true)
+     */
+    private $custom_template;
 
     /**
      * @var string
@@ -311,11 +323,11 @@ class Product
     private $is_qty_managed;
 
     /**
-     * @var string $stock_type
+     * @var integer $stock_type
      *
-     * @ORM\Column(name="stock_type", type="string", length=32, nullable=true)
+     * @ORM\Column(name="stock_type", type="integer", nullable=true)
      */
-    private $stock_type; //TODO: change this to integer, constants
+    private $stock_type;
 
     /**
      * @var boolean $can_backorder
@@ -332,14 +344,14 @@ class Product
     private $qty;
 
     /**
-     * @var text $fulltext_search
+     * @var string $fulltext_search
      *
      * @ORM\Column(name="fulltext_search", type="text", nullable=true)
      */
     private $fulltext_search;
 
     /**
-     * @var text $custom_search
+     * @var string $custom_search
      *
      * @ORM\Column(name="custom_search", type="text", nullable=true)
      */
@@ -389,7 +401,7 @@ class Product
     /**
      * @param $key
      * @param $value
-     * @return $this
+     * @return Product
      */
     public function set($key, $value)
     {
@@ -403,7 +415,7 @@ class Product
 
     /**
      * @param $data
-     * @return $this
+     * @return Product
      */
     public function fromArray($data)
     {
@@ -434,6 +446,7 @@ class Product
             'id' => $this->getId(),
             'created_at' => $this->getCreatedAt(),
             'old_id' => $this->getOldId(),
+            'custom_template' => $this->getCustomTemplate(),
             'sort_order' => $this->getSortOrder(),
             'is_public' => (bool) $this->getIsPublic(),
             'is_searchable' => (bool) $this->getIsSearchable(),
@@ -703,7 +716,7 @@ class Product
      * Set createdAt
      *
      * @param \DateTime $createdAt
-     * @return $this
+     * @return Product
      */
     public function setCreatedAt($createdAt)
     {
@@ -723,7 +736,7 @@ class Product
 
     /**
      * @param int $oldId
-     * @return $this
+     * @return Product
      */
     public function setOldId($oldId)
     {
@@ -756,8 +769,26 @@ class Product
     }
 
     /**
+     * @param $customTemplate
+     * @return Product
+     */
+    public function setCustomTemplate($customTemplate)
+    {
+        $this->custom_template = $customTemplate;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCustomTemplate()
+    {
+        return $this->custom_template;
+    }
+
+    /**
      * @param $title
-     * @return $this
+     * @return Product
      */
     public function setPageTitle($title)
     {
@@ -775,7 +806,7 @@ class Product
 
     /**
      * @param $sortOrder
-     * @return $this
+     * @return Product
      */
     public function setSortOrder($sortOrder)
     {
@@ -793,7 +824,7 @@ class Product
 
     /**
      * @param $isPublic
-     * @return $this
+     * @return Product
      */
     public function setIsPublic($isPublic)
     {
@@ -813,7 +844,7 @@ class Product
 
     /**
      * @param $isSearchable
-     * @return $this
+     * @return Product
      */
     public function setIsSearchable($isSearchable)
     {
@@ -835,7 +866,7 @@ class Product
      * Set name
      *
      * @param string $name
-     * @return Item
+     * @return Product
      */
     public function setName($name)
     {
@@ -857,7 +888,7 @@ class Product
      * Set slug
      *
      * @param string $slug
-     * @return Item
+     * @return Product
      */
     public function setSlug($slug)
     {
@@ -879,7 +910,7 @@ class Product
      * Set content
      *
      * @param string $content
-     * @return Item
+     * @return Product
      */
     public function setContent($content)
     {
@@ -899,7 +930,7 @@ class Product
 
     /**
      * @param $desc
-     * @return $this
+     * @return Product
      */
     public function setMetaDescription($desc)
     {
@@ -917,7 +948,7 @@ class Product
 
     /**
      * @param $desc
-     * @return $this
+     * @return Product
      */
     public function setMetaKeywords($desc)
     {
@@ -935,7 +966,7 @@ class Product
 
     /**
      * @param $desc
-     * @return $this
+     * @return Product
      */
     public function setMetaTitle($desc)
     {
@@ -953,7 +984,7 @@ class Product
 
     /**
      * @param $type
-     * @return $this
+     * @return Product
      */
     public function setType($type)
     {
@@ -973,7 +1004,7 @@ class Product
 
     /**
      * @param $config
-     * @return $this
+     * @return Product
      */
     public function setConfig($config)
     {
@@ -993,7 +1024,7 @@ class Product
     }
 
     /**
-     * @return $this
+     * @return Product
      */
     public function reconfigure()
     {
@@ -1144,7 +1175,7 @@ class Product
 
     /**
      * @param $visibility
-     * @return $this
+     * @return Product
      */
     public function setVisibility($visibility)
     {
@@ -1164,7 +1195,7 @@ class Product
 
     /**
      * @param $isEnabled
-     * @return $this
+     * @return Product
      */
     public function setIsEnabled($isEnabled)
     {
@@ -1184,7 +1215,7 @@ class Product
 
     /**
      * @param $sku
-     * @return $this
+     * @return Product
      */
     public function setSku($sku)
     {
@@ -1207,7 +1238,7 @@ class Product
 
     /**
      * @param $desc
-     * @return $this
+     * @return Product
      */
     public function setShortDescription($desc)
     {
@@ -1225,7 +1256,7 @@ class Product
 
     /**
      * @param $currency
-     * @return $this
+     * @return Product
      */
     public function setCurrency($currency)
     {
@@ -1243,7 +1274,7 @@ class Product
 
     /**
      * @param $price
-     * @return $this
+     * @return Product
      */
     public function setPrice($price)
     {
@@ -1263,7 +1294,7 @@ class Product
 
     /**
      * @param $price
-     * @return $this
+     * @return Product
      */
     public function setSpecialPrice($price)
     {
@@ -1283,7 +1314,7 @@ class Product
 
     /**
      * @param $cost
-     * @return $this
+     * @return Product
      */
     public function setCost($cost)
     {
@@ -1301,7 +1332,7 @@ class Product
 
     /**
      * @param $isTaxable
-     * @return $this
+     * @return Product
      */
     public function setIsTaxable($isTaxable)
     {
@@ -1321,7 +1352,7 @@ class Product
 
     /**
      * @param CustomerGroupProductPrice $groupPrice
-     * @return $this
+     * @return Product
      */
     public function addGroupPrice(CustomerGroupProductPrice $groupPrice)
     {
@@ -1341,7 +1372,7 @@ class Product
 
     /**
      * @param $isDiscountable
-     * @return $this
+     * @return Product
      */
     public function setIsDiscountable($isDiscountable)
     {
@@ -1361,7 +1392,7 @@ class Product
 
     /**
      * @param $isInStock
-     * @return $this
+     * @return Product
      */
     public function setIsInStock($isInStock)
     {
@@ -1381,7 +1412,7 @@ class Product
 
     /**
      * @param $isOnSale
-     * @return $this
+     * @return Product
      */
     public function setIsOnSale($isOnSale)
     {
@@ -1401,7 +1432,7 @@ class Product
 
     /**
      * @param $isNew
-     * @return $this
+     * @return Product
      */
     public function setIsNew($isNew)
     {
@@ -1421,7 +1452,7 @@ class Product
 
     /**
      * @param $isQtyManaged
-     * @return $this
+     * @return Product
      */
     public function setIsQtyManaged($isQtyManaged)
     {
@@ -1441,7 +1472,7 @@ class Product
 
     /**
      * @param $stockType
-     * @return $this
+     * @return Product
      */
     public function setStockType($stockType)
     {
@@ -1452,7 +1483,7 @@ class Product
     /**
      * Get stock_type
      *
-     * @return string
+     * @return int
      */
     public function getStockType()
     {
@@ -1461,7 +1492,7 @@ class Product
 
     /**
      * @param $canBackorder
-     * @return $this
+     * @return Product
      */
     public function setCanBackorder($canBackorder)
     {
@@ -1481,7 +1512,7 @@ class Product
 
     /**
      * @param $qty
-     * @return $this
+     * @return Product
      */
     public function setQty($qty)
     {
@@ -1501,7 +1532,7 @@ class Product
 
     /**
      * @param $fulltext_search
-     * @return $this
+     * @return Product
      */
     public function setFulltextSearch($fulltext_search)
     {
@@ -1512,7 +1543,7 @@ class Product
     /**
      * Get search
      *
-     * @return text 
+     * @return string
      */
     public function getFulltextSearch()
     {
@@ -1521,7 +1552,7 @@ class Product
 
     /**
      * @param $customSearch
-     * @return $this
+     * @return Product
      */
     public function setCustomSearch($customSearch)
     {
@@ -1532,7 +1563,7 @@ class Product
     /**
      * Get custom_search
      *
-     * @return text
+     * @return string
      */
     public function getCustomSearch()
     {
@@ -1541,7 +1572,7 @@ class Product
 
     /**
      * @param CategoryProduct $categoryProduct
-     * @return $this
+     * @return Product
      */
     public function addCategoryProduct(CategoryProduct $categoryProduct)
     {
@@ -1575,7 +1606,7 @@ class Product
 
     /**
      * @param ProductConfig $productConfig
-     * @return $this
+     * @return Product
      */
     public function addProductConfig(ProductConfig $productConfig)
     {
@@ -1593,7 +1624,7 @@ class Product
 
     /**
      * @param ItemVarSet $itemVarSet
-     * @return $this
+     * @return Product
      */
     public function setItemVarSet(ItemVarSet $itemVarSet)
     {
@@ -1613,7 +1644,7 @@ class Product
 
     /**
      * @param ProductVarValueDecimal $itemVarValues
-     * @return $this
+     * @return Product
      */
     public function addVarValueDecimal(ProductVarValueDecimal $itemVarValues)
     {
@@ -1633,7 +1664,7 @@ class Product
 
     /**
      * @param ProductVarValueDatetime $itemVarValues
-     * @return $this
+     * @return Product
      */
     public function addVarValueDatetime(ProductVarValueDatetime $itemVarValues)
     {
@@ -1653,7 +1684,7 @@ class Product
 
     /**
      * @param ProductVarValueInt $itemVarValues
-     * @return $this
+     * @return Product
      */
     public function addVarValueInt(ProductVarValueInt $itemVarValues)
     {
@@ -1673,7 +1704,7 @@ class Product
 
     /**
      * @param ProductVarValueText $itemVarValues
-     * @return $this
+     * @return Product
      */
     public function addVarValueText(ProductVarValueText $itemVarValues)
     {
@@ -1693,7 +1724,7 @@ class Product
 
     /**
      * @param ProductVarValueVarchar $itemVarValues
-     * @return $this
+     * @return Product
      */
     public function addVarValueVarchar(ProductVarValueVarchar $itemVarValues)
     {
@@ -1713,7 +1744,7 @@ class Product
 
     /**
      * @param ProductImage $image
-     * @return $this
+     * @return Product
      */
     public function addImage(ProductImage $image)
     {

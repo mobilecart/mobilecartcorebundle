@@ -59,6 +59,13 @@ class Category
     private $is_searchable;
 
     /**
+     * @var string $custom_template
+     *
+     * @ORM\Column(name="custom_template", type="string", length=255, nullable=true)
+     */
+    private $custom_template;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="page_title", type="text", nullable=true)
@@ -207,7 +214,7 @@ class Category
     /**
      * @param $key
      * @param $value
-     * @return $this
+     * @return Category
      */
     public function set($key, $value)
     {
@@ -221,7 +228,7 @@ class Category
 
     /**
      * @param array $data
-     * @return $this
+     * @return Category
      */
     public function fromArray($data)
     {
@@ -465,6 +472,7 @@ class Category
             'created_at' => $this->getCreatedAt(),
             'old_id' => $this->getOldId(),
             'sort_order' => $this->getSortOrder(),
+            'custom_template' => $this->getCustomTemplate(),
             'is_public' => $this->getIsPublic(),
             'is_searchable' => $this->getIsSearchable(),
             'page_title' => $this->getPageTitle(),
@@ -482,7 +490,7 @@ class Category
      * Set createdAt
      *
      * @param \DateTime $createdAt
-     * @return Tag
+     * @return Category
      */
     public function setCreatedAt($createdAt)
     {
@@ -502,7 +510,7 @@ class Category
 
     /**
      * @param int $oldId
-     * @return $this
+     * @return Category
      */
     public function setOldId($oldId)
     {
@@ -519,8 +527,26 @@ class Category
     }
 
     /**
+     * @param $customTemplate
+     * @return Category
+     */
+    public function setCustomTemplate($customTemplate)
+    {
+        $this->custom_template = $customTemplate;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCustomTemplate()
+    {
+        return $this->custom_template;
+    }
+
+    /**
      * @param $title
-     * @return $this
+     * @return Category
      */
     public function setPageTitle($title)
     {
@@ -538,7 +564,7 @@ class Category
 
     /**
      * @param $sortOrder
-     * @return $this
+     * @return Category
      */
     public function setSortOrder($sortOrder)
     {
@@ -556,7 +582,7 @@ class Category
 
     /**
      * @param $isPublic
-     * @return $this
+     * @return Category
      */
     public function setIsPublic($isPublic)
     {
@@ -576,7 +602,7 @@ class Category
 
     /**
      * @param $isSearchable
-     * @return $this
+     * @return Category
      */
     public function setIsSearchable($isSearchable)
     {
@@ -598,7 +624,7 @@ class Category
      * Set name
      *
      * @param string $name
-     * @return Item
+     * @return Category
      */
     public function setName($name)
     {
@@ -620,7 +646,7 @@ class Category
      * Set slug
      *
      * @param string $slug
-     * @return Item
+     * @return Category
      */
     public function setSlug($slug)
     {
@@ -642,7 +668,7 @@ class Category
      * Set content
      *
      * @param string $content
-     * @return Item
+     * @return Category
      */
     public function setContent($content)
     {
@@ -662,7 +688,7 @@ class Category
 
     /**
      * @param $desc
-     * @return $this
+     * @return Category
      */
     public function setMetaDescription($desc)
     {
@@ -680,7 +706,7 @@ class Category
 
     /**
      * @param $desc
-     * @return $this
+     * @return Category
      */
     public function setMetaKeywords($desc)
     {
@@ -698,7 +724,7 @@ class Category
 
     /**
      * @param $desc
-     * @return $this
+     * @return Category
      */
     public function setMetaTitle($desc)
     {
@@ -742,7 +768,7 @@ class Category
 
     /**
      * @param CategoryProduct $categoryProduct
-     * @return $this
+     * @return Category
      */
     public function addCategoryProduct(CategoryProduct $categoryProduct)
     {
@@ -768,7 +794,7 @@ class Category
 
     /**
      * @param Category $childCategory
-     * @return $this
+     * @return Category
      */
     public function addChildCategory(Category $childCategory)
     {
@@ -788,7 +814,7 @@ class Category
 
     /**
      * @param ItemVarSet $itemVarSet
-     * @return $this
+     * @return Category
      */
     public function setItemVarSet(ItemVarSet $itemVarSet)
     {
@@ -808,7 +834,7 @@ class Category
 
     /**
      * @param CategoryVarValueDecimal $itemVarValues
-     * @return $this
+     * @return Category
      */
     public function addVarValueDecimal(CategoryVarValueDecimal $itemVarValues)
     {
@@ -828,7 +854,7 @@ class Category
 
     /**
      * @param CategoryVarValueDatetime $itemVarValues
-     * @return $this
+     * @return Category
      */
     public function addVarValueDatetime(CategoryVarValueDatetime $itemVarValues)
     {
@@ -848,7 +874,7 @@ class Category
 
     /**
      * @param CategoryVarValueInt $itemVarValues
-     * @return $this
+     * @return Category
      */
     public function addVarValueInt(CategoryVarValueInt $itemVarValues)
     {
@@ -868,7 +894,7 @@ class Category
 
     /**
      * @param CategoryVarValueText $itemVarValues
-     * @return $this
+     * @return Category
      */
     public function addVarValueText(CategoryVarValueText $itemVarValues)
     {
@@ -888,7 +914,7 @@ class Category
 
     /**
      * @param CategoryVarValueVarchar $itemVarValues
-     * @return $this
+     * @return Category
      */
     public function addVarValueVarchar(CategoryVarValueVarchar $itemVarValues)
     {
@@ -908,7 +934,7 @@ class Category
 
     /**
      * @param CategoryImage $image
-     * @return $this
+     * @return Category
      */
     public function addImage(CategoryImage $image)
     {

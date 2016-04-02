@@ -59,6 +59,13 @@ class Content
     private $is_searchable;
 
     /**
+     * @var string $custom_template
+     *
+     * @ORM\Column(name="custom_template", type="string", length=255, nullable=true)
+     */
+    private $custom_template;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="page_title", type="text", nullable=true)
@@ -207,6 +214,7 @@ class Content
             'sort_order' => $this->getSortOrder(),
             'is_public' => $this->getIsPublic(),
             'is_searchable' => $this->getIsSearchable(),
+            'custom_template' => $this->getCustomTemplate(),
             'page_title' => $this->getPageTitle(),
             'name' => $this->getName(),
             'slug' => $this->getSlug(),
@@ -222,7 +230,7 @@ class Content
     /**
      * @param $key
      * @param $value
-     * @return $this
+     * @return Content
      */
     public function set($key, $value)
     {
@@ -236,7 +244,7 @@ class Content
 
     /**
      * @param $data
-     * @return $this
+     * @return Content
      */
     public function fromArray($data)
     {
@@ -461,7 +469,7 @@ class Content
      * Set createdAt
      *
      * @param \DateTime $createdAt
-     * @return Tag
+     * @return Content
      */
     public function setCreatedAt($createdAt)
     {
@@ -481,7 +489,7 @@ class Content
 
     /**
      * @param int $oldId
-     * @return $this
+     * @return Content
      */
     public function setOldId($oldId)
     {
@@ -498,8 +506,26 @@ class Content
     }
 
     /**
+     * @param $customTemplate
+     * @return Content
+     */
+    public function setCustomTemplate($customTemplate)
+    {
+        $this->custom_template = $customTemplate;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCustomTemplate()
+    {
+        return $this->custom_template;
+    }
+
+    /**
      * @param $title
-     * @return $this
+     * @return Content
      */
     public function setPageTitle($title)
     {
@@ -517,7 +543,7 @@ class Content
 
     /**
      * @param $sortOrder
-     * @return $this
+     * @return Content
      */
     public function setSortOrder($sortOrder)
     {
@@ -535,7 +561,7 @@ class Content
 
     /**
      * @param $isPublic
-     * @return $this
+     * @return Content
      */
     public function setIsPublic($isPublic)
     {
@@ -555,7 +581,7 @@ class Content
 
     /**
      * @param $isSearchable
-     * @return $this
+     * @return Content
      */
     public function setIsSearchable($isSearchable)
     {
@@ -577,7 +603,7 @@ class Content
      * Set name
      *
      * @param string $name
-     * @return Item
+     * @return Content
      */
     public function setName($name)
     {
@@ -599,7 +625,7 @@ class Content
      * Set slug
      *
      * @param string $slug
-     * @return Item
+     * @return Content
      */
     public function setSlug($slug)
     {
@@ -621,7 +647,7 @@ class Content
      * Set content
      *
      * @param string $content
-     * @return Item
+     * @return Content
      */
     public function setContent($content)
     {
@@ -641,7 +667,7 @@ class Content
 
     /**
      * @param $desc
-     * @return $this
+     * @return Content
      */
     public function setMetaDescription($desc)
     {
@@ -659,7 +685,7 @@ class Content
 
     /**
      * @param $desc
-     * @return $this
+     * @return Content
      */
     public function setMetaKeywords($desc)
     {
@@ -677,7 +703,7 @@ class Content
 
     /**
      * @param $desc
-     * @return $this
+     * @return Content
      */
     public function setMetaTitle($desc)
     {
@@ -718,7 +744,7 @@ class Content
 
     /**
      * @param ItemVarSet $itemVarSet
-     * @return $this
+     * @return Content
      */
     public function setItemVarSet(ItemVarSet $itemVarSet)
     {
@@ -738,7 +764,7 @@ class Content
 
     /**
      * @param ContentVarValueDecimal $itemVarValues
-     * @return $this
+     * @return Content
      */
     public function addVarValueDecimal(ContentVarValueDecimal $itemVarValues)
     {
@@ -758,7 +784,7 @@ class Content
 
     /**
      * @param ContentVarValueDatetime $itemVarValues
-     * @return $this
+     * @return Content
      */
     public function addVarValueDatetime(ContentVarValueDatetime $itemVarValues)
     {
@@ -778,7 +804,7 @@ class Content
 
     /**
      * @param ContentVarValueInt $itemVarValues
-     * @return $this
+     * @return Content
      */
     public function addVarValueInt(ContentVarValueInt $itemVarValues)
     {
@@ -798,7 +824,7 @@ class Content
 
     /**
      * @param ContentVarValueText $itemVarValues
-     * @return $this
+     * @return Content
      */
     public function addVarValueText(ContentVarValueText $itemVarValues)
     {
@@ -818,7 +844,7 @@ class Content
 
     /**
      * @param ContentVarValueVarchar $itemVarValues
-     * @return $this
+     * @return Content
      */
     public function addVarValueVarchar(ContentVarValueVarchar $itemVarValues)
     {
@@ -838,7 +864,7 @@ class Content
 
     /**
      * @param ContentImage $image
-     * @return $this
+     * @return Content
      */
     public function addImage(ContentImage $image)
     {

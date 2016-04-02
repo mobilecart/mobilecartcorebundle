@@ -43,6 +43,7 @@
         <parameter key="cart.repo.content_var_value_text">MobileCartCoreBundle:ContentVarValueText</parameter>
         <parameter key="cart.repo.content_var_value_varchar">MobileCartCoreBundle:ContentVarValueVarchar</parameter>
         <parameter key="cart.repo.customer">MobileCartCoreBundle:Customer</parameter>
+        <parameter key="cart.repo.customer_token">MobileCartCoreBundle:CustomerToken</parameter>
         <parameter key="cart.repo.customer_var_value_datetime">MobileCartCoreBundle:CategoryVarValueDatetime</parameter>
         <parameter key="cart.repo.customer_var_value_decimal">MobileCartCoreBundle:CategoryVarValueDecimal</parameter>
         <parameter key="cart.repo.customer_var_value_int">MobileCartCoreBundle:CategoryVarValueInt</parameter>

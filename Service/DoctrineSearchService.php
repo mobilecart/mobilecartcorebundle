@@ -141,6 +141,7 @@ class DoctrineSearchService extends AbstractSearchService
             $bindTypes[$x] = \PDO::PARAM_STR;
 
             if ($this->getSearchMethod() == CartRepositoryInterface::SEARCH_METHOD_FULLTEXT) {
+                // todo : handle postgres
                 $whereConditions[] = "match(vv.{$this->getSearchField()}) against (? in boolean mode)";
             } else {
                 $whereConditions[] = "vv.{$this->getSearchField()} like ?";

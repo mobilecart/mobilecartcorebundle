@@ -173,6 +173,13 @@ class Customer
     private $shipping_country_id;
 
     /**
+     * @var \MobileCart\CoreBundle\Entity\CustomerToken
+     *
+     * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\CustomerToken", mappedBy="customer")
+     */
+    private $tokens;
+
+    /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarSet
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\ItemVarSet")
@@ -282,6 +289,7 @@ class Customer
 
     public function __construct()
     {
+        $this->tokens = new \Doctrine\Common\Collections\ArrayCollection();
         $this->var_values_datetime = new \Doctrine\Common\Collections\ArrayCollection();
         $this->var_values_decimal = new \Doctrine\Common\Collections\ArrayCollection();
         $this->var_values_int = new \Doctrine\Common\Collections\ArrayCollection();
@@ -1151,6 +1159,26 @@ class Customer
     public function getConfirmHash()
     {
         return $this->confirm_hash;
+    }
+
+    /**
+     * @param CustomerToken $customerToken
+     * @return $this
+     */
+    public function addToken(CustomerToken $customerToken)
+    {
+        $this->tokens[] = $customerToken;
+        return $this;
+    }
+
+    /**
+     * Get tokens
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getTokens()
+    {
+        return $this->tokens;
     }
 
     /**
