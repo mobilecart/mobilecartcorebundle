@@ -200,6 +200,10 @@ class CustomerToken
             'customer_id' => $this->getCustomer()->getId(),
             'service' => $this->getService(),
             'created_at' => $this->getCreatedAt(),
+            'last_payment_at' => $this->getLastPaymentAt(),
+            'next_payment_at' => $this->getNextPaymentAt(),
+            'last_payment_amount' => $this->getLastPaymentAmount(),
+            'next_payment_amount' => $this->getNextPaymentAmount(),
         ];
     }
 
