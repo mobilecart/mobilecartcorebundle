@@ -445,6 +445,7 @@ class Product
         return [
             'id' => $this->getId(),
             'created_at' => $this->getCreatedAt(),
+            'updated_at' => $this->getUpdatedAt(),
             'old_id' => $this->getOldId(),
             'custom_template' => $this->getCustomTemplate(),
             'sort_order' => $this->getSortOrder(),
@@ -732,6 +733,28 @@ class Product
     public function getCreatedAt()
     {
         return $this->created_at;
+    }
+
+    /**
+     * Set updatedAt
+     *
+     * @param \DateTime $updatedAt
+     * @return Product
+     */
+    public function setUpdatedAt($updatedAt)
+    {
+        $this->updated_at = $updatedAt;
+        return $this;
+    }
+
+    /**
+     * Get updatedAt
+     *
+     * @return \DateTime
+     */
+    public function getUpdatedAt()
+    {
+        return $this->updated_at;
     }
 
     /**
