@@ -217,7 +217,7 @@ class ThemeConfig
      */
     public function getObjectTypeTemplates($objectType)
     {
-        $customTemplates = is_array($this->objectTypeTemplates[$objectType])
+        $customTemplates = (isset($this->objectTypeTemplates[$objectType]) && is_array($this->objectTypeTemplates[$objectType]))
             ? $this->objectTypeTemplates[$objectType]
             : [];
 
