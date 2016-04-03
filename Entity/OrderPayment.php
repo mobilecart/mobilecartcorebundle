@@ -90,7 +90,7 @@ class OrderPayment
     /**
      * @var \MobileCart\CoreBundle\Entity\OrderInvoice
      *
-     * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\OrderInvoice")
+     * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\OrderInvoice", inversedBy="payments")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="order_invoice_id", referencedColumnName="id")
      * })

@@ -8,6 +8,19 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class CategoryType extends AbstractType
 {
+    protected $customTemplates = [];
+
+    public function setCustomTemplates(array $customTemplates)
+    {
+        $this->customTemplates = $customTemplates;
+        return $this;
+    }
+
+    public function getCustomTemplates()
+    {
+        return $this->customTemplates;
+    }
+
     /**
      * @param FormBuilderInterface $builder
      * @param array $options
@@ -34,6 +47,10 @@ class CategoryType extends AbstractType
             ->add('meta_keywords', 'textarea', ['required' => false])
             ->add('meta_description', 'textarea', ['required' => false])
             ->add('sort_order', 'text', ['required' => false])
+            ->add('custom_template', 'choice', [
+                'required' => false,
+                'choices' => $this->getCustomTemplates(),
+            ])
             //->add('item_var_set')
         ;
     }

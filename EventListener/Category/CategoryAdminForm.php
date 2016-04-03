@@ -12,6 +12,8 @@ class CategoryAdminForm
 
     protected $formFactory;
 
+    protected $themeConfig;
+
     protected $event;
 
     protected function setEvent($event)
@@ -54,6 +56,17 @@ class CategoryAdminForm
         return $this->formFactory;
     }
 
+    public function setThemeConfig($themeConfig)
+    {
+        $this->themeConfig = $themeConfig;
+        return $this;
+    }
+
+    public function getThemeConfig()
+    {
+        return $this->themeConfig;
+    }
+
     public function onCategoryAdminForm(Event $event)
     {
         $this->setEvent($event);
@@ -62,6 +75,7 @@ class CategoryAdminForm
         $entity = $event->getEntity();
 
         $formType = new CategoryType();
+        $formType->setCustomTemplates($this->getThemeConfig()->getObjectTypeTemplates(EntityConstants::CATEGORY));
         $form = $this->getFormFactory()->create($formType, $entity, [
             'action' => $event->getAction(),
             'method' => $event->getMethod(),
@@ -87,6 +101,7 @@ class CategoryAdminForm
                     'meta_keywords',
                     'meta_description',
                     'sort_order',
+                    'custom_template',
                 ]
             ],
         ];

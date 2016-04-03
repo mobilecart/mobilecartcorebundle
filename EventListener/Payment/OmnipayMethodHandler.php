@@ -1,16 +1,18 @@
 <?php
 
-namespace MobileCart\CoreBundle\Payment\Method\Dummy;
+namespace MobileCart\CoreBundle\EventListener\Payment;
 
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\Payment\Payment;
 use MobileCart\CoreBundle\Payment\GatewayResponse;
 use Symfony\Component\EventDispatcher\Event;
 
-class EventListener
+class OmnipayMethodHandler
 {
 
     protected $paymentMethodService;
+
+    protected $is_enabled;
 
     public function setPaymentMethodService($paymentMethodService)
     {
@@ -23,6 +25,17 @@ class EventListener
         return $this->paymentMethodService;
     }
 
+    public function setIsEnabled($isEnabled)
+    {
+        $this->is_enabled = $isEnabled;
+        return $this;
+    }
+
+    public function getIsEnabled()
+    {
+        return $this->is_enabled;
+    }
+
     /**
      * Event Listener : top-level logic happens here
      *  build a request, handle the request, handle the response
@@ -32,6 +45,10 @@ class EventListener
      */
     public function onPaymentMethodCollect(Event $event)
     {
+        if (!$this->getIsEnabled()) {
+            return false;
+        }
+
         // trying to be more secure by not passing the full service into the view
         //  so , getting the service requires a flag to be set
         if ($event->getFindService()) {

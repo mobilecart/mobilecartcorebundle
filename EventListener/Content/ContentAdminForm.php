@@ -12,6 +12,8 @@ class ContentAdminForm
 
     protected $formFactory;
 
+    protected $themeConfig;
+
     protected $event;
 
     protected function setEvent($event)
@@ -54,6 +56,17 @@ class ContentAdminForm
         return $this->formFactory;
     }
 
+    public function setThemeConfig($themeConfig)
+    {
+        $this->themeConfig = $themeConfig;
+        return $this;
+    }
+
+    public function getThemeConfig()
+    {
+        return $this->themeConfig;
+    }
+
     public function onContentAdminForm(Event $event)
     {
         $this->setEvent($event);
@@ -62,6 +75,7 @@ class ContentAdminForm
         $entity = $event->getEntity();
 
         $formType = new ContentType();
+        $formType->setCustomTemplates($this->getThemeConfig()->getObjectTypeTemplates(EntityConstants::CONTENT));
         $form = $this->getFormFactory()->create($formType, $entity, [
             'action' => $event->getAction(),
             'method' => $event->getMethod(),
@@ -86,12 +100,10 @@ class ContentAdminForm
                 'id' => 'content',
                 'fields' => [
                     'content',
-                    'meta_description',
-                    'meta_title',
-                    'meta_keywords',
                     'meta_title',
                     'meta_keywords',
                     'meta_description',
+                    'custom_template',
                 ]
             ],
         ];

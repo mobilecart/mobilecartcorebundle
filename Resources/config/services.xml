@@ -4,6 +4,11 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
+    <!-- HOWTO Customize:
+        Copy parameters to your custom bundle and change the values
+        Also, ensure that your custom bundle loads after this bundle in app/AppKernel.ph
+    -->
+
     <parameters>
         <parameter key="cart.upload.temp">/tmp</parameter>
         <parameter key="cart.auth.token.class">MobileCart\CoreBundle\Service\GuardTokenAuthService</parameter>
@@ -110,7 +115,12 @@
         <parameter key="cart.listener.checkout.success.return.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutSuccessReturn</parameter>
         <parameter key="cart.listener.shipping_rate.flatrate.class">MobileCart\CoreBundle\EventListener\ShippingRate\FlatRate</parameter>
         <parameter key="cart.listener.shipping_rate.db.class">MobileCart\CoreBundle\EventListener\ShippingRate\DB</parameter>
-        <parameter key="cart.listener.payment.method.dummy.class">MobileCart\CoreBundle\Payment\Method\Dummy\EventListener</parameter>
+        <parameter key="cart.listener.payment.omnipay.method.handler.class">MobileCart\CoreBundle\EventListener\Payment\OmnipayMethodHandler</parameter>
+        <parameter key="cart.payment.method.dummy.class">MobileCart\CoreBundle\Payment\Method\Dummy\DummyPaymentService</parameter>
+        <parameter key="cart.payment.method.dummy.enabled">1</parameter>
+        <parameter key="cart.payment.method.dummy.testmode">1</parameter>
+        <parameter key="cart.payment.method.dummy.authorize">1</parameter>
+        <parameter key="cart.payment.method.dummy.capture">1</parameter>
         <parameter key="cart.listener.cart.view.return.class">MobileCart\CoreBundle\EventListener\Cart\ViewReturn</parameter>
         <parameter key="cart.listener.cart.add.product.class">MobileCart\CoreBundle\EventListener\Cart\AddProduct</parameter>
         <parameter key="cart.listener.cart.remove.product.class">MobileCart\CoreBundle\EventListener\Cart\RemoveProduct</parameter>
@@ -1113,26 +1123,29 @@
         </service>
 
         <!-- Event Listener: Collect Dummy Payment Method Service -->
-        <service id="cart.listener.payment.method.dummy" lazy="true" class="%cart.listener.payment.method.dummy.class%">
+        <service id="cart.listener.payment.method.dummy" lazy="true" class="%cart.listener.payment.omnipay.method.handler.class%">
             <tag name="kernel.event_listener" event="payment_method.collect" method="onPaymentMethodCollect" priority="50" />
             <call method="setPaymentMethodService">
                 <argument type="service" id="cart.payment.method.dummy" />
             </call>
+            <call method="setIsEnabled">
+                <argument type="string">%cart.payment.method.dummy.enabled%</argument>
+            </call>
         </service>
 
         <!-- Service : Dummy/Test Payment Method Service -->
-        <service id="cart.payment.method.dummy" lazy="true" class="MobileCart\CoreBundle\Payment\Method\Dummy\DummyPaymentService">
+        <service id="cart.payment.method.dummy" lazy="true" class="%cart.payment.method.dummy.class%">
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
             </call>
             <call method="setIsTestMode">
-                <argument type="string">1</argument>
+                <argument type="string">%cart.payment.method.dummy.testmode%</argument>
             </call>
             <call method="setEnableAuthorize">
-                <argument type="string">1</argument>
+                <argument type="string">%cart.payment.method.dummy.authorize%</argument>
             </call>
             <call method="setEnableCaptureOnInvoice">
-                <argument type="string">1</argument>
+                <argument type="string">%cart.payment.method.dummy.capture%</argument>
             </call>
         </service>
 
@@ -1265,6 +1278,9 @@
             </call>
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
+            </call>
+            <call method="setThemeConfig">
+                <argument type="service" id="cart.theme.config" />
             </call>
         </service>
 
@@ -1423,6 +1439,9 @@
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
             </call>
+            <call method="setThemeConfig">
+                <argument type="service" id="cart.theme.config" />
+            </call>
         </service>
 
         <!-- Content Services and Listeners -->
@@ -1505,6 +1524,9 @@
             </call>
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
+            </call>
+            <call method="setThemeConfig">
+                <argument type="service" id="cart.theme.config" />
             </call>
         </service>
 

@@ -44,8 +44,12 @@ class ContentViewReturn
         $this->setEvent($event);
         $returnData = $this->getReturnData();
 
+        $template = $event->getEntity()->getCustomTemplate()
+            ? $event->getEntity()->getCustomTemplate()
+            : 'Content:view.html.twig';
+
         $response = $this->getThemeService()
-            ->render('frontend', 'Content:view.html.twig', $returnData);
+            ->render('frontend', $template, $returnData);
 
         $event->setReturnData($returnData);
         $event->setResponse($response);

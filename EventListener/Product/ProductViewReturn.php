@@ -93,8 +93,12 @@ class ProductViewReturn
                 break;
             default:
 
+                $template = $event->getEntity()->getCustomTemplate()
+                    ? $event->getEntity()->getCustomTemplate()
+                    : 'Product:view.html.twig';
+
                 $response = $this->getThemeService()
-                    ->render('frontend', 'Product:view.html.twig', $returnData);
+                    ->render('frontend', $template, $returnData);
 
                 break;
         }

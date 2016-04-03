@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\Payment\Method\Dummy;
 
-use Omnipay\Dummy\Gateway;
+use Omnipay\Dummy\Gateway; // composer package : omnipay/dummy
 
 use MobileCart\CoreBundle\Payment\PaymentMethodServiceInterface;
 
@@ -10,7 +10,8 @@ use MobileCart\CoreBundle\Payment\PaymentMethodServiceInterface;
  * Class DummyPaymentService
  * @package MobileCart\CoreBundle\Payment\Method\Dummy
  */
-class DummyPaymentService implements PaymentMethodServiceInterface
+class DummyPaymentService
+    implements PaymentMethodServiceInterface
 {
     protected $formFactory;
 

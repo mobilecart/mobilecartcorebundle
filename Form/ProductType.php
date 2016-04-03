@@ -13,6 +13,8 @@ class ProductType extends AbstractType
      */
     protected $currency = 'USD';
 
+    protected $customTemplates = [];
+
     /**
      * @param $currency
      * @return $this
@@ -29,6 +31,17 @@ class ProductType extends AbstractType
     public function getCurrency()
     {
         return $this->currency;
+    }
+
+    public function setCustomTemplates(array $customTemplates)
+    {
+        $this->customTemplates = $customTemplates;
+        return $this;
+    }
+
+    public function getCustomTemplates()
+    {
+        return $this->customTemplates;
     }
 
     /**
@@ -87,6 +100,10 @@ class ProductType extends AbstractType
             ->add('meta_keywords', 'textarea', ['required'  => false])
             ->add('meta_description', 'textarea', [
                 'required' => false,
+            ])
+            ->add('custom_template', 'choice', [
+                'required' => false,
+                'choices' => $this->getCustomTemplates(),
             ])
         ;
 

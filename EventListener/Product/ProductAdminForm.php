@@ -14,7 +14,7 @@ class ProductAdminForm
 
     protected $formFactory;
 
-    protected $router;
+    protected $themeConfig;
 
     protected $event;
 
@@ -69,15 +69,15 @@ class ProductAdminForm
         return $this->formFactory;
     }
 
-    public function setRouter($router)
+    public function setThemeConfig($themeConfig)
     {
-        $this->router = $router;
+        $this->themeConfig = $themeConfig;
         return $this;
     }
 
-    public function getRouter()
+    public function getThemeConfig()
     {
-        return $this->router;
+        return $this->themeConfig;
     }
 
     public function onProductAdminForm(Event $event)
@@ -89,6 +89,7 @@ class ProductAdminForm
 
         $formType = new ProductType();
         $formType->setCurrency($this->getCurrencyService()->getBaseCurrency());
+        $formType->setCustomTemplates($this->getThemeConfig()->getObjectTypeTemplates(EntityConstants::PRODUCT));
 
         $form = $this->getFormFactory()->create($formType, $entity, [
             'action' => $event->getAction(),
@@ -126,7 +127,6 @@ class ProductAdminForm
                 'label' => 'Content',
                 'id' => 'content',
                 'fields' => [
-//                    'layout',
                     'content',
                     'page_title',
                     'meta_title',
@@ -134,6 +134,7 @@ class ProductAdminForm
                     'meta_description',
                     'custom_search',
                     'sort_order',
+                    'custom_template',
                 ],
             ],
         ];

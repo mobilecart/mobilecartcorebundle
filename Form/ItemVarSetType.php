@@ -9,6 +9,21 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
 
 class ItemVarSetType extends AbstractType
 {
+    // todo : wire this up
+
+    protected $objectTypes = [];
+
+    public function setObjectTypes(array $objectTypes)
+    {
+        $this->objectTypes = $objectTypes;
+        return $this;
+    }
+
+    public function getObjectTypes()
+    {
+        return $this->objectTypes;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder

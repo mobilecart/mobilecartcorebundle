@@ -196,21 +196,17 @@ class ThemeConfig
 
     /**
      * @param $objectType
-     * @param $code
-     * @param $value
+     * @param $template
      * @param $name
      * @return $this
      */
-    public function setObjectTypeTemplate($objectType, $code, $value, $name)
+    public function setObjectTypeTemplate($objectType, $template, $name)
     {
         if (!is_array($this->objectTypeTemplates[$objectType])) {
             $this->objectTypeTemplates[$objectType] = [];
         }
 
-        $this->objectTypeTemplates[$objectType][$code] = [
-            'value' => $value,
-            'name' => $name,
-        ];
+        $this->objectTypeTemplates[$objectType][$template] = $name;
 
         return $this;
     }
@@ -221,8 +217,13 @@ class ThemeConfig
      */
     public function getObjectTypeTemplates($objectType)
     {
-        return is_array($this->objectTypeTemplates[$objectType])
+        $customTemplates = is_array($this->objectTypeTemplates[$objectType])
             ? $this->objectTypeTemplates[$objectType]
             : [];
+
+        return array_merge(
+            ['' => 'Default'],
+            $customTemplates
+        );
     }
 }

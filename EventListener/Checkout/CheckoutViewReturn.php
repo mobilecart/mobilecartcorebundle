@@ -148,6 +148,10 @@ class CheckoutViewReturn
 
         $returnData['totals_discounts_section'] = CheckoutConstants::STEP_TOTALS_DISCOUNTS;
 
+        if (!isset($returnData['javascripts'])) {
+            $returnData['javascripts'] = [];
+        }
+
         $response = $this->getThemeService()
             ->render($this->getLayout(), $this->getTemplate(), $returnData);
 
