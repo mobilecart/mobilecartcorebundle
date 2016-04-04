@@ -116,11 +116,6 @@
         <parameter key="cart.listener.shipping_rate.flatrate.class">MobileCart\CoreBundle\EventListener\ShippingRate\FlatRate</parameter>
         <parameter key="cart.listener.shipping_rate.db.class">MobileCart\CoreBundle\EventListener\ShippingRate\DB</parameter>
         <parameter key="cart.listener.payment.omnipay.method.handler.class">MobileCart\CoreBundle\EventListener\Payment\OmnipayMethodHandler</parameter>
-        <parameter key="cart.payment.method.dummy.class">MobileCart\CoreBundle\Payment\Method\Dummy\DummyPaymentService</parameter>
-        <parameter key="cart.payment.method.dummy.enabled">1</parameter>
-        <parameter key="cart.payment.method.dummy.testmode">1</parameter>
-        <parameter key="cart.payment.method.dummy.authorize">1</parameter>
-        <parameter key="cart.payment.method.dummy.capture">1</parameter>
         <parameter key="cart.listener.cart.view.return.class">MobileCart\CoreBundle\EventListener\Cart\ViewReturn</parameter>
         <parameter key="cart.listener.cart.add.product.class">MobileCart\CoreBundle\EventListener\Cart\AddProduct</parameter>
         <parameter key="cart.listener.cart.remove.product.class">MobileCart\CoreBundle\EventListener\Cart\RemoveProduct</parameter>
@@ -1119,33 +1114,6 @@
         <service id="cart.payment" lazy="true" class="%cart.payment.class%">
             <call method="setEventDispatcher">
                 <argument type="service" id="event_dispatcher" />
-            </call>
-        </service>
-
-        <!-- Event Listener: Collect Dummy Payment Method Service -->
-        <service id="cart.listener.payment.method.dummy" lazy="true" class="%cart.listener.payment.omnipay.method.handler.class%">
-            <tag name="kernel.event_listener" event="payment_method.collect" method="onPaymentMethodCollect" priority="50" />
-            <call method="setPaymentMethodService">
-                <argument type="service" id="cart.payment.method.dummy" />
-            </call>
-            <call method="setIsEnabled">
-                <argument type="string">%cart.payment.method.dummy.enabled%</argument>
-            </call>
-        </service>
-
-        <!-- Service : Dummy/Test Payment Method Service -->
-        <service id="cart.payment.method.dummy" lazy="true" class="%cart.payment.method.dummy.class%">
-            <call method="setFormFactory">
-                <argument type="service" id="form.factory" />
-            </call>
-            <call method="setIsTestMode">
-                <argument type="string">%cart.payment.method.dummy.testmode%</argument>
-            </call>
-            <call method="setEnableAuthorize">
-                <argument type="string">%cart.payment.method.dummy.authorize%</argument>
-            </call>
-            <call method="setEnableCaptureOnInvoice">
-                <argument type="string">%cart.payment.method.dummy.capture%</argument>
             </call>
         </service>
 

@@ -90,7 +90,7 @@ class CheckoutUpdatePaymentMethod
             }
 
         } else {
-            $returnData['messages'][] = "Invalid Form Submission";
+            $returnData['messages'][] = "Invalid Form Submission. Invalid Payment Service";
         }
 
         $this->getCheckoutSessionService()->setIsValidPaymentMethod($isValid);
