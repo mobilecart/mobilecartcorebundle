@@ -39,6 +39,10 @@ interface PaymentMethodServiceInterface
 
     public function getIsTestMode();
 
+    public function setIsSubmission($isSubmission);
+
+    public function getIsSubmission();
+
     public function setPaymentData($paymentData);
 
     public function getPaymentData();

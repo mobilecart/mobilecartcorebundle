@@ -57,11 +57,15 @@ class CheckoutUpdatePaymentMethod
 
         if ($paymentMethodService) {
 
+            $paymentMethodService->setIsSubmission(true);
+
             $form = $paymentMethodService->buildForm()
                 ->getForm();
 
             $requestData = $request->request->all();
-            $formData = $requestData[$paymentMethod];
+            $formData = isset($requestData[$paymentMethod])
+                ? $requestData[$paymentMethod]
+                : $requestData;
 
             $form->submit($formData);
             $isValid = (int) $form->isValid();
