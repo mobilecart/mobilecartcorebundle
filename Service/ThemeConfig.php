@@ -60,7 +60,7 @@ class ThemeConfig
         $this->config[$code] = [];
         $this->config[$code][self::KEY_LAYOUT] = $layout;
         $this->config[$code][self::KEY_TEMPLATE] = $tplPath;
-        $this->config[$assetDir][self::KEY_ASSET_DIR] = $assetDir;
+        $this->config[$code][self::KEY_ASSET_DIR] = $assetDir;
         $this->config[$code][self::KEY_SPA] = $enableSpa;
         return $this;
     }
