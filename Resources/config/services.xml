@@ -361,23 +361,26 @@
             </call>
         </service>
 
-        <!-- Theme Config : (de-coupled from cart.theme for Twig extensions) -->
+        <!-- Theme Config : (de-coupled from cart.theme to avoid circular references) -->
         <service id="cart.theme.config" lazy="true" class="%cart.theme.config.class%">
             <call method="setTheme">
                 <argument type="string">frontend</argument>
                 <argument type="string">MobileCartFrontendBundle::frontend-layout.html.twig</argument>
                 <argument type="string">MobileCartFrontendBundle:</argument>
+                <argument type="string">bundles/mobilecartfrontend</argument>
                 <argument type="string">0</argument>
             </call>
             <call method="setTheme">
                 <argument type="string">email</argument>
                 <argument type="string">MobileCartFrontendBundle::email-layout.html.twig</argument>
                 <argument type="string">MobileCartFrontendBundle:</argument>
+                <argument type="string">bundles/mobilecartadmin</argument>
             </call>
             <call method="setTheme">
                 <argument type="string">admin</argument>
                 <argument type="string">MobileCartAdminBundle::admin-layout.html.twig</argument>
                 <argument type="string">MobileCartAdminBundle:</argument>
+                <argument type="string">bundles/mobilecartadmin</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">category</argument>

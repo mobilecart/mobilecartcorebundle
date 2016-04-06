@@ -16,6 +16,7 @@ class ThemeConfig
 
     const KEY_LAYOUT = 'layout';
     const KEY_TEMPLATE = 'template';
+    const KEY_ASSET_DIR = 'asset';
     const KEY_SPA = 'spa'; // single page app
 
     /**
@@ -48,16 +49,18 @@ class ThemeConfig
 
     /**
      * @param $code
-     * @param $layout string : layout string
-     * @param $tplPath string : template path
+     * @param string $layout : layout string
+     * @param string $tplPath : template path
+     * @param string $assetDir : eg 'mobilecartfrontend', 'custom/foo'
      * @param $enableSpa int : whether the theme has a single page application
      * @return $this
      */
-    public function setTheme($code, $layout, $tplPath, $enableSpa = 0)
+    public function setTheme($code, $layout, $tplPath, $assetDir, $enableSpa = 0)
     {
         $this->config[$code] = [];
         $this->config[$code][self::KEY_LAYOUT] = $layout;
         $this->config[$code][self::KEY_TEMPLATE] = $tplPath;
+        $this->config[$assetDir][self::KEY_ASSET_DIR] = $assetDir;
         $this->config[$code][self::KEY_SPA] = $enableSpa;
         return $this;
     }
@@ -110,6 +113,49 @@ class ThemeConfig
     public function getTemplatePath($code)
     {
         return $this->config[$code][self::KEY_TEMPLATE];
+    }
+
+    /**
+     *  Set the asset directory eg
+     *  eg
+     *   'bundles/mobilecartfrontend'
+     *   'bundles/custom/foo'
+     *
+     * Notice there are no trailing or front slashes
+     *
+     * @param $code
+     * @param $relPath
+     * @return $this
+     */
+    public function setAssetDir($code, $relPath)
+    {
+        $this->config[$code][self::KEY_ASSET_DIR] = $relPath;
+        return $this;
+    }
+
+    /**
+     * @param $code
+     * @return mixed
+     */
+    public function getAssetDir($code)
+    {
+        return $this->config[$code][self::KEY_ASSET_DIR];
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFrontendAssetDir()
+    {
+        return $this->getAssetDir($this->getFrontendTheme());
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAdminAssetDir()
+    {
+        return $this->getAssetDir($this->getFrontendTheme());
     }
 
     /**

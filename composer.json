@@ -9,7 +9,7 @@
     "description": "E-Commerce Shopping Cart built on Symfony",
     "keywords": ["shopping", "cart", "e-commerce"],
     "homepage": "http://mobilecart.io",
-    "license": "MIT",
+    "license": "BSD-3-Clause",
     "authors": [
         {
             "name": "Jesse Hanson",

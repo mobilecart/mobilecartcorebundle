@@ -63,11 +63,6 @@ class FrontendExtension extends \Twig_Extension
      */
     protected $themeConfig;
 
-    public function __construct()
-    {
-
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -83,6 +78,10 @@ class FrontendExtension extends \Twig_Extension
             'admin' => new \Twig_Function_Method($this, 'admin', array('is_safe' => array('html'))),
             'isSpaEnabled' => new \Twig_Function_Method($this, 'isSpaEnabled', array('is_safe' => array('html'))),
             'templatePath' => new \Twig_Function_Method($this, 'templatePath', array('is_safe' => array('html'))),
+            'frontendAssetDir' => new \Twig_Function_Method($this, 'frontendAssetDir', array('is_safe' => array('html'))),
+            'adminAssetDir' => new \Twig_Function_Method($this, 'adminAssetDir', array('is_safe' => array('html'))),
+            'frontendAsset' => new \Twig_Function_Method($this, 'frontendAsset', array('is_safe' => array('html'))),
+            'adminAsset' => new \Twig_Function_Method($this, 'adminAsset', array('is_safe' => array('html'))),
             'currencySymbol' => new \Twig_Function_Method($this, 'currencySymbol', array('is_safe' => array('html'))),
             'convert' => new \Twig_Function_Method($this, 'convert', array('is_safe' => array('html'))),
             'decorate' => new \Twig_Function_Method($this, 'decorate', array('is_safe' => array('html'))),
@@ -211,6 +210,40 @@ class FrontendExtension extends \Twig_Extension
     public function templatePath($tpl, $theme = 'frontend')
     {
         return $this->getThemeConfig()->getTemplatePath($theme) . $tpl;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function frontendAssetDir()
+    {
+        return $this->getThemeConfig()->getFrontendAssetDir();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function adminAssetDir()
+    {
+        return $this->getThemeConfig()->getAdminAssetDir();
+    }
+
+    /**
+     * @param $relPath
+     * @return string
+     */
+    public function frontendAsset($relPath)
+    {
+        return $this->frontendAssetDir() . '/' . $relPath;
+    }
+
+    /**
+     * @param $relPath
+     * @return string
+     */
+    public function adminAsset($relPath)
+    {
+        return $this->adminAssetDir() . '/' . $relPath;
     }
 
     /**
@@ -571,7 +604,7 @@ class FrontendExtension extends \Twig_Extension
                     case 'type':
                         $types = Product::getTypes();
                         // todo:
-                        //$types = $this->getProductService()->getProductTypes();
+                        //$types = $this->getProductConfigService()->getProductTypes();
                         return isset($types[$value]) ? $types[$value] : $value;
                         break;
                     case 'price':
