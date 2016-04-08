@@ -7,7 +7,7 @@ use MobileCart\CoreBundle\Payment\Payment;
 use MobileCart\CoreBundle\Payment\GatewayResponse;
 use Symfony\Component\EventDispatcher\Event;
 
-class OmnipayMethodHandler
+class PaymentMethodHandler
 {
 
     protected $paymentMethodService;
