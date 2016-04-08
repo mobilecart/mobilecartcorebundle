@@ -12,8 +12,6 @@
 namespace MobileCart\CoreBundle\Event\Payment;
 
 use Symfony\Component\EventDispatcher\Event;
-
-use MobileCart\CoreBundle\Payment\ServiceRequest;
 use MobileCart\CoreBundle\Payment\CollectPaymentMethodRequest;
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 

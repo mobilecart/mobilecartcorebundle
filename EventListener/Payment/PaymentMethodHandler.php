@@ -3,8 +3,6 @@
 namespace MobileCart\CoreBundle\EventListener\Payment;
 
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
-use MobileCart\CoreBundle\Payment\Payment;
-use MobileCart\CoreBundle\Payment\GatewayResponse;
 use Symfony\Component\EventDispatcher\Event;
 
 class PaymentMethodHandler

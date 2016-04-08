@@ -13,7 +13,6 @@ namespace MobileCart\CoreBundle\Service;
 
 use MobileCart\CoreBundle\Event\Payment\FilterPaymentMethodCollectEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
-//use MobileCart\CoreBundle\Payment\ServiceRequest;
 use MobileCart\CoreBundle\Payment\CollectPaymentMethodRequest;
 
 class PaymentService

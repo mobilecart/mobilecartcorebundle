@@ -114,7 +114,7 @@ class OrderService
     protected $isRefund = false;
 
     /**
-     * @var \MobileCart\CoreBundle\Payment\Payment
+     * @var ArrayWrapper
      */
     protected $paymentInfo;
 
@@ -380,7 +380,7 @@ class OrderService
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Payment\Payment
+     * @return ArrayWrapper
      */
     public function getPaymentInfo()
     {

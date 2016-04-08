@@ -2,7 +2,6 @@
 
 namespace MobileCart\CoreBundle\EventListener\Order;
 
-use MobileCart\CoreBundle\Payment\ServiceRequest;
 use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
