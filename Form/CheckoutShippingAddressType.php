@@ -55,6 +55,10 @@ class CheckoutShippingAddressType extends AbstractType
                 'label' => 'shipping.country',
                 'choices' => $this->getCountries(),
             ])
+            ->add('shipping_phone', 'text', [
+                'attr' => ['class' => 'shipping-input'],
+                'label' => 'shipping.phone',
+            ])
         ;
     }
 

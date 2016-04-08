@@ -85,6 +85,12 @@ class CheckoutUpdateBillingAddress
             //update customer data in cart session
             $formData = $form->getData();
             foreach($form->all() as $childKey => $child) {
+
+                // extra precaution
+                if ($childKey == 'id') {
+                    continue;
+                }
+
                 $cartCustomer->set($childKey, $formData->get($childKey));
             }
 

@@ -71,6 +71,10 @@ class CheckoutBillingAddressType extends AbstractType
                     new NotBlank(),
                 ],
             ])
+            ->add('billing_phone', 'text', [
+                'attr' => ['class' => 'billing-input'],
+                'label' => 'billing.phone',
+            ])
         ;
     }
 

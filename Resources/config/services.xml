@@ -14,6 +14,7 @@
         <parameter key="cart.auth.token.class">MobileCart\CoreBundle\Service\GuardTokenAuthService</parameter>
         <parameter key="cart.search.doctrine.class">MobileCart\CoreBundle\Service\DoctrineSearchService</parameter>
         <parameter key="cart.currency.class">MobileCart\CoreBundle\Service\CurrencyService</parameter>
+        <parameter key="cart.currency.base">USD</parameter>
         <parameter key="cart.entity.class">MobileCart\CoreBundle\Service\DoctrineEntityService</parameter>
         <parameter key="cart.image.class">MobileCart\CoreBundle\Service\ImageService</parameter>
         <parameter key="cart.order.class">MobileCart\CoreBundle\Service\OrderService</parameter>
@@ -339,7 +340,7 @@
         <!-- Currency Service -->
         <service id="cart.currency" lazy="true" class="%cart.currency.class%">
             <call method="setBaseCurrency">
-                <argument type="string">USD</argument>
+                <argument type="string">%cart.currency.base%</argument>
             </call>
             <call method="addRate">
                 <argument type="string">USD/EUR</argument>

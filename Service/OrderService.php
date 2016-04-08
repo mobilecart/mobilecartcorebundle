@@ -12,7 +12,7 @@
 namespace MobileCart\CoreBundle\Service;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
-
+use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\EventListener\Cart\DiscountTotal;
 use MobileCart\CoreBundle\EventListener\Cart\GrandTotal;
 use MobileCart\CoreBundle\EventListener\Cart\ItemTotal;
@@ -553,18 +553,20 @@ class OrderService
      * Submit Cart
      *  This is the main method used in checkout
      *
+     * @throws \Exception
      * @return mixed
      */
     public function submitCart()
     {
-        if ($this->getDetectFraudBeforeOrder()) {
+        $cart = $this->getCart();
+
+        if ($this->getDetectFraud()) {
             $this->handleFraudDetection();
             if ($this->getIsFraud()) {
+                // dont allow order to be created
                 // throw new FraudulentOrderException();
             }
         }
-
-        $cart = $this->getCart();
 
         /*
         Scenarios :
@@ -590,89 +592,142 @@ class OrderService
         //*/
 
         if ($this->getEnableCreatePayment()) {
-
-            /** @var PaymentMethodServiceInterface $paymentMethodService */
-            $paymentMethodService = $this->getPaymentMethodService()
-                ->setPaymentData($this->getPaymentData());
-
-            $currencyService = $this->getCurrencyService();
-
-            $baseCurrency = $this->getCurrencyService()->getBaseCurrency();
-            $currency = $cart->getCurrency();
-            if (!strlen($currency)) {
-                $currency = $baseCurrency;
-            }
-            $baseGrandTotal = $cart->getTotal(GrandTotal::KEY)->getValue();
-
-            $grandTotal = ($currency == $baseCurrency)
-                ? $baseGrandTotal
-                : $currencyService->convert($baseGrandTotal, $currency, $baseCurrency);
-
-            $paymentMethodService->setOrderData([
-                'total' => $grandTotal,
-                'currency' => $currency,
-            ]);
-
-            if ($paymentMethodService->canAuthorize()
-                && $paymentMethodService->getEnableAuthorize()) {
-
-                $isAuthorized = $paymentMethodService->authorize()
-                    ->getIsAuthorized();
-
-                if (!$isAuthorized) {
-                    throw new \Exception("Payment Authorization Failed"); // todo : different exception
-                }
-            }
-
-            if ($paymentMethodService->getEnableCaptureOnInvoice()) {
-
-                $isCaptured = $paymentMethodService->capture()
-                    ->getIsCaptured();
-
-                if (!$isCaptured) {
-                    throw new \Exception("Payment Authorization Failed"); // todo : different exception
-                }
-            }
-
+            $this->capturePayment();
         }
 
         $this->createOrder();
 
-        if ($this->getEnableCreateInvoice()) {
-            $this->createInvoice();
-            //$this->payInvoice();
-        }
+        if ($this->getEnableCreateInvoice()
+            || $this->getEnableCreatePayment()
+        ) {
 
-        // todo : if paymentSuccess create OrderPayment object
+            // create invoice
+            $this->createUpdateInvoice();
+
+            if ($this->getEnableCreatePayment()
+                && $this->getPaymentMethodService()
+                && $this->getPaymentMethodService()->getIsCaptured()
+            ) {
+
+                $this->createOrderPayment();
+
+                // update invoice, mark as paid
+                $this->createUpdateInvoice();
+            }
+        }
 
         return $this;
     }
 
     /**
-     *
+     * @return $this
      */
     public function handleFraudDetection()
     {
+        $cart = $this->getCart();
 
-        $order = $this->getOrder();
-        $invoice = $this->getInvoice();
+        // send cart info and possibly payment info to fraud detection service
 
-        // todo : figure out where we are. is order created? is invoice created ?
+        $isFraud = false;
+        $this->setIsFraud($isFraud);
+        return $this;
+    }
 
-        if ($invoice) {
-            // todo : was the order already checked for fraud ?
-            // todo : call fraud detection service, set isFraud as necessary
+    /**
+     * Authorize payment via payment method service
+     *
+     * Note: for checkout, authorization should happen in this event: checkout.update.payment.method
+     *
+     * @throws \Exception
+     */
+    public function authorizePayment()
+    {
+        $cart = $this->getCart();
 
-        } elseif ($order) {
-            // todo : was the order already checked for fraud ?
-            // todo : call fraud detection service, set isFraud as necessary
+        /** @var PaymentMethodServiceInterface $paymentMethodService */
+        $paymentMethodService = $this->getPaymentMethodService()
+            ->setPaymentData($this->getPaymentData());
 
-        } else {
-            // todo : call fraud detection service, set isFraud as necessary
+        $currencyService = $this->getCurrencyService();
+
+        $baseCurrency = $this->getCurrencyService()->getBaseCurrency();
+        $currency = $cart->getCurrency();
+        if (!strlen($currency)) {
+            $currency = $baseCurrency;
+        }
+        $baseGrandTotal = $cart->getTotal(GrandTotal::KEY)->getValue();
+
+        $grandTotal = ($currency == $baseCurrency)
+            ? $baseGrandTotal
+            : $currencyService->convert($baseGrandTotal, $currency, $baseCurrency);
+
+        $paymentMethodService->setOrderData([
+            'total' => $grandTotal,
+            'currency' => $currency,
+        ]);
+
+        $isAuthorized = $paymentMethodService->authorize()
+            ->getIsAuthorized();
+
+        if (!$isAuthorized) {
+            throw new \Exception("Payment Authorization Failed"); // todo : different exception
         }
 
+        return $this;
+    }
 
-        // todo : update info as necessary
+    /**
+     * Capture payment via payment method service
+     *
+     * @throws \Exception
+     */
+    public function capturePayment()
+    {
+        $cart = $this->getCart();
+
+        /** @var PaymentMethodServiceInterface $paymentMethodService */
+        $paymentMethodService = $this->getPaymentMethodService()
+            ->setPaymentData($this->getPaymentData());
+
+        $currencyService = $this->getCurrencyService();
+
+        $baseCurrency = $this->getCurrencyService()->getBaseCurrency();
+        $currency = $cart->getCurrency();
+        if (!strlen($currency)) {
+            $currency = $baseCurrency;
+        }
+        $baseGrandTotal = $cart->getTotal(GrandTotal::KEY)->getValue();
+
+        $grandTotal = ($currency == $baseCurrency)
+            ? $baseGrandTotal
+            : $currencyService->convert($baseGrandTotal, $currency, $baseCurrency);
+
+        $paymentMethodService->setOrderData([
+            'total' => $grandTotal,
+            'currency' => $currency,
+        ]);
+
+        // Note: Authorization should happen in this event: checkout.update.payment.method
+
+        $isCaptured = $paymentMethodService->capture()
+            ->getIsCaptured();
+
+        if (!$isCaptured) {
+            throw new \Exception("Payment Capture Failed"); // todo : different exception
+        }
+
+        $this->setPaymentInfo(new ArrayWrapper([
+            'code' => $this->getPaymentMethodService()->getCode(),
+            'label' => $this->getPaymentMethodService()->getLabel(),
+            'base_currency' => $baseCurrency,
+            'base_amount' => $baseGrandTotal,
+            'currency' => $currency,
+            'amount' => $grandTotal,
+            'is_refund' => 0
+            //'confirmation' => $this->getPaymentMethodService()->getConfirmation(),
+        ]));
+
+        return $this;
     }
 
     /**
@@ -705,18 +760,24 @@ class OrderService
             $order = $this->getEntityService()->getInstance(EntityConstants::ORDER);
 
             $customer = $this->getEntityService()->find(EntityConstants::CUSTOMER, $cartCustomer->getId());
-
-            // todo : phone number !
+            if (!$customer) {
+                $customer = $this->getEntityService()->getInstance(EntityConstants::CUSTOMER);
+                // todo : do more testing with this
+                $customer->fromArray($cartCustomer->getData());
+                $this->getEntityService()->persist($customer);
+            }
 
             $order->setCustomer($customer)
                 ->setEmail($cartCustomer->getEmail())
                 ->setBillingName($cartCustomer->getBillingName())
+                ->setBillingPhone($cartCustomer->getBillingPhone())
                 ->setBillingStreet($cartCustomer->getBillingStreet())
                 ->setBillingCity($cartCustomer->getBillingCity())
                 ->setBillingRegion($cartCustomer->getBillingRegion())
                 ->setBillingPostcode($cartCustomer->getBillingPostcode())
                 ->setBillingCountryId($cartCustomer->getBillingCountryId())
                 ->setShippingName($cartCustomer->getShippingName())
+                ->setShippingPhone($cartCustomer->getShippingPhone())
                 ->setShippingStreet($cartCustomer->getShippingStreet())
                 ->setShippingCity($cartCustomer->getShippingCity())
                 ->setShippingRegion($cartCustomer->getShippingRegion())
@@ -780,7 +841,6 @@ class OrderService
         // update order
         $this->getEntityService()->persist($order);
 
-
         // handle EAV, if necessary
         //if ($formData /* && $this->getEntityService()->isEAV() */) {
         //    $this->getEntityService()
@@ -793,7 +853,7 @@ class OrderService
         // save items
         $this->createOrderItems();
 
-        // save shipments
+        // todo: save shipments
         //$this->createOrderShipment();
 
         return $this;
@@ -929,11 +989,6 @@ class OrderService
             throw new \Exception("Cannot create Order Payments. Order is not set");
         }
 
-        //$invoice = $this->getInvoice();
-        //if (!$invoice) {
-        //    throw new \InvalidArgumentException("Invoice is Invalid");
-        //}
-
         $paymentInfo = $this->getPaymentInfo();
         if (!$paymentInfo) {
             throw new \InvalidArgumentException("Payment Info is Invalid");
@@ -947,9 +1002,17 @@ class OrderService
             unset($paymentData['id']);
         }
 
+        // $baseCurrency = $this->getCurrencyService()->getBaseCurrency();
+        // $currency = $this->getCartService()->getCustomer()->getCurrency();
+
         $orderPayment->fromArray($paymentData);
         $orderPayment->setOrder($order);
-        //$orderPayment->setInvoice($invoice);
+
+        if ($this->getEnableCreateInvoice()
+            && $this->getInvoice()
+        ) {
+            $orderPayment->setInvoice($this->getInvoice());
+        }
 
         $this->getEntityService()->persist($orderPayment);
         $this->setPayment($orderPayment);
@@ -958,24 +1021,35 @@ class OrderService
     }
 
     /**
-     * @return OrderInvoice
+     * @return $this
      * @throws \InvalidArgumentException
      */
-    public function createInvoice()
+    public function createUpdateInvoice()
     {
         $order = $this->getOrder();
         if (!$order) {
             throw new \InvalidArgumentException("Order is Invalid");
         }
 
-        $invoice = $this->getEntityService()->getInstance(EntityConstants::ORDER_INVOICE);
+        $baseAmountPaid = $this->getPayment()
+            ? $this->getPayment()->getBaseAmount()
+            : '0.00';
+
+        $amountPaid = $this->getPayment()
+            ? $this->getPayment()->getAmount()
+            : '0.00';
+
+        $invoice = $this->getInvoice()
+            ? $this->getInvoice()
+            : $this->getEntityService()->getInstance(EntityConstants::ORDER_INVOICE);
+
         $invoice->setOrder($order)
             ->setBaseCurrency($order->getBaseCurrency())
             ->setBaseAmountDue($order->getBaseTotal())
-            ->setBaseAmountPaid('0.00')
+            ->setBaseAmountPaid($baseAmountPaid)
             ->setCurrency($order->getCurrency())
             ->setAmountDue($order->getTotal())
-            ->setAmountPaid('0.00');
+            ->setAmountPaid($amountPaid);
 
         $this->getEntityService()->persist($invoice);
 
@@ -986,68 +1060,6 @@ class OrderService
 
     /**
      * @return $this
-     * @throws \MobileCart\CoreBundle\Payment\Exception\PaymentFailedException
-     * @throws \InvalidArgumentException
-     */
-    public function payInvoice()
-    {
-        $order = $this->getOrder();
-        if (!$order) {
-            throw new \InvalidArgumentException("Order is Invalid");
-        }
-
-        $invoice = $this->getInvoice();
-        if (!$invoice) {
-            throw new \InvalidArgumentException("Invoice is Invalid");
-        }
-
-        if ($this->getDetectFraud()) {
-            $this->handleFraudDetection();
-            if ($this->getIsFraud()) {
-                // throw new FraudulentOrderException();
-            }
-        }
-
-        // todo : store row in payment log; preferably a CSV or db table
-
-        // process payment via PaymentService
-        /** @var \MobileCart\CoreBundle\Payment\ServiceResponse $response */
-        $response = $this->getPaymentService()
-            ->handlePayment($this->getPaymentMethod(), $this->getPaymentData(), $order->getData());
-
-        if ($response->getSuccess()) {
-
-            $paymentInfo = $response->getPayment();
-            // set Payment Info using a formal object
-            $this->setPaymentInfo($paymentInfo);
-            // store payment history
-            $this->createOrderPayment();
-            // update invoice
-
-            $isPaid = ($paymentInfo->getBaseAmount() >= $this->getInvoice()->getBaseAmountDue())
-                ? 1
-                : 0;
-
-            $this->getInvoice()
-                ->setBaseCurrency($paymentInfo->getBaseCurrency())
-                ->setCurrency($paymentInfo->getCurrency())
-                ->setBaseAmountPaid($paymentInfo->getBaseAmount())
-                ->setAmountPaid($paymentInfo->getAmount())
-                ->setIsPaid($isPaid);
-
-            $invoice = $this->getInvoice();
-            $this->getEntityService()->persist($invoice);
-            $this->setInvoice($invoice);
-
-        } else {
-            throw new PaymentFailedException("Payment failed.");
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return OrderRefund
      * @throws \InvalidArgumentException
      */
     public function createRefund()
@@ -1057,7 +1069,9 @@ class OrderService
             throw new \InvalidArgumentException("Order is Invalid");
         }
 
-        return $this->refund;
+        // $this->setRefund();
+
+        return $this;
     }
 
     /**
@@ -1075,5 +1089,6 @@ class OrderService
         // if successful, create OrderPayment via Entity Service
 
         // else throw PaymentFailedException
+        return $this;
     }
 }

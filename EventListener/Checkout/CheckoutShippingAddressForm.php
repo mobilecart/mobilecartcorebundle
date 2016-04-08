@@ -100,6 +100,7 @@ class CheckoutShippingAddressForm
                     'shipping_region',
                     'shipping_postcode',
                     'shipping_country_id',
+                    'shipping_phone',
                 ],
                 'post_url' => $this->getRouter()->generate('cart_checkout_update_shipping_address', []),
             ],

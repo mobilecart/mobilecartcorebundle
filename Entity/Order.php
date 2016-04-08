@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * MobileCart\CoreBundle\Entity\Order
  *
- * @ORM\Table(name="order_sale")
+ * @ORM\Table(name="order_sale", indexes={@ORM\Index(name="order_email_idx", columns={"email"})})
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\OrderRepository")
  */
 class Order
@@ -35,7 +35,7 @@ class Order
     /**
      * @var string $email
      *
-     * @ORM\Column(name="email", type="string", length=255, unique=true)
+     * @ORM\Column(name="email", type="string", length=255, nullable=false)
      *
      */
     private $email;

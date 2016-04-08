@@ -124,14 +124,8 @@ class CheckoutSubmitOrder
         $orderService = $this->getOrderService()
             ->setCart($cart);
 
-        // todo : create customer, if guest checkout
-
-        if ($orderService->getEnableCreatePayment()) {
-
-            $orderService->setPaymentMethodService($paymentMethodService)
-                ->setPaymentData($paymentData);
-
-        }
+        $orderService->setPaymentMethodService($paymentMethodService)
+            ->setPaymentData($paymentData);
 
         // create order, orderItems, orderShipments, orderInvoice
         //  and payment, if necessary
@@ -154,6 +148,22 @@ class CheckoutSubmitOrder
                 ->set('order_id', $orderService->getOrder()->getId());
 
             $returnData['redirect_url'] = $this->getRouter()->generate('cart_checkout_success', []);
+        } else {
+            if (!$this->getCheckoutSessionService()->getIsValidBillingAddress()) {
+                $returnData['invalid_sections'][] = CheckoutConstants::STEP_BILLING_ADDRESS;
+            }
+
+            if (!$this->getCheckoutSessionService()->getIsValidShippingAddress()) {
+                $returnData['invalid_sections'][] = CheckoutConstants::STEP_SHIPPING_ADDRESS;
+            }
+
+            if (!$this->getCheckoutSessionService()->getIsValidTotals()) {
+                $returnData['invalid_sections'][] = CheckoutConstants::STEP_TOTALS_DISCOUNTS;
+            }
+
+            if (!$this->getCheckoutSessionService()->getIsValidPaymentMethod()) {
+                $returnData['invalid_sections'][] = CheckoutConstants::STEP_PAYMENT_METHODS;
+            }
         }
 
         $returnData['success'] = $isValid;
