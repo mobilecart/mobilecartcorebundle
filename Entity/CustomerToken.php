@@ -40,11 +40,46 @@ class CustomerToken
     private $service;
 
     /**
-     * @var string $crated_at
+     * @var string $token
+     *
+     * @ORM\Column(name="token", type="string", length=255, nullable=false)
+     */
+    private $token;
+
+    /**
+     * @var string $cc_type
+     *
+     * @ORM\Column(name="cc_type", type="string", length=64, nullable=true)
+     */
+    private $cc_type;
+
+    /**
+     * @var string $cc_last_four
+     *
+     * @ORM\Column(name="cc_last_four", type="string", length=4, nullable=true)
+     */
+    private $cc_last_four;
+
+    /**
+     * @var string $cc_fingerprint
+     *
+     * @ORM\Column(name="cc_fingerprint", type="string", length=255, nullable=true)
+     */
+    private $cc_fingerprint;
+
+    /**
+     * @var string $created_at
      *
      * @ORM\Column(name="created_at", type="datetime", nullable=true)
      */
     private $created_at;
+
+    /**
+     * @var string $crated_at
+     *
+     * @ORM\Column(name="expires_at", type="datetime", nullable=true)
+     */
+    private $expires_at;
 
     /**
      * @var string $last_payment_at
@@ -199,7 +234,11 @@ class CustomerToken
             'id' => $this->getId(),
             'customer_id' => $this->getCustomer()->getId(),
             'service' => $this->getService(),
+            'token' => $this->getToken(),
+            'cc_type' => $this->getCcType(),
+            'cc_last_four' => $this->getCcLastFour(),
             'created_at' => $this->getCreatedAt(),
+            'expires_at' => $this->getExpiresAt(),
             'last_payment_at' => $this->getLastPaymentAt(),
             'next_payment_at' => $this->getNextPaymentAt(),
             'last_payment_amount' => $this->getLastPaymentAmount(),
@@ -244,6 +283,78 @@ class CustomerToken
     }
 
     /**
+     * @param $token
+     * @return $this
+     */
+    public function setToken($token)
+    {
+        $this->token = $token;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getToken()
+    {
+        return $this->token;
+    }
+
+    /**
+     * @param $ccType
+     * @return $this
+     */
+    public function setCcType($ccType)
+    {
+        $this->cc_type = $ccType;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCcType()
+    {
+        return $this->cc_type;
+    }
+
+    /**
+     * @param $ccLastFour
+     * @return $this
+     */
+    public function setCcLastFour($ccLastFour)
+    {
+        $this->cc_last_four = $ccLastFour;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCcLastFour()
+    {
+        return $this->cc_last_four;
+    }
+
+    /**
+     * @param $ccFingerprint
+     * @return $this
+     */
+    public function setCcFingerprint($ccFingerprint)
+    {
+        $this->cc_fingerprint = $ccFingerprint;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCcFingerprint()
+    {
+        return $this->cc_fingerprint;
+    }
+
+    /**
      * Set createdAt
      *
      * @param \DateTime $createdAt
@@ -263,6 +374,24 @@ class CustomerToken
     public function getCreatedAt()
     {
         return $this->created_at;
+    }
+
+    /**
+     * @param $expiresAt
+     * @return $this
+     */
+    public function setExpiresAt($expiresAt)
+    {
+        $this->expires_at = $expiresAt;
+        return $this;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getExpiresAt()
+    {
+        return $this->expires_at;
     }
 
     /**

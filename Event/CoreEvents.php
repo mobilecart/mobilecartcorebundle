@@ -16,6 +16,9 @@ final class CoreEvents
     const HOME_VIEW_RETURN = 'home.view.return';
     const DASHBOARD_VIEW_RETURN = 'dashboard.view.return';
 
+    const LOGIN_SUCCESS = 'login.success';
+    const LOGIN_LOCKED = 'login.locked';
+
     const CART_ADD_PRODUCT = 'cart.add.product';
     const CART_ADD_SHIPMENT = 'cart.add.shipment';
     const CART_REMOVE_PRODUCT = 'cart.remove.product';
@@ -184,6 +187,7 @@ final class CoreEvents
     const ORDER_CREATE_RETURN = 'order.create.return';
     const ORDER_UPDATE_RETURN = 'order.update.return';
     const ORDER_ADMIN_FORM = 'order.admin.form';
+    const ORDER_SUBMIT_SUCCESS = 'order.submit.success';
 
     // All Payment methods
     const PAYMENT_METHOD_COLLECT = 'payment_method.collect';

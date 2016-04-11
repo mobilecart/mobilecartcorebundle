@@ -12,6 +12,8 @@ use Symfony\Component\Security\Http\HttpUtils;
 use Symfony\Component\Security\Http\ParameterBagUtils;
 use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
 use MobileCart\CoreBundle\Constants\EntityConstants;
+use MobileCart\CoreBundle\Event\CoreEvent;
+use MobileCart\CoreBundle\Event\CoreEvents;
 
 class LoginFailed implements AuthenticationFailureHandlerInterface
 {
@@ -29,6 +31,14 @@ class LoginFailed implements AuthenticationFailureHandlerInterface
         'failure_path_parameter' => '_failure_path',
     );
 
+    /**
+     * @var EventDispatcher
+     */
+    protected $eventDispatcher;
+
+    /**
+     * @var
+     */
     protected $entityService;
 
     /**
@@ -66,6 +76,24 @@ class LoginFailed implements AuthenticationFailureHandlerInterface
     }
 
     /**
+     * @param $eventDispatcher
+     * @return $this
+     */
+    public function setEventDispatcher($eventDispatcher)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+        return $this;
+    }
+
+    /**
+     * @return EventDispatcher
+     */
+    public function getEventDispatcher()
+    {
+        return $this->eventDispatcher;
+    }
+
+    /**
      * Gets the options.
      *
      * @return array An array of options
@@ -98,6 +126,8 @@ class LoginFailed implements AuthenticationFailureHandlerInterface
             $this->options['failure_path'] = $this->options['login_path'];
         }
 
+        $event = new CoreEvent();
+
         $username = $request->get('_username', '');
         if ($username) {
 
@@ -118,15 +148,20 @@ class LoginFailed implements AuthenticationFailureHandlerInterface
                 if ($failedLogins >= self::MAX_FAILED_LOGINS && !$user->getIsLocked()) {
 
                     $user->setIsLocked(1)
+                        ->setApiKey('')
                         ->setLockedAt(new \DateTime('now'));
 
-                    // todo : send email ?
+                    // observe event, possibly send an email
+
+                    $event->setUser($user);
+
+                    $this->getEventDispatcher()
+                        ->dispatch(CoreEvents::LOGIN_LOCKED, $event);
 
                     // todo : un-lock users via cron script, also expire passwords
                 }
 
                 $user->setFailedLogins($failedLogins);
-
                 $this->getEntityService()->persist($user);
             }
         }

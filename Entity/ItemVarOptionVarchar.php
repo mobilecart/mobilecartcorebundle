@@ -59,6 +59,8 @@ class ItemVarOptionVarchar
      */
     private $is_in_stock;
 
+    // todo : image_path, or css class, or color code ?
+
     /**
      * @var float $additional_price
      *

@@ -13,6 +13,8 @@ namespace MobileCart\CoreBundle\Service;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
+use MobileCart\CoreBundle\Event\CoreEvent;
+use MobileCart\CoreBundle\Event\CoreEvents;
 use MobileCart\CoreBundle\EventListener\Cart\DiscountTotal;
 use MobileCart\CoreBundle\EventListener\Cart\GrandTotal;
 use MobileCart\CoreBundle\EventListener\Cart\ItemTotal;
@@ -33,6 +35,18 @@ use MobileCart\CoreBundle\Payment\Exception\PaymentFailedException;
  */
 class OrderService
 {
+    /**
+     * @var EventDispatcher
+     */
+    protected $eventDispatcher;
+
+    /**
+     * Passed into events, for event listeners
+     *
+     * @var array
+     */
+    protected $eventData = [];
+
     /**
      * @var AbstractEntityService
      */
@@ -142,6 +156,43 @@ class OrderService
      * @var OrderRefund
      */
     protected $refund;
+
+    /**
+     * @param $eventDispatcher
+     * @return $this
+     */
+    public function setEventDispatcher($eventDispatcher)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+        return $this;
+    }
+
+    /**
+     * @return EventDispatcher
+     */
+    public function getEventDispatcher()
+    {
+        return $this->eventDispatcher;
+    }
+
+    /**
+     * @param $key
+     * @param $value
+     * @return $this
+     */
+    public function setEventData($key, $value)
+    {
+        $this->eventData[$key] = $value;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getEventData()
+    {
+        return $this->eventData;
+    }
 
     /**
      * @param $entityService
@@ -373,7 +424,7 @@ class OrderService
      * @param $paymentInfo
      * @return $this
      */
-    public function setPaymentInfo($paymentInfo)
+    public function setOrderPaymentData($paymentInfo)
     {
         $this->paymentInfo = $paymentInfo;
         return $this;
@@ -382,7 +433,7 @@ class OrderService
     /**
      * @return ArrayWrapper
      */
-    public function getPaymentInfo()
+    public function getOrderPaymentData()
     {
         return $this->paymentInfo;
     }
@@ -403,24 +454,6 @@ class OrderService
     public function getPayment()
     {
         return $this->payment;
-    }
-
-    /**
-     * @param $detectFraud
-     * @return $this
-     */
-    public function setDetectFraudBeforeOrder($detectFraud)
-    {
-        $this->detectFraud = $detectFraud;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getDetectFraudBeforeOrder()
-    {
-        return $this->detectFraud;
     }
 
     /**
@@ -558,8 +591,6 @@ class OrderService
      */
     public function submitCart()
     {
-        $cart = $this->getCart();
-
         if ($this->getDetectFraud()) {
             $this->handleFraudDetection();
             if ($this->getIsFraud()) {
@@ -567,29 +598,6 @@ class OrderService
                 // throw new FraudulentOrderException();
             }
         }
-
-        /*
-        Scenarios :
-
-        A. Shipping enabled , capture on shipment
-         1. authorize
-         2. create order, invoice, email customer
-         3. capture, mark invoice as paid, create shipment
-         4. enter tracking number, email customer
-
-        B. Shipping enabled, capture on invoice
-         1. authorize, capture
-         2. create order, invoice
-         3. mark invoice as paid, email customer
-         4. create shipment, enter tracking number, email customer
-
-        C. Shipping disabled, capture on invoice
-         1. authorize, capture
-         2. create order, invoice, mark invoice as paid
-         3. post-handling for digital downloads, subscription, etc
-         4. email customer
-
-        //*/
 
         if ($this->getEnableCreatePayment()) {
             $this->capturePayment();
@@ -615,6 +623,17 @@ class OrderService
                 $this->createUpdateInvoice();
             }
         }
+
+        $event = new CoreEvent();
+        $event->addData($this->getEventData())
+            ->setCart($this->getCart())
+            ->setOrder($this->getOrder())
+            ->setPayment($this->getPayment())
+            ->setInvoice($this->getInvoice())
+            ;
+
+        $this->getEventDispatcher()
+            ->dispatch(CoreEvents::ORDER_SUBMIT_SUCCESS, $event);
 
         return $this;
     }
@@ -696,6 +715,7 @@ class OrderService
         if (!strlen($currency)) {
             $currency = $baseCurrency;
         }
+
         $baseGrandTotal = $cart->getTotal(GrandTotal::KEY)->getValue();
 
         $grandTotal = ($currency == $baseCurrency)
@@ -705,6 +725,8 @@ class OrderService
         $paymentMethodService->setOrderData([
             'total' => $grandTotal,
             'currency' => $currency,
+            'base_total' => $baseGrandTotal,
+            'base_currency' => $baseCurrency,
         ]);
 
         // Note: Authorization should happen in this event: checkout.update.payment.method
@@ -715,17 +737,6 @@ class OrderService
         if (!$isCaptured) {
             throw new \Exception("Payment Capture Failed"); // todo : different exception
         }
-
-        $this->setPaymentInfo(new ArrayWrapper([
-            'code' => $this->getPaymentMethodService()->getCode(),
-            'label' => $this->getPaymentMethodService()->getLabel(),
-            'base_currency' => $baseCurrency,
-            'base_amount' => $baseGrandTotal,
-            'currency' => $currency,
-            'amount' => $grandTotal,
-            'is_refund' => 0
-            //'confirmation' => $this->getPaymentMethodService()->getConfirmation(),
-        ]));
 
         return $this;
     }
@@ -989,28 +1000,22 @@ class OrderService
             throw new \Exception("Cannot create Order Payments. Order is not set");
         }
 
-        $paymentInfo = $this->getPaymentInfo();
-        if (!$paymentInfo) {
+        $paymentData = $this->getPaymentMethodService()->getOrderPaymentData();
+        if (!$paymentData) {
             throw new \InvalidArgumentException("Payment Info is Invalid");
         }
 
         $orderPayment = $this->getEntityService()->getInstance(EntityConstants::ORDER_PAYMENT);
-        $paymentData = $paymentInfo->getData();
 
         // careful with IDs
         if (isset($paymentData['id'])) {
             unset($paymentData['id']);
         }
 
-        // $baseCurrency = $this->getCurrencyService()->getBaseCurrency();
-        // $currency = $this->getCartService()->getCustomer()->getCurrency();
-
         $orderPayment->fromArray($paymentData);
         $orderPayment->setOrder($order);
 
-        if ($this->getEnableCreateInvoice()
-            && $this->getInvoice()
-        ) {
+        if ($this->getInvoice()) {
             $orderPayment->setInvoice($this->getInvoice());
         }
 

@@ -94,6 +94,11 @@ class CheckoutUpdateBillingAddress
                 $cartCustomer->set($childKey, $formData->get($childKey));
             }
 
+            if ($cartCustomer->getId()) {
+                // todo : update customer entity
+
+            }
+
             // todo: if tax is enabled and shipping is disabled, then apply tax to billing
 
             // todo : collect totals regardless

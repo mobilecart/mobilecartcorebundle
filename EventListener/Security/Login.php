@@ -3,6 +3,8 @@
 namespace MobileCart\CoreBundle\EventListener\Security;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
+use MobileCart\CoreBundle\Event\CoreEvent;
+use MobileCart\CoreBundle\Event\CoreEvents;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
@@ -22,7 +24,19 @@ class Login implements AuthenticationSuccessHandlerInterface
         'use_referer' => false,
     );
 
+    /**
+     * @var EventDispatcher
+     */
+    protected $eventDispatcher;
+
+    /**
+     * @var
+     */
     protected $cartSessionService;
+
+    /**
+     * @var
+     */
     protected $entityService;
 
     /**
@@ -67,6 +81,24 @@ class Login implements AuthenticationSuccessHandlerInterface
     }
 
     /**
+     * @param $eventDispatcher
+     * @return $this
+     */
+    public function setEventDispatcher($eventDispatcher)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+        return $this;
+    }
+
+    /**
+     * @return EventDispatcher
+     */
+    public function getEventDispatcher()
+    {
+        return $this->eventDispatcher;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token)
@@ -74,21 +106,36 @@ class Login implements AuthenticationSuccessHandlerInterface
         $user = $token->getUser();
         $class = get_class($user);
 
+        $event = new CoreEvent();
+
         if ($class === $this->getEntityService()->getRepository(EntityConstants::CUSTOMER)->getClassName()) {
             $user = $this->getEntityService()->find(EntityConstants::CUSTOMER, $token->getUser()->getId());
             $this->getCartSessionService()
                 ->setCustomerEntity($user)
                 ->collectShippingMethods()
                 ->collectTotals();
+
+            $event->setIsCustomer(1);
         } else {
             $user = $this->getEntityService()->find(EntityConstants::ADMIN_USER, $token->getUser()->getId());
+            $event->setIsAdmin(1);
         }
 
         $user->setFailedLogins(0)
-            ->setLastLoginAt(new \DateTime('now'))
-            ->setApiKey(md5(microtime()));
+            ->setLastLoginAt(new \DateTime('now'));
+
+        if (!$user->getApiKey()) {
+            $user->setApiKey(md5(microtime()));
+        }
 
         $this->getEntityService()->persist($user);
+
+        // observe event, for subscriptions, etc
+
+        $event->setUser($user);
+
+        $this->getEventDispatcher()
+            ->dispatch(CoreEvents::LOGIN_SUCCESS, $event);
 
         if ($request->get('format', '') == 'json') {
             return new JsonResponse(array_merge(['success' => 1], $token->getUser()->getData()));

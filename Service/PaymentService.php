@@ -76,25 +76,4 @@ class PaymentService
 
         return $event->getService();
     }
-
-    /**
-     * @param string $code
-     * @param array $paymentData
-     * @param array $orderData
-     * @return object
-     */
-    public function handlePayment($code, array $paymentData, array $orderData)
-    {
-        // dispatch event
-        $event = new FilterPaymentMethodCollectEvent();
-        $event->setHandlePayment(true)
-            ->setCode($code)
-            ->setPaymentData($paymentData)
-            ->setOrderData($orderData);
-
-        $this->getEventDispatcher()
-            ->dispatch(CoreEvents::PAYMENT_METHOD_COLLECT, $event);
-
-        return $event->getResponse();
-    }
 }

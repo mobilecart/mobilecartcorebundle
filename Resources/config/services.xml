@@ -10,11 +10,15 @@
     -->
 
     <parameters>
+        <parameter key="cart.config.currency.base">USD</parameter>
+        <parameter key="cart.load.currency">cart.currency</parameter>
+        <parameter key="cart.load.admin">cart.search.doctrine</parameter>
+        <parameter key="cart.load.frontend">cart.entity</parameter>
+        <parameter key="cart.search.frontend">cart.search.doctrine</parameter>
         <parameter key="cart.upload.temp">/tmp</parameter>
         <parameter key="cart.auth.token.class">MobileCart\CoreBundle\Service\GuardTokenAuthService</parameter>
         <parameter key="cart.search.doctrine.class">MobileCart\CoreBundle\Service\DoctrineSearchService</parameter>
         <parameter key="cart.currency.class">MobileCart\CoreBundle\Service\CurrencyService</parameter>
-        <parameter key="cart.currency.base">USD</parameter>
         <parameter key="cart.entity.class">MobileCart\CoreBundle\Service\DoctrineEntityService</parameter>
         <parameter key="cart.image.class">MobileCart\CoreBundle\Service\ImageService</parameter>
         <parameter key="cart.order.class">MobileCart\CoreBundle\Service\OrderService</parameter>
@@ -88,10 +92,6 @@
         <parameter key="cart.repo.ref_country_region">MobileCartCoreBundle:RefCountryRegion</parameter>
         <parameter key="cart.repo.shipping_method">MobileCartCoreBundle:ShippingMethod</parameter>
         <parameter key="cart.repo.url_rewrite">MobileCartCoreBundle:UrlRewrite</parameter>
-        <parameter key="cart.load.currency">cart.currency</parameter>
-        <parameter key="cart.load.admin">cart.search.doctrine</parameter>
-        <parameter key="cart.load.frontend">cart.entity</parameter>
-        <parameter key="cart.search.frontend">cart.search.doctrine</parameter>
         <parameter key="cart.listener.home.view.return.class">MobileCart\CoreBundle\EventListener\Home\ViewReturn</parameter>
         <parameter key="cart.listener.dashboard.notifications.class">MobileCart\CoreBundle\EventListener\Dashboard\DashboardNotifications</parameter>
         <parameter key="cart.listener.dashboard.view.return.class">MobileCart\CoreBundle\EventListener\Dashboard\DashboardViewReturn</parameter>
@@ -301,6 +301,9 @@
         <!-- Login Listener -->
         <service id="cart.listener.login" lazy="true" class="%cart.listener.login.class%">
             <argument type="service" id="security.http_utils" />
+            <call method="setEventDispatcher">
+                <argument type="service" id="event_dispatcher" />
+            </call>
             <call method="setCartSessionService">
                 <argument type="service" id="cart.session" />
             </call>
@@ -318,6 +321,9 @@
             <argument type="service" id="logger" on-invalid="null" />
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setEventDispatcher">
+                <argument type="service" id="event_dispatcher" />
             </call>
         </service>
 
@@ -340,7 +346,7 @@
         <!-- Currency Service -->
         <service id="cart.currency" lazy="true" class="%cart.currency.class%">
             <call method="setBaseCurrency">
-                <argument type="string">%cart.currency.base%</argument>
+                <argument type="string">%cart.config.currency.base%</argument>
             </call>
             <call method="addRate">
                 <argument type="string">USD/EUR</argument>
@@ -458,6 +464,9 @@
 
         <!-- Order Service -->
         <service id="cart.order" lazy="true" class="%cart.order.class%">
+            <call method="setEventDispatcher">
+                <argument type="service" id="event_dispatcher" />
+            </call>
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>
@@ -494,6 +503,7 @@
             </call>
             <call method="setAllowedCountryIds">
                 <argument type="string">US,GB</argument>
+                <!-- todo: move this to parameters -->
             </call>
             <call method="setAllowGuestCheckout">
                 <argument type="string">0</argument>
@@ -982,6 +992,10 @@
             <call method="addObjectRepository">
                 <argument>customer</argument>
                 <argument>%cart.repo.customer%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>customer_token</argument>
+                <argument>%cart.repo.customer_token%</argument>
             </call>
             <call method="addObjectRepository">
                 <argument>customer_var_value_datetime</argument>
