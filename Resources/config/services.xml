@@ -381,7 +381,7 @@
                 <argument type="string">email</argument>
                 <argument type="string">MobileCartFrontendBundle::email-layout.html.twig</argument>
                 <argument type="string">MobileCartFrontendBundle:</argument>
-                <argument type="string">bundles/mobilecartadmin</argument>
+                <argument type="string">bundles/mobilecartfrontend</argument>
             </call>
             <call method="setTheme">
                 <argument type="string">admin</argument>

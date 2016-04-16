@@ -77,8 +77,6 @@ class ProductType extends AbstractType
             ->add('is_qty_managed', 'checkbox', ['required' => 0])
             ->add('is_discountable', 'checkbox', ['required' => 0])
             ->add('is_in_stock', 'checkbox', ['required' => 0])
-            ->add('is_on_sale', 'checkbox', ['required' => 0])
-            ->add('is_new', 'checkbox', ['required' => 0])
             ->add('can_backorder', 'checkbox', ['required' => 0])
             ->add('custom_search', 'textarea',['required' => 0])
             ->add('name', 'text', [

@@ -107,9 +107,7 @@ class ProductAdminForm
                     'price',
                     'is_enabled',
                     'is_taxable',
-                    'is_new',
                     'is_discountable',
-                    'is_on_sale',
                 ],
             ],
             'stock' => [
@@ -173,6 +171,16 @@ class ProductAdminForm
 
                         $customFields[] = $name;
 
+                        break;
+                    case 'checkbox':
+
+                        $form->add($name, 'checkbox', [
+                            'mapped' => false,
+                            'required' => false,
+                            'label' => $var->getName(),
+                        ]);
+
+                        $customFields[] = $name;
                         break;
                     default:
                         $form->add($name, 'text', [
