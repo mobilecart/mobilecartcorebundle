@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * MobileCart\CoreBundle\Entity\ItemVarOptionInt
  *
  * @ORM\Table(name="item_var_option_int")
- * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\ItemVarOptionIntRepository")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\ItemVarOptionIntRepository")
  */
 class ItemVarOptionInt
 {
@@ -58,6 +58,13 @@ class ItemVarOptionInt
      * @ORM\Column(name="is_in_stock", type="boolean", nullable=true)
      */
     private $is_in_stock;
+
+    /**
+     * @var boolean $is_boolean
+     *
+     * @ORM\Column(name="is_boolean", type="boolean", nullable=true)
+     */
+    private $is_boolean;
 
     /**
      * @var float $additional_price
@@ -175,6 +182,7 @@ class ItemVarOptionInt
             'value' => $this->getValue(),
             'url_value' => $this->getUrlValue(),
             'is_in_stock' => $this->getIsInStock(),
+            'is_boolean' => $this->getIsBoolean(),
             'additional_price' => $this->getAdditionalPrice(),
         ];
     }
@@ -283,6 +291,24 @@ class ItemVarOptionInt
     public function getIsInStock()
     {
         return $this->is_in_stock;
+    }
+
+    /**
+     * @param $isBoolean
+     * @return $this
+     */
+    public function setIsBoolean($isBoolean)
+    {
+        $this->is_boolean = $isBoolean;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsBoolean()
+    {
+        return $this->is_boolean;
     }
 
     /**

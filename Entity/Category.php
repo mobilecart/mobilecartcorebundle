@@ -9,7 +9,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * MobileCart\CoreBundle\Entity\Category
  *
  * @ORM\Table(name="category", indexes={@ORM\Index(name="category_slug_idx", columns={"slug"})})
- * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\CategoryRepository")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CategoryRepository")
  */
 class Category
     implements CartEntityInterface, CartEntityEAVInterface

@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * MobileCart\CoreBundle\Entity\ShippingMethod
  *
  * @ORM\Table(name="shipping_method")
- * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\ShippingMethodRepository")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\ShippingMethodRepository")
  */
 class ShippingMethod
     implements CartEntityInterface

@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\User\AdvancedUserInterface;
  * User Management for the Administration of the Store
  *
  * @ORM\Table(name="admin_user")
- * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\AdminUserRepository")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\AdminUserRepository")
  */
 class AdminUser
     implements AdvancedUserInterface, CartEntityInterface, \Serializable

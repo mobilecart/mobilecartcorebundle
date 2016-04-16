@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  *
  * @ORM\Table(name="cart")
- * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\CartRepository")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CartRepository")
  */
 class Cart
 {

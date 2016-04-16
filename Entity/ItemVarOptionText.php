@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * MobileCart\CoreBundle\Entity\ItemVarOptionText
  *
  * @ORM\Table(name="item_var_option_text")
- * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\ItemVarOptionTextRepository")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\ItemVarOptionTextRepository")
  */
 class ItemVarOptionText
 {

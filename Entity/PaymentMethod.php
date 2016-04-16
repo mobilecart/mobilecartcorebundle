@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * MobileCart\CoreBundle\Entity\PaymentMethod
  *
  * @ORM\Table(name="payment_method")
- * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\PaymentMethodRepository")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\PaymentMethodRepository")
  */
 class PaymentMethod
 {

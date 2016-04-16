@@ -11,7 +11,7 @@ use Symfony\Component\Security\Core\User\AdvancedUserInterface;
  * MobileCart\CoreBundle\Entity\Customer
  *
  * @ORM\Table(name="customer")
- * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\CustomerRepository")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CustomerRepository")
  */
 class Customer
     implements AdvancedUserInterface, CartEntityInterface, CartEntityEAVInterface, \Serializable

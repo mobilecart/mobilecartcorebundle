@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * UrlRewrite
  *
  * @ORM\Table(name="url_rewrite", indexes={@ORM\Index(name="request_uri_idx", columns={"request_uri"})})
- * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\UrlRewriteRepository")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\UrlRewriteRepository")
  */
 class UrlRewrite
     implements CartEntityInterface

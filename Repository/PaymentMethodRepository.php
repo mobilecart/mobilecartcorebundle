@@ -1,6 +1,6 @@
 <?php
 
-namespace MobileCart\CoreBundle\Entity;
+namespace MobileCart\CoreBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 

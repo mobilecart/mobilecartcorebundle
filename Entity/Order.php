@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * MobileCart\CoreBundle\Entity\Order
  *
  * @ORM\Table(name="order_sale", indexes={@ORM\Index(name="order_email_idx", columns={"email"})})
- * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\OrderRepository")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\OrderRepository")
  */
 class Order
     implements CartEntityInterface, CartEntityEAVInterface

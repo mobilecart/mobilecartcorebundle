@@ -1,6 +1,6 @@
 <?php
 
-namespace MobileCart\CoreBundle\Entity;
+namespace MobileCart\CoreBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 
@@ -40,7 +40,6 @@ class ProductRepository
             'special_price' => 'Special Price',
             'qty' => 'Qty',
             'is_in_stock' => 'In Stock',
-            'is_on_sale' => 'On Sale',
             'is_taxable' => 'Taxable',
         ];
     }
@@ -119,36 +118,6 @@ class ProductRepository
             [
                 'code'  => 'is_in_stock',
                 'label' => 'In Stock',
-                'type'  => 'boolean',
-                'choices' => [
-                    [
-                        'value' => 0,
-                        'label' => 'No',
-                    ],
-                    [
-                        'value' => 1,
-                        'label' => 'Yes',
-                    ],
-                ],
-            ],
-            [
-                'code'  => 'is_on_sale',
-                'label' => 'On Sale',
-                'type'  => 'boolean',
-                'choices' => [
-                    [
-                        'value' => 0,
-                        'label' => 'No',
-                    ],
-                    [
-                        'value' => 1,
-                        'label' => 'Yes',
-                    ],
-                ],
-            ],
-            [
-                'code'  => 'is_new',
-                'label' => 'New',
                 'type'  => 'boolean',
                 'choices' => [
                     [

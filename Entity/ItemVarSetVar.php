@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * MobileCart\CoreBundle\Entity\ItemVarSetVar
  *
  * @ORM\Table(name="item_var_set_var")
- * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\ItemVarSetVarRepository")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\ItemVarSetVarRepository")
  */
 class ItemVarSetVar
 {

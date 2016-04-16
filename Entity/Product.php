@@ -9,7 +9,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * MobileCart\CoreBundle\Entity\Product
  *
  * @ORM\Table(name="product", indexes={@ORM\Index(name="product_slug_idx", columns={"slug"})})
- * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\ProductRepository")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\ProductRepository")
  */
 class Product
     implements CartEntityInterface, CartEntityEAVInterface
@@ -302,20 +302,6 @@ class Product
     private $is_in_stock;
 
     /**
-     * @var boolean $is_on_sale
-     *
-     * @ORM\Column(name="is_on_sale", type="boolean", nullable=true)
-     */
-    private $is_on_sale;
-
-    /**
-     * @var boolean $is_new
-     *
-     * @ORM\Column(name="is_new", type="boolean", nullable=true)
-     */
-    private $is_new;
-
-    /**
      * @var boolean $is_qty_managed
      *
      * @ORM\Column(name="is_qty_managed", type="boolean", nullable=true)
@@ -463,8 +449,6 @@ class Product
             'price' => $this->getPrice(),
             'qty' => $this->getQty(),
             'is_in_stock' => (bool) $this->getIsInStock(),
-            'is_on_sale' => (bool) $this->getIsOnSale(),
-            'is_new' => (bool) $this->getIsNew(),
             'is_discountable' => (bool) $this->getIsDiscountable(),
             'is_taxable' => (bool) $this->getIsTaxable(),
             'visibility' => $this->getVisibility(),
@@ -1434,46 +1418,6 @@ class Product
     }
 
     /**
-     * @param $isOnSale
-     * @return Product
-     */
-    public function setIsOnSale($isOnSale)
-    {
-        $this->is_on_sale = $isOnSale;
-        return $this;
-    }
-
-    /**
-     * Get is_on_sale
-     *
-     * @return boolean
-     */
-    public function getIsOnSale()
-    {
-        return $this->is_on_sale;
-    }
-
-    /**
-     * @param $isNew
-     * @return Product
-     */
-    public function setIsNew($isNew)
-    {
-        $this->is_new = $isNew;
-        return $this;
-    }
-
-    /**
-     * Get is_new
-     *
-     * @return boolean
-     */
-    public function getIsNew()
-    {
-        return $this->is_new;
-    }
-
-    /**
      * @param $isQtyManaged
      * @return Product
      */
@@ -1796,6 +1740,7 @@ class Product
                 }
             }
         }
+
         return '';
     }
 

@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  *
  * @ORM\Table(name="item_var")
- * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\ItemVarRepository")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\ItemVarRepository")
  */
 class ItemVar
     implements CartEntityInterface
@@ -36,6 +36,7 @@ class ItemVar
         'text' => 'Text',
         'number' => 'Number',
         'date' => 'Date',
+        'checkbox' => 'Checkbox',
         'select' => 'Select',
         'multiselect' => 'Multiselect',
     );

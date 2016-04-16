@@ -9,7 +9,7 @@ use Symfony\Component\Security\Acl\Exception\Exception;
  * MobileCart\CoreBundle\Entity\ItemVarSet
  *
  * @ORM\Table(name="item_var_set")
- * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\ItemVarSetRepository")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\ItemVarSetRepository")
  */
 class ItemVarSet
 {

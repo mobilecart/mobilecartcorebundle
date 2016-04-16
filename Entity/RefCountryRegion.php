@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * RefCountryRegion
  *
  * @ORM\Table(name="ref_country_region")
- * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\RefCountryRegionRepository")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\RefCountryRegionRepository")
  */
 class RefCountryRegion
     implements CartEntityInterface

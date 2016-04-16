@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * MobileCart\CoreBundle\Entity\CustomerToken
  *
  * @ORM\Table(name="customer_token")
- * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\CustomerTokenRepository")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CustomerTokenRepository")
  */
 class CustomerToken
     implements CartEntityInterface
@@ -80,34 +80,6 @@ class CustomerToken
      * @ORM\Column(name="expires_at", type="datetime", nullable=true)
      */
     private $expires_at;
-
-    /**
-     * @var string $last_payment_at
-     *
-     * @ORM\Column(name="last_payment_at", type="datetime", nullable=true)
-     */
-    private $last_payment_at;
-
-    /**
-     * @var string $next_payment_at
-     *
-     * @ORM\Column(name="next_payment_at", type="datetime", nullable=true)
-     */
-    private $next_payment_at;
-
-    /**
-     * @var float $last_payment_amount
-     *
-     * @ORM\Column(name="last_payment_amount", type="decimal", precision=12, scale=4, nullable=true)
-     */
-    private $last_payment_amount;
-
-    /**
-     * @var float $next_payment_amount
-     *
-     * @ORM\Column(name="next_payment_amount", type="decimal", precision=12, scale=4, nullable=true)
-     */
-    private $next_payment_amount;
 
     public function __toString()
     {
@@ -237,12 +209,9 @@ class CustomerToken
             'token' => $this->getToken(),
             'cc_type' => $this->getCcType(),
             'cc_last_four' => $this->getCcLastFour(),
+            'cc_fingerprint' => $this->getCcFingerprint(),
             'created_at' => $this->getCreatedAt(),
             'expires_at' => $this->getExpiresAt(),
-            'last_payment_at' => $this->getLastPaymentAt(),
-            'next_payment_at' => $this->getNextPaymentAt(),
-            'last_payment_amount' => $this->getLastPaymentAmount(),
-            'next_payment_amount' => $this->getNextPaymentAmount(),
         ];
     }
 
@@ -394,91 +363,4 @@ class CustomerToken
         return $this->expires_at;
     }
 
-    /**
-     * Set lastPaymentAt
-     *
-     * @param \DateTime $lastPaymentAt
-     * @return $this
-     */
-    public function setLastPaymentAt($lastPaymentAt)
-    {
-        $this->last_payment_at = $lastPaymentAt;
-        return $this;
-    }
-
-    /**
-     * Get lastPaymentAt
-     *
-     * @return \DateTime
-     */
-    public function getLastPaymentAt()
-    {
-        return $this->last_payment_at;
-    }
-
-    /**
-     * Set nextPaymentAt
-     *
-     * @param \DateTime $nextPaymentAt
-     * @return $this
-     */
-    public function setNextPaymentAt($nextPaymentAt)
-    {
-        $this->next_payment_at = $nextPaymentAt;
-        return $this;
-    }
-
-    /**
-     * Get nextPaymentAt
-     *
-     * @return \DateTime
-     */
-    public function getNextPaymentAt()
-    {
-        return $this->next_payment_at;
-    }
-
-    /**
-     * Set lastPaymentAamount
-     *
-     * @param $lastPaymentAmount
-     * @return $this
-     */
-    public function setLastPaymentAmount($lastPaymentAmount)
-    {
-        $this->last_payment_amount = $lastPaymentAmount;
-        return $this;
-    }
-
-    /**
-     * Get lastPaymentAmount
-     *
-     * @return mixed
-     */
-    public function getLastPaymentAmount()
-    {
-        return $this->last_payment_amount;
-    }
-
-    /**
-     * Set nextPaymentAmount
-     *
-     * @param $nextPaymentAmount
-     * @return $this
-     */
-    public function setNextPaymentAmount($nextPaymentAmount)
-    {
-        $this->next_payment_amount = $nextPaymentAmount;
-        return $this;
-    }
-
-    /**
-     * Get nextPaymentAmount
-     *
-     * @return mixed
-     */
-    public function getNextPaymentAmount()
-    {
-        return $this->next_payment_amount;
-    }
 }

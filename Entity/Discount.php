@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * MobileCart\CoreBundle\Entity\Discount
  *
  * @ORM\Table(name="discount")
- * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\DiscountRepository")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\DiscountRepository")
  */
 class Discount
 {

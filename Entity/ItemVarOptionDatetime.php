@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * MobileCart\CoreBundle\Entity\ItemVarOptionDatetime
  *
  * @ORM\Table(name="item_var_option_datetime")
- * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Entity\ItemVarOptionDatetimeRepository")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\ItemVarOptionDatetimeRepository")
  */
 class ItemVarOptionDatetime
 {

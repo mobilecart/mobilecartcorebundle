@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace MobileCart\CoreBundle\Entity;
+namespace MobileCart\CoreBundle\Repository;
 
 /**
  * Interface CartRepositoryInterface
