@@ -160,9 +160,6 @@ class Order
     // is_fraud
     // fraud_rating
     // fraud_info
-    // created_at
-    // billing_phone
-    // shipping_phone
 
     /**
      * @var string $currency
@@ -171,6 +168,13 @@ class Order
      * @Assert\NotBlank()
      */
     private $reference_nbr;
+
+    /**
+     * @var string $payment_authorize
+     *
+     * @ORM\Column(name="payment_authorize", type="text", nullable=true)
+     */
+    private $payment_authorize;
 
     /**
      * @var string $json
@@ -661,6 +665,7 @@ class Order
             'id' => $this->getId(),
             'created_at' => $this->getCreatedAt(),
             'reference_nbr' => $this->getReferenceNbr(),
+            'payment_authorize' => $this->getPaymentAuthorize(),
             'customer_id' => $this->getCustomer() ? $this->getCustomer()->getId() : 0,
             'customer_name' => $this->getCustomer() ? $this->getCustomer()->getName() : '',
             'email' => $this->getEmail(),
@@ -749,6 +754,24 @@ class Order
     public function getReferenceNbr()
     {
         return $this->reference_nbr;
+    }
+
+    /**
+     * @param $paymentAuthorize
+     * @return $this
+     */
+    public function setPaymentAuthorize($paymentAuthorize)
+    {
+        $this->payment_authorize = $paymentAuthorize;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPaymentAuthorize()
+    {
+        return $this->payment_authorize;
     }
 
     /**

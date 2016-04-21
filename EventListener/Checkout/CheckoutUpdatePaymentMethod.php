@@ -57,7 +57,13 @@ class CheckoutUpdatePaymentMethod
 
         if ($paymentMethodService) {
 
+            /**
+             * Set flag because the submission data might be different
+             *  than the initial form which was displayed
+             */
             $paymentMethodService->setIsSubmission(true);
+
+            // todo : set action
 
             $form = $paymentMethodService->buildForm()
                 ->getForm();

@@ -21,6 +21,8 @@ use MobileCart\CoreBundle\EventListener\Cart\ItemTotal;
 use MobileCart\CoreBundle\EventListener\Cart\ShipmentTotal;
 use MobileCart\CoreBundle\EventListener\Cart\TaxTotal;
 use MobileCart\CoreBundle\Payment\Exception\PaymentFailedException;
+use MobileCart\CoreBundle\Payment\PaymentMethodServiceInterface;
+use MobileCart\CoreBundle\Payment\TokenPaymentMethodServiceInterface;
 
 /**
  * Class OrderService
@@ -63,7 +65,7 @@ class OrderService
     protected $paymentService;
 
     /**
-     * @var PaymentMethodServiceInterface
+     * @var PaymentMethodServiceInterface|TokenPaymentMethodServiceInterface
      */
     protected $paymentMethodService;
 
@@ -600,7 +602,7 @@ class OrderService
         }
 
         if ($this->getEnableCreatePayment()) {
-            $this->capturePayment();
+            $this->processPayment();
         }
 
         $this->createOrder();
@@ -653,54 +655,11 @@ class OrderService
     }
 
     /**
-     * Authorize payment via payment method service
-     *
-     * Note: for checkout, authorization should happen in this event: checkout.update.payment.method
-     *
-     * @throws \Exception
-     */
-    public function authorizePayment()
-    {
-        $cart = $this->getCart();
-
-        /** @var PaymentMethodServiceInterface $paymentMethodService */
-        $paymentMethodService = $this->getPaymentMethodService()
-            ->setPaymentData($this->getPaymentData());
-
-        $currencyService = $this->getCurrencyService();
-
-        $baseCurrency = $this->getCurrencyService()->getBaseCurrency();
-        $currency = $cart->getCurrency();
-        if (!strlen($currency)) {
-            $currency = $baseCurrency;
-        }
-        $baseGrandTotal = $cart->getTotal(GrandTotal::KEY)->getValue();
-
-        $grandTotal = ($currency == $baseCurrency)
-            ? $baseGrandTotal
-            : $currencyService->convert($baseGrandTotal, $currency, $baseCurrency);
-
-        $paymentMethodService->setOrderData([
-            'total' => $grandTotal,
-            'currency' => $currency,
-        ]);
-
-        $isAuthorized = $paymentMethodService->authorize()
-            ->getIsAuthorized();
-
-        if (!$isAuthorized) {
-            throw new \Exception("Payment Authorization Failed"); // todo : different exception
-        }
-
-        return $this;
-    }
-
-    /**
      * Capture payment via payment method service
      *
      * @throws \Exception
      */
-    public function capturePayment()
+    public function processPayment()
     {
         $cart = $this->getCart();
 
@@ -729,13 +688,75 @@ class OrderService
             'base_currency' => $baseCurrency,
         ]);
 
-        // Note: Authorization should happen in this event: checkout.update.payment.method
+        switch($paymentMethodService->getAction()) {
+            case PaymentMethodServiceInterface::ACTION_AUTHORIZE:
 
-        $isCaptured = $paymentMethodService->capture()
-            ->getIsCaptured();
+                break;
+            case PaymentMethodServiceInterface::ACTION_CAPTURE:
 
-        if (!$isCaptured) {
-            throw new \Exception("Payment Capture Failed"); // todo : different exception
+                $isCaptured = $paymentMethodService->capture()
+                    ->getIsCaptured();
+
+                if (!$isCaptured) {
+                    throw new \Exception("Payment Capture Failed");
+                }
+
+                break;
+            case PaymentMethodServiceInterface::ACTION_PURCHASE:
+
+                $isCaptured = $paymentMethodService->purchase()
+                    ->getIsPurchased();
+
+                if (!$isCaptured) {
+                    throw new \Exception("Payment Failed");
+                }
+
+                break;
+            case PaymentMethodServiceInterface::ACTION_CREATE_TOKEN:
+
+                $isTokenCreated = $paymentMethodService->createToken()
+                    ->getIsTokenCreated();
+
+                if (!$isTokenCreated) {
+                    throw new \Exception("Payment Token Failed");
+                }
+
+                $customerTokenData = $paymentMethodService->extractCustomerTokenData();
+
+                $customerId = $this->getCart()->getCustomer()->getId();
+                $customer = $this->getEntityService()->find(EntityConstants::CUSTOMER, $customerId);
+
+                $customerToken = $this->getEntityService()->getInstance(EntityConstants::CUSTOMER_TOKEN);
+                $customerToken->fromArray($customerTokenData)
+                    ->setCustomer($customer);
+
+                $this->getEntityService()->persist($customerToken);
+
+                $paymentMethodService->setPaymentCustomerToken($customerToken);
+
+                $isPurchasedStoredToken = $paymentMethodService->purchaseStoredToken()
+                    ->getIsPurchasedStoredToken();
+
+                if (!$isPurchasedStoredToken) {
+                    throw new \Exception("Stored Token Payment Failed");
+                }
+
+                break;
+            case PaymentMethodServiceInterface::ACTION_PURCHASE_STORED_TOKEN:
+
+                break;
+            case PaymentMethodServiceInterface::ACTION_PURCHASE_AND_SUBSCRIBE_RECURRING:
+
+                break;
+            case PaymentMethodServiceInterface::ACTION_AUTHORIZE_REDIRECT:
+
+                break;
+            case PaymentMethodServiceInterface::ACTION_PURCHASE_CALLBACK:
+
+                break;
+            default:
+
+                break;
         }
 
         return $this;
@@ -1000,7 +1021,7 @@ class OrderService
             throw new \Exception("Cannot create Order Payments. Order is not set");
         }
 
-        $paymentData = $this->getPaymentMethodService()->getOrderPaymentData();
+        $paymentData = $this->getPaymentMethodService()->extractOrderPaymentData();
         if (!$paymentData) {
             throw new \InvalidArgumentException("Payment Info is Invalid");
         }

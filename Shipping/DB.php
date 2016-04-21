@@ -1,24 +1,26 @@
 <?php
 
-namespace MobileCart\CoreBundle\EventListener\ShippingRate;
+namespace MobileCart\CoreBundle\Shipping;
 
 use MobileCart\CoreBundle\Shipping\Rate;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * Class FlatRate
+ * Class DB
  * @package MobileCart\CoreBundle\EventListener\Shipping
  *
- * This is a basic Shipping Rate
- *  the price is set in the service configuration via the magic setter in Rate
- *  and can be changed in the admin; along with cart pre-conditions
+ * This is a basic Shipping Rate collector
+ *  This loads all Methods in the DB
  */
-class FlatRate extends Rate
+class DB extends Rate
 {
     public function __construct()
     {
         parent::__construct();
     }
+
+
+    protected $entityService;
 
     protected $event;
 
@@ -41,6 +43,24 @@ class FlatRate extends Rate
     }
 
     /**
+     * @param $entityService
+     * @return $this
+     */
+    public function setEntityService($entityService)
+    {
+        $this->entityService = $entityService;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEntityService()
+    {
+        return $this->entityService;
+    }
+
+    /**
      * Get rates while filtering on criteria
      *
      * @param Event $event
@@ -52,7 +72,20 @@ class FlatRate extends Rate
 
         // todo : check criteria ; load from db
 
-        $event->addRate($this);
+        $methods = $this->getEntityService()
+            ->findAll('shipping_method');
+
+        if ($methods) {
+            foreach($methods as $method) {
+
+                $rate = new Rate();
+                $rate->addData($method->getData());
+
+                // todo : cost, handling_cost
+
+                $event->addRate($rate);
+            }
+        }
 
         $event->setReturnData($returnData);
     }

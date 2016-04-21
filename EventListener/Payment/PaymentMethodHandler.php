@@ -3,6 +3,8 @@
 namespace MobileCart\CoreBundle\EventListener\Payment;
 
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
+use MobileCart\CoreBundle\Constants\EntityConstants;
+use MobileCart\CoreBundle\Payment\PaymentMethodServiceInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 class PaymentMethodHandler
@@ -10,7 +12,11 @@ class PaymentMethodHandler
 
     protected $paymentMethodService;
 
-    protected $is_enabled;
+    protected $entityService;
+
+    protected $cartSessionService;
+
+    protected $isEnabled;
 
     public function setPaymentMethodService($paymentMethodService)
     {
@@ -23,15 +29,44 @@ class PaymentMethodHandler
         return $this->paymentMethodService;
     }
 
+    public function setEntityService($entityService)
+    {
+        $this->entityService = $entityService;
+        return $this;
+    }
+
+    public function getEntityService()
+    {
+        return $this->entityService;
+    }
+
+    /**
+     * @param $cartSessionService
+     * @return $this
+     */
+    public function setCartSessionService($cartSessionService)
+    {
+        $this->cartSessionService = $cartSessionService;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCartSessionService()
+    {
+        return $this->cartSessionService;
+    }
+
     public function setIsEnabled($isEnabled)
     {
-        $this->is_enabled = $isEnabled;
+        $this->isEnabled = $isEnabled;
         return $this;
     }
 
     public function getIsEnabled()
     {
-        return $this->is_enabled;
+        return $this->isEnabled;
     }
 
     /**
@@ -61,6 +96,24 @@ class PaymentMethodHandler
         // todo : handle is_backend, is_frontend
 
         $paymentMethodService = $this->getPaymentMethodService();
+
+        if (
+            $paymentMethodService->supportsAction(PaymentMethodServiceInterface::ACTION_PURCHASE_STORED_TOKEN)
+            && $this->getCartSessionService()
+            && $this->getCartSessionService()->getCustomerId()
+        ) {
+
+            $customerTokens = $this->getEntityService()->findBy(EntityConstants::CUSTOMER_TOKEN, [
+                'customer' => $this->getCartSessionService()->getCustomerId(),
+                'service' => $paymentMethodService->getCode(),
+            ]);
+
+            if ($customerTokens) {
+                $paymentMethodService->setCustomerTokens($customerTokens);
+                $paymentMethodService->setAction(PaymentMethodServiceInterface::ACTION_PURCHASE_STORED_TOKEN);
+            }
+
+        }
 
         $form = $paymentMethodService->buildForm()
             ->getForm()

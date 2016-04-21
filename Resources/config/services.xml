@@ -114,8 +114,8 @@
         <parameter key="cart.listener.checkout.update.payment.method.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdatePaymentMethod</parameter>
         <parameter key="cart.listener.checkout.submit.order.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutSubmitOrder</parameter>
         <parameter key="cart.listener.checkout.success.return.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutSuccessReturn</parameter>
-        <parameter key="cart.listener.shipping_rate.flatrate.class">MobileCart\CoreBundle\EventListener\ShippingRate\FlatRate</parameter>
-        <parameter key="cart.listener.shipping_rate.db.class">MobileCart\CoreBundle\EventListener\ShippingRate\DB</parameter>
+        <parameter key="cart.listener.shipping_rate.flatrate.class">MobileCart\CoreBundle\Shipping\FlatRate</parameter>
+        <parameter key="cart.listener.shipping_rate.db.class">MobileCart\CoreBundle\Shipping\DB</parameter>
         <parameter key="cart.listener.payment.method.handler.class">MobileCart\CoreBundle\EventListener\Payment\PaymentMethodHandler</parameter>
         <parameter key="cart.listener.cart.view.return.class">MobileCart\CoreBundle\EventListener\Cart\ViewReturn</parameter>
         <parameter key="cart.listener.cart.add.product.class">MobileCart\CoreBundle\EventListener\Cart\AddProduct</parameter>

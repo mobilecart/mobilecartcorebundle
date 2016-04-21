@@ -40,6 +40,13 @@ class CustomerToken
     private $service;
 
     /**
+     * @var string $service_account_id
+     *
+     * @ORM\Column(name="service_account_id", type="string", length=255, nullable=true)
+     */
+    private $service_account_id;
+
+    /**
      * @var string $token
      *
      * @ORM\Column(name="token", type="string", length=255, nullable=false)
@@ -206,6 +213,7 @@ class CustomerToken
             'id' => $this->getId(),
             'customer_id' => $this->getCustomer()->getId(),
             'service' => $this->getService(),
+            'service_account_id' => $this->getServiceAccountId(),
             'token' => $this->getToken(),
             'cc_type' => $this->getCcType(),
             'cc_last_four' => $this->getCcLastFour(),
@@ -249,6 +257,24 @@ class CustomerToken
     public function getService()
     {
         return $this->service;
+    }
+
+    /**
+     * @param $serviceAccountId
+     * @return $this
+     */
+    public function setServiceAccountId($serviceAccountId)
+    {
+        $this->service_account_id = $serviceAccountId;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getServiceAccountId()
+    {
+        return $this->service_account_id;
     }
 
     /**
