@@ -178,6 +178,10 @@ class CheckoutForm
 
         // payment
         $methodRequest = new CollectPaymentMethodRequest();
+
+        // todo : set payment action if necessary for cart items
+        //  otherwise, each payment method should have its own actions
+
         $paymentMethods = $this->getPaymentService()
             ->collectPaymentMethods($methodRequest);
 

@@ -125,6 +125,7 @@ class PaymentMethodHandler
         $wrapper = new ArrayWrapper();
         $wrapper->set('code', $paymentMethodService->getCode())
             ->set('label', $paymentMethodService->getLabel())
+            ->set('action', $paymentMethodService->getAction())
             ->set('form', $form);
 
         // payment form requirements
@@ -133,6 +134,5 @@ class PaymentMethodHandler
         // * display using correct input parameters
 
         $event->addMethod($wrapper);
-
     }
 }

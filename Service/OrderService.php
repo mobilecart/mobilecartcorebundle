@@ -744,6 +744,35 @@ class OrderService
                 break;
             case PaymentMethodServiceInterface::ACTION_PURCHASE_STORED_TOKEN:
 
+                $customerId = $this->getCart()->getCustomer()->getId();
+
+                $paymentData = $this->getPaymentData();
+                $token = isset($paymentData['token'])
+                    ? $paymentData['token']
+                    : '';
+
+                if (!$token) {
+                    throw new \Exception("Stored Token Payment Failed");
+                }
+
+                $customerToken = $this->getEntityService()->findOneBy(EntityConstants::CUSTOMER_TOKEN, [
+                    'customer' => $customerId,
+                    'token' => $token,
+                ]);
+
+                if (!$customerToken) {
+                    throw new \Exception("Stored Token Payment Failed");
+                }
+
+                $paymentMethodService->setPaymentCustomerToken($customerToken);
+
+                $isPurchasedStoredToken = $paymentMethodService->purchaseStoredToken()
+                    ->getIsPurchasedStoredToken();
+
+                if (!$isPurchasedStoredToken) {
+                    throw new \Exception("Stored Token Payment Failed");
+                }
+
                 break;
             case PaymentMethodServiceInterface::ACTION_PURCHASE_AND_SUBSCRIBE_RECURRING:
 

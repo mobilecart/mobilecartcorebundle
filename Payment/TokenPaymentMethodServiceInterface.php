@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\Payment;
 
-interface TokenPaymentMethodServiceInterface
+interface TokenPaymentMethodServiceInterface extends PaymentMethodServiceInterface
 {
     /**
      * All tokens for the relevant customer

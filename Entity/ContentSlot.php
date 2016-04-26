@@ -5,14 +5,20 @@ namespace MobileCart\CoreBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * ContentImage
+ * ContentSlot
  *
- * @ORM\Table(name="content_image")
+ * @ORM\Table(name="content_slot")
  * @ORM\Entity
  */
-class ContentImage
+class ContentSlot
     implements CartEntityInterface
 {
+
+    const CONTENT_TYPE_IMAGE = 'image';
+    const CONTENT_TYPE_VIDEO = 'video';
+    const CONTENT_TYPE_EMBED = 'embed';
+    const CONTENT_TYPE_HTML = 'html';
+
     /**
      * @var integer
      *
@@ -23,18 +29,18 @@ class ContentImage
     private $id;
 
     /**
-     * @var boolean $is_default
+     * @var string
      *
-     * @ORM\Column(name="is_default", type="boolean", nullable=true)
+     * @ORM\Column(name="title", type="text", nullable=true)
      */
-    private $is_default;
+    private $title;
 
     /**
-     * @var boolean $is_featured
+     * @var string
      *
-     * @ORM\Column(name="is_featured", type="boolean", nullable=true)
+     * @ORM\Column(name="body_text", type="text", nullable=true)
      */
-    private $is_featured;
+    private $body_text;
 
     /**
      * @var integer
@@ -44,32 +50,11 @@ class ContentImage
     private $sort_order;
 
     /**
-     * @var string $code an Identifier
-     *
-     * @ORM\Column(name="code", type="string", length=64)
-     */
-    private $code;
-
-    /**
      * @var string
      *
-     * @ORM\Column(name="size", type="string", length=16, nullable=true)
+     * @ORM\Column(name="content_type", type="string", length=16, nullable=true)
      */
-    private $size;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="width", type="integer", nullable=true)
-     */
-    private $width;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="height", type="integer", nullable=true)
-     */
-    private $height;
+    private $content_type;
 
     /**
      * @var string
@@ -77,6 +62,13 @@ class ContentImage
      * @ORM\Column(name="url", type="text", nullable=true)
      */
     private $url;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="embed_code", type="text", nullable=true)
+     */
+    private $embed_code;
 
     /**
      * @var string
@@ -95,7 +87,7 @@ class ContentImage
     /**
      * @var \MobileCart\CoreBundle\Entity\Content
      *
-     * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Content", inversedBy="images")
+     * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Content", inversedBy="slots")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=true)
      * })
@@ -114,7 +106,7 @@ class ContentImage
 
     public function getObjectTypeName()
     {
-        return \MobileCart\CoreBundle\Constants\EntityConstants::CONTENT_IMAGE;
+        return \MobileCart\CoreBundle\Constants\EntityConstants::CONTENT_SLOT;
     }
 
     /**
@@ -216,13 +208,9 @@ class ContentImage
     {
         return [
             'id' => $this->getId(),
-            'is_default' => $this->getIsDefault(),
-            'is_featured' => $this->getIsFeatured(),
+            'title' => $this->getTitle(),
+            'body_text' => $this->getBodyText(),
             'sort_order' => $this->getSortOrder(),
-            'code' => $this->getCode(),
-            'size' => $this->getSize(),
-            'width' => $this->getWidth(),
-            'height' => $this->getHeight(),
             'url' => $this->getUrl(),
             'path' => $this->getPath(),
             'alt_text' => $this->getAltText(),
@@ -230,47 +218,39 @@ class ContentImage
     }
 
     /**
-     * Set is_default
-     *
-     * @param $isDefault
+     * @param $title
      * @return $this
      */
-    public function setIsDefault($isDefault)
+    public function setTitle($title)
     {
-        $this->is_default = $isDefault;
+        $this->title = $title;
         return $this;
     }
 
     /**
-     * Get is_default
-     *
-     * @return bool
+     * @return string
      */
-    public function getIsDefault()
+    public function getTitle()
     {
-        return $this->is_default;
+        return $this->title;
     }
 
     /**
-     * Set is_featured
-     *
-     * @param $isFeatured
+     * @param $bodyText
      * @return $this
      */
-    public function setIsFeatured($isFeatured)
+    public function setBodyText($bodyText)
     {
-        $this->is_featured = $isFeatured;
+        $this->body_text = $bodyText;
         return $this;
     }
 
     /**
-     * Get is_featured
-     *
-     * @return bool
+     * @return string
      */
-    public function getIsFeatured()
+    public function getBodyText()
     {
-        return $this->is_featured;
+        return $this->body_text;
     }
 
     /**
@@ -296,86 +276,46 @@ class ContentImage
     }
 
     /**
-     * Set size
-     *
-     * @param $size
+     * @param $contentType
      * @return $this
      */
-    public function setSize($size)
+    public function setContentType($contentType)
     {
-        $this->size = $size;
-        return $this;
-    }
-
-    /**
-     * Get size
-     *
-     * @return string
-     */
-    public function getSize()
-    {
-        return $this->size;
-    }
-
-    /**
-     * @param $width
-     * @return $this
-     */
-    public function setWidth($width)
-    {
-        $this->width = $width;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getWidth()
-    {
-        return $this->width;
-    }
-
-    /**
-     * @param $height
-     * @return $this
-     */
-    public function setHeight($height)
-    {
-        $this->height = $height;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getHeight()
-    {
-        return $this->height;
-    }
-
-    /**
-     * @param $code
-     * @return ContentImage
-     */
-    public function setCode($code)
-    {
-        $this->code = $code;
+        $this->content_type = $contentType;
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getCode()
+    public function getContentType()
     {
-        return $this->code;
+        return $this->content_type;
+    }
+
+    /**
+     * @param $embedCode
+     * @return $this
+     */
+    public function setEmbedCode($embedCode)
+    {
+        $this->embed_code = $embedCode;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEmbedCode()
+    {
+        return $this->embed_code;
     }
 
     /**
      * Set url
      *
      * @param string $url
-     * @return ContentImage
+     * @return ContentSlot
      */
     public function setUrl($url)
     {

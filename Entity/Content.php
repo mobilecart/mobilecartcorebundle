@@ -122,6 +122,13 @@ class Content
     private $images;
 
     /**
+     * @var \MobileCart\CoreBundle\Entity\ContentSlot
+     *
+     * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\ContentSlot", mappedBy="parent")
+     */
+    private $slots;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="author", type="string", length=255, nullable=true)
@@ -176,6 +183,7 @@ class Content
     public function __construct()
     {
         $this->images = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->slots = new \Doctrine\Common\Collections\ArrayCollection();
         $this->var_values_datetime = new \Doctrine\Common\Collections\ArrayCollection();
         $this->var_values_decimal = new \Doctrine\Common\Collections\ArrayCollection();
         $this->var_values_int = new \Doctrine\Common\Collections\ArrayCollection();
@@ -207,6 +215,13 @@ class Content
             }
         }
 
+        $slots = [];
+        if ($slotObjects = $this->getSlots()) {
+            foreach($slotObjects as $slotObject) {
+                $slots[] = $slotObject->getData();
+            }
+        }
+
         return [
             'id' => $this->getId(),
             'created_at' => $this->getCreatedAt(),
@@ -224,6 +239,7 @@ class Content
             'meta_title' => $this->getMetaTitle(),
             'author' => $this->getAuthor(),
             'images' => $images,
+            'slots' => $slots,
         ];
     }
 
@@ -906,5 +922,23 @@ class Content
             return $image->getPath();
         }
         return '';
+    }
+
+    /**
+     * @param ContentSlot $contentSlot
+     * @return $this
+     */
+    public function addSlot(ContentSlot $contentSlot)
+    {
+        $this->slots[] = $contentSlot;
+        return $this;
+    }
+
+    /**
+     * @return ArrayCollection|ContentSlot
+     */
+    public function getSlots()
+    {
+        return $this->slots;
     }
 }

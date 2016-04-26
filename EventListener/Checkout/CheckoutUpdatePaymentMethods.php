@@ -73,10 +73,6 @@ class CheckoutUpdatePaymentMethods
         $this->setEvent($event);
         $returnData = $this->getReturnData();
 
-        //$request = $event->getRequest();
-        //$formType = $event->getForm();
-        //$entity = $event->getEntity();
-
         $checkoutSession = $this->getCheckoutSessionService();
 
         $cartCustomer = $checkoutSession->getCartSessionService()->getCustomer();
@@ -88,19 +84,7 @@ class CheckoutUpdatePaymentMethods
                 ->setPostcode($cartCustomer->getBillingPostcode())
                 ->setCountryId($cartCustomer->getBillingCountryId());
 
-            $paymentMethods = $this->getPaymentService()->collectPaymentMethods($methodRequest);
-
-            /*
-            $checkoutSession->getCartSessionService()
-                ->setRates($shippingRates); //*/
-
-            // todo : add options and form html to response
-            // step 1 : loop methods
-            // step 2 : add options to checkout form (or shipping method form?)
-            // step 3 : build forms
-            // step 4 : set any submitted values to form
-            // step 5 : get html from forms
-            // step 6 : set html (for each form) to response
+            $this->getPaymentService()->collectPaymentMethods($methodRequest);
         }
 
         $event->setReturnData($returnData);

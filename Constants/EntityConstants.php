@@ -70,6 +70,7 @@ class EntityConstants
     const CATEGORY_PRODUCT = 'category_product';
     const CONTENT = 'content';
     const CONTENT_IMAGE = 'content_image';
+    const CONTENT_SLOT = 'content_slot';
     const CUSTOMER = 'customer';
     const CUSTOMER_GROUP = 'customer_group';
     const CUSTOMER_TOKEN = 'customer_token';
