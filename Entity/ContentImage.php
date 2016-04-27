@@ -86,6 +86,13 @@ class ContentImage
     private $path;
 
     /**
+     * @var string $filename
+     *
+     * @ORM\Column(name="filename", type="string", length=255)
+     */
+    private $filename;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="alt_text", type="string", length=255, nullable=true)
@@ -225,6 +232,7 @@ class ContentImage
             'height' => $this->getHeight(),
             'url' => $this->getUrl(),
             'path' => $this->getPath(),
+            'filename' => $this->getFilename(),
             'alt_text' => $this->getAltText(),
         ];
     }
@@ -409,6 +417,24 @@ class ContentImage
     public function getPath()
     {
         return $this->path;
+    }
+
+    /**
+     * @param $filename
+     * @return $this
+     */
+    public function setFilename($filename)
+    {
+        $this->filename = $filename;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFilename()
+    {
+        return $this->filename;
     }
 
     /**

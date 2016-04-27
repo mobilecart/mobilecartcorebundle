@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * ContentSlot
  *
  * @ORM\Table(name="content_slot")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\ContentSlotRepository")
  */
 class ContentSlot
     implements CartEntityInterface

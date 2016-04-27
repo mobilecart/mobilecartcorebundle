@@ -47,6 +47,7 @@
         <parameter key="cart.repo.category_product">MobileCartCoreBundle:CategoryProduct</parameter>
         <parameter key="cart.repo.content">MobileCartCoreBundle:Content</parameter>
         <parameter key="cart.repo.content_image">MobileCartCoreBundle:ContentImage</parameter>
+        <parameter key="cart.repo.content_slot">MobileCartCoreBundle:ContentSlot</parameter>
         <parameter key="cart.repo.content_var_value_datetime">MobileCartCoreBundle:ContentVarValueDatetime</parameter>
         <parameter key="cart.repo.content_var_value_decimal">MobileCartCoreBundle:ContentVarValueDecimal</parameter>
         <parameter key="cart.repo.content_var_value_int">MobileCartCoreBundle:ContentVarValueInt</parameter>
@@ -968,6 +969,10 @@
             <call method="addObjectRepository">
                 <argument>content_image</argument>
                 <argument>%cart.repo.content_image%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>content_slot</argument>
+                <argument>%cart.repo.content_slot%</argument>
             </call>
             <call method="addObjectRepository">
                 <argument>content_var_value_datetime</argument>
