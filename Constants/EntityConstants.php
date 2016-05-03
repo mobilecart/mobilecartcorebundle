@@ -31,6 +31,7 @@ class EntityConstants
     const TEXT = 'text';
     const VARCHAR = 'varchar';
     const BOOLEAN = 'boolean';
+    // const BOOLEAN_YESNO = 'booleanyesno'; // todo: implement this as a yes/no select input with 2 rows in x_var_value_int
 
     /**
      * @return array
@@ -84,6 +85,7 @@ class EntityConstants
     const PRODUCT = 'product';
     const PRODUCT_IMAGE = 'product_image';
     const REF_COUNTRY_REGION = 'ref_country_region';
+    const SEARCH_TERM = 'search_term';
     const SHIPPING_METHOD = 'shipping_method';
     const URL_REWRITE = 'url_rewrite';
 

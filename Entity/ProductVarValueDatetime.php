@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * MobileCart\CoreBundle\Entity\ProductVarValueDatetime
  *
  * @ORM\Table(name="product_var_value_datetime")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\VarValueRepository")
  */
 class ProductVarValueDatetime
 {

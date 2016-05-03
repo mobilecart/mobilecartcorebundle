@@ -44,8 +44,13 @@ class ContentViewReturn
         $this->setEvent($event);
         $returnData = $this->getReturnData();
 
-        $template = $event->getEntity()->getCustomTemplate()
-            ? $event->getEntity()->getCustomTemplate()
+        $customTpl = $event->getCustomTemplate();
+        if (!$customTpl && $event->getEntity()->getCustomTemplate()) {
+            $customTpl = $event->getEntity()->getCustomTemplate();
+        }
+
+        $template = $customTpl
+            ? $customTpl
             : 'Content:view.html.twig';
 
         $response = $this->getThemeService()

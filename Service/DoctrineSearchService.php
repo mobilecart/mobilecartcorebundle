@@ -13,7 +13,7 @@ namespace MobileCart\CoreBundle\Service;
 
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use MobileCart\CoreBundle\Constants\EntityConstants;
-use MobileCart\CoreBundle\Entity\CartRepositoryInterface;
+use MobileCart\CoreBundle\Repository\CartRepositoryInterface;
 
 class DoctrineSearchService extends AbstractSearchService
 {

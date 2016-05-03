@@ -14,7 +14,7 @@ namespace MobileCart\CoreBundle\Service;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\ORM\Query;
 use MobileCart\CoreBundle\Constants\EntityConstants;
-use MobileCart\CoreBundle\Entity\CartRepositoryInterface;
+use MobileCart\CoreBundle\Repository\CartRepositoryInterface;
 
 class DoctrineSearchServiceV2 extends AbstractSearchService
 {
@@ -419,7 +419,8 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
             $sql = "SELECT distinct(vv.item_var_option_id), vv.item_var_id, ivo.value, ivo.url_value , iv.name, iv.code, iv.url_token, count(*) as count".
                 " FROM `{$tblValue}` vv inner join `{$tblItemVarOption}` ivo on vv.item_var_option_id=ivo.id".
                 " inner join `{$tblItemVar}` iv on vv.item_var_id=iv.id".
-                " WHERE {$filtersStr} group by vv.item_var_option_id".
+                " WHERE {$filtersStr}".
+                " group by vv.item_var_option_id, vv.item_var_id".
                 " order by `vv`.`item_var_id`, count desc";
 
             $em = $this->getEntityService()->getDoctrine()->getManager();

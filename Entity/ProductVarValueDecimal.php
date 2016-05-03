@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * MobileCart\CoreBundle\Entity\ProductVarValueDecimal
  *
  * @ORM\Table(name="product_var_value_decimal")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\VarValueRepository")
  */
 class ProductVarValueDecimal
 {

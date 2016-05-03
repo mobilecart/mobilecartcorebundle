@@ -902,6 +902,14 @@ abstract class AbstractSearchService
         // r[$var->getCode()] = "value from URL"
         if ($this->facetFilters) {
             foreach($this->facetFilters as $code => $value) {
+
+                if (
+                    $this->getFacetPrefix()
+                    && is_int(strpos($code, $this->getFacetPrefix()))
+                ) {
+                    $code = str_replace($this->getFacetPrefix(), '', $code);
+                }
+
                 $var = $this->getVarByCode($code);
                 $count = '';
                 $found = false;
@@ -940,6 +948,13 @@ abstract class AbstractSearchService
     {
         if (!$this->facetTokens) {
             return false;
+        }
+
+        if (
+            $this->getFacetPrefix()
+            && !is_int(strpos($facetCode, $this->getFacetPrefix()))
+        ) {
+            $facetCode = $this->getFacetPrefix() . $facetCode;
         }
 
         $tokens = array_flip($this->facetTokens);
@@ -1347,11 +1362,13 @@ abstract class AbstractSearchService
                     }
 
                     $this->facetTokens[$var->getUrlToken()] = $this->getFacetPrefix() . $var->getCode();
+                    //$this->facetTokens[$var->getUrlToken()] = $var->getCode();
                     $this->selectInputVars[$this->getFacetPrefix() . $var->getCode()] = $var->getCode();
                     $this->addFacet($var->getName(), $this->getFacetPrefix() . $var->getCode());
+                    //$this->addFacet($var->getName(), $var->getCode());
 
                     // skip, if we already have the value
-                    if (isset($this->facetFilters[$var->getCode()])) {
+                    if (isset($this->facetFilters[$this->getFacetPrefix() . $var->getCode()])) {
                         continue;
                     }
 

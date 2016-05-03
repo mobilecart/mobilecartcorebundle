@@ -93,8 +93,13 @@ class ProductViewReturn
                 break;
             default:
 
-                $template = $event->getEntity()->getCustomTemplate()
-                    ? $event->getEntity()->getCustomTemplate()
+                $customTpl = $event->getCustomTemplate();
+                if (!$customTpl && $event->getEntity()->getCustomTemplate()) {
+                    $customTpl = $event->getEntity()->getCustomTemplate();
+                }
+
+                $template = $customTpl
+                    ? $customTpl
                     : 'Product:view.html.twig';
 
                 $response = $this->getThemeService()

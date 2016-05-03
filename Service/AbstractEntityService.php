@@ -112,6 +112,24 @@ abstract class AbstractEntityService implements UserProviderInterface
     }
 
     /**
+     * @return array
+     */
+    public function getObjectRepositories()
+    {
+        return $this->repos;
+    }
+
+    /**
+     * @param array $repos
+     * @return $this
+     */
+    public function setObjectRepositories(array $repos)
+    {
+        $this->repos = $repos;
+        return $this;
+    }
+
+    /**
      * @param $key
      * @param $label
      * @return $this

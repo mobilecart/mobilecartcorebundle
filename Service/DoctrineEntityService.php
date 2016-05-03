@@ -89,6 +89,16 @@ class DoctrineEntityService
     }
 
     /**
+     * @param $objectType
+     * @param $dataType
+     * @return mixed
+     */
+    public function getVarValueTableName($objectType, $dataType)
+    {
+        return $this->getTableName($this->getVarValueKey($objectType, $dataType));
+    }
+
+    /**
      * @param $dataType
      * @return mixed
      * @throws \InvalidArgumentException
@@ -166,11 +176,20 @@ class DoctrineEntityService
      * @param $objectType
      * @return mixed
      */
-    public function getTableName($objectType)
+    public function getMetadata($objectType)
     {
         return $this->getDoctrine()
             ->getManager()
-            ->getClassMetadata($this->repos[$objectType])
+            ->getClassMetadata($this->repos[$objectType]);
+    }
+
+    /**
+     * @param $objectType
+     * @return mixed
+     */
+    public function getTableName($objectType)
+    {
+        return $this->getMetadata($objectType)
             ->getTableName();
     }
 
