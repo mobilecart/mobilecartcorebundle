@@ -29,6 +29,13 @@ class ContentSlot
     private $id;
 
     /**
+     * @var integer $old_id
+     *
+     * @ORM\Column(name="old_id", type="integer", nullable=true)
+     */
+    private $old_id;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="title", type="text", nullable=true)
@@ -208,6 +215,7 @@ class ContentSlot
     {
         return [
             'id' => $this->getId(),
+            'old_id' => $this->getOldId(),
             'title' => $this->getTitle(),
             'body_text' => $this->getBodyText(),
             'sort_order' => $this->getSortOrder(),
@@ -215,6 +223,24 @@ class ContentSlot
             'path' => $this->getPath(),
             'alt_text' => $this->getAltText(),
         ];
+    }
+
+    /**
+     * @param int $oldId
+     * @return Content
+     */
+    public function setOldId($oldId)
+    {
+        $this->old_id = $oldId;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getOldId()
+    {
+        return $this->old_id;
     }
 
     /**
