@@ -32,6 +32,9 @@ class Discount extends ArrayWrapper
     static $toItems = 'items';
     static $prefix = 'discount-'; // array key prefix
 
+    const PRODUCT = 'product';
+    const SHIPMENT = 'shipment';
+
     /**
      * Constructor
      */
@@ -71,8 +74,8 @@ class Discount extends ArrayWrapper
             'shipments'         => [],
             'is_stopper'        => false,
             'priority'          => self::$defaultPriority,
-            'start_datetime'    => '',
-            'end_datetime'      => '',
+            'start_time'        => '',
+            'end_time'          => '',
             'pre_conditions'    => [],
             'target_conditions' => [],
         ];
@@ -125,11 +128,16 @@ class Discount extends ArrayWrapper
             $this->data['to'] = self::$toItems;
         }
 
-        $startDatetime = ''; //TODO
-        $endDatetime = ''; //TODO
+        $startDatetime = isset($data['start_time'])
+            ? strtotime($data['start_time'])
+            : false;
 
-        $this->data['start_datetime'] = $startDatetime;
-        $this->data['end_datetime'] = $endDatetime;
+        $endDatetime = isset($data['end_time'])
+            ? strtotime($data['end_time'])
+            : false;
+
+        $this->data['start_time'] = $startDatetime;
+        $this->data['end_time'] = $endDatetime;
 
         $toItems = isset($data['items'])
             ? $data['items']
@@ -246,12 +254,8 @@ class Discount extends ArrayWrapper
      * @param string
      * @return Discount
      */
-    public function unsetItem($key)
+    public function unsetItemByProductId($key)
     {
-        if ($key instanceof Item) {
-            $key = Item::getKey($key->getId());
-        }
-        
         if (!count($this->getItems())) {
             return $this;
         }
@@ -265,25 +269,65 @@ class Discount extends ArrayWrapper
     }
 
     /**
+     * @param $key
+     * @return $this
+     */
+    public function unsetItem($key)
+    {
+        if (isset($this->data['items'][$key])) {
+            unset($this->data['items'][$key]);
+        }
+        return $this;
+    }
+
+    /**
      * Assert item is specified in this discount
      *
-     * @param {String} key
+     * @param string $key
      * @return boolean hasItem
      */
     public function hasItem($key)
     {
-        return in_array($key, $this->getItems());
+        $items = $this->getItems();
+        return isset($items[$key]);
     }
 
-//    /**
-//     * Whether this discount has specified items
-//     *
-//     * @return bool
-//     */
-//    public function hasItems()
-//    {
-//        return (count($this->getItems()) > 0);
-//    }
+    /**
+     * @param $productId
+     * @return bool
+     */
+    public function hasProductId($productId)
+    {
+        if ($this->hasItems()) {
+            foreach($this->getItems() as $aProductId) {
+                if (!is_numeric($aProductId)) {
+                    continue;
+                }
+                if ($aProductId == $productId) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $code
+     * @return bool
+     */
+    public function hasShipmentCode($code)
+    {
+        if ($this->hasShipments()) {
+            foreach($this->getShipments() as $shipment) {
+                if ($shipment->getCode() == $code) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
     /**
      * Remove a specified Shipment from this Discount
@@ -291,12 +335,8 @@ class Discount extends ArrayWrapper
      * @param string
      * @return Discount
      */
-    public function unsetShipment($key)
+    public function unsetShipmentCode($key)
     {
-        if ($key instanceof Shipment) {
-            $key = Shipment::getKey($key->getId());
-        }
-        
         if (!count($this->getShipments())) {
             return $this;
         }
@@ -305,6 +345,18 @@ class Discount extends ArrayWrapper
         unset($newShipments[$key]);
         $newShipments = array_flip($newShipments);
         $this->data['shipments'] = $newShipments;
+        return $this;
+    }
+
+    /**
+     * @param $key
+     * @return $this
+     */
+    public function unsetShipment($key)
+    {
+        if (isset($this->data['shipments'][$key])) {
+            unset($this->data['shipments'][$key]);
+        }
         return $this;
     }
 
@@ -319,13 +371,550 @@ class Discount extends ArrayWrapper
         return in_array($key, $this->getShipments());
     }
 
-//    /**
-//     * Assert this discounts has specified shipments
-//     *
-//     * @return bool
-//     */
-//    public function hasShipments()
-//    {
-//        return (count($this->getShipments()) > 0);
-//    }
+    /**
+     * @param Cart $cart
+     * @return bool
+     */
+    public function reapplyIfValid(Cart &$cart)
+    {
+        if ($cart->hasDiscountId($this->getId())) {
+            $cart->removeDiscountId($this->getId());
+        }
+
+        return $this->applyIfValid($cart);
+    }
+
+    /**
+     * @param Cart $cart
+     * @return bool
+     */
+    public function applyIfValid(Cart &$cart)
+    {
+        $targets = [];
+        if (
+            $this->isValid($cart, $targets)
+            && !$cart->hasDiscountId($this->getId())
+        ) {
+            if ($targets[self::PRODUCT]) {
+                foreach($targets[self::PRODUCT] as $conditions) {
+                    foreach($conditions as $productId) {
+                        $item = $cart->findItem('product_id', $productId);
+                        if (
+                            $item
+                            && !$this->hasProductId($productId)
+                        ) {
+                            $this->addItem($productId);
+                        }
+                    }
+                }
+            }
+
+            if ($targets[self::SHIPMENT]) {
+                foreach($targets[self::SHIPMENT] as $methodCode) {
+                    $shipment = $cart->findShipment('code', $methodCode);
+                    if (
+                        $shipment
+                        && !$this->hasShipmentCode($methodCode)
+                    ) {
+                        $this->addShipment($methodCode);
+                    }
+                }
+            }
+
+            if ($this->hasShipments() || $this->hasItems()) {
+                $cart->addDiscount($this);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param Cart $cart
+     * @param array $targets , array of product IDs and shipment Codes
+     * @return bool
+     */
+    public function isValid(Cart &$cart, array &$targets = [])
+    {
+        $targets[self::PRODUCT] = [];
+        $targets[self::SHIPMENT] = [];
+
+        if ($this->getStartTime() && time() < $this->getStartTime()) {
+            return false;
+        }
+
+        if ($this->getEndTime() && time() > $this->getEndTime()) {
+            return false;
+        }
+
+        switch($this->getTo()) {
+            case self::$toItems:
+                if (!$cart->hasItems()) {
+                    return false;
+                }
+                $hasDiscountable = false;
+                foreach($cart->getItems() as $item) {
+                    if ($item->getIsDiscountable()) {
+                        $hasDiscountable = true;
+                    }
+                }
+                if (!$hasDiscountable) {
+                    return false;
+                }
+                break;
+            case self::$toShipments:
+                if (!$cart->hasShipments()) {
+                    return false;
+                }
+                $hasDiscountable = false;
+                foreach($cart->getShipments() as $shipment) {
+                    if ($shipment->getIsDiscountable()) {
+                        $hasDiscountable = true;
+                    }
+                }
+                if (!$hasDiscountable) {
+                    return false;
+                }
+                break;
+            default:
+
+                break;
+        }
+
+        $data = $this->data;
+        $targetItems = [];
+        $targetShipments = [];
+
+        // assuming:
+        //  top level is and/or : RuleConditionCompare
+        //  second level is product/shipment/customer : RuleConditionCompare
+        //  3rd level is conditions : RuleCondition
+
+        $preConditionObj = isset($data['pre_conditions'])
+            ? $data['pre_conditions']
+            : null;
+
+        $preCondition = null;
+        if (!is_null($preConditionObj)) {
+
+            $preCondition = new RuleConditionCompare();
+            $preCondition->fromJson($preConditionObj);
+
+            switch($preCondition->getOperator()) {
+                case RuleConditionCompare::OP_HAS_CUSTOMER: // widget doesnt allow this value here
+                case RuleConditionCompare::OP_HAS_SHIPMENT: // widget doesnt allow this value here
+                case RuleConditionCompare::OP_HAS_PRODUCT: // widget doesnt allow this value here
+                case RuleConditionCompare::OP_AND:
+
+                    $x = 0;
+                    $conditionItems = []; // r[a] = [x, y, z] , a=index, x, y and z are Product IDs
+                    $conditionShipments = []; // r[a] = [x, y, z] , a=index, x, y and z are Shipment Codes
+
+                    // _all_ of the conditions must be valid, so we can return false on the first invalid condition
+                    if ($preConditions = $preCondition->getConditions()) {
+
+                        // "ideally", these are all "Cart has a X" ConditionCompare operators
+                        foreach($preConditions as $subCondition) {
+
+                            // each condition should be fulfilled by 1 or more objects
+                            //  eg 1 or more products
+                            //  the customer
+                            //  1 or more shipments, usually just 1
+
+                            if ($subCondition instanceof RuleConditionCompare) {
+
+                                switch($subCondition->getOperator()) {
+                                    case RuleConditionCompare::OP_HAS_CUSTOMER:
+
+                                        $customer = $cart->getCustomer();
+                                        if (!$customer->isValidConditionCompare($subCondition)) {
+                                            return false;
+                                        }
+
+                                        break;
+                                    case RuleConditionCompare::OP_HAS_SHIPMENT:
+
+                                        // note: default store only supports a single shipment
+                                        if ($shipments = $cart->getShipments()) {
+                                            $conditionShipments[$x] = [];
+                                            foreach($shipments as $shipment) {
+                                                if ($shipment->isValidConditionCompare($subCondition)) {
+                                                    $conditionShipments[$x][] = $shipment->getCode();
+                                                }
+                                            }
+
+                                            if (!$conditionItems[$x]) {
+                                                return false;
+                                            }
+                                        } else {
+                                            return false;
+                                        }
+
+                                        break;
+                                    case RuleConditionCompare::OP_HAS_PRODUCT:
+
+                                        if ($items = $cart->getItems()) {
+                                            $conditionItems[$x] = [];
+                                            foreach($items as $item) {
+                                                if ($item->isValidConditionCompare($subCondition)) {
+                                                    $conditionItems[$x][] = $item->getProductId();
+                                                }
+                                            }
+
+                                            if (!$conditionItems[$x]) {
+                                                return false;
+                                            }
+                                        } else {
+                                            return false;
+                                        }
+
+                                        break;
+                                    case RuleConditionCompare::OP_AND: // widget doesnt allow this value here
+                                        return false;
+                                        break;
+                                    case RuleConditionCompare::OP_OR: // widget doesnt allow this value here
+                                        return false;
+                                        break;
+                                    default:
+
+                                        break;
+                                }
+                            } else {
+
+                                // enforcing the widget architecture
+                                return false;
+                            }
+
+                            $x++;
+                        }
+
+                        // at this point, we can assume we have valid cart objects
+                        // but, we cannot assume an object is not in multiple "slots"
+                        //  basically, a single sku shouldn't fulfill more than 1 condition
+                        // TODO: make an option which enables a unique filter to be executed
+                        // eg 'product_unique' , 'shipment_unique'
+
+                    }
+
+                    break;
+                case RuleConditionCompare::OP_OR:
+
+                    // Note:
+                    //  only a single condition needs to be valid
+                    $conditionsMet = false;
+
+                    $x = 0;
+                    $conditionItems = []; // r[a] = [x, y, z] , a=index, x, y and z are Product IDs
+                    $conditionShipments = []; // r[a] = [x, y, z] , a=index, x, y and z are Shipment Codes
+
+                    if ($preConditions = $preCondition->getConditions()) {
+
+                        // "ideally", these are all "Cart has a X" ConditionCompare operators
+                        foreach($preConditions as $subCondition) {
+
+                            // each condition should be fulfilled by 1 or more objects
+                            //  eg 1 or more products
+                            //  the customer
+                            //  1 or more shipments, usually just 1
+
+                            if ($subCondition instanceof RuleConditionCompare) {
+
+                                switch($subCondition->getOperator()) {
+                                    case RuleConditionCompare::OP_HAS_CUSTOMER:
+
+                                        $customer = $cart->getCustomer();
+                                        if ($customer->isValidConditionCompare($subCondition)) {
+                                            $conditionsMet = true;
+                                        }
+
+                                        break;
+                                    case RuleConditionCompare::OP_HAS_SHIPMENT:
+
+                                        // note: default store only supports a single shipment
+                                        if ($shipments = $cart->getShipments()) {
+                                            $conditionShipments[$x] = [];
+                                            foreach($shipments as $shipment) {
+                                                if ($shipment->isValidConditionCompare($subCondition)) {
+                                                    $conditionShipments[$x][] = $shipment->getCode();
+                                                }
+                                            }
+
+                                            if ($conditionItems[$x]) {
+                                                $conditionsMet = true;
+                                            }
+                                        }
+
+                                        break;
+                                    case RuleConditionCompare::OP_HAS_PRODUCT:
+
+
+                                        if ($items = $cart->getItems()) {
+                                            $conditionItems[$x] = [];
+                                            foreach($items as $item) {
+                                                if ($item->isValidConditionCompare($subCondition)) {
+                                                    $conditionItems[$x][] = $item->getProductId();
+                                                }
+                                            }
+
+                                            if ($conditionItems[$x]) {
+                                                $conditionsMet = true;
+                                            }
+                                        }
+
+                                        break;
+                                    case RuleConditionCompare::OP_AND: // widget doesnt allow this value here
+                                        return false;
+                                        break;
+                                    case RuleConditionCompare::OP_OR: // widget doesnt allow this value here
+                                        return false;
+                                        break;
+                                    default:
+
+                                        break;
+                                }
+                            } else {
+
+                                // enforcing the widget architecture
+                                return false;
+                            }
+
+                            $x++;
+                        }
+
+                        // at this point, we can assume we have valid cart objects
+                        // but, we cannot assume an object is not in multiple "slots"
+                        //  basically, a single sku shouldn't fulfill more than 1 condition
+                        // TODO: make an option which enables a unique filter to be executed
+                        // eg 'product_unique' , 'shipment_unique'
+
+                    }
+
+                    if (!$conditionsMet) {
+                        return false;
+                    }
+
+                    break;
+                default:
+
+                    break;
+            }
+        }
+
+        $this->data['pre_condition_compare'] = $preCondition;
+
+        $targetConditionObj = isset($data['target_conditions'])
+            ? $data['target_conditions']
+            : null;
+
+        $targetCondition = null;
+        if (!is_null($targetConditionObj)) {
+            $targetCondition = new RuleConditionCompare();
+            $targetCondition->fromJson($targetConditionObj);
+
+            switch($targetCondition->getOperator()) {
+                case RuleConditionCompare::OP_HAS_CUSTOMER: // widget doesnt allow this value here
+                case RuleConditionCompare::OP_HAS_SHIPMENT: // widget doesnt allow this value here
+                case RuleConditionCompare::OP_HAS_PRODUCT: // widget doesnt allow this value here
+                case RuleConditionCompare::OP_AND:
+
+                    $x = 0;
+
+                    // _all_ of the conditions must be valid, so we can return false on the first invalid condition
+                    if ($targetConditions = $targetCondition->getConditions()) {
+
+                        // "ideally", these are all "Cart has a X" ConditionCompare operators
+                        foreach($targetConditions as $subCondition) {
+
+                            // each condition should be fulfilled by 1 or more objects
+                            //  eg 1 or more products
+                            //  the customer
+                            //  1 or more shipments, usually just 1
+
+                            if ($subCondition instanceof RuleConditionCompare) {
+
+                                switch($subCondition->getOperator()) {
+                                    case RuleConditionCompare::OP_HAS_CUSTOMER:
+
+                                        $customer = $cart->getCustomer();
+                                        if (!$customer->isValidConditionCompare($subCondition)) {
+                                            return false;
+                                        }
+
+                                        break;
+                                    case RuleConditionCompare::OP_HAS_SHIPMENT:
+
+                                        // note: default store only supports a single shipment
+                                        if ($shipments = $cart->getShipments()) {
+                                            $conditionShipments[$x] = [];
+                                            foreach($shipments as $shipment) {
+                                                if ($shipment->isValidConditionCompare($subCondition)) {
+                                                    $conditionShipments[$x][] = $shipment->getCode();
+                                                }
+                                            }
+
+                                            if (!$targetItems[$x]) {
+                                                return false;
+                                            }
+                                        } else {
+                                            return false;
+                                        }
+
+                                        break;
+                                    case RuleConditionCompare::OP_HAS_PRODUCT:
+
+
+                                        if ($items = $cart->getItems()) {
+                                            $targetItems[$x] = [];
+                                            foreach($items as $item) {
+                                                if ($item->isValidConditionCompare($subCondition)) {
+                                                    $targetItems[$x][] = $item->getProductId();
+                                                }
+                                            }
+
+                                            if (!$targetItems[$x]) {
+                                                return false;
+                                            }
+                                        } else {
+                                            return false;
+                                        }
+
+                                        break;
+                                    case RuleConditionCompare::OP_AND: // widget doesnt allow this value here
+                                        return false;
+                                        break;
+                                    case RuleConditionCompare::OP_OR: // widget doesnt allow this value here
+                                        return false;
+                                        break;
+                                    default:
+
+                                        break;
+                                }
+                            } else {
+
+                                // enforcing the widget data structure
+                                return false;
+                            }
+
+                            $x++;
+                        }
+
+                        // at this point, we can assume we have valid cart objects
+                        // but, we cannot assume an object is not in multiple "slots"
+                        //  basically, a single sku shouldn't fulfill more than 1 condition
+                        // TODO: make an option which enables a unique filter to be executed
+                        // eg 'product_unique' , 'shipment_unique'
+
+                    }
+
+                    break;
+                case RuleConditionCompare::OP_OR:
+
+                    // Note:
+                    //  only a single condition needs to be valid
+                    $conditionsMet = false;
+
+                    $x = 0;
+
+                    if ($targetConditions = $targetCondition->getConditions()) {
+
+                        // "ideally", these are all "Cart has a X" ConditionCompare operators
+                        foreach($targetConditions as $subCondition) {
+
+                            // each condition should be fulfilled by 1 or more objects
+                            //  eg 1 or more products
+                            //  the customer
+                            //  1 or more shipments, usually just 1
+
+                            if ($subCondition instanceof RuleConditionCompare) {
+
+                                switch($subCondition->getOperator()) {
+                                    case RuleConditionCompare::OP_HAS_CUSTOMER:
+
+                                        $customer = $cart->getCustomer();
+                                        if ($customer->isValidConditionCompare($subCondition)) {
+                                            $conditionsMet = true;
+                                        }
+
+                                        break;
+                                    case RuleConditionCompare::OP_HAS_SHIPMENT:
+
+                                        // note: default store only supports a single shipment
+                                        if ($shipments = $cart->getShipments()) {
+                                            $conditionShipments[$x] = [];
+                                            foreach($shipments as $shipment) {
+                                                if ($shipment->isValidConditionCompare($subCondition)) {
+                                                    $conditionShipments[$x][] = $shipment->getCode();
+                                                }
+                                            }
+
+                                            if ($targetItems[$x]) {
+                                                $conditionsMet = true;
+                                            }
+                                        }
+
+                                        break;
+                                    case RuleConditionCompare::OP_HAS_PRODUCT:
+
+
+                                        if ($items = $cart->getItems()) {
+                                            $targetItems[$x] = [];
+                                            foreach($items as $item) {
+                                                if ($item->isValidConditionCompare($subCondition)) {
+                                                    $targetItems[$x][] = $item->getProductId();
+                                                }
+                                            }
+
+                                            if ($targetItems[$x]) {
+                                                $conditionsMet = true;
+                                            }
+                                        }
+
+                                        break;
+                                    case RuleConditionCompare::OP_AND: // widget doesnt allow this value here
+                                        return false;
+                                        break;
+                                    case RuleConditionCompare::OP_OR: // widget doesnt allow this value here
+                                        return false;
+                                        break;
+                                    default:
+
+                                        break;
+                                }
+                            } else {
+
+                                // enforcing the widget architecture
+                                return false;
+                            }
+
+                            $x++;
+                        }
+
+                        // at this point, we can assume we have valid cart objects
+                        // but, we cannot assume an object is not in multiple "slots"
+                        //  basically, a single sku shouldn't fulfill more than 1 condition
+                        // TODO: make an option which enables a unique filter to be executed
+                        // eg 'product_unique' , 'shipment_unique'
+
+                    }
+
+                    if (!$conditionsMet) {
+                        return false;
+                    }
+
+                    break;
+                default:
+
+                    break;
+            }
+        }
+        $this->data['target_condition_compare'] = $targetCondition;
+
+        $targets[self::PRODUCT] = $targetItems;
+        $targets[self::SHIPMENT] = $targetShipments;
+
+        return true;
+    }
+
+
 }

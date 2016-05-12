@@ -292,6 +292,20 @@ class Cart extends ArrayWrapper
     }
 
     /**
+     * @return $this
+     */
+    public function reapplyDiscounts()
+    {
+        if ($this->hasDiscounts()) {
+            foreach($this->getDiscounts() as $discount) {
+                $discount->reapplyIfValid($this);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * Validate a RuleCondition against this Cart instance
      *
      * @param RuleCondition
@@ -379,31 +393,7 @@ class Cart extends ArrayWrapper
         parent::unsetItem($idx); // magic method
         $items = $this->getItems();
         $this->setItems(array_values($items)); // array key handling for json encoding
-
-        if ($this->hasDiscounts()) {
-            foreach($this->getDiscounts() as $key => $discount) {
-
-                // remove all discounts if our cart is empty
-                if (!$this->getItems()) {
-                    $this->unsetDiscount($key);
-                }
-
-                // todo:
-                // remove item from discount
-                if ($discount->hasItem($key)) {
-                    $discount->unsetItem($key);
-                }
-
-                // remove discount if necessary
-                if ($discount->getTo() == Discount::$toSpecified &&
-                    !$discount->hasItems() &&
-                    !$discount->hasShipments()) {
-
-                    $this->unsetDiscount($key);
-                }
-            }
-        }
-
+        $this->reapplyDiscounts();
         return $this;
     }
 
@@ -516,6 +506,7 @@ class Cart extends ArrayWrapper
         if (is_numeric($idx)) {
             $this->unsetItem($idx);
         }
+        $this->reapplyDiscounts();
         return $this;
     }
 
@@ -525,6 +516,7 @@ class Cart extends ArrayWrapper
     public function unsetItems()
     {
         $this->setItems([]);
+        $this->reapplyDiscounts();
         return $this;
     }
 
@@ -538,6 +530,7 @@ class Cart extends ArrayWrapper
         if (is_numeric($idx)) {
             $this->unsetItem($idx);
         }
+        $this->reapplyDiscounts();
         return $this;
     }
 
@@ -551,6 +544,7 @@ class Cart extends ArrayWrapper
         if (is_numeric($idx)) {
             $this->unsetItem($idx);
         }
+        $this->reapplyDiscounts();
         return $this;
     }
 
@@ -626,6 +620,7 @@ class Cart extends ArrayWrapper
         if (is_numeric($idx)) {
             $this->unsetItem($idx);
         }
+        $this->reapplyDiscounts();
         return $this;
     }
 
@@ -640,7 +635,7 @@ class Cart extends ArrayWrapper
             $idx = $this->findItemIdx('product_id', $productId);
             $this->data['items'][$idx]->setQty($qty);
         }
-
+        $this->reapplyDiscounts();
         return $this;
     }
 
@@ -657,7 +652,7 @@ class Cart extends ArrayWrapper
             $qty += $item->getQty();
             $this->data['items'][$idx]->setQty($qty);
         }
-
+        $this->reapplyDiscounts();
         return $this;
     }
 
@@ -702,32 +697,11 @@ class Cart extends ArrayWrapper
     }
 
     /**
-     * @param bool $sortByPriority
      * @return array
      */
-    public function getDiscounts($sortByPriority = true)
+    public function getDiscounts()
     {
-        //if (!$sortByPriority) {
-            return $this->discounts;
-        //}
-        /*
-        $discounts = [];
-        if (!count($this->discounts)) {
-            return $this->discounts;
-        }
-
-        $priorities = [];
-        foreach($this->discounts as $key => $discount) {
-            $priorities[$key] = $discount->getPriority();
-        }
-
-        asort($priorities);
-
-        foreach($priorities as $key => $priority) {
-            $discounts[$key] = $this->getDiscount($key);
-        }
-
-        return $discounts; //*/
+        return $this->data['discounts'];
     }
 
     /**
@@ -758,7 +732,7 @@ class Cart extends ArrayWrapper
      */
     public function removeDiscountId($discountId)
     {
-        $idx = $this->findItemIdx('discount_id', $discountId);
+        $idx = $this->findDiscountIdx('id', $discountId);
         if (is_numeric($idx)) {
             unset($this->data['discounts'][$idx]);
         }
@@ -828,6 +802,7 @@ class Cart extends ArrayWrapper
     public function setShipment($idx, Shipment $shipment)
     {
         $this->data['shipments'][$idx] = $shipment;
+        $this->reapplyDiscounts();
         return $this;
     }
 
@@ -843,7 +818,7 @@ class Cart extends ArrayWrapper
 
             unset($this->data['shipments'][$idx]);
         }
-
+        $this->reapplyDiscounts();
         return $this;
     }
 
@@ -859,7 +834,7 @@ class Cart extends ArrayWrapper
 
             unset($this->data['shipments'][$idx]);
         }
-
+        $this->reapplyDiscounts();
         return $this;
     }
 
@@ -872,9 +847,7 @@ class Cart extends ArrayWrapper
         if (isset($this->data['shipments'][$key])) {
             unset($this->data['shipments'][$key]);
         }
-
-        //TODO: remove from discounts
-
+        $this->reapplyDiscounts();
         return $this;
     }
 
@@ -888,7 +861,7 @@ class Cart extends ArrayWrapper
             unset($this->data['shipping_methods'][$key]);
         }
 
-        //TODO: remove from discounts
+        // dont need to remove anything from discounts
 
         return $this;
     }
@@ -899,6 +872,7 @@ class Cart extends ArrayWrapper
     public function unsetShipments()
     {
         $this->setShipments([]);
+        $this->reapplyDiscounts();
         return $this;
     }
 
@@ -908,6 +882,7 @@ class Cart extends ArrayWrapper
     public function unsetShippingMethods()
     {
         $this->setShippingMethods([]);
+        $this->reapplyDiscounts();
         return $this;
     }
 

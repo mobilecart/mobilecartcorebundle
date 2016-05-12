@@ -46,7 +46,7 @@ class RuleCondition extends ArrayWrapper
 
     /**
      * @return bool
-     * @throws Exception
+     * @throws \Exception
      */
     public function isValid()
     {
@@ -108,7 +108,7 @@ class RuleCondition extends ArrayWrapper
                 break;
         }
 
-        throw new Exception("Invalid Operator");
+        throw new \Exception("Invalid Operator");
     }
 
     /**

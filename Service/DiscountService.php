@@ -93,15 +93,10 @@ class DiscountService
         foreach($entities as $entity) {
 
             $discount = new Discount();
-            $discount->setId($entity->getId())
-                ->setName($entity->getName())
+
+            $discount->fromArray($entity->getData())
                 ->setAs($entity->getAppliedAs())
-                ->setTo($entity->getAppliedTo())
-                ->setValue($entity->getValue())
-                ->setIsPreTax($entity->getIsPreTax())
-                ->setIsAuto($entity->getIsAuto())
-                ->setCouponCode($entity->getCouponCode())
-            ;
+                ->setTo($entity->getAppliedTo());
 
             $preCondition = new RuleConditionCompare();
             $preCondition->importJson($entity->getPreConditions());

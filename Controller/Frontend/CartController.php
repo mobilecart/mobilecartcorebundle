@@ -43,7 +43,7 @@ class CartController extends Controller
 
     /**
      * @Route("/cart/add/{id}", name="cart_add_item")
-     * @Method("POST")
+     * @Method({"POST","GET"})
      */
     public function addProductAction(Request $request)
     {
@@ -162,5 +162,20 @@ class CartController extends Controller
         }
 
         return new JsonResponse($totals);
+    }
+
+    /**
+     * @Route("/cart/discount/add", name="cart_add_discount")
+     * @Method("POST")
+     */
+    public function addDiscountAction(Request $request)
+    {
+        $event = new CoreEvent();
+        $event->setRequest($request);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CART_ADD_DISCOUNT, $event);
+
+        return $event->getResponse();
     }
 }

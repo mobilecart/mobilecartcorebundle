@@ -1,0 +1,38 @@
+
+cart_view:
+    path:      /cart/view
+    defaults:  { _controller: MobileCartCoreBundle:Frontend/Cart:index }
+    methods:  [GET]
+
+cart_add_item:
+    path:      /cart/add/{id}
+    defaults:  { _controller: MobileCartCoreBundle:Frontend/Cart:addProduct }
+    methods:  [POST]
+
+cart_shipment_add:
+    path:     /shipment/add
+    defaults: { _controller: MobileCartCoreBundle:Frontend/Cart:addShipment }
+    methods:  [POST]
+
+cart_update_qtys:
+    path: /cart/update-qtys
+    defaults: { _controller: MobileCartCoreBundle:Frontend/Cart:updateQtys }
+    methods:  [POST]
+
+cart_remove_item:
+    path: /cart/remove/{product_id}
+    defaults: { _controller: MobileCartCoreBundle:Frontend/Cart:removeProduct }
+    methods:  [GET]
+# todo : change to POST
+
+cart_remove_items:
+    path: /cart/products/remove
+    defaults: { _controller: MobileCartCoreBundle:Frontend/Cart:removeProducts }
+    methods:  [GET]
+# todo : change to POST
+
+cart_totals:
+    path: /cart/totals
+    defaults: { _controller: MobileCartCoreBundle:Frontend/Cart:totals }
+    methods:  [GET]
+

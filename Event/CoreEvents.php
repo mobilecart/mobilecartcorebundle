@@ -21,6 +21,7 @@ final class CoreEvents
 
     const CART_ADD_PRODUCT = 'cart.add.product';
     const CART_ADD_SHIPMENT = 'cart.add.shipment';
+    const CART_ADD_DISCOUNT = 'cart.add.discount';
     const CART_REMOVE_PRODUCT = 'cart.remove.product';
     const CART_REMOVE_PRODUCTS = 'cart.remove.products';
     const CART_VIEW_RETURN = 'cart.view.return';

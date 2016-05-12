@@ -16,8 +16,10 @@ class RuleConditionCompare extends ArrayWrapper
 {
 
     const OP_AND = 'and';
-
     const OP_OR = 'or';
+    const OP_HAS_PRODUCT = 'product';
+    const OP_HAS_CUSTOMER = 'customer';
+    const OP_HAS_SHIPMENT = 'shipment';
 
     public function __construct()
     {
@@ -53,7 +55,13 @@ class RuleConditionCompare extends ArrayWrapper
      */
     public function getValidOperators()
     {
-        return array('and', 'or');
+        return [
+            self::OP_AND,
+            self::OP_OR,
+            self::OP_HAS_CUSTOMER,
+            self::OP_HAS_PRODUCT,
+            self::OP_HAS_SHIPMENT
+        ];
     }
 
     /**
@@ -167,9 +175,13 @@ class RuleConditionCompare extends ArrayWrapper
     public function isValid($object)
     {
         switch($this->getOperator()) {
+            case self::OP_HAS_SHIPMENT:
+            case self::OP_HAS_PRODUCT:
+            case self::OP_HAS_CUSTOMER:
             case self::OP_AND:
                 if (count($this->getConditions())) {
                     foreach($this->getConditions() as $condition) {
+                        // check for compare_value
                         if (!$object->isValidCondition($condition)) {
                             return false;
                         }

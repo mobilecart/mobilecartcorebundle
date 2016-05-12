@@ -103,9 +103,7 @@ class DiscountTotal extends Total
 
             if ($discounts) {
                 foreach($discounts as $discount) {
-                    if (!$cart->hasDiscountId($discount->getId())) {
-                        $cart->addDiscount($discount);
-                    }
+                    $discount->reapplyIfValid($cart);
                 }
             }
         }

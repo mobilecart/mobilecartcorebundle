@@ -14,7 +14,7 @@
         <parameter key="cart.load.currency">cart.currency</parameter>
         <parameter key="cart.load.admin">cart.search.doctrine</parameter>
         <parameter key="cart.load.frontend">cart.entity</parameter>
-        <parameter key="cart.search.frontend">cart.es17.search</parameter>
+        <parameter key="cart.search.frontend">cart.search.doctrine</parameter>
         <parameter key="cart.upload.temp">/tmp</parameter>
         <parameter key="cart.auth.token.class">MobileCart\CoreBundle\Service\GuardTokenAuthService</parameter>
         <parameter key="cart.search.doctrine.class">MobileCart\CoreBundle\Service\DoctrineSearchService</parameter>
@@ -125,10 +125,12 @@
         <parameter key="cart.listener.cart.remove.product.class">MobileCart\CoreBundle\EventListener\Cart\RemoveProduct</parameter>
         <parameter key="cart.listener.cart.remove.products.class">MobileCart\CoreBundle\EventListener\Cart\RemoveProducts</parameter>
         <parameter key="cart.listener.cart.add.shipment.class">MobileCart\CoreBundle\EventListener\Cart\AddShipment</parameter>
+        <parameter key="cart.listener.cart.add.discount.class">MobileCart\CoreBundle\EventListener\Cart\AddDiscount</parameter>
         <parameter key="cart.listener.cart.total.item.class">MobileCart\CoreBundle\EventListener\Cart\ItemTotal</parameter>
         <parameter key="cart.listener.cart.total.shipping.class">MobileCart\CoreBundle\EventListener\Cart\ShipmentTotal</parameter>
         <parameter key="cart.listener.cart.total.tax.class">MobileCart\CoreBundle\EventListener\Cart\TaxTotal</parameter>
         <parameter key="cart.listener.cart.total.discount.class">MobileCart\CoreBundle\EventListener\Cart\DiscountTotal</parameter>
+        <parameter key="cart.total.discount.auto">1</parameter>
         <parameter key="cart.listener.cart.total.grand.class">MobileCart\CoreBundle\EventListener\Cart\GrandTotal</parameter>
         <parameter key="cart.listener.product.search.class">MobileCart\CoreBundle\EventListener\Product\ProductSearch</parameter>
         <parameter key="cart.listener.product.list.class">MobileCart\CoreBundle\EventListener\Product\ProductList</parameter>
@@ -578,20 +580,6 @@
             </call>
             <call method="setCheckoutSessionService">
                 <argument type="service" id="cart.checkout.session" />
-            </call>
-        </service>
-
-        <!-- Event Listener: build shipping method form . collect shipping methods, set to session, set to form -->
-        <service id="cart.listener.checkout.form.shipping.methods" lazy="true" class="%cart.listener.checkout.form.shipping.methods.class%">
-            <tag name="kernel.event_listener" event="checkout.form" method="onCheckoutForm" priority="80" />
-            <call method="setRouter">
-                <argument type="service" id="router" />
-            </call>
-            <call method="setCheckoutSessionService">
-                <argument type="service" id="cart.checkout.session" />
-            </call>
-            <call method="setShippingService">
-                <argument type="service" id="cart.shipping" />
             </call>
         </service>
 
@@ -1158,6 +1146,9 @@
             <call method="setCurrencyService">
                 <argument type="service" id="cart.currency" />
             </call>
+            <call method="setApplyAutoDiscounts">
+                <argument type="string">%cart.total.discount.auto%</argument>
+            </call>
         </service>
 
         <!-- Event Listener: Return view data to Cart View page -->
@@ -1210,6 +1201,20 @@
         <!-- Event Listener: Add Shipment to Cart : from a User Session, not for APIs -->
         <service id="cart.listener.cart.add.shipment" lazy="true" class="%cart.listener.cart.add.shipment.class%">
             <tag name="kernel.event_listener" event="cart.add.shipment" method="onCartAddShipment" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+            <call method="setCartSessionService">
+                <argument type="service" id="cart.session" />
+            </call>
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Add Discount to Cart : from a User Session, not for APIs -->
+        <service id="cart.listener.cart.add.discount" lazy="true" class="%cart.listener.cart.add.discount.class%">
+            <tag name="kernel.event_listener" event="cart.add.discount" method="onCartAddDiscount" priority="50" />
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>

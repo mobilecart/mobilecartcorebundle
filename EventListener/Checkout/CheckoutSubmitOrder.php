@@ -80,6 +80,7 @@ class CheckoutSubmitOrder
         $returnData['success'] = $isValid;
 
         // todo : keep a count of invalid requests, logout/lockout user if excessive
+        // todo : change this to be more abstract , possibly use an event with listeners
 
         if (!$this->getCheckoutSessionService()->getIsValidBillingAddress()) {
             $returnData['invalid_sections'][] = CheckoutConstants::STEP_BILLING_ADDRESS;

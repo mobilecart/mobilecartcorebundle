@@ -202,7 +202,9 @@ class ArrayWrapper
      */
     public function __get($key)
     {
-        return isset($this->data[$key]) ? $this->data[$key] : null;
+        return isset($this->data[$key])
+            ? $this->data[$key]
+            : null;
     }
 
     /**
@@ -281,6 +283,10 @@ class ArrayWrapper
      */
     public function fromArray(array $data)
     {
+        if (!$data) {
+            return $this;
+        }
+
         //ensuring that defaults are preserved
         foreach($data as $key => $value) {
             $this->data[$key] = $value;
@@ -293,7 +299,6 @@ class ArrayWrapper
      */
     public function toJson()
     {
-        //return json_encode($this->toArray());
         return json_encode($this->jsonSerialize());
     }
 

@@ -5,6 +5,7 @@ namespace MobileCart\CoreBundle\EventListener\Security;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
+use MobileCart\CoreBundle\CartComponent\Cart;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
@@ -111,7 +112,22 @@ class Login implements AuthenticationSuccessHandlerInterface
         if ($class === $this->getEntityService()->getRepository(EntityConstants::CUSTOMER)->getClassName()) {
             $user = $this->getEntityService()->find(EntityConstants::CUSTOMER, $token->getUser()->getId());
             $this->getCartSessionService()
-                ->setCustomerEntity($user)
+                ->setCustomerEntity($user);
+
+            $currentCart = $this->getEntityService()->findOneBy(EntityConstants::CART, [
+                'customer' => $user->getId(),
+            ]);
+
+            if ($currentCart) {
+
+                $aCart = new Cart();
+                $aCart->importJson($currentCart->getJson());
+
+                $this->getCartSessionService()
+                    ->setCart($aCart);
+            }
+
+            $this->getCartSessionService()
                 ->collectShippingMethods()
                 ->collectTotals();
 
@@ -130,7 +146,7 @@ class Login implements AuthenticationSuccessHandlerInterface
 
         $this->getEntityService()->persist($user);
 
-        // observe event, for subscriptions, etc
+        // todo: observe event, for subscriptions, etc
 
         $event->setUser($user);
 

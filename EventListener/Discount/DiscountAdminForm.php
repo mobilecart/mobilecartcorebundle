@@ -68,19 +68,25 @@ class DiscountAdminForm
         ]);
 
         $operators = [
-            'gt' => '>',
-            'gte' => '>=',
-            'lt' => '<',
-            'lte' => '<=',
-            'equals' => '==',
-            'in_array' => 'In:',
-            'array_intersect' => 'Intersect:',
-            'contains' => 'Contains:',
+            'gt' => 'Greater Than',
+            'gte' => 'Greater Than or Equal To',
+            'lt' => 'Less Than',
+            'lte' => 'Less Than or Equal To',
+            'equals' => 'Equal To',
+            'in_array' => 'In List',
+            'array_intersect' => 'Intersect Lists',
+            'contains' => 'Contains',
         ];
 
         $logicalOperators = [
             'and' => 'If ALL are True',
             'or' => 'If ANY are True',
+        ];
+
+        $containerOperators = [
+            'product'  => 'Cart Has a Product',
+            'shipment' => 'Cart Has a Shipment',
+            'customer' => 'Cart Has a Customer',
         ];
 
         $formSections = [
@@ -121,64 +127,95 @@ class DiscountAdminForm
         $targetInput = '#discount_target_conditions';
 
         $varSetData = [];
-
-        $productVars = [
-            'qty' => ['datatype' => 'number', 'name' => 'Quantity'],
-            'id' => ['datatype' => 'number', 'name' => 'ID'],
-            'sku' => ['datatype' => 'string', 'name' => 'SKU'],
-            'price' => ['datatype' => 'number', 'name' => 'Price'],
-            'weight' => ['datatype' => 'number', 'name' => 'Weight'],
-            'category_ids_csv' => ['datatype' => 'string', 'name' => 'Category ID\'s'],
+        $varSetData['product'] = ['name' => 'Product'];
+        $varSetData['product']['vars'] = [
+            'qty' => ['datatype' => 'number', 'name' => 'Quantity', 'object_type' => 'product'],
+            'product_id' => ['datatype' => 'number', 'name' => 'ID', 'object_type' => 'product'],
+            'sku' => ['datatype' => 'string', 'name' => 'SKU', 'object_type' => 'product'],
+            'price' => ['datatype' => 'number', 'name' => 'Price', 'object_type' => 'product'],
+            'weight' => ['datatype' => 'number', 'name' => 'Weight', 'object_type' => 'product'],
+            'category_ids_csv' => ['datatype' => 'string', 'name' => 'Category ID\'s', 'object_type' => 'product'],
         ];
 
-        $varSets = $this->getEntityService()->findAll(EntityConstants::ITEM_VAR_SET);
+        $varSets = $this->getEntityService()->findBy(EntityConstants::ITEM_VAR_SET, [
+            'object_type' => [EntityConstants::PRODUCT, EntityConstants::CUSTOMER],
+        ]);
 
+        // todo : condense vars from var_set's into object_types
+        $varData = [];
         if ($varSets) {
             foreach($varSets as $varSet) {
 
-                $varData = $productVars;
+                $objectType = $varSet->getObjectType();
+                if (!isset($varData[$objectType])) {
+                    $varData[$objectType] = [
+                        'vars' => [],
+                    ];
+                }
+
                 $vars = $varSet->getItemVars();
 
                 if ($vars) {
                     foreach($vars as $var) {
-                        $varData[$var->getCode()] = [
+
+                        if (isset($varSetData[$objectType]['vars'][$var->getCode()])) {
+                            continue;
+                        }
+
+                        $varSetData[$objectType]['vars'][$var->getCode()] = [
                             'datatype' => $var->getDatatype(),
-                            'name'     => $var->getName()
+                            'name'     => $var->getName(),
+                            'object_type' => $objectType,
                         ];
                     }
                 }
-
-                $varSetData['set_' . $varSet->getId()] = [
-                    'name' => $varSet->getName(),
-                    'vars' => $varData,
-                ];
             }
         }
 
-        $varSetData['_shopping_cart'] = [
+        $varSetData['cart'] = [
             'name' => 'Shopping Cart',
             'vars' => [
                 'subtotal' => [
                     'datatype' => 'number',
                     'name' => 'Subtotal',
+                    'object_type' => 'cart',
                 ],
                 'shipping_method' => [
                     'datatype' => 'string',
                     'name' => 'Shipping Method',
+                    'object_type' => 'cart',
                 ],
             ],
         ];
 
-        $varSetData['_customer'] = [
+        $varSetData['shipment'] = [
+            'name' => 'Shipments',
+            'vars' => [
+                'shipping_method' => [
+                    'datatype' => 'string',
+                    'name' => 'Shipping Method',
+                    'object_type' => 'shipment',
+                ],
+            ],
+        ];
+
+        $varSetData['customer'] = [
             'name' => 'Customer',
             'vars' => [
+                'country_id' => [
+                    'datatype' => 'string',
+                    'name' => 'Country',
+                    'object_type' => 'customer',
+                ],
                 'state' => [
                     'datatype' => 'string',
                     'name' => 'State',
+                    'object_type' => 'customer',
                 ],
                 'zipcode' => [
                     'datatype' => 'string',
                     'name' => 'Postal',
+                    'object_type' => 'customer',
                 ],
             ],
         ];
@@ -189,6 +226,7 @@ class DiscountAdminForm
             'form_sections' => $formSections,
             'operators_json' => json_encode($operators),
             'logical_operators_json' => json_encode($logicalOperators),
+            'container_operators_json' => json_encode($containerOperators),
             'condition_input' => $conditionInput,
             'target_input' => $targetInput,
             'container' => $container,

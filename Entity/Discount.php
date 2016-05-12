@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\DiscountRepository")
  */
 class Discount
+    implements CartEntityInterface
 {
     /**
      * @var integer $id
@@ -262,7 +263,7 @@ class Discount
      * Set name
      *
      * @param string $name
-     * @return Item
+     * @return Discount
      */
     public function setName($name)
     {
@@ -332,6 +333,7 @@ class Discount
      * Set applied_as
      *
      * @param string $appliedAs
+     * @return $this
      */
     public function setAppliedAs($appliedAs)
     {
@@ -353,6 +355,7 @@ class Discount
      * Set applied_to
      *
      * @param string $appliedTo
+     * @return $this
      */
     public function setAppliedTo($appliedTo)
     {
@@ -374,6 +377,7 @@ class Discount
      * Set is_pre_tax
      *
      * @param boolean $isPreTax
+     * @return $this
      */
     public function setIsPreTax($isPreTax)
     {
@@ -395,6 +399,7 @@ class Discount
      * Set is_auto
      *
      * @param boolean $isAuto
+     * @return $this
      */
     public function setIsAuto($isAuto)
     {
@@ -416,6 +421,7 @@ class Discount
      * Set coupon_code
      *
      * @param string $couponCode
+     * @return $this
      */
     public function setCouponCode($couponCode)
     {
@@ -437,6 +443,7 @@ class Discount
      * Set priority
      *
      * @param integer $priority
+     * @return $this
      */
     public function setPriority($priority)
     {
@@ -458,6 +465,7 @@ class Discount
      * Set is_stopper
      *
      * @param boolean $isStopper
+     * @return $this
      */
     public function setIsStopper($isStopper)
     {
@@ -478,7 +486,8 @@ class Discount
     /**
      * Set start_time
      *
-     * @param datetime $startTime
+     * @param string $startTime
+     * @return $this
      */
     public function setStartTime($startTime)
     {
@@ -489,7 +498,7 @@ class Discount
     /**
      * Get start_time
      *
-     * @return datetime 
+     * @return string
      */
     public function getStartTime()
     {
@@ -499,7 +508,8 @@ class Discount
     /**
      * Set end_time
      *
-     * @param datetime $endTime
+     * @param string $endTime
+     * @return $this
      */
     public function setEndTime($endTime)
     {
@@ -510,7 +520,7 @@ class Discount
     /**
      * Get end_time
      *
-     * @return datetime 
+     * @return string
      */
     public function getEndTime()
     {
@@ -521,6 +531,7 @@ class Discount
      * Set is_compound
      *
      * @param boolean $isCompound
+     * @return $this
      */
     public function setIsCompound($isCompound)
     {
@@ -542,6 +553,7 @@ class Discount
      * Set is_proportional
      *
      * @param boolean $isProportional
+     * @return $this
      */
     public function setIsProportional($isProportional)
     {
@@ -563,6 +575,7 @@ class Discount
      * Set max_amount
      *
      * @param float $maxAmount
+     * @return $this
      */
     public function setMaxAmount($maxAmount)
     {
@@ -584,6 +597,7 @@ class Discount
      * Set max_qty
      *
      * @param float $maxQty
+     * @return $this
      */
     public function setMaxQty($maxQty)
     {
@@ -605,6 +619,7 @@ class Discount
      * Set is_max_per_item
      *
      * @param boolean $isMaxPerItem
+     * @return $this
      */
     public function setIsMaxPerItem($isMaxPerItem)
     {
@@ -625,7 +640,8 @@ class Discount
     /**
      * Set pre_conditions
      *
-     * @param text $preConditions
+     * @param string $preConditions
+     * @return $this
      */
     public function setPreConditions($preConditions)
     {
@@ -636,7 +652,7 @@ class Discount
     /**
      * Get pre_conditions
      *
-     * @return text 
+     * @return string
      */
     public function getPreConditions()
     {
@@ -646,7 +662,8 @@ class Discount
     /**
      * Set target_conditions
      *
-     * @param text $targetConditions
+     * @param string $targetConditions
+     * @return $this
      */
     public function setTargetConditions($targetConditions)
     {
@@ -657,7 +674,7 @@ class Discount
     /**
      * Get target_conditions
      *
-     * @return text 
+     * @return string
      */
     public function getTargetConditions()
     {

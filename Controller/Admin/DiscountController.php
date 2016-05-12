@@ -96,16 +96,6 @@ class DiscountController extends Controller
      */
     public function createAction(Request $request)
     {
-        $varSet = '';
-        if ($varSetId = $request->get('var_set_id', '')) {
-            $varSet = $this->get('cart.entity')->getVarSet($varSetId);
-        } else {
-            $varSets = $this->get('cart.entity')->getVarSets($this->objectType);
-            if ($varSets) {
-                $varSet = $varSets[0];
-            }
-        }
-
         $entity = $this->get('cart.entity')->getInstance(EntityConstants::DISCOUNT);
         $formEvent = new CoreEvent();
         $formEvent->setObjectType($this->objectType)
@@ -170,7 +160,6 @@ class DiscountController extends Controller
         $event->setObjectType($this->objectType)
             ->setRequest($request)
             ->setEntity($entity)
-            ->setVarSet($varSet)
             ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
@@ -187,16 +176,6 @@ class DiscountController extends Controller
      */
     public function newAction(Request $request)
     {
-        $varSet = '';
-        if ($varSetId = $request->get('var_set_id', '')) {
-            $varSet = $this->get('cart.entity')->getVarSet($varSetId);
-        } else {
-            $varSets = $this->get('cart.entity')->getVarSets($this->objectType);
-            if ($varSets) {
-                $varSet = $varSets[0];
-            }
-        }
-
         $entity = $this->get('cart.entity')->getInstance($this->objectType);
         $formEvent = new CoreEvent();
         $formEvent->setObjectType($this->objectType)
@@ -212,7 +191,6 @@ class DiscountController extends Controller
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setVarSet($varSet)
             ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
@@ -294,7 +272,7 @@ class DiscountController extends Controller
             ->setMethod('PUT');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::DISCOUNT_ADMIN_FORM, $formEvent->getReturnData());
+            ->dispatch(CoreEvents::DISCOUNT_ADMIN_FORM, $formEvent);
 
         $form = $formEvent->getForm();
 

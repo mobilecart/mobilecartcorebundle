@@ -151,7 +151,7 @@ class ShippingMethodEditReturn
             }
         }
 
-        $varSetData['_shopping_cart'] = [
+        $varSetData['cart'] = [
             'name' => 'Shopping Cart',
             'vars' => [
                 'subtotal' => [
@@ -165,7 +165,7 @@ class ShippingMethodEditReturn
             ],
         ];
 
-        $varSetData['_customer'] = [
+        $varSetData['customer'] = [
             'name' => 'Customer',
             'vars' => [
                 'state' => [

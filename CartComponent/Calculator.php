@@ -197,7 +197,7 @@ class Calculator
 
         // Loop Discounts
         if ($this->getCart()->hasDiscounts()) {
-            foreach($this->getCart()->getDiscounts(true) as $discountKey => $discount) {
+            foreach($this->getCart()->getDiscounts() as $discountKey => $discount) {
 
                 //does this discount apply to any Items?
                 $discountHasItems = (bool) ($discount->isToItems() ||
@@ -233,7 +233,7 @@ class Calculator
                     if ($discountHasItems) {
                         switch($discount->getTo()) {
                             case Discount::$toItems:
-                                foreach($this->getCart()->getItems() as $itemKey => $item) {
+                                foreach($this->getCart()->getItems() as $item) {
                                     if (!$item->getIsDiscountable()) {
                                         continue;
                                     }
@@ -241,8 +241,8 @@ class Calculator
                                 }
                                 break;
                             case Discount::$toSpecified:
-                                foreach($discount->getItems() as $itemKey) {
-                                    $qtySum += $this->getCart()->getItem($itemKey)->getQty();
+                                foreach($discount->getItems() as $productId) {
+                                    $qtySum += $this->getCart()->findItem('product_id', $productId)->getQty();
                                 }
                                 break;
                             default:
@@ -289,8 +289,9 @@ class Calculator
                         if ($maxAmount > 0 && !$discount->getIsMaxPerItem() && $currentAmount >= $maxAmount) {
                             break;
                         }
-                        
-                        $item = $this->getCart()->getItem($itemKey);
+
+                        $items = $this->getCart()->getItems();
+                        $item = $items[$itemKey];
                         
                         //skip the item if it isnt discountable
                         if (!$item->getIsDiscountable()) {
@@ -571,7 +572,7 @@ class Calculator
         
         $maxItemQtys = array();
         
-        foreach($discount->getItems() as $itemKey) {
+        foreach($discount->getItems() as $itemKey => $productId) {
             
             if (!$remainingQty) {
                 $maxItemQtys[$itemKey] = 0;

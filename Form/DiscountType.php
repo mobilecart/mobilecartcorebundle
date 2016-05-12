@@ -6,7 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-use MobileCart\CartComponentBundle\CartComponent\Discount;
+use MobileCart\CoreBundle\CartComponent\Discount;
 
 class DiscountType extends AbstractType
 {
