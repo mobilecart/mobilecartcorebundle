@@ -12,4 +12,11 @@ use Doctrine\ORM\EntityRepository;
  */
 class CustomerGroupRepository extends EntityRepository
 {
+    /**
+     * @return bool
+     */
+    public function hasImages()
+    {
+        return false;
+    }
 }

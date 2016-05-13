@@ -59,6 +59,14 @@ class ItemVarSetVarRepository
     }
 
     /**
+     * @return bool
+     */
+    public function hasImages()
+    {
+        return false;
+    }
+
+    /**
      * @return mixed|string
      */
     public function getSearchField()

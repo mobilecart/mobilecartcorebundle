@@ -12,4 +12,11 @@ use Doctrine\ORM\EntityRepository;
  */
 class RefCountryRegionRepository extends EntityRepository
 {
+    /**
+     * @return bool
+     */
+    public function hasImages()
+    {
+        return false;
+    }
 }

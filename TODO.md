@@ -1,8 +1,6 @@
 # From Alpha to Beta:
 
-* better Mass Import and Export functions
 * some Unit Tests
-* finish Discount handling and Admin editing for Discounts
 * release DemoBundle for installing a Demo Store, and a better Frontend theme
 * ensure the service architecture is good enough to accommodate all types of bundles
 * finish documentation
@@ -22,7 +20,7 @@
 * finish Single Page Application / javascript implementation
 * At least 1 of the major Shipping vendors is integrated : Fedex, UPS, USPS
 * Stripe and Authorize.net Payment Gateway bundles are released
-* ensure the (currently un-released) ElasticSearch bundle works with the Frontend architecture
+* ensure the ElasticSearch bundle works with the Frontend architecture
 
 # From Release Candidate to 1.0
 
