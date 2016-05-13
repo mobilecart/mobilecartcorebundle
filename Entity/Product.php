@@ -421,13 +421,6 @@ class Product
      */
     public function getBaseData()
     {
-        $images = [];
-        if ($imageObjects = $this->getImages()) {
-            foreach($imageObjects as $imageObject) {
-                $images[] = $imageObject->getData();
-            }
-        }
-
         return [
             'id' => $this->getId(),
             'created_at' => $this->getCreatedAt(),
@@ -455,7 +448,6 @@ class Product
             'is_taxable' => (bool) $this->getIsTaxable(),
             'visibility' => $this->getVisibility(),
             'can_backorder' => $this->getCanBackorder(),
-            'images' => $images,
         ];
     }
 

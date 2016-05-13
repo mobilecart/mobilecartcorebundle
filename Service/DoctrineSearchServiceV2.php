@@ -566,7 +566,15 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
 
             $this->getEntityService()
                 ->populateVarValues($this->getObjectType(), $entities);
+        }
 
+        if (
+            method_exists($repo, 'hasImages')
+            && $repo->hasImages()
+        ) {
+
+            $this->getEntityService()
+                ->populateImages($this->getObjectType(), $entities);
         }
 
         $this->result = [

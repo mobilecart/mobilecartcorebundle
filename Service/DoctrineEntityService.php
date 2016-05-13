@@ -455,6 +455,49 @@ class DoctrineEntityService
         return $this;
     }
 
+    public function populateImages($objectType, &$values)
+    {
+        $entityIds = [];
+        foreach($values as $data) {
+            if (!isset($data['id'])) {
+                continue;
+            }
+            $entityIds[] = $data['id'];
+        }
+
+        if (!$entityIds) {
+            return $this;
+        }
+
+        $imageObjectType = $objectType . '_image';
+        $table = $this->getTableName($imageObjectType);
+        $em = $this->getDoctrine()->getManager();
+        $map = array_flip($entityIds);
+        $code = 'images';
+
+        if ($entityIds) {
+            $entityIdsStr = implode(',', $entityIds);
+            $sql = "select * from {$table} where parent_id in ({$entityIdsStr})";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
+            $dataValues = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            if ($dataValues) {
+                foreach($dataValues as $dataValue) {
+
+                    $entityId = $dataValue['parent_id'];
+                    $idx = $map[$entityId];
+
+                    if (!isset($values[$idx][$code])) {
+                        $values[$idx][$code] = [];
+                    }
+                    $values[$idx][$code][] = $dataValue;
+                }
+            }
+        }
+    }
+
     /**
      * Create EAV Values for a newly created Entity
      *  only creates rows for submitted vars

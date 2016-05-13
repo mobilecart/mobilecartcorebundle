@@ -208,20 +208,6 @@ class Content
 
     public function getBaseData()
     {
-        $images = [];
-        if ($imageObjects = $this->getImages()) {
-            foreach($imageObjects as $imageObject) {
-                $images[] = $imageObject->getData();
-            }
-        }
-
-        $slots = [];
-        if ($slotObjects = $this->getSlots()) {
-            foreach($slotObjects as $slotObject) {
-                $slots[] = $slotObject->getData();
-            }
-        }
-
         return [
             'id' => $this->getId(),
             'created_at' => $this->getCreatedAt(),
@@ -238,8 +224,6 @@ class Content
             'meta_keywords' => $this->getMetaKeywords(),
             'meta_title' => $this->getMetaTitle(),
             'author' => $this->getAuthor(),
-            'images' => $images,
-            'slots' => $slots,
         ];
     }
 
