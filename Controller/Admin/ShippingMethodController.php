@@ -116,9 +116,6 @@ class ShippingMethodController extends Controller
     public function createAction(Request $request)
     {
         $entity = $this->get('cart.entity')->getInstance($this->objectType);
-
-        //$form = $this->createCreateForm($entity);
-
         $formEvent = new CoreEvent();
         $formEvent->setObjectType($this->objectType)
             ->setEntity($entity)
@@ -151,7 +148,14 @@ class ShippingMethodController extends Controller
                 'Shipping Method Successfully Created!'
             );
 
-            return $this->redirect($this->generateUrl('cart_admin_shipping_method'));
+            $returnEvent = new CoreEvent();
+            $returnEvent->setMessages($event->getMessages());
+            $returnEvent->setRequest($request);
+            $returnEvent->setEntity($entity);
+            $this->get('event_dispatcher')
+                ->dispatch(CoreEvents::SHIPPING_METHOD_CREATE_RETURN, $returnEvent);
+
+            return $returnEvent->getResponse();
         }
 
         if ($request->get('format', '') == 'json') {
@@ -191,27 +195,7 @@ class ShippingMethodController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::SHIPPING_METHOD_NEW_RETURN, $event);
 
-        $returnData = $event->getReturnData();
-        $tplPath = $this->get('cart.theme')->getTemplatePath('admin');
-        $view = $tplPath . 'ShippingMethod:new.html.twig';
-        return $this->render($view, $returnData);
-    }
-
-    /**
-    * Creates a form to create a ShippingMethod entity.
-    *
-    * @param ShippingMethod $entity The entity
-    *
-    * @return \Symfony\Component\Form\Form The form
-    */
-    private function createCreateForm($entity)
-    {
-        $form = $this->createForm(new ShippingMethodType(), $entity, [
-            'action' => $this->generateUrl('cart_admin_shipping_method_create'),
-            'method' => 'POST',
-        ]);
-
-        return $form;
+        return $event->getResponse();
     }
 
     /**
@@ -243,10 +227,7 @@ class ShippingMethodController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::SHIPPING_METHOD_NEW_RETURN, $event);
 
-        $returnData = $event->getReturnData();
-        $tplPath = $this->get('cart.theme')->getTemplatePath('admin');
-        $view = $tplPath . 'ShippingMethod:new.html.twig';
-        return $this->render($view, $returnData);
+        return $event->getResponse();
     }
 
     /**
@@ -303,28 +284,9 @@ class ShippingMethodController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::SHIPPING_METHOD_EDIT_RETURN, $event);
 
-        $returnData = $event->getReturnData();
-        $tplPath = $this->get('cart.theme')->getTemplatePath('admin');
-        $view = $tplPath . 'ShippingMethod:edit.html.twig';
-        return $this->render($view, $returnData);
+        return $event->getResponse();
     }
 
-    /**
-    * Creates a form to edit a ShippingMethod entity.
-    *
-    * @param ShippingMethod $entity The entity
-    *
-    * @return \Symfony\Component\Form\Form The form
-    */
-    private function createEditForm(ShippingMethod $entity)
-    {
-        $form = $this->createForm(new ShippingMethodType(), $entity, [
-            'action' => $this->generateUrl('cart_admin_shipping_method_update', ['id' => $entity->getId()]),
-            'method' => 'PUT',
-        ]);
-
-        return $form;
-    }
 
     /**
      * Edits an existing ShippingMethod entity.
@@ -401,7 +363,14 @@ class ShippingMethodController extends Controller
 
             }
 
-            return $this->redirect($this->generateUrl('cart_admin_shipping_method'));
+            $returnEvent = new CoreEvent();
+            $returnEvent->setMessages($event->getMessages());
+            $returnEvent->setRequest($request);
+            $returnEvent->setEntity($entity);
+            $this->get('event_dispatcher')
+                ->dispatch(CoreEvents::SHIPPING_METHOD_UPDATE_RETURN, $returnEvent);
+
+            return $returnEvent->getResponse();
         }
 
         if ($request->get('format', '') == 'json') {
@@ -436,10 +405,7 @@ class ShippingMethodController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::SHIPPING_METHOD_EDIT_RETURN, $event);
 
-        $returnData = $event->getReturnData();
-        $tplPath = $this->get('cart.theme')->getTemplatePath('admin');
-        $view = $tplPath . 'ShippingMethod:edit.html.twig';
-        return $this->render($view, $returnData);
+        return $event->getResponse();
     }
 
     /**

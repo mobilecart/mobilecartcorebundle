@@ -233,8 +233,6 @@ class DiscountAdminForm
             'var_sets' => json_encode($varSetData),
         ]);
 
-        $returnData['form'] = $form;
-
         $event->setForm($form)
             ->setReturnData($returnData);
     }

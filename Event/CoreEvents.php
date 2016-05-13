@@ -209,7 +209,9 @@ final class CoreEvents
     const SHIPPING_METHOD_DELETE = 'shipping_method.delete';
     const SHIPPING_METHOD_SAVE = 'shipping_method.save';
     const SHIPPING_METHOD_EDIT_RETURN = 'shipping_method.edit.return';
+    const SHIPPING_METHOD_UPDATE_RETURN = 'shipping_method.update.return';
     const SHIPPING_METHOD_NEW_RETURN = 'shipping_method.new.return';
+    const SHIPPING_METHOD_CREATE_RETURN = 'shipping_method.create.return';
     const SHIPPING_METHOD_ADMIN_FORM = 'shipping_method.admin.form';
 
     const URL_REWRITE_LIST = 'url_rewrite.list';
