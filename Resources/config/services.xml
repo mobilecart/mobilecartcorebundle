@@ -255,8 +255,10 @@
         <parameter key="cart.listener.shipping_method.list.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodList</parameter>
         <parameter key="cart.listener.shipping_method.admin.form.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodAdminForm</parameter>
         <parameter key="cart.listener.shipping_method.new.return.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodNewReturn</parameter>
+        <parameter key="cart.listener.shipping_method.create.return.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodCreateReturn</parameter>
         <parameter key="cart.listener.shipping_method.insert.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodInsert</parameter>
         <parameter key="cart.listener.shipping_method.edit.return.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodEditReturn</parameter>
+        <parameter key="cart.listener.shipping_method.update.return.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodUpdateReturn</parameter>
         <parameter key="cart.listener.shipping_method.delete.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodDelete</parameter>
         <parameter key="cart.listener.url_rewrite.search.class">MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteSearch</parameter>
         <parameter key="cart.listener.url_rewrite.list.class">MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteList</parameter>
@@ -2367,6 +2369,18 @@
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.shipping_method.create.return" lazy="true" class="%cart.listener.shipping_method.create.return.class%">
+            <tag name="kernel.event_listener" event="shipping_method.create.return" method="onShippingMethodCreateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
         </service>
         <service id="cart.listener.shipping_method.insert" lazy="true" class="%cart.listener.shipping_method.insert.class%">
             <tag name="kernel.event_listener" event="shipping_method.insert" method="onShippingMethodInsert" priority="50" />
@@ -2378,6 +2392,18 @@
             <tag name="kernel.event_listener" event="shipping_method.edit.return" method="onShippingMethodEditReturn" priority="50" />
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.shipping_method.update.return" lazy="true" class="%cart.listener.shipping_method.update.return.class%">
+            <tag name="kernel.event_listener" event="shipping_method.update.return" method="onShippingMethodUpdateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
             </call>
         </service>
         <service id="cart.listener.shipping_method.delete" lazy="true" class="%cart.listener.shipping_method.delete.class%">
