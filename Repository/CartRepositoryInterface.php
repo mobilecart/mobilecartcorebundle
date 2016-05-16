@@ -55,7 +55,7 @@ interface CartRepositoryInterface
     public function isEAV();
 
     /**
-     * @return mixed
+     * @return string|array
      */
     public function getSearchField();
 

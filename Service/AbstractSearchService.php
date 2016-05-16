@@ -1243,7 +1243,7 @@ abstract class AbstractSearchService
     }
 
     /**
-     * @param $field
+     * @param string|array $field
      * @return $this
      */
     public function setSearchField($field)
@@ -1253,7 +1253,7 @@ abstract class AbstractSearchService
     }
 
     /**
-     * @return string
+     * @return string|array
      */
     public function getSearchField()
     {
@@ -1335,7 +1335,7 @@ abstract class AbstractSearchService
         $sortable = $repo->getSortableFields();
         $filterable = $repo->getFilterableFields();
         $this->setIsEAV($repo->isEAV());
-        $this->searchField = $repo->getSearchField();
+        $this->searchField = $repo->getSearchField(); // todo : handle array of fields
         $this->searchMethod = $repo->getSearchMethod();
 
         // only need the ID in some cases
@@ -1362,10 +1362,8 @@ abstract class AbstractSearchService
                     }
 
                     $this->facetTokens[$var->getUrlToken()] = $this->getFacetPrefix() . $var->getCode();
-                    //$this->facetTokens[$var->getUrlToken()] = $var->getCode();
                     $this->selectInputVars[$this->getFacetPrefix() . $var->getCode()] = $var->getCode();
                     $this->addFacet($var->getName(), $this->getFacetPrefix() . $var->getCode());
-                    //$this->addFacet($var->getName(), $var->getCode());
 
                     // skip, if we already have the value
                     if (isset($this->facetFilters[$this->getFacetPrefix() . $var->getCode()])) {
@@ -1377,7 +1375,8 @@ abstract class AbstractSearchService
                         continue;
                     }
 
-                    // todo : sanitize
+                    // sanitize
+                    $urlVal = str_replace(' ', '-', $this->sanitize($urlVal));
                     $this->addFacetFilter($this->getFacetPrefix() . $var->getCode(), $urlVal);
                 }
             }

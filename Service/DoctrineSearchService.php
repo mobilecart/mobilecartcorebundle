@@ -184,11 +184,7 @@ class DoctrineSearchService extends AbstractSearchService
                                 $bindTypes[$x] = \PDO::PARAM_STR;
                                 break;
                         }
-
-                        if ($found) {
-                            $x++;
-                        }
-
+                        $x++;
                         break;
                     }
                 }
@@ -234,11 +230,9 @@ class DoctrineSearchService extends AbstractSearchService
                         $whereConditions[] = "vv.{$field} <= ?";
                         break;
                     case 'in':
-
                         // assumes value is CSV
                         $advFilterParams[] = '(' . $value . ')';
                         $whereConditions[] = "vv.{$field} in ?";
-
                         break;
                     default:
 
@@ -265,7 +259,6 @@ class DoctrineSearchService extends AbstractSearchService
             foreach($this->getFacetFilters() as $facetCode => $value) {
 
                 $itemVar = $this->getVarByCode($facetCode);
-                $bindTypes[$x] = $pdoBindTypes[$itemVar->getDatatype()];
                 $tblValue = $objectType . '_' . EntityConstants::getVarDatatype($itemVar->getDatatype());
                 $values = explode($this->valueSep, $value);
                 $joinTbl = $tables[$itemVar->getDatatype()];
@@ -276,16 +269,28 @@ class DoctrineSearchService extends AbstractSearchService
                     foreach($values as $itemVarValue) {
                         $conditions[] = "({$pre}.value = ? OR {$joinTblPre}.url_value = ?)";
                         $facetFilterParams[] = $itemVarValue;
+
+                        $bindTypes[$x] = $pdoBindTypes[$itemVar->getDatatype()];
+                        $x++;
+
+                        $bindTypes[$x] = $pdoBindTypes[$itemVar->getDatatype()];
+                        $x++;
+
                     }
                     $dqlFilters[] = "({$pre}.item_var_id={$itemVar->getId()} AND (".implode(' OR ', $conditions)."))";
                 } else {
                     $dqlFilters[] = "({$pre}.item_var_id={$itemVar->getId()} AND ({$pre}.value = ? OR {$joinTblPre}.url_value = ?))";
                     $facetFilterParams[] = $value;
+
+                    $bindTypes[$x] = $pdoBindTypes[$itemVar->getDatatype()];
+                    $x++;
+
+                    $bindTypes[$x] = $pdoBindTypes[$itemVar->getDatatype()];
+                    $x++;
                 }
 
                 $whereConditions[] = "vv.id in (select parent_id from {$tblValue} {$pre} left join {$joinTbl} {$joinTblPre} on {$pre}.item_var_option_id={$joinTblPre}.id where ". implode(' AND ', $dqlFilters).")";
                 $dqlFilters = [];
-                $x++;
             }
         }
 
@@ -303,8 +308,10 @@ class DoctrineSearchService extends AbstractSearchService
         // basic filters
         if ($filterParams) {
             foreach($filterParams as $value) {
+
                 $bindType = $bindTypes[$x];
                 $z = $x + 1;
+
                 $stmt->bindValue($z, $value, $bindType);
                 $x++;
             }
@@ -329,8 +336,10 @@ class DoctrineSearchService extends AbstractSearchService
         // advanced filters
         if ($advFilterParams) {
             foreach($advFilterParams as $value) {
+
                 $bindType = $bindTypes[$x];
                 $z = $x + 1;
+
                 $stmt->bindValue($z, $value, $bindType);
                 $x++;
             }
@@ -347,10 +356,15 @@ class DoctrineSearchService extends AbstractSearchService
         // facet filters
         if ($facetFilterParams) {
             foreach($facetFilterParams as $i => $value) {
+
                 $bindType = $bindTypes[$x];
-                $z = $x + ($i * 2);
-                $stmt->bindValue($z + 1, $value, $bindType);
-                $stmt->bindValue($z + 2, $value, $bindType);
+                $z = $x + 1;
+                $stmt->bindValue($z, $value, $bindType);
+                $x++;
+
+                $bindType = $bindTypes[$x];
+                $z = $x + 1;
+                $stmt->bindValue($z, $value, $bindType);
                 $x++;
             }
         }
