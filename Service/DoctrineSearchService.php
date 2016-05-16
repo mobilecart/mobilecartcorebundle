@@ -138,16 +138,36 @@ class DoctrineSearchService extends AbstractSearchService
             && $this->getSearchField()
             && $this->getSearchMethod()) {
 
-            $bindTypes[$x] = \PDO::PARAM_STR;
+            if (is_array($this->getSearchField())) {
+                if (count($this->getSearchField()) > 1) {
 
-            if ($this->getSearchMethod() == CartRepositoryInterface::SEARCH_METHOD_FULLTEXT) {
-                // todo : handle postgres
-                $whereConditions[] = "match(vv.{$this->getSearchField()}) against (? in boolean mode)";
+                    $cond = '';
+                    foreach($this->getSearchField() as $searchField) {
+                        $bindTypes[$x] = \PDO::PARAM_STR;
+                        if (!$cond) {
+                            $cond .= "(vv.{$searchField} like ?";
+                        } else {
+                            $cond .= " OR vv.{$searchField} like ?";
+                        }
+                        $x++;
+                    }
+                    $cond .= ')';
+                    $whereConditions[] = $cond;
+                } else {
+
+                    $fields = $this->getSearchField();
+                    $searchField = $fields[0];
+
+                    $bindTypes[$x] = \PDO::PARAM_STR;
+                    $whereConditions[] = "vv.{$searchField} like ?";
+                    $x++;
+                }
             } else {
+                $bindTypes[$x] = \PDO::PARAM_STR;
                 $whereConditions[] = "vv.{$this->getSearchField()} like ?";
+                $x++;
             }
 
-            $x++;
         }
 
         // handle "advanced" filters
@@ -322,15 +342,27 @@ class DoctrineSearchService extends AbstractSearchService
             && $this->getSearchField()
             && $this->getSearchMethod()) {
 
-            $bindType = $bindTypes[$x];
-            $z = $x + 1;
+            if (is_array($this->getSearchField())) {
+                if (count($this->getSearchField()) > 1) {
+                    foreach($this->getSearchField() as $searchField) {
+                        $bindType = $bindTypes[$x];
+                        $z = $x + 1;
+                        $stmt->bindValue($z, '%' . $this->sanitize($this->getQuery()) . '%', $bindType);
+                        $x++;
+                    }
+                } else {
 
-            if ($this->getSearchMethod() == CartRepositoryInterface::SEARCH_METHOD_FULLTEXT) {
-                $stmt->bindValue($z, $this->sanitize($this->getQuery()), $bindType);
+                    $bindType = $bindTypes[$x];
+                    $z = $x + 1;
+                    $stmt->bindValue($z, '%' . $this->sanitize($this->getQuery()) . '%', $bindType);
+                    $x++;
+                }
             } else {
+                $bindType = $bindTypes[$x];
+                $z = $x + 1;
                 $stmt->bindValue($z, '%' . $this->sanitize($this->getQuery()) . '%', $bindType);
+                $x++;
             }
-            $x++;
         }
 
         // advanced filters

@@ -173,11 +173,11 @@ class ProductRepository
     }
 
     /**
-     * @return mixed|string
+     * @return array|string
      */
     public function getSearchField()
     {
-        return 'fulltext_search';
+        return ['name', 'fulltext_search'];
     }
 
     /**

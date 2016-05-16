@@ -1335,7 +1335,7 @@ abstract class AbstractSearchService
         $sortable = $repo->getSortableFields();
         $filterable = $repo->getFilterableFields();
         $this->setIsEAV($repo->isEAV());
-        $this->searchField = $repo->getSearchField(); // todo : handle array of fields
+        $this->searchField = $repo->getSearchField(); // handle array of fields
         $this->searchMethod = $repo->getSearchMethod();
 
         // only need the ID in some cases
