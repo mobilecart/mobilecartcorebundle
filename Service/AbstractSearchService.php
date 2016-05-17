@@ -236,7 +236,7 @@ abstract class AbstractSearchService
      *
      * @var string
      */
-    protected $query = '';
+    public $query = '';
 
     /**
      * Page number parameter
