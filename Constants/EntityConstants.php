@@ -47,6 +47,19 @@ class EntityConstants
         ];
     }
 
+    const CONTENT_TYPE_IMAGE = 'image';
+    const CONTENT_TYPE_EMBED = 'embed';
+    const CONTENT_TYPE_HTML = 'html';
+
+    static function getContentTypes()
+    {
+        return [
+            self::CONTENT_TYPE_IMAGE => 'Image',
+            self::CONTENT_TYPE_EMBED => 'Embed / Video',
+            self::CONTENT_TYPE_HTML => 'Text / HTML',
+        ];
+    }
+
     // Form inputs
     const INPUT_TEXT = 'text';
     const INPUT_NUMBER = 'number';
