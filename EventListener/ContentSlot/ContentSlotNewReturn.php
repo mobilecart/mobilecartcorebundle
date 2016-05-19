@@ -1,10 +1,10 @@
 <?php
 
-namespace MobileCart\CoreBundle\EventListener\Content;
+namespace MobileCart\CoreBundle\EventListener\ContentSlot;
 
 use Symfony\Component\EventDispatcher\Event;
 
-class ContentNewReturn
+class ContentSlotNewReturn
 {
     protected $request;
 
@@ -91,7 +91,7 @@ class ContentNewReturn
         return $this->varSet;
     }
 
-    public function onContentNewReturn(Event $event)
+    public function onContentSlotNewReturn(Event $event)
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
@@ -102,34 +102,16 @@ class ContentNewReturn
 
         $typeSections = [];
 
-        $typeSections['slots'] = [
-            'section_id' => 'slots',
-            'label' => 'Sections',
-            'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Content:slots.html.twig',
-            'js_template'  => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Content:slots_js.html.twig',
-            'slots' => [],
-            'upload_query' => '',
-        ];
-
-        $typeSections['images'] = [
-            'section_id'   => 'images',
-            'label'        => 'Images',
-            'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Image:uploader.html.twig',
-            'js_template'  => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Image:uploader_js.html.twig',
-            'images'       => [],
-            'image_sizes'  => $this->getImageService()->getImageConfigs($objectType),
-            'upload_query' => "?object_type={$objectType}",
-        ];
-
         $returnData['template_sections'] = $typeSections;
 
         $form = $returnData['form'];
         $returnData['form'] = $form->createView();
         $returnData['entity'] = $entity;
 
-        $response = $this->getThemeService()
-            ->render('admin', 'Content:new.html.twig', $returnData);
+        //$response = $this->getThemeService()
+        //    ->render('admin', 'Content:new.html.twig', $returnData);
 
+        $response = null;
         $event->setResponse($response);
         $event->setReturnData($returnData);
     }

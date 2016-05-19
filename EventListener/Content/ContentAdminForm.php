@@ -113,6 +113,7 @@ class ContentAdminForm
         $vars = $varSet
             ? $varSet->getItemVars()
             : [];
+
         $varValues = $entity->getVarValues();
 
         if ($varSet && $vars) {
@@ -197,6 +198,7 @@ class ContentAdminForm
             ];
         }
 
+        $returnData['content_types'] = EntityConstants::getContentTypes();
         $returnData['form_sections'] = $formSections;
         $returnData['form'] = $form;
 

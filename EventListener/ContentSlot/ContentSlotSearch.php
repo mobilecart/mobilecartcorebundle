@@ -1,15 +1,11 @@
 <?php
 
-namespace MobileCart\CoreBundle\EventListener\Content;
+namespace MobileCart\CoreBundle\EventListener\ContentSlot;
 
 use Symfony\Component\EventDispatcher\Event;
-use MobileCart\CoreBundle\Constants\EntityConstants;
 
-class ContentDelete
+class ContentSlotSearch
 {
-
-    protected $entityService;
-
     protected $event;
 
     protected function setEvent($event)
@@ -30,24 +26,17 @@ class ContentDelete
             : [];
     }
 
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    public function getEntityService()
-    {
-        return $this->entityService;
-    }
-
-    public function onContentDelete(Event $event)
+    public function onContentSlotSearch(Event $event)
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
 
-        $entity = $event->getEntity();
-        $this->getEntityService()->remove($entity, EntityConstants::CONTENT);
+        $search = $event->getSearch()
+            ->setObjectType($event->getObjectType()) // Important: set this first
+            ->parseRequest($event->getRequest());
+
+        $returnData['search'] = $search;
+        $returnData['result'] = $search->search();
 
         $event->setReturnData($returnData);
     }

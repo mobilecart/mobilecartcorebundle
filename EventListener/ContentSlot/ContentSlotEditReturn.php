@@ -1,11 +1,11 @@
 <?php
 
-namespace MobileCart\CoreBundle\EventListener\Content;
+namespace MobileCart\CoreBundle\EventListener\ContentSlot;
 
 use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
-class ContentEditReturn
+class ContentSlotEditReturn
 {
     protected $entityService;
 
@@ -66,7 +66,7 @@ class ContentEditReturn
         return $this->themeService;
     }
 
-    public function onContentEditReturn(Event $event)
+    public function onContentSlotEditReturn(Event $event)
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
@@ -75,26 +75,7 @@ class ContentEditReturn
 
         $typeSections = [];
 
-        $objectType = EntityConstants::CONTENT;
-
-        $typeSections['slots'] = [
-            'section_id' => 'slots',
-            'label' => 'Sections',
-            'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Content:slots.html.twig',
-            'js_template'  => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Content:slots_js.html.twig',
-            'slots' => $entity->getSlots(),
-            'upload_query' => '',
-        ];
-
-        $typeSections['images'] = [
-            'section_id'   => 'images',
-            'label'        => 'Images',
-            'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Image:uploader.html.twig',
-            'js_template'  => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Image:uploader_js.html.twig',
-            'images'       => $entity->getImages(),
-            'image_sizes'  => $this->getImageService()->getImageConfigs($objectType),
-            'upload_query' => "?object_type={$objectType}&object_id={$entity->getId()}",
-        ];
+        $objectType = EntityConstants::CONTENT_SLOT;
 
         $returnData['template_sections'] = $typeSections;
 
@@ -102,8 +83,10 @@ class ContentEditReturn
         $returnData['form'] = $form->createView();
         $returnData['entity'] = $entity;
 
-        $response = $this->getThemeService()
-            ->render('admin', 'Content:edit.html.twig', $returnData);
+        //$response = $this->getThemeService()
+        //    ->render('admin', 'Content:edit.html.twig', $returnData);
+
+        $response = null;
 
         $event->setReturnData($returnData);
         $event->setResponse($response);

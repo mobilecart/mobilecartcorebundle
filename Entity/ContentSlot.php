@@ -13,12 +13,6 @@ use Doctrine\ORM\Mapping as ORM;
 class ContentSlot
     implements CartEntityInterface
 {
-
-    const CONTENT_TYPE_IMAGE = 'image';
-    const CONTENT_TYPE_VIDEO = 'video';
-    const CONTENT_TYPE_EMBED = 'embed';
-    const CONTENT_TYPE_HTML = 'html';
-
     /**
      * @var integer
      *

@@ -163,6 +163,16 @@
         <parameter key="cart.listener.content.insert.class">MobileCart\CoreBundle\EventListener\Content\ContentInsert</parameter>
         <parameter key="cart.listener.content.delete.class">MobileCart\CoreBundle\EventListener\Content\ContentDelete</parameter>
         <parameter key="cart.listener.content.admin.form.class">MobileCart\CoreBundle\EventListener\Content\ContentAdminForm</parameter>
+        <parameter key="cart.listener.content_slot.search.class">MobileCart\CoreBundle\EventListener\ContentSlot\ContentSlotSearch</parameter>
+        <parameter key="cart.listener.content_slot.list.class">MobileCart\CoreBundle\EventListener\ContentSlot\ContentSlotList</parameter>
+        <parameter key="cart.listener.content_slot.edit.return.class">MobileCart\CoreBundle\EventListener\ContentSlot\ContentSlotEditReturn</parameter>
+        <parameter key="cart.listener.content_slot.new.return.class">MobileCart\CoreBundle\EventListener\ContentSlot\ContentSlotNewReturn</parameter>
+        <parameter key="cart.listener.content_slot.create.return.class">MobileCart\CoreBundle\EventListener\ContentSlot\ContentSlotCreateReturn</parameter>
+        <parameter key="cart.listener.content_slot.update.return.class">MobileCart\CoreBundle\EventListener\ContentSlot\ContentSlotUpdateReturn</parameter>
+        <parameter key="cart.listener.content_slot.update.class">MobileCart\CoreBundle\EventListener\ContentSlot\ContentSlotUpdate</parameter>
+        <parameter key="cart.listener.content_slot.insert.class">MobileCart\CoreBundle\EventListener\ContentSlot\ContentSlotInsert</parameter>
+        <parameter key="cart.listener.content_slot.delete.class">MobileCart\CoreBundle\EventListener\ContentSlot\ContentSlotDelete</parameter>
+        <parameter key="cart.listener.content_slot.admin.form.class">MobileCart\CoreBundle\EventListener\ContentSlot\ContentSlotAdminForm</parameter>
         <parameter key="cart.listener.customer.search.class">MobileCart\CoreBundle\EventListener\Customer\CustomerSearch</parameter>
         <parameter key="cart.listener.customer.list.class">MobileCart\CoreBundle\EventListener\Customer\CustomerList</parameter>
         <parameter key="cart.listener.customer.navigation.class">MobileCart\CoreBundle\EventListener\Customer\CustomerNavigation</parameter>
@@ -286,15 +296,6 @@
         </service>
 
         <!-- Dashboard Listeners -->
-        <service id="cart.listener.dashboard.notifications" lazy="true" class="%cart.listener.dashboard.notifications.class%">
-            <tag name="kernel.event_listener" event="dashboard.view.return" method="onDashboardViewReturn" priority="60" />
-            <call method="setEntityService">
-                <argument type="service" id="cart.entity" />
-            </call>
-            <call method="setThemeService">
-                <argument type="service" id="cart.theme" />
-            </call>
-        </service>
         <service id="cart.listener.dashboard.view.return" lazy="true" class="%cart.listener.dashboard.view.return.class%">
             <tag name="kernel.event_listener" event="dashboard.view.return" method="onDashboardViewReturn" priority="10" />
             <call method="setEntityService">
@@ -1527,6 +1528,92 @@
         </service>
         <service id="cart.listener.content.admin.form" lazy="true" class="%cart.listener.content.admin.form.class%">
             <tag name="kernel.event_listener" event="content.admin.form" method="onContentAdminForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+            <call method="setThemeConfig">
+                <argument type="service" id="cart.theme.config" />
+            </call>
+        </service>
+
+        <!-- ContentSlot Services and Listeners -->
+        <service id="cart.listener.content_slot.search" lazy="true" class="%cart.listener.content_slot.search.class%">
+            <tag name="kernel.event_listener" event="content_slot.search" method="onContentSlotSearch" priority="50" />
+        </service>
+        <service id="cart.listener.content_slot.list" lazy="true" class="%cart.listener.content_slot.list.class%">
+            <tag name="kernel.event_listener" event="content_slot.list" method="onContentSlotList" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.content_slot.edit.return" lazy="true" class="%cart.listener.content_slot.edit.return.class%">
+            <tag name="kernel.event_listener" event="content_slot.edit.return" method="onContentSlotEditReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setImageService">
+                <argument type="service" id="cart.image" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.content_slot.new.return" lazy="true" class="%cart.listener.content_slot.new.return.class%">
+            <tag name="kernel.event_listener" event="content_slot.new.return" method="onContentSlotNewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setImageService">
+                <argument type="service" id="cart.image" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.content_slot.create.return" lazy="true" class="%cart.listener.content_slot.create.return.class%">
+            <tag name="kernel.event_listener" event="content_slot.create.return" method="onContentSlotCreateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.content_slot.update.return" lazy="true" class="%cart.listener.content_slot.update.return.class%">
+            <tag name="kernel.event_listener" event="content_slot.update.return" method="onContentSlotUpdateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.content_slot.update" lazy="true" class="%cart.listener.content_slot.update.class%">
+            <tag name="kernel.event_listener" event="content_slot.update" method="onContentSlotUpdate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.content_slot.insert" lazy="true" class="%cart.listener.content_slot.insert.class%">
+            <tag name="kernel.event_listener" event="content_slot.insert" method="onContentSlotInsert" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.content_slot.delete" lazy="true" class="%cart.listener.content_slot.delete.class%">
+            <tag name="kernel.event_listener" event="content_slot.delete" method="onContentSlotDelete" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.content_slot.admin.form" lazy="true" class="%cart.listener.content_slot.admin.form.class%">
+            <tag name="kernel.event_listener" event="content_slot.admin.form" method="onContentSlotAdminForm" priority="50" />
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>

@@ -82,6 +82,19 @@ final class CoreEvents
     const CONTENT_UPDATE_RETURN = 'content.update.return';
     const CONTENT_ADMIN_FORM = 'content.admin.form';
 
+    const CONTENT_SLOT_LIST = 'content_slot.list';
+    const CONTENT_SLOT_SEARCH = 'content_slot.search';
+    const CONTENT_SLOT_UPDATE = 'content_slot.update';
+    const CONTENT_SLOT_INSERT = 'content_slot.insert';
+    const CONTENT_SLOT_DELETE = 'content_slot.delete';
+    const CONTENT_SLOT_SAVE = 'content_slot.save';
+    const CONTENT_SLOT_EDIT_RETURN = 'content_slot.edit.return';
+    const CONTENT_SLOT_NEW_RETURN = 'content_slot.new.return';
+    const CONTENT_SLOT_VIEW_RETURN = 'content_slot.view.return';
+    const CONTENT_SLOT_CREATE_RETURN = 'content_slot.create.return';
+    const CONTENT_SLOT_UPDATE_RETURN = 'content_slot.update.return';
+    const CONTENT_SLOT_ADMIN_FORM = 'content_slot.admin.form';
+
     const CUSTOMER_LIST = 'customer.list';
     const CUSTOMER_SEARCH = 'customer.search';
     const CUSTOMER_UPDATE = 'customer.update';

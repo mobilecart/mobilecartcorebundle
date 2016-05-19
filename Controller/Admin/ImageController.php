@@ -206,4 +206,96 @@ class ImageController extends Controller
             'relative_path' => $relPath,
         ]);
     }
+
+    /**
+     * @Route("/upload_slot", name="cart_admin_image_upload_slot")
+     * @Method("PUT")
+     */
+    public function uploadSlotAction(Request $request)
+    {
+        $itemId = $request->get('item_id', '');
+
+        $objectType = EntityConstants::CONTENT;
+
+        $entityService = $this->get('cart.entity');
+        $imageService = $this->get('cart.image');
+
+        $uploadPath = $imageService->getImageUploadPath($objectType);
+        $savePath = realpath($uploadPath);
+        if (!$savePath) {
+
+            return new JsonResponse([
+                'success' => 0,
+                'message' => 'Error with Upload Path : ' . $uploadPath,
+            ], 400);
+        }
+
+        // $rootPath = $this->get('kernel')->getRootDir();
+        $path = $this->container->getParameter('cart.upload.temp');
+        $filename = time() . '_' . substr('' . microtime(), 0, 5) . '.tmp';
+        $absPath = realpath($path) . '/' . $filename;
+
+        $write = fopen($absPath, 'w');
+        $read = fopen('php://input', 'r');
+
+        $size = 0;
+        while (!feof($read)) {
+            $buffer = fread($read, 1028);
+            fwrite($write, $buffer);
+            $size += strlen($buffer);
+        }
+        fclose($write);
+
+        $mimeType = mime_content_type($absPath);
+        $mimeTypeParts = explode('/', $mimeType);
+        if ($mimeTypeParts[0] != 'image') {
+
+            // delete file
+            unlink($absPath);
+
+            return new JsonResponse([
+                'success' => 0,
+                'message' => 'Invalid File Type Uploaded',
+            ], 400);
+        }
+
+        $ext = $mimeTypeParts[1] == 'jpeg'
+            ? 'jpg'
+            : $mimeTypeParts[1]; // png, gif
+
+        // move file
+        $filename = str_replace('.tmp', '.' . $ext, $filename);
+
+        $newPath = $savePath . '/' . $filename;
+        rename($absPath, $newPath);
+
+        // todo : observer
+
+        $relPath = $uploadPath . $filename;
+        $relPath = substr($relPath, 2); // remove leading "./"
+
+        $imageObjectType = EntityConstants::CONTENT_SLOT; // naming scheme
+        $contentSlot = $entityService->getInstance($imageObjectType);
+        $contentSlot
+            ->setPath($relPath)
+            ->setSortOrder(1)
+            ->setAltText('');
+
+        if ($itemId) {
+            $item = $entityService->find($objectType, $itemId);
+            if ($item) {
+                $contentSlot->setParent($item);
+            }
+        }
+
+        $entityService->persist($contentSlot);
+
+        return new JsonResponse(array_merge(
+            [
+                'success'       => 1,
+                'message'       => 'Image was Uploaded',
+            ],
+            $contentSlot->getBaseData()
+        ));
+    }
 }

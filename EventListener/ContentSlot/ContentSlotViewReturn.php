@@ -1,13 +1,11 @@
 <?php
 
-namespace MobileCart\CoreBundle\EventListener\Dashboard;
+namespace MobileCart\CoreBundle\EventListener\ContentSlot;
 
 use Symfony\Component\EventDispatcher\Event;
 
-class DashboardViewReturn
+class ContentSlotViewReturn
 {
-    protected $entityService;
-
     protected $themeService;
 
     protected $event;
@@ -30,17 +28,6 @@ class DashboardViewReturn
             : [];
     }
 
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    public function getEntityService()
-    {
-        return $this->entityService;
-    }
-
     public function setThemeService($themeService)
     {
         $this->themeService = $themeService;
@@ -52,18 +39,26 @@ class DashboardViewReturn
         return $this->themeService;
     }
 
-    public function onDashboardViewReturn(Event $event)
+    public function onContentSlotViewReturn(Event $event)
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
 
-        if (!isset($returnData['template_sections'])) {
-            $returnData['template_sections'] = [];
+        $customTpl = $event->getCustomTemplate();
+        if (!$customTpl && $event->getEntity()->getCustomTemplate()) {
+            $customTpl = $event->getEntity()->getCustomTemplate();
         }
 
-        $response = $this->getThemeService()
-            ->render('admin', 'Dashboard:index.html.twig', $returnData);
+        $template = $customTpl
+            ? $customTpl
+            : 'Content:view.html.twig';
 
+        //$response = $this->getThemeService()
+        //    ->render('frontend', $template, $returnData);
+
+        $response = null;
+
+        $event->setReturnData($returnData);
         $event->setResponse($response);
     }
 }
