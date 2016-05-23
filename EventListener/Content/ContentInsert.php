@@ -64,9 +64,15 @@ class ContentInsert
             }
         }
 
+        // update slots
         if ($slots = $request->get('slots', [])) {
-            $repo = $this->getEntityService()->getRepository($event->getObjectType());
-            $repo->updateSlots($slots);
+            $sortOrder = 1;
+            foreach($slots as $k => $slot) {
+                $slots[$k]['sort_order'] = $sortOrder;
+                $sortOrder++;
+            }
+
+            $this->getEntityService()->updateContentSlots($entity, $slots);
         }
 
         $event->setReturnData($returnData);

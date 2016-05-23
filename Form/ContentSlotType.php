@@ -17,7 +17,7 @@ class ContentSlotType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('parent', 'text', ['required'  => false])
+            ->add('parent_id', 'text', ['required'  => false, 'mapped' => false])
             ->add('title', 'text', ['required'  => false])
             ->add('body_text', 'textarea', ['required'  => false])
             ->add('sort_order', 'text', ['required'  => false])

@@ -32,7 +32,7 @@ use MobileCart\CoreBundle\Event\CoreEvents;
 class ContentSlotController extends Controller
 {
 
-    protected $objectType = EntityConstants::CONTENT;
+    protected $objectType = EntityConstants::CONTENT_SLOT;
 
     /**
      * Lists Content entities.
@@ -346,13 +346,14 @@ class ContentSlotController extends Controller
      */
     public function deleteAction(Request $request, $id)
     {
-        $form = $this->createDeleteForm($id);
-        $form->handleRequest($request);
-
-        if ($form->isValid()) {
+        //$form = $this->createDeleteForm($id);
+        //if ($form->handleRequest($request)->isValid()) {
             $entity = $this->get('cart.entity')->find($this->objectType, $id);
             if (!$entity) {
-                throw $this->createNotFoundException('Unable to find Content entity.');
+                //throw $this->createNotFoundException('Unable to find Content entity.');
+                return new JsonResponse([
+                    'success' => 0,
+                ]);
             }
 
             $event = new CoreEvent();
@@ -365,11 +366,17 @@ class ContentSlotController extends Controller
 
             // todo : event
 
+            if ($request->get('format', '') == 'json') {
+                return new JsonResponse([
+                    'success' => 1,
+                ]);
+            }
+
             $request->getSession()->getFlashBag()->add(
                 'success',
                 'Content Successfully Deleted!'
             );
-        }
+        //}
 
         return $this->redirect($this->generateUrl('cart_admin_content_slot'));
     }
@@ -425,7 +432,7 @@ class ContentSlotController extends Controller
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('cart_admin_content_delete', array('id' => $id)))
             ->setMethod('DELETE')
-            ->add('submit', 'submit', ['label' => 'Delete'])
+            ->add('submit', 'submit', ['label' => 'Delete', 'required' => false])
             ->getForm();
     }
 }

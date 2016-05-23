@@ -277,6 +277,7 @@ class ImageController extends Controller
         $imageObjectType = EntityConstants::CONTENT_SLOT; // naming scheme
         $contentSlot = $entityService->getInstance($imageObjectType);
         $contentSlot
+            ->setContentType(EntityConstants::CONTENT_TYPE_IMAGE)
             ->setPath($relPath)
             ->setSortOrder(1)
             ->setAltText('');

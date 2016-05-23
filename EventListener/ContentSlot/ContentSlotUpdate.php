@@ -50,6 +50,14 @@ class ContentSlotUpdate
         $formData = $event->getFormData();
         $request = $event->getRequest();
 
+        if (isset($formData['parent_id'])) {
+            $parentId = $formData['parent_id'];
+            $content = $this->getEntityService()->find(EntityConstants::CONTENT, $parentId);
+            if ($content) {
+                $entity->setParent($content);
+            }
+        }
+
         $this->getEntityService()->persist($entity);
 
         $event->setReturnData($returnData);

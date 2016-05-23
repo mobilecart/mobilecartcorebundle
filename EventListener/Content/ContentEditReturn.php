@@ -77,12 +77,33 @@ class ContentEditReturn
 
         $objectType = EntityConstants::CONTENT;
 
+        $slots = $entity->getSlots();
+        $sortOrders = [];
+        if ($slots) {
+            foreach($slots as $i => $slot) {
+                $sortOrder = $slot->getSortOrder();
+                if (!$sortOrder) {
+                    $sortOrder = 1;
+                }
+                $sortOrders[$i] = $sortOrder;
+            }
+
+            asort($sortOrders);
+
+            $newSlots = [];
+            foreach($sortOrders as $i => $sortOrder) {
+                $newSlots[] = $slots[$i];
+            }
+
+            $slots = $newSlots;
+        }
+
         $typeSections['slots'] = [
             'section_id' => 'slots',
             'label' => 'Sections',
             'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Content:slots.html.twig',
             'js_template'  => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Content:slots_js.html.twig',
-            'slots' => $entity->getSlots(),
+            'slots' => $slots,
             'upload_query' => '',
         ];
 

@@ -3,6 +3,7 @@
 namespace MobileCart\CoreBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
  * ContentRepository

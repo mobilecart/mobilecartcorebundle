@@ -213,7 +213,9 @@ class ContentSlot
             'title' => $this->getTitle(),
             'body_text' => $this->getBodyText(),
             'sort_order' => $this->getSortOrder(),
+            'content_type' => $this->getContentType(),
             'url' => $this->getUrl(),
+            'embed_code' => $this->getEmbedCode(),
             'path' => $this->getPath(),
             'alt_text' => $this->getAltText(),
         ];
