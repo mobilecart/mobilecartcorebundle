@@ -104,7 +104,7 @@ class ContentImage
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Content", inversedBy="images")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=true)
+     *   @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=true, onDelete="CASCADE")
      * })
      */
     private $parent;
