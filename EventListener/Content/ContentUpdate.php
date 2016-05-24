@@ -51,6 +51,14 @@ class ContentUpdate
         $request = $event->getRequest();
 
         $this->getEntityService()->persist($entity);
+
+        if ($entity && $request->getSession()) {
+            $request->getSession()->getFlashBag()->add(
+                'success',
+                'Content Successfully Updated!'
+            );
+        }
+
         if ($formData) {
 
             // update var values

@@ -49,6 +49,14 @@ class ContentInsert
         $formData = $event->getFormData();
 
         $this->getEntityService()->persist($entity);
+
+        if ($entity && $request->getSession()) {
+            $request->getSession()->getFlashBag()->add(
+                'success',
+                'Content Successfully Created!'
+            );
+        }
+
         if ($formData) {
 
             $this->getEntityService()
