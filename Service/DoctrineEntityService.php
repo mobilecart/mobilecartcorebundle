@@ -1646,6 +1646,22 @@ class DoctrineEntityService
                         continue;
                     }
 
+                    $embedCode = isset($data['embed_code'])
+                        ? $data['embed_code']
+                        : '';
+
+                    $title = isset($data['title'])
+                        ? $data['title']
+                        : '';
+
+                    $bodyText = isset($data['body_text'])
+                        ? $data['body_text']
+                        : '';
+
+                    $sortOrder = isset($data['sort_order'])
+                        ? $data['sort_order']
+                        : 1;
+
                     switch($data['content_type']) {
                         case EntityConstants::CONTENT_TYPE_IMAGE:
 
@@ -1653,9 +1669,9 @@ class DoctrineEntityService
                             $contentSlot
                                 ->setParent($entity)
                                 ->setContentType(EntityConstants::CONTENT_TYPE_IMAGE)
-                                ->setTitle($data['title'])
-                                ->setBodyText($data['body_text'])
-                                ->setSortOrder($data['sort_order'])
+                                ->setTitle($title)
+                                ->setBodyText($bodyText)
+                                ->setSortOrder($sortOrder)
                                 ->setEmbedCode('')
                             ;
 
@@ -1678,12 +1694,12 @@ class DoctrineEntityService
                             $contentSlot
                                 ->setParent($entity)
                                 ->setContentType(EntityConstants::CONTENT_TYPE_EMBED)
-                                ->setTitle($data['title'])
-                                ->setBodyText($data['body_text'])
-                                ->setSortOrder($data['sort_order'])
+                                ->setTitle($title)
+                                ->setBodyText($bodyText)
+                                ->setSortOrder($sortOrder)
                                 ->setAltText('')
                                 ->setUrl('')
-                                ->setEmbedCode($data['embed_code'])
+                                ->setEmbedCode($embedCode)
                                 ->setPath('')
                             ;
 
@@ -1694,9 +1710,9 @@ class DoctrineEntityService
                             $contentSlot
                                 ->setParent($entity)
                                 ->setContentType(EntityConstants::CONTENT_TYPE_HTML)
-                                ->setTitle($data['title'])
-                                ->setBodyText($data['body_text'])
-                                ->setSortOrder($data['sort_order'])
+                                ->setTitle($title)
+                                ->setBodyText($bodyText)
+                                ->setSortOrder($sortOrder)
                                 ->setAltText('')
                                 ->setUrl('')
                                 ->setEmbedCode('')
@@ -1728,6 +1744,22 @@ class DoctrineEntityService
 
                 $contentSlot = $this->find($objectType, $data['id']);
 
+                $embedCode = isset($data['embed_code'])
+                    ? $data['embed_code']
+                    : '';
+
+                $title = isset($data['title'])
+                    ? $data['title']
+                    : '';
+
+                $bodyText = isset($data['body_text'])
+                    ? $data['body_text']
+                    : '';
+
+                $sortOrder = isset($data['sort_order'])
+                    ? $data['sort_order']
+                    : 1;
+
                 switch($data['content_type']) {
                     case EntityConstants::CONTENT_TYPE_IMAGE:
 
@@ -1735,9 +1767,9 @@ class DoctrineEntityService
                         $contentSlot
                             ->setParent($entity)
                             ->setContentType(EntityConstants::CONTENT_TYPE_IMAGE)
-                            ->setTitle($data['title'])
-                            ->setBodyText($data['body_text'])
-                            ->setSortOrder($data['sort_order'])
+                            ->setTitle($title)
+                            ->setBodyText($bodyText)
+                            ->setSortOrder($sortOrder)
                             ->setEmbedCode('')
                         ;
 
@@ -1760,12 +1792,12 @@ class DoctrineEntityService
                         $contentSlot
                             ->setParent($entity)
                             ->setContentType(EntityConstants::CONTENT_TYPE_EMBED)
-                            ->setTitle($data['title'])
-                            ->setBodyText($data['body_text'])
-                            ->setSortOrder($data['sort_order'])
+                            ->setTitle($title)
+                            ->setBodyText($bodyText)
+                            ->setSortOrder($sortOrder)
                             ->setAltText('')
                             ->setUrl('')
-                            ->setEmbedCode($data['embed_code'])
+                            ->setEmbedCode($embedCode)
                             ->setPath('')
                         ;
 
@@ -1776,9 +1808,9 @@ class DoctrineEntityService
                         $contentSlot
                             ->setParent($entity)
                             ->setContentType(EntityConstants::CONTENT_TYPE_HTML)
-                            ->setTitle($data['title'])
-                            ->setBodyText($data['body_text'])
-                            ->setSortOrder($data['sort_order'])
+                            ->setTitle($title)
+                            ->setBodyText($bodyText)
+                            ->setSortOrder($sortOrder)
                             ->setAltText('')
                             ->setUrl('')
                             ->setEmbedCode('')

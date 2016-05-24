@@ -6,6 +6,10 @@ use Symfony\Component\EventDispatcher\Event;
 
 class ContentViewReturn
 {
+    protected $entityService;
+
+    protected $imageService;
+
     protected $themeService;
 
     protected $event;
@@ -28,6 +32,35 @@ class ContentViewReturn
             : [];
     }
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
+    public function setEntityService($entityService)
+    {
+        $this->entityService = $entityService;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEntityService()
+    {
+        return $this->entityService;
+    }
+
+    public function setImageService($imageService)
+    {
+        $this->imageService = $imageService;
+        return $this;
+    }
+
+    public function getImageService()
+    {
+        return $this->imageService;
+    }
+
     public function setThemeService($themeService)
     {
         $this->themeService = $themeService;
@@ -43,6 +76,8 @@ class ContentViewReturn
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
+
+        $returnData['entity'] = $event->getEntity();
 
         $customTpl = $event->getCustomTemplate();
         if (!$customTpl && $event->getEntity()->getCustomTemplate()) {

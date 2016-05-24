@@ -87,7 +87,6 @@ class ContentAdminForm
                 'id' => 'general',
                 'fields' => [
                     'name', // needed ?
-                    'page_title',
                     'slug',
                     'author',
                     'sort_order',
@@ -100,7 +99,8 @@ class ContentAdminForm
                 'id' => 'content',
                 'fields' => [
                     'content',
-                    'meta_title',
+                    'page_title',
+                    //'meta_title',
                     'meta_keywords',
                     'meta_description',
                     'custom_template',
@@ -173,16 +173,18 @@ class ContentAdminForm
                             $objectVars[$name]['value'][] = $value;
                         }
                     } else {
-                        $value = $isMultiple ? [$value] : $value;
+
+                        $value = $isMultiple
+                            ? [$value]
+                            : $value;
+
                         $objectVars[$name] = [
-                            //'var' => $var,
                             'value' => $value,
                         ];
                     }
                 }
 
                 foreach($objectVars as $name => $objectData) {
-                    //$var = $objectData['var'];
                     $value = $objectData['value'];
                     $form->get($name)->setData($value);
                 }

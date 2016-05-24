@@ -49,7 +49,7 @@ class ContentType extends AbstractType
             ])
             ->add('sort_order', 'text', ['required'  => false])
             ->add('content', 'textarea', ['required'  => false])
-            ->add('meta_title', 'textarea', ['required'  => false])
+            //->add('meta_title', 'textarea', ['required'  => false])
             ->add('meta_keywords', 'textarea', ['required'  => false])
             ->add('meta_description', 'textarea', ['required'  => false])
             ->add('author', 'text')

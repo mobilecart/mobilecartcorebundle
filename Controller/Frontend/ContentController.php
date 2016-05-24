@@ -32,11 +32,13 @@ class ContentController extends Controller
         $entityServiceParam = $this->container->getParameter('cart.load.frontend');
         $entityService = $this->container->get($entityServiceParam);
 
+        $isAdmin = ($this->getUser() && in_array('ROLE_ADMIN', $this->getUser()->getRoles()));
+
         $entity = $entityService->findOneBy(EntityConstants::CONTENT, [
             'slug' => $request->get('slug', ''),
         ]);
 
-        if (!$entity) {
+        if (!$entity || (!$entity->getIsPublic() && !$isAdmin)) {
             throw $this->createNotFoundException("Unable to find Content entity");
         }
 

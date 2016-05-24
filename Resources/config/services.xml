@@ -6,7 +6,7 @@
 
     <!-- HOWTO Customize:
         Copy parameters to your custom bundle and change the values
-        Also, ensure that your custom bundle loads after this bundle in app/AppKernel.ph
+        Also, ensure that your custom bundle loads after this bundle in app/AppKernel.php
     -->
 
     <parameters>
@@ -155,6 +155,7 @@
         <parameter key="cart.listener.category.admin.form.class">MobileCart\CoreBundle\EventListener\Category\CategoryAdminForm</parameter>
         <parameter key="cart.listener.content.search.class">MobileCart\CoreBundle\EventListener\Content\ContentSearch</parameter>
         <parameter key="cart.listener.content.list.class">MobileCart\CoreBundle\EventListener\Content\ContentList</parameter>
+        <parameter key="cart.listener.content.view.return.class">MobileCart\CoreBundle\EventListener\Content\ContentViewReturn</parameter>
         <parameter key="cart.listener.content.edit.return.class">MobileCart\CoreBundle\EventListener\Content\ContentEditReturn</parameter>
         <parameter key="cart.listener.content.new.return.class">MobileCart\CoreBundle\EventListener\Content\ContentNewReturn</parameter>
         <parameter key="cart.listener.content.create.return.class">MobileCart\CoreBundle\EventListener\Content\ContentCreateReturn</parameter>
@@ -1476,6 +1477,18 @@
             </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.content.view.return" lazy="true" class="%cart.listener.content.view.return.class%">
+            <tag name="kernel.event_listener" event="content.view.return" method="onContentViewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setImageService">
+                <argument type="service" id="cart.image" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
             </call>
         </service>
         <service id="cart.listener.content.new.return" lazy="true" class="%cart.listener.content.new.return.class%">
