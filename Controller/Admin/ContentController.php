@@ -131,6 +131,7 @@ class ContentController extends Controller
             //  add content to indexes, etc
             $event = new CoreEvent();
             $event->setEntity($entity)
+                ->setObjectType($this->objectType)
                 ->setRequest($request)
                 ->setFormData($formData);
 

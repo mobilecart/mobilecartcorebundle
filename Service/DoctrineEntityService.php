@@ -509,6 +509,10 @@ class DoctrineEntityService
      */
     public function handleVarValueCreate($objectType, $entity, array $formData)
     {
+        if (!$objectType) {
+            $objectType = $entity->getObjectType();
+        }
+
         if ($formData) {
 
             $baseData = $entity->getBaseData();
