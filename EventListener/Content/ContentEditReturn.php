@@ -101,8 +101,8 @@ class ContentEditReturn
         $typeSections['slots'] = [
             'section_id' => 'slots',
             'label' => 'Sections',
-            'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Content:slots.html.twig',
-            'js_template'  => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Content:slots_js.html.twig',
+            'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Content:slots.html.twig',
+            'js_template'  => $this->getThemeService()->getTemplatePath('admin') . 'Content:slots_js.html.twig',
             'slots' => $slots,
             'upload_query' => '',
         ];
