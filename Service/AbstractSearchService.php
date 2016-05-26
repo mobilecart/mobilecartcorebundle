@@ -66,6 +66,15 @@ abstract class AbstractSearchService
     protected $facetPrefix = '';
 
     /**
+     * @var array
+     */
+    protected $columns = []; // r[] = ['select' => x, 'alias' => y]
+
+    protected $joins = []; // r[] = ['table' => a, 'alias' => b, 'column' => c]
+
+    protected $groupBy = []; // r[] = [a, b, c]
+
+    /**
      * Facets used in Search
      *
      * r[$var->getName()] = $prefix . $var->getCode()
@@ -607,6 +616,74 @@ abstract class AbstractSearchService
     public function getResult()
     {
         return $this->result;
+    }
+
+    /**
+     * @param $type
+     * @param $table
+     * @param $alias
+     * @param $column
+     * @return $this
+     */
+    public function addJoin($type, $table, $alias, $column)
+    {
+        $this->joins[] = [
+            'type' => $type, // left, inner, etc
+            'table' => $table,
+            'alias' => $alias,
+            'column' => $column, // eg product_id , without the prefix
+        ];
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getJoins()
+    {
+        return $this->joins;
+    }
+
+    /**
+     * @param $select
+     * @param $alias
+     * @return $this
+     */
+    public function addColumn($select, $alias)
+    {
+        $this->columns[] = [
+            'select' => $select,
+            'alias' => $alias,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getColumns()
+    {
+        return $this->columns;
+    }
+
+    /**
+     * @param $groupBy
+     * @return $this
+     */
+    public function addGroupBy($groupBy)
+    {
+        $this->groupBy[] = $groupBy;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGroupBy()
+    {
+        return $this->groupBy;
     }
 
     /**

@@ -411,8 +411,39 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
         }
 
         $this->filtersSql = "select distinct(main.id) from {$mainTable} main where {$conditionsSql}";
-        $this->mainSql = "select distinct(main.id), main.* from {$mainTable} main where {$conditionsSql}";
-        $this->countSql = "select count(distinct(main.id)) as count from {$mainTable} main where {$conditionsSql}";
+
+        $groupSql = $this->getGroupBy()
+            ? 'group by ' . implode(', ', $this->getGroupBy())
+            : '';
+
+        $colSql = '';
+        if ($this->getColumns()) {
+            $cols = [];
+            foreach($this->getColumns() as $colData) {
+                // add select
+                $select = $colData['select'];
+                $alias = $colData['alias'];
+                $cols[] = "{$select} as {$alias}";
+
+            }
+            $colSql = ',' . implode(',', $cols);
+        }
+
+        $joinSql = '';
+        if ($this->getJoins()) {
+            $joins = [];
+            foreach($this->getJoins() as $join) {
+                $type = $join['type'];
+                $table = $join['table'];
+                $alias = $join['alias'];
+                $column = $join['column'];
+                $joins[] = "{$type} join {$table} {$alias} on main.id={$alias}.{$column}";
+            }
+            $joinSql = implode(' ', $joins);
+        }
+
+        $this->mainSql = "select distinct(main.id), main.* {$colSql} from {$mainTable} main {$joinSql} where {$conditionsSql} {$groupSql}";
+        $this->countSql = "select count(distinct(main.id)) as count from {$mainTable} main {$joinSql} where {$conditionsSql}";
         $this->bindTypes = $bindTypes;
         $this->filterParams = $filterParams;
         $this->advFilterParams = $advFilterParams;
@@ -627,7 +658,7 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
             'total'        => $count,
             'pages'        => ceil($count / $this->getLimit()),
             'offset'       => $offset,
-            //'searchQuery'  => $qb->getDQL(),
+            'searchQuery'  => $mainSql,
         ];
 
         return $this->getResult();

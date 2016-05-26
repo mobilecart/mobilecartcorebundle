@@ -33,7 +33,10 @@ class CategorySearch
 
         $search = $event->getSearch()
             ->setObjectType($event->getObjectType()) // Important: set this first
-            ->parseRequest($event->getRequest());
+            ->parseRequest($event->getRequest())
+            ->addJoin('left', 'category_product', 'cp', 'category_id')
+            ->addColumn('count(cp.product_id)', 'product_count')
+            ->addGroupBy('main.id');
 
         $returnData['search'] = $search;
         $returnData['result'] = $search->search();

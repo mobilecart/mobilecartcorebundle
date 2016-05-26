@@ -106,6 +106,7 @@ class ProductAdminForm
                     'slug',
                     'price',
                     'is_enabled',
+                    'is_public',
                     'is_taxable',
                     'is_discountable',
                 ],
