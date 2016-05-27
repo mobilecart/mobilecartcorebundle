@@ -437,7 +437,9 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
                 $table = $join['table'];
                 $alias = $join['alias'];
                 $column = $join['column'];
-                $joins[] = "{$type} join {$table} {$alias} on main.id={$alias}.{$column}";
+                $joinAlias = $join['join_alias'];
+                $joinColumn = $join['join_column'];
+                $joins[] = "{$type} join {$table} {$alias} on {$joinAlias}.{$joinColumn}={$alias}.{$column}";
             }
             $joinSql = implode(' ', $joins);
         }
@@ -658,7 +660,7 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
             'total'        => $count,
             'pages'        => ceil($count / $this->getLimit()),
             'offset'       => $offset,
-            'searchQuery'  => $mainSql,
+            //'searchQuery'  => $mainSql,
         ];
 
         return $this->getResult();

@@ -623,15 +623,19 @@ abstract class AbstractSearchService
      * @param $table
      * @param $alias
      * @param $column
+     * @param $joinColumn
+     * @param $joinAlias
      * @return $this
      */
-    public function addJoin($type, $table, $alias, $column)
+    public function addJoin($type, $table, $alias, $column, $joinColumn = 'id', $joinAlias = 'main')
     {
         $this->joins[] = [
             'type' => $type, // left, inner, etc
             'table' => $table,
             'alias' => $alias,
             'column' => $column, // eg product_id , without the prefix
+            'join_alias' => $joinAlias,
+            'join_column' => $joinColumn, // eg id, item_var_set_id, etc
         ];
 
         return $this;
