@@ -82,7 +82,7 @@ class ItemVarOptionList
             ],
             [
                 'key' => 'item_var_name',
-                'label' => 'Variant',
+                'label' => 'Custom Field',
                 'sort' => 1,
             ],
             [
