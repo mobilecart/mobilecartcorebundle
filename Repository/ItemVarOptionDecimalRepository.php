@@ -37,7 +37,7 @@ class ItemVarOptionDecimalRepository
     {
         return [
             'id' => 'ID',
-            'item_var_id' => 'Variant',
+            'item_var_id' => 'Custom Field',
             'value' => 'Value',
             'is_in_stock' => 'Is In Stock',
             'additional_price' => 'Addt\'l Price'
@@ -57,7 +57,7 @@ class ItemVarOptionDecimalRepository
             ),
             array(
                 'code' => 'item_var_id',
-                'label' => 'Variant',
+                'label' => 'Custom Field',
                 'type' => 'number',
             ),
             array(

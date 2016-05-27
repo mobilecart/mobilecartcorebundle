@@ -21,8 +21,10 @@ class ItemVarSetVarRepository
     {
         return [
             'id' => 'ID',
-            'item_var_set_id' => 'Variant Set',
-            'item_var_id' => 'Variant',
+            'item_var_set_id' => 'Custom Field Set',
+            'item_var_id' => 'Custom Field',
+            'item_var_set_name' => 'Custom Field Set Name',
+            'item_var_name' => 'Custom Field Name'
         ];
     }
 
@@ -39,12 +41,12 @@ class ItemVarSetVarRepository
             ],
             [
                 'code'  => 'item_var_set_id',
-                'label' => 'Variant Set',
+                'label' => 'Custom Field Set',
                 'type'  => 'number',
             ],
             [
                 'code'  => 'item_var_id',
-                'label' => 'Variant',
+                'label' => 'Custom Field',
                 'type'  => 'number',
             ],
         ];
