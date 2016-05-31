@@ -17,7 +17,7 @@
         <parameter key="cart.search.frontend">cart.search.doctrine</parameter>
         <parameter key="cart.upload.temp">/tmp</parameter>
         <parameter key="cart.auth.token.class">MobileCart\CoreBundle\Service\GuardTokenAuthService</parameter>
-        <parameter key="cart.search.doctrine.class">MobileCart\CoreBundle\Service\DoctrineSearchServiceV2</parameter>
+        <parameter key="cart.search.doctrine.class">MobileCart\CoreBundle\Service\DoctrineSearchService</parameter>
         <parameter key="cart.currency.class">MobileCart\CoreBundle\Service\CurrencyService</parameter>
         <parameter key="cart.entity.class">MobileCart\CoreBundle\Service\DoctrineEntityService</parameter>
         <parameter key="cart.entity.pdo.class">MobileCart\CoreBundle\Service\PdoEntityService</parameter>
