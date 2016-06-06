@@ -26,6 +26,11 @@ class DiscountService
     protected $cart;
 
     /**
+     * @var bool
+     */
+    protected $isDiscountEnabled = false;
+
+    /**
      * @var mixed
      */
     protected $entityService;
@@ -46,6 +51,24 @@ class DiscountService
     public function getCart()
     {
         return $this->cart;
+    }
+
+    /**
+     * @param $isEnabled
+     * @return $this
+     */
+    public function setIsDiscountEnabled($isEnabled)
+    {
+        $this->isDiscountEnabled = $isEnabled;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsDiscountEnabled()
+    {
+        return $this->isDiscountEnabled;
     }
 
     /**

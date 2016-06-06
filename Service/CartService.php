@@ -35,6 +35,11 @@ class CartService
     protected $shippingService;
 
     /**
+     * @var DiscountService
+     */
+    protected $discountService;
+
+    /**
      * @var TaxService
      */
     protected $taxService;
@@ -93,6 +98,24 @@ class CartService
     public function getShippingService()
     {
         return $this->shippingService;
+    }
+
+    /**
+     * @param DiscountService $discountService
+     * @return $this
+     */
+    public function setDiscountService($discountService)
+    {
+        $this->discountService = $discountService;
+        return $this;
+    }
+
+    /**
+     * @return DiscountService
+     */
+    public function getDiscountService()
+    {
+        return $this->discountService;
     }
 
     /**

@@ -69,6 +69,10 @@ class ViewReturn
             ->getShippingService()
             ->getIsShippingEnabled();
 
+        $returnData['is_discount_enabled'] = $this->getCartSessionService()
+            ->getDiscountService()
+            ->getIsDiscountEnabled();
+
         $response = '';
         switch($format) {
             case 'json':

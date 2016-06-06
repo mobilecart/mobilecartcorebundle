@@ -11,6 +11,7 @@
 
     <parameters>
         <parameter key="cart.is_production">0</parameter>
+        <parameter key="cart.discount.enabled">1</parameter>
         <parameter key="cart.config.currency.base">USD</parameter>
         <parameter key="cart.load.currency">cart.currency</parameter>
         <parameter key="cart.load.admin">cart.search.doctrine</parameter>
@@ -513,6 +514,9 @@
             </call>
             <call method="setGeographyService">
                 <argument type="service" id="cart.geography" />
+            </call>
+            <call method="setDiscountService">
+                <argument type="service" id="cart.discount" />
             </call>
             <call method="setAllowedCountryIds">
                 <argument type="string">US,GB</argument>
@@ -1129,6 +1133,9 @@
         <service id="cart.discount" lazy="true" class="%cart.discount.class%">
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setIsDiscountEnabled">
+                <argument type="string">%cart.discount.enabled%</argument>
             </call>
         </service>
 

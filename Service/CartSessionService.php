@@ -92,6 +92,14 @@ class CartSessionService
     }
 
     /**
+     * @return mixed
+     */
+    public function getDiscountService()
+    {
+        return $this->getCartService()->getDiscountService();
+    }
+
+    /**
      * @return TaxService
      */
     public function getTaxService()
