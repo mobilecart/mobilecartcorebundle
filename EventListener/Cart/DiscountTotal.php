@@ -2,6 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\CartComponent\Total;
 
@@ -103,7 +104,37 @@ class DiscountTotal extends Total
 
             if ($discounts) {
                 foreach($discounts as $discount) {
-                    $discount->reapplyIfValid($cart);
+                    if ($discount->reapplyIfValid($cart)
+                        && $discount->hasPromoSkus()
+                    ) {
+                        foreach($discount->getPromoSkus() as $sku) {
+
+                            if ($cart->hasSku($sku)) {
+                                continue;
+                            }
+
+                            $product = $this->getDiscountService()->getEntityService()
+                                ->findOneBy(EntityConstants::PRODUCT, [
+                                    'sku' => $sku,
+                                ]);
+
+                            if ($product) {
+
+                                $item = $cart->createItem();
+                                $data = $product->getData();
+                                $data['product_id'] = $data['id'];
+                                unset($data['id']);
+                                $item->fromArray($data);
+                                $cart->addItem($item);
+
+                            } else {
+                                if (!$discount->hasItems() && !$discount->hasShipments()) {
+                                    $cart->removeDiscount($discount);
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

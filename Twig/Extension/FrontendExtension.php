@@ -24,6 +24,11 @@ class FrontendExtension extends \Twig_Extension
     protected $session;
 
     /**
+     * @var bool
+     */
+    protected $isProduction = false;
+
+    /**
      * @var
      */
     protected $cartSessionService;
@@ -69,6 +74,7 @@ class FrontendExtension extends \Twig_Extension
     public function getFunctions()
     {
         return [
+            'isProduction' => new \Twig_Function_Method($this, 'getIsProduction', ['is_safe' => ['html']]),
             'imagePath' => new \Twig_Function_Method($this, 'imagePath', ['is_safe' => ['html']]),
             'sortable' => new \Twig_Function_Method($this, 'sortable', ['is_safe' => ['html']]),
             'sortDir' => new \Twig_Function_Method($this, 'sortDir', ['is_safe' => ['html']]),
@@ -125,6 +131,24 @@ class FrontendExtension extends \Twig_Extension
     public function getName()
     {
         return 'mobilecart.corebundle.frontend';
+    }
+
+    /**
+     * @param $isProduction
+     * @return $this
+     */
+    public function setIsProduction($isProduction)
+    {
+        $this->isProduction = $isProduction;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsProduction()
+    {
+        return $this->isProduction;
     }
 
     /**

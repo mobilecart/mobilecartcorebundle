@@ -99,6 +99,7 @@ class DiscountAdminForm
                     'applied_as',
                     'value',
                     'coupon_code',
+                    'promo_skus',
                     'applied_to',
                     'pre_conditions',
                     'target_conditions',

@@ -72,6 +72,7 @@ class Discount extends ArrayWrapper
             'coupon_code'       => '',
             'items'             => [],
             'shipments'         => [],
+            'promo_skus'        => [],
             'is_stopper'        => false,
             'priority'          => self::$defaultPriority,
             'start_time'        => '',
@@ -146,6 +147,69 @@ class Discount extends ArrayWrapper
         $toShipments = isset($data['shipments'])
             ? $data['shipments']
             : [];
+
+        $promoSkus = isset($data['promo_skus'])
+            ? $data['promo_skus']
+            : [];
+
+        if (is_string($promoSkus)) {
+
+            // handle JSON or CSV
+            if (is_int(strpos($promoSkus, ':'))
+                && is_int(strpos($promoSkus, '}'))
+                && is_int(strpos($promoSkus, '{'))
+            ) {
+                $promoSkus = @ (array) json_decode($promoSkus);
+                // sku data should have been validated before it was saved
+            } else if (is_int(strpos($promoSkus, ','))) {
+                $skus = explode(',', $promoSkus);
+                if ($skus) {
+                    foreach($skus as $sku) {
+                        $sku = trim($sku);
+                        $promoSkus[$sku] = 1;
+                    }
+                }
+            } else {
+                $promoSkus = [$promoSkus];
+            }
+        }
+
+        if ($promoSkus) {
+
+            $newPromoSkus = [];
+
+            // array has 2 possible formats:
+            //  r[x] = 'abc' , in which case: the quantity is always 1
+            //  r['abc'] = y , in which case: the quantity is the value, and the sku is the key
+
+            $counter = 0;
+            foreach($promoSkus as $k => $v) {
+
+                if (!is_scalar($v)) {
+                    unset($promoSkus[$k]);
+                    continue;
+                }
+
+                $qty = 1;
+                $sku = '';
+                if ($k == $counter) {
+                    $sku = $v;
+                } else {
+                    $sku = $k;
+                    $qty = (int) $v;
+
+                    if ($qty < 1) {
+                        $qty = 1;
+                    }
+                }
+
+                $newPromoSkus[$sku] = $qty;
+                $counter++;
+            }
+
+            $promoSkus = $newPromoSkus;
+        }
+        $this->data['promo_skus'] = $promoSkus;
 
         $items = [];
         if (count($toItems) > 0) {
@@ -246,6 +310,17 @@ class Discount extends ArrayWrapper
     public function isToSpecified()
     {
         return ($this->getTo() == self::$toSpecified);
+    }
+
+    /**
+     * @param $sku
+     * @param int $qty
+     * @return $this
+     */
+    public function setPromoSku($sku, $qty = 1)
+    {
+        $this->data['promo_skus'][$sku] = $qty;
+        return $this;
     }
 
     /**
@@ -421,10 +496,24 @@ class Discount extends ArrayWrapper
                 }
             }
 
-            if ($this->hasShipments() || $this->hasItems()) {
-                $cart->addDiscount($this);
-                return true;
+            switch($this->get('to')) {
+                case self::$toItems:
+                    if ($this->getCouponCode() && $this->hasPromoSkus()) {
+                        return true;
+                    }
+                    return $cart->hasItems();
+                    break;
+                case self::$toShipments:
+                    return $cart->hasShipments();
+                    break;
+                case self::$toSpecified:
+                    return $cart->hasShipments() || $cart->hasItems();
+                    break;
+                default:
+
+                    break;
             }
+
         }
 
         return false;
@@ -496,7 +585,7 @@ class Discount extends ArrayWrapper
             : null;
 
         $preCondition = null;
-        if (!is_null($preConditionObj)) {
+        if ($this->isToSpecified() && !is_null($preConditionObj)) {
 
             $preCondition = new RuleConditionCompare();
             $preCondition->fromJson($preConditionObj);
@@ -708,7 +797,7 @@ class Discount extends ArrayWrapper
             : null;
 
         $targetCondition = null;
-        if (!is_null($targetConditionObj)) {
+        if ($this->isToSpecified() && !is_null($targetConditionObj)) {
             $targetCondition = new RuleConditionCompare();
             $targetCondition->fromJson($targetConditionObj);
 

@@ -10,6 +10,7 @@
     -->
 
     <parameters>
+        <parameter key="cart.is_production">0</parameter>
         <parameter key="cart.config.currency.base">USD</parameter>
         <parameter key="cart.load.currency">cart.currency</parameter>
         <parameter key="cart.load.admin">cart.search.doctrine</parameter>
@@ -17,7 +18,7 @@
         <parameter key="cart.search.frontend">cart.search.doctrine</parameter>
         <parameter key="cart.upload.temp">/tmp</parameter>
         <parameter key="cart.auth.token.class">MobileCart\CoreBundle\Service\GuardTokenAuthService</parameter>
-        <parameter key="cart.search.doctrine.class">MobileCart\CoreBundle\Service\DoctrineSearchService</parameter>
+        <parameter key="cart.search.doctrine.class">MobileCart\CoreBundle\Service\DoctrineSearchServiceV2</parameter>
         <parameter key="cart.currency.class">MobileCart\CoreBundle\Service\CurrencyService</parameter>
         <parameter key="cart.entity.class">MobileCart\CoreBundle\Service\DoctrineEntityService</parameter>
         <parameter key="cart.entity.pdo.class">MobileCart\CoreBundle\Service\PdoEntityService</parameter>
@@ -453,6 +454,9 @@
             <tag name="twig.extension" />
             <call method="setSession">
                 <argument type="service" id="session" />
+            </call>
+            <call method="setIsProduction">
+                <argument type="string">%cart.is_production%</argument>
             </call>
             <call method="setCurrencyService">
                 <argument type="service" id="cart.currency" />

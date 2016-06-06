@@ -68,6 +68,9 @@ class DiscountType extends AbstractType
             ->add('coupon_code', 'text', [
                 'required' => false,
                 ])
+            ->add('promo_skus', 'text', [
+                'required' => false,
+                ])
             ->add('pre_conditions', 'text', [
                 'required' => false,
                 ])

@@ -113,6 +113,38 @@ class Cart extends ArrayWrapper
     }
 
     /**
+     * @return Item
+     */
+    public function createItem()
+    {
+        return new Item();
+    }
+
+    /**
+     * @return Shipment
+     */
+    public function createShipment()
+    {
+        return new Shipment();
+    }
+
+    /**
+     * @return Discount
+     */
+    public function createDiscount()
+    {
+        return new Discount();
+    }
+
+    /**
+     * @return Customer
+     */
+    public function createCustomer()
+    {
+        return new Customer();
+    }
+
+    /**
      * @return int
      */
     public function getCustomerId()
@@ -723,6 +755,18 @@ class Cart extends ArrayWrapper
     public function setDiscount($key, Discount $discount)
     {
         $this->data['discounts'][$key] = $discount;
+        return $this;
+    }
+
+    /**
+     * @param Discount $discount
+     * @return $this|mixed
+     */
+    public function removeDiscount(Discount $discount)
+    {
+        if ($discount->getId()) {
+            return $this->removeDiscountId($discount->getId());
+        }
         return $this;
     }
 

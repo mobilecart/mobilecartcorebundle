@@ -97,19 +97,79 @@ class AddDiscount
 
         //
 
-        $discount = $this->getEntityService()->findOneBy(EntityConstants::DISCOUNT, [
+        $discountEntity = $this->getEntityService()->findOneBy(EntityConstants::DISCOUNT, [
             'coupon_code' => $code,
         ]);
 
         $isValid = false;
-        if ($discount) {
-            $cartDiscount = new CartDiscount();
-            $cartDiscount->fromArray($discount->getData());
-            $isValid = $cartDiscount->reapplyIfValid($cart);
+        if ($discountEntity) {
+            $discount = new CartDiscount();
+            $discount->fromArray($discountEntity->getData());
+
+            $isValid = $discount->reapplyIfValid($cart);
+
+            if ($isValid && $discount->hasPromoSkus()) {
+                foreach($discount->getPromoSkus() as $sku => $qty) {
+
+                    if ($cart->hasSku($sku)) {
+                        continue;
+                    }
+
+                    $product = $this->getEntityService()
+                        ->findOneBy(EntityConstants::PRODUCT, [
+                            'sku' => $sku,
+                        ]);
+
+                    if ($product) {
+
+                        $item = $cart->createItem();
+                        $data = $product->getData();
+                        $data['product_id'] = $data['id'];
+                        unset($data['id']);
+                        $item->fromArray($data);
+                        $item->setQty($qty);
+                        $cart->addItem($item);
+
+                    } else {
+
+                        switch($discount->get('to')) {
+                            case CartDiscount::$toItems:
+                                if (
+                                    !$cart->hasItems()
+                                    && !$discount->hasPromoSkus()
+                                ) {
+                                    $cart->removeDiscount($discount);
+                                }
+                                break;
+                            case CartDiscount::$toShipments:
+                                if (!$cart->hasShipments()) {
+                                    $cart->removeDiscount($discount);
+                                }
+                                break;
+                            case CartDiscount::$toSpecified:
+                                if (!$cart->hasItems() && !$cart->hasShipments()) {
+                                    $cart->removeDiscount($discount);
+                                }
+                                break;
+                            default:
+
+                                break;
+                        }
+
+                    }
+                }
+            }
         }
 
         $returnData['cart'] = $cart;
         $returnData['is_valid_code'] = $isValid;
+
+        if ($isValid && $request->getSession()) {
+            $request->getSession()->getFlashBag()->add(
+                'success',
+                'Discount Successfully Added!'
+            );
+        }
 
         $response = '';
         switch($format) {

@@ -135,6 +135,13 @@ class Discount
     private $coupon_code;
 
     /**
+     * @var string $promo_skus
+     *
+     * @ORM\Column(name="promo_skus", type="text", nullable=true)
+     */
+    private $promo_skus;
+
+    /**
      * @var string $pre_conditions
      *
      * @ORM\Column(name="pre_conditions", type="text", nullable=true)
@@ -304,6 +311,7 @@ class Discount
             'max_amount' => $this->getMaxAmount(),
             'max_qty' => $this->getMaxQty(),
             'is_max_per_item' => $this->getIsMaxPerItem(),
+            'promo_skus' => $this->getPromoSkus(),
             'pre_conditions' => $this->getPreConditions(),
             'target_conditions' => $this->getTargetConditions(),
         ];
@@ -635,6 +643,24 @@ class Discount
     public function getIsMaxPerItem()
     {
         return $this->is_max_per_item;
+    }
+
+    /**
+     * @param $promoSkus
+     * @return $this
+     */
+    public function setPromoSkus($promoSkus)
+    {
+        $this->promo_skus = $promoSkus;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPromoSkus()
+    {
+        return $this->promo_skus;
     }
 
     /**
