@@ -12,6 +12,7 @@
     <parameters>
         <parameter key="cart.is_production">0</parameter>
         <parameter key="cart.discount.enabled">1</parameter>
+        <parameter key="cart.shipping.enabled">1</parameter>
         <parameter key="cart.config.currency.base">USD</parameter>
         <parameter key="cart.load.currency">cart.currency</parameter>
         <parameter key="cart.load.admin">cart.search.doctrine</parameter>
@@ -563,7 +564,7 @@
         <!-- Shipping Service : Rate Collector -->
         <service id="cart.shipping" lazy="true" class="%cart.shipping.class%">
             <call method="setIsShippingEnabled">
-                <argument type="string">1</argument>
+                <argument type="string">%cart.shipping.enabled%</argument>
             </call>
             <call method="setEventDispatcher">
                 <argument type="service" id="event_dispatcher" />
