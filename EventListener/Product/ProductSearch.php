@@ -70,7 +70,7 @@ class ProductSearch
 
         $search = $event->getSearch()
             ->setObjectType($event->getObjectType()) // Important: set this first
-            //->setCategoryId($categoryId)
+            ->setCategoryId($categoryId)
             ->setPopulateVarValues($loadVarValues)
             ->parseRequest($event->getRequest())
             ->addFilters($filters);
