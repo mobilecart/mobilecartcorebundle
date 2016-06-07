@@ -3,6 +3,7 @@
 namespace MobileCart\CoreBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
  * ProductRepository
@@ -67,6 +68,18 @@ class ProductRepository
                 'code'  => 'name',
                 'label' => 'Name',
                 'type'  => 'string',
+            ],
+            [
+                'code'  => 'category_id',
+                'label' => 'Category',
+                'type'  => 'number',
+                'join' => [
+                    'type' => 'left', // left, inner, etc
+                    'table' => EntityConstants::CATEGORY_PRODUCT,
+                    'column' => 'product_id', // eg product_id , without the prefix
+                    'join_alias' => 'main', // main table alias
+                    'join_column' => 'id', // eg id, item_var_set_id, etc
+                ]
             ],
             [
                 'code'  => 'created_at',

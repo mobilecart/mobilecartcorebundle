@@ -185,7 +185,14 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
                             }
                         }
 
-                        $whereConditions[] = "main.{$field} = ?";
+                        if (isset($filterInfo['join'])) {
+                            $this->joins[] = $filterInfo['join'];
+                            $field = $filterInfo['join']['table'] . ".{$field}";
+                        } elseif (!is_int(strpos($field, '.'))) {
+                            $field = "main.{$field}";
+                        }
+
+                        $whereConditions[] = "{$field} = ?";
                         $filterParams[] = $value;
 
                         switch($filterInfo['type']) {
@@ -410,8 +417,6 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
             $conditionsSql = '1=1';
         }
 
-        $this->filtersSql = "select distinct(main.id) from {$mainTable} main where {$conditionsSql}";
-
         $groupSql = $this->getGroupBy()
             ? 'group by ' . implode(', ', $this->getGroupBy())
             : '';
@@ -435,15 +440,15 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
             foreach($this->getJoins() as $join) {
                 $type = $join['type'];
                 $table = $join['table'];
-                $alias = $join['alias'];
                 $column = $join['column'];
                 $joinAlias = $join['join_alias'];
                 $joinColumn = $join['join_column'];
-                $joins[] = "{$type} join {$table} {$alias} on {$joinAlias}.{$joinColumn}={$alias}.{$column}";
+                $joins[] = "{$type} join {$table} on {$joinAlias}.{$joinColumn}={$table}.{$column}";
             }
             $joinSql = implode(' ', $joins);
         }
 
+        $this->filtersSql = "select distinct(main.id) from {$mainTable} main {$joinSql} where {$conditionsSql}";
         $this->mainSql = "select distinct(main.id), main.* {$colSql} from {$mainTable} main {$joinSql} where {$conditionsSql} {$groupSql}";
         $this->countSql = "select count(distinct(main.id)) as count from {$mainTable} main {$joinSql} where {$conditionsSql}";
         $this->bindTypes = $bindTypes;

@@ -58,7 +58,7 @@ class CartController extends Controller
     }
 
     /**
-     * @Route("/shipment/add", name="cart_shipment_add")
+     * @Route("/cart/shipment/add", name="cart_shipment_add")
      * @Method("POST")
      */
     public function addShipmentAction(Request $request)
@@ -112,7 +112,7 @@ class CartController extends Controller
     
     /**
      * @Route("/cart/remove/{product_id}", name="cart_remove_item")
-     * @Method("GET")
+     * @Method({"POST","GET"})
      */
     public function removeProductAction(Request $request)
     {
@@ -127,7 +127,7 @@ class CartController extends Controller
 
     /**
      * @Route("/cart/products/remove", name="cart_remove_items")
-     * @Method("GET")
+     * @Method({"POST","GET"})
      */
     public function removeProductsAction(Request $request)
     {

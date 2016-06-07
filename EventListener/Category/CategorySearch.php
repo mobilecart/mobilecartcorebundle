@@ -2,6 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Category;
 
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Component\EventDispatcher\Event;
 
 class CategorySearch
@@ -34,8 +35,8 @@ class CategorySearch
         $search = $event->getSearch()
             ->setObjectType($event->getObjectType()) // Important: set this first
             ->parseRequest($event->getRequest())
-            ->addJoin('left', 'category_product', 'cp', 'category_id')
-            ->addColumn('count(cp.product_id)', 'product_count')
+            ->addJoin('left', EntityConstants::CATEGORY_PRODUCT, 'category_id')
+            ->addColumn('count(' . EntityConstants::CATEGORY_PRODUCT . '.product_id)', 'product_count')
             ->addGroupBy('main.id');
 
         $returnData['search'] = $search;
