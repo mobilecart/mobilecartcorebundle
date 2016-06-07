@@ -3,6 +3,7 @@
 namespace MobileCart\CoreBundle\EventListener\Content;
 
 use Symfony\Component\EventDispatcher\Event;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ContentViewReturn
 {
@@ -77,21 +78,42 @@ class ContentViewReturn
         $this->setEvent($event);
         $returnData = $this->getReturnData();
 
-        $returnData['entity'] = $event->getEntity();
+        $entity = $event->getEntity();
 
-        $customTpl = $event->getCustomTemplate();
-        if (!$customTpl && $event->getEntity()->getCustomTemplate()) {
-            $customTpl = $event->getEntity()->getCustomTemplate();
+        $request = $event->get('request');
+        $format = $request->get('format', '');
+
+        $response = '';
+        switch($format) {
+            case 'json':
+
+                $returnData = [
+                    'entity' => $entity->getData(),
+                ];
+
+                $response = new JsonResponse($returnData);
+
+                break;
+            default:
+
+                $returnData['entity'] = $entity;
+
+                $customTpl = $event->getCustomTemplate();
+                if (!$customTpl && $event->getEntity()->getCustomTemplate()) {
+                    $customTpl = $event->getEntity()->getCustomTemplate();
+                }
+
+                $template = $customTpl
+                    ? $customTpl
+                    : 'Content:view.html.twig';
+
+                $response = $this->getThemeService()
+                    ->render('frontend', $template, $returnData);
+
+                break;
         }
 
-        $template = $customTpl
-            ? $customTpl
-            : 'Content:view.html.twig';
-
-        $response = $this->getThemeService()
-            ->render('frontend', $template, $returnData);
-
-        $event->setReturnData($returnData);
-        $event->setResponse($response);
+        $event->setReturnData($returnData)
+            ->setResponse($response);
     }
 }
