@@ -3,6 +3,7 @@
 namespace MobileCart\CoreBundle\EventListener\Customer;
 
 use Symfony\Component\EventDispatcher\Event;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class CustomerProfileReturn
 {
@@ -71,21 +72,37 @@ class CustomerProfileReturn
         $returnData = $this->getReturnData();
 
         $customer = $event->getEntity();
-
         $objectType = $event->getObjectType();
 
-        $typeSections = [];
+        $request = $event->get('request');
+        $format = $request->get('format', '');
 
-        $returnData['template_sections'] = $typeSections;
+        $response = '';
+        switch($format) {
+            case 'json':
 
-        if ($messages = $event->getMessages()) {
-            foreach($messages as $code => $message) {
-                $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-            }
+                $returnData = [
+                    'entity' => $customer->getData(),
+                ];
+
+                $response = new JsonResponse($returnData);
+                break;
+            default:
+
+                $typeSections = [];
+                $returnData['template_sections'] = $typeSections;
+
+                if ($messages = $event->getMessages()) {
+                    foreach($messages as $code => $message) {
+                        $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                    }
+                }
+
+                $response = $this->getThemeService()
+                    ->render('frontend', 'Customer:profile.html.twig', $returnData);
+
+                break;
         }
-
-        $response = $this->getThemeService()
-            ->render('frontend', 'Customer:profile.html.twig', $returnData);
 
         $event->setResponse($response)
             ->setReturnData($returnData);

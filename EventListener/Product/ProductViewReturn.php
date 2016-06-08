@@ -87,7 +87,9 @@ class ProductViewReturn
         switch($format) {
             case 'json':
 
-                $returnData = $product->getData();
+                $returnData = [
+                    'entity' => $product->getData(),
+                ];
                 $response = new JsonResponse($returnData);
 
                 break;

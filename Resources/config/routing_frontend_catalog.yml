@@ -1,0 +1,24 @@
+cart_home:
+    path: /
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Home:index' }
+    methods: [GET]
+
+cart_product_view:
+    path: '/product/{slug}'
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Product:view' }
+    methods: [GET]
+
+cart_products:
+    path: /products
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Product:index' }
+    methods: [GET]
+
+cart_category_products:
+    path: '/category/{slug}'
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Product:category' }
+    methods: [GET]
+
+cart_categories:
+    path: /categories
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Category:index' }
+    methods: [GET]

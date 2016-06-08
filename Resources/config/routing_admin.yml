@@ -1,0 +1,584 @@
+cart_admin_category:
+    path: /admin/category/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Category:index' }
+    methods: [GET]
+
+cart_admin_category_create:
+    path: /admin/category/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Category:create' }
+    methods: [POST]
+
+cart_admin_category_new:
+    path: /admin/category/new
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Category:new' }
+    methods: [GET]
+
+cart_admin_category_show:
+    path: '/admin/category/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Category:show' }
+    methods: [GET]
+
+cart_admin_category_edit:
+    path: '/admin/category/{id}/edit'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Category:edit' }
+    methods: [GET]
+
+cart_admin_category_update:
+    path: '/admin/category/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Category:update' }
+    methods: [PUT]
+
+cart_admin_category_delete:
+    path: '/admin/category/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Category:delete' }
+    methods: [DELETE]
+
+cart_admin_category_mass_delete:
+    path: /admin/category/mass_delete
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Category:massDelete' }
+    methods: [POST]
+
+cart_admin_content:
+    path: /admin/content/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Content:index' }
+    methods: [GET]
+
+cart_admin_content_create:
+    path: /admin/content/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Content:create' }
+    methods: [POST]
+
+cart_admin_content_new:
+    path: /admin/content/new
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Content:new' }
+    methods: [GET]
+
+cart_admin_content_show:
+    path: '/admin/content/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Content:show' }
+    methods: [GET]
+
+cart_admin_content_edit:
+    path: '/admin/content/{id}/edit'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Content:edit' }
+    methods: [GET]
+
+cart_admin_content_update:
+    path: '/admin/content/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Content:update' }
+    methods: [PUT]
+
+cart_admin_content_delete:
+    path: '/admin/content/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Content:delete' }
+    methods: [DELETE]
+
+cart_admin_content_mass_delete:
+    path: /admin/content/mass_delete
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Content:massDelete' }
+    methods: [POST]
+
+cart_admin_content_slot:
+    path: /admin/content_slot/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ContentSlot:index' }
+    methods: [GET]
+
+cart_admin_content_slot_create:
+    path: /admin/content_slot/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ContentSlot:create' }
+    methods: [POST]
+
+cart_admin_content_slot_new:
+    path: /admin/content_slot/new
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ContentSlot:new' }
+    methods: [GET]
+
+cart_admin_content_slot_show:
+    path: '/admin/content_slot/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ContentSlot:show' }
+    methods: [GET]
+
+cart_admin_content_slot_edit:
+    path: '/admin/content_slot/{id}/edit'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ContentSlot:edit' }
+    methods: [GET]
+
+cart_admin_content_slot_update:
+    path: '/admin/content_slot/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ContentSlot:update' }
+    methods: [PUT]
+
+cart_admin_content_slot_delete:
+    path: '/admin/content_slot/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ContentSlot:delete' }
+    methods: [DELETE]
+
+cart_admin_content_slot_mass_delete:
+    path: /admin/content_slot/mass_delete
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ContentSlot:massDelete' }
+    methods: [POST]
+
+cart_admin_customer:
+    path: /admin/customer/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Customer:index' }
+    methods: [GET]
+
+cart_admin_customer_create:
+    path: /admin/customer/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Customer:create' }
+    methods: [POST]
+
+cart_admin_customer_new:
+    path: /admin/customer/new
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Customer:new' }
+    methods: [GET]
+
+cart_admin_customer_show:
+    path: '/admin/customer/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Customer:show' }
+    methods: [GET]
+
+cart_admin_customer_edit:
+    path: '/admin/customer/{id}/edit'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Customer:edit' }
+    methods: [GET]
+
+cart_admin_customer_update:
+    path: '/admin/customer/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Customer:update' }
+    methods: [PUT]
+
+cart_admin_customer_delete:
+    path: '/admin/customer/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Customer:delete' }
+    methods: [DELETE]
+
+cart_admin_customer_mass_delete:
+    path: /admin/customer/mass_delete
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Customer:massDelete' }
+    methods: [POST]
+
+cart_admin_dashboard:
+    path: /admin/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Dashboard:index' }
+    methods: [GET]
+
+cart_admin_discount:
+    path: /admin/discount/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Discount:index' }
+    methods: [GET]
+
+cart_admin_discount_create:
+    path: /admin/discount/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Discount:create' }
+    methods: [POST]
+
+cart_admin_discount_new:
+    path: /admin/discount/new
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Discount:new' }
+    methods: [GET]
+
+cart_admin_discount_show:
+    path: '/admin/discount/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Discount:show' }
+    methods: [GET]
+
+cart_admin_discount_edit:
+    path: '/admin/discount/{id}/edit'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Discount:edit' }
+    methods: [GET]
+
+cart_admin_discount_update:
+    path: '/admin/discount/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Discount:update' }
+    methods: [PUT]
+
+cart_admin_discount_delete:
+    path: '/admin/discount/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Discount:delete' }
+    methods: [DELETE]
+
+cart_admin_discount_mass_delete:
+    path: /admin/discount/mass_delete
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Discount:massDelete' }
+    methods: [POST]
+
+cart_admin_image:
+    path: /admin/image/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Image:index' }
+    methods: [GET]
+
+cart_admin_image_upload:
+    path: /admin/image/upload
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Image:upload' }
+    methods: [PUT]
+
+cart_admin_image_upload_slot:
+    path: /admin/image/upload_slot
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Image:uploadSlot' }
+    methods: [PUT]
+
+cart_admin_item_var:
+    path: /admin/item_var/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVar:index' }
+    methods: [GET]
+
+cart_admin_item_var_create:
+    path: /admin/item_var/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVar:create' }
+    methods: [POST]
+
+cart_admin_item_var_new:
+    path: /admin/item_var/new
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVar:new' }
+    methods: [GET]
+
+cart_admin_item_var_show:
+    path: '/admin/item_var/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVar:show' }
+    methods: [GET]
+
+cart_admin_item_var_edit:
+    path: '/admin/item_var/{id}/edit'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVar:edit' }
+    methods: [GET]
+
+cart_admin_item_var_update:
+    path: '/admin/item_var/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVar:update' }
+    methods: [PUT]
+
+cart_admin_item_var_delete:
+    path: '/admin/item_var/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVar:delete' }
+    methods: [DELETE]
+
+cart_admin_item_var_mass_delete:
+    path: /admin/item_var/mass_delete
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVar:massDelete' }
+    methods: [POST]
+
+cart_admin_item_var_option:
+    path: /admin/item_var_option/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarOption:index' }
+    methods: [GET]
+
+cart_admin_item_var_option_create:
+    path: /admin/item_var_option/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarOption:create' }
+    methods: [POST]
+
+cart_admin_item_var_option_new:
+    path: /admin/item_var_option/new
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarOption:new' }
+    methods: [GET]
+
+cart_admin_item_var_option_show:
+    path: '/admin/item_var_option/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarOption:show' }
+    methods: [GET]
+
+cart_admin_item_var_option_edit:
+    path: '/admin/item_var_option/{id}/edit'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarOption:edit' }
+    methods: [GET]
+
+cart_admin_item_var_option_update:
+    path: '/admin/item_var_option/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarOption:update' }
+    methods: [PUT]
+
+cart_admin_item_var_option_delete:
+    path: '/admin/item_var_option/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarOption:delete' }
+    methods: [DELETE]
+
+cart_admin_item_var_option_mass_delete:
+    path: /admin/item_var_option/mass_delete
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarOption:massDelete' }
+    methods: [POST]
+
+cart_admin_item_var_set:
+    path: /admin/item_var_set/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSet:index' }
+    methods: [GET]
+
+cart_admin_item_var_set_create:
+    path: /admin/item_var_set/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSet:create' }
+    methods: [POST]
+
+cart_admin_item_var_set_new:
+    path: /admin/item_var_set/new
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSet:new' }
+    methods: [GET]
+
+cart_admin_item_var_set_show:
+    path: '/admin/item_var_set/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSet:show' }
+    methods: [GET]
+
+cart_admin_item_var_set_edit:
+    path: '/admin/item_var_set/{id}/edit'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSet:edit' }
+    methods: [GET]
+
+cart_admin_item_var_set_update:
+    path: '/admin/item_var_set/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSet:update' }
+    methods: [PUT]
+
+cart_admin_item_var_set_delete:
+    path: '/admin/item_var_set/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSet:delete' }
+    methods: [DELETE]
+
+cart_admin_item_var_set_mass_delete:
+    path: /admin/item_var_set/mass_delete
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSet:massDelete' }
+    methods: [POST]
+
+cart_admin_item_var_set_var:
+    path: /admin/item_var_set_var/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSetVar:index' }
+    methods: [GET]
+
+cart_admin_item_var_set_var_create:
+    path: /admin/item_var_set_var/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSetVar:create' }
+    methods: [POST]
+
+cart_admin_item_var_set_var_new:
+    path: /admin/item_var_set_var/new
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSetVar:new' }
+    methods: [GET]
+
+cart_admin_item_var_set_var_show:
+    path: '/admin/item_var_set_var/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSetVar:show' }
+    methods: [GET]
+
+cart_admin_item_var_set_var_edit:
+    path: '/admin/item_var_set_var/{id}/edit'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSetVar:edit' }
+    methods: [GET]
+
+cart_admin_item_var_set_var_update:
+    path: '/admin/item_var_set_var/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSetVar:update' }
+    methods: [PUT]
+
+cart_admin_item_var_set_var_delete:
+    path: '/admin/item_var_set_var/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSetVar:delete' }
+    methods: [DELETE]
+
+cart_admin_item_var_set_var_mass_delete:
+    path: /admin/item_var_set_var/mass_delete
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSetVar:massDelete' }
+    methods: [POST]
+
+cart_admin_order:
+    path: /admin/order/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:index' }
+    methods: [GET]
+
+cart_admin_order_create:
+    path: /admin/order/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:create' }
+    methods: [POST]
+
+cart_admin_order_new:
+    path: /admin/order/new
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:new' }
+    methods: [GET]
+
+cart_admin_order_show:
+    path: '/admin/order/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:show' }
+    methods: [GET]
+
+cart_admin_order_edit:
+    path: '/admin/order/{id}/edit'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:edit' }
+    methods: [GET]
+
+cart_admin_order_update:
+    path: '/admin/order/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:update' }
+    methods: [PUT]
+
+cart_admin_order_shipping:
+    path: /admin/order/update/shipping
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:updateShipping' }
+    methods: [POST]
+
+cart_admin_order_items:
+    path: /admin/order/update/items
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:updateItems' }
+    methods: [POST]
+
+cart_admin_order_add_item:
+    path: /admin/order/add/item
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:addItem' }
+    methods: [POST]
+
+cart_admin_order_remove_item:
+    path: /admin/order/remove/item
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:removeItem' }
+    methods: [POST]
+
+cart_admin_order_add_discount:
+    path: /admin/order/add/discount
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:addDiscount' }
+    methods: [POST]
+
+cart_admin_order_remove_discount:
+    path: /admin/order/remove/discount
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:removeDiscount' }
+    methods: [POST]
+
+cart_admin_order_customer:
+    path: /admin/order/update/customer
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:updateCustomer' }
+    methods: [POST]
+
+cart_admin_order_delete:
+    path: '/admin/order/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:delete' }
+    methods: [DELETE]
+
+cart_admin_order_mass_delete:
+    path: /admin/order/mass_delete
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:massDelete' }
+    methods: [POST]
+
+cart_admin_product:
+    path: /admin/product/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:index' }
+    methods: [GET]
+
+cart_admin_product_init:
+    path: /admin/product/init
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:init' }
+    methods: [GET]
+
+cart_admin_product_new:
+    path: /admin/product/new
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:new' }
+    methods: [GET]
+
+cart_admin_product_show:
+    path: '/admin/product/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:show' }
+    methods: [GET]
+
+cart_admin_product_create:
+    path: /admin/product/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:create' }
+    methods: [POST]
+
+cart_admin_product_edit:
+    path: '/admin/product/{id}/edit'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:edit' }
+    methods: [GET]
+
+cart_admin_product_update:
+    path: '/admin/product/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:update' }
+    methods: [PUT]
+
+cart_admin_product_delete:
+    path: '/admin/product/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:delete' }
+    methods: [DELETE]
+
+cart_admin_product_mass_update:
+    path: /admin/product/mass_update
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:massUpdate' }
+    methods: [POST]
+
+cart_admin_product_mass_delete:
+    path: /admin/product/mass_delete
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:massDelete' }
+    methods: [POST]
+
+cart_admin_shipping_method:
+    path: /admin/shipping_method/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ShippingMethod:index' }
+    methods: [GET]
+
+cart_admin_shipping_method_create:
+    path: /admin/shipping_method/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ShippingMethod:create' }
+    methods: [POST]
+
+cart_admin_shipping_method_new:
+    path: /admin/shipping_method/new
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ShippingMethod:new' }
+    methods: [GET]
+
+cart_admin_shipping_method_show:
+    path: '/admin/shipping_method/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ShippingMethod:show' }
+    methods: [GET]
+
+cart_admin_shipping_method_edit:
+    path: '/admin/shipping_method/{id}/edit'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ShippingMethod:edit' }
+    methods: [GET]
+
+cart_admin_shipping_method_update:
+    path: '/admin/shipping_method/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ShippingMethod:update' }
+    methods: [PUT]
+
+cart_admin_shipping_method_delete:
+    path: '/admin/shipping_method/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ShippingMethod:delete' }
+    methods: [DELETE]
+
+cart_admin_shipping_method_mass_delete:
+    path: /admin/shipping_method/mass_delete
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ShippingMethod:massDelete' }
+    methods: [POST]
+
+cart_admin_url_rewrite:
+    path: /admin/url_rewrite/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\UrlRewrite:index' }
+    methods: [GET]
+
+cart_admin_url_rewrite_create:
+    path: /admin/url_rewrite/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\UrlRewrite:create' }
+    methods: [POST]
+
+cart_admin_url_rewrite_new:
+    path: /admin/url_rewrite/new
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\UrlRewrite:new' }
+    methods: [GET]
+
+cart_admin_url_rewrite_show:
+    path: '/admin/url_rewrite/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\UrlRewrite:show' }
+    methods: [GET]
+
+cart_admin_url_rewrite_edit:
+    path: '/admin/url_rewrite/{id}/edit'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\UrlRewrite:edit' }
+    methods: [GET]
+
+cart_admin_url_rewrite_update:
+    path: '/admin/url_rewrite/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\UrlRewrite:update' }
+    methods: [PUT]
+
+cart_admin_url_rewrite_delete:
+    path: '/admin/url_rewrite/{id}'
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\UrlRewrite:delete' }
+    methods: [DELETE]
+
+cart_admin_url_rewrite_mass_delete:
+    path: /admin/url_rewrite/mass_delete
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\UrlRewrite:massDelete' }
+    methods: [POST]

@@ -10,6 +10,8 @@ class RewriteLoader extends Loader
 {
     private $loaded = false;
 
+    // TODO : finish this . this is not used currently
+
     public function load($resource, $type = null)
     {
         if (true === $this->loaded) {

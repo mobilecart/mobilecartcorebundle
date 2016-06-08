@@ -1,0 +1,109 @@
+cart_view:
+    path:      /cart/view
+    defaults:  { _controller: MobileCartCoreBundle:Frontend/Cart:index }
+    methods:  [GET]
+
+cart_add_item:
+    path:      /cart/add/{id}
+    defaults:  { _controller: MobileCartCoreBundle:Frontend/Cart:addProduct }
+    methods:  [POST]
+
+cart_shipment_add:
+    path:     /cart/shipment/add
+    defaults: { _controller: MobileCartCoreBundle:Frontend/Cart:addShipment }
+    methods:  [POST]
+
+cart_add_discount:
+    path:     /cart/discount/add
+    defaults: { _controller: MobileCartCoreBundle:Frontend/Cart:addDiscount }
+    methods:  [POST]
+
+cart_update_qtys:
+    path: /cart/update-qtys
+    defaults: { _controller: MobileCartCoreBundle:Frontend/Cart:updateQtys }
+    methods:  [POST]
+
+cart_remove_item:
+    path: /cart/remove/{product_id}
+    defaults: { _controller: MobileCartCoreBundle:Frontend/Cart:removeProduct }
+    methods:  [GET, POST]
+
+cart_remove_items:
+    path: /cart/products/remove
+    defaults: { _controller: MobileCartCoreBundle:Frontend/Cart:removeProducts }
+    methods:  [GET, POST]
+
+cart_totals:
+    path: /cart/totals
+    defaults: { _controller: MobileCartCoreBundle:Frontend/Cart:totals }
+    methods:  [GET]
+
+cart_checkout:
+    path: /cart/checkout
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:index' }
+    methods: [GET]
+
+cart_checkout_update_billing_address:
+    path: /cart/checkout/update/billing_address
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:updateBillingAddress' }
+    methods: [POST]
+
+cart_checkout_update_shipping_address:
+    path: /cart/checkout/update/shipping_address
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:updateShippingAddress' }
+    methods: [POST]
+
+cart_checkout_update_shipping_method:
+    path: /cart/checkout/update/shipping_method
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:updateShippingMethod' }
+    methods: [POST]
+
+cart_checkout_totals_discounts:
+    path: /cart/checkout/totals_discounts
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:totalsDiscounts' }
+    methods: [GET]
+
+cart_checkout_confirm_order:
+    path: /cart/checkout/confirm_order
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:confirmOrder' }
+    methods: [GET]
+
+cart_checkout_update_discount:
+    path: /cart/checkout/update/discount
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:updateDiscount' }
+    methods: [POST]
+
+cart_checkout_update_payment:
+    path: /cart/checkout/update/payment
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:updatePaymentMethod' }
+    methods: [POST]
+
+cart_checkout_summary:
+    path: /cart/checkout/summary
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:orderSummary' }
+    methods: [GET]
+
+cart_checkout_submit_order:
+    path: /cart/checkout/post
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:submitOrder' }
+    methods: [POST]
+
+cart_checkout_success:
+    path: /cart/checkout/success
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:success' }
+    methods: [GET]
+
+cart_currency:
+    path: '/currency/{code}'
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Currency:index' }
+    methods:  [GET, POST]
+
+api_shipping_rates:
+    path: /api/shipping/
+    defaults: { _controller: 'MobileCartCoreBundle:REST\Shipping:rates' }
+    methods: [GET]
+
+api_shipping_methods:
+    path: /api/shipping/methods
+    defaults: { _controller: 'MobileCartCoreBundle:REST\Shipping:methods' }
+    methods: [GET]

@@ -16,7 +16,18 @@ login_check:
 logout:
     path: /logout
 
-MobileCartCoreBundle:
-    resource: "@MobileCartCoreBundle/Controller/"
-    type:     annotation
-    prefix:   /
+cart_frontend_cart:
+    resource: "@MobileCartCoreBundle/Resources/config/routing_frontend_cart.yml"
+    prefix: /
+
+cart_frontend_catalog:
+    resource: "@MobileCartCoreBundle/Resources/config/routing_frontend_catalog.yml"
+    prefix: /
+
+cart_frontend_customer:
+    resource: "@MobileCartCoreBundle/Resources/config/routing_frontend_customer.yml"
+    prefix: /
+
+cart_admin:
+    resource: "@MobileCartCoreBundle/Resources/config/routing_admin.yml"
+    prefix: /

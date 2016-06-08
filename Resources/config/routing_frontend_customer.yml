@@ -1,0 +1,49 @@
+customer_register:
+    path: /account/register
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Customer:register' }
+    methods: [GET]
+
+customer_register_post:
+    path: /account/create
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Customer:registerPost' }
+    methods: [POST]
+
+customer_check_email:
+    path: /account/check-email
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Customer:registerCheckEmail' }
+    methods: [GET]
+
+customer_register_confirm:
+    path: /account/confirm
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Customer:registerConfirm' }
+    methods: [GET]
+
+customer_forgot_password:
+    path: /account/forgot-password
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Customer:forgotPassword' }
+    methods: [GET]
+
+customer_forgot_password_post:
+    path: /account/forgot-password
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Customer:forgotPasswordPost' }
+    methods: [POST]
+
+customer_profile:
+    path: /customer/profile
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Customer:profile' }
+    methods: [GET]
+
+customer_update:
+    path: /customer/update
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Customer:update' }
+    methods: [PUT]
+
+customer_orders:
+    path: /customer/orders
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Customer:orderHistory' }
+    methods: [GET]
+
+customer_order:
+    path: '/customer/order/{orderId}'
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Customer:orderView' }
+    methods: [GET]
