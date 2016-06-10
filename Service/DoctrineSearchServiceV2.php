@@ -11,7 +11,6 @@
 
 namespace MobileCart\CoreBundle\Service;
 
-use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\ORM\Query;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Repository\CartRepositoryInterface;
