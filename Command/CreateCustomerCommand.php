@@ -45,10 +45,17 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $entityService = $this->getContainer()->get('cart.entity');
-        $customer = $entityService->getInstance(EntityConstants::CUSTOMER);
         $email = $input->getArgument('email');
         $password = $input->getArgument('password');
+
+        $entityService = $this->getContainer()->get('cart.entity');
+        $customer = $entityService->findOneBy(EntityConstants::CUSTOMER, [
+            'email' => $email,
+        ]);
+
+        if (!$customer) {
+            $customer = $entityService->getInstance(EntityConstants::CUSTOMER);
+        }
 
         $encoder = $this->getContainer()->get('security.password_encoder');
         $encoded = $encoder->encodePassword($customer, $password);

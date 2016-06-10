@@ -77,6 +77,7 @@ class CustomerForgotPasswordForm
         ];
 
         $returnData['form_sections'] = $formSections;
+        $returnData['form'] = $form;
         $event->setForm($form);
         $event->setReturnData($returnData);
     }

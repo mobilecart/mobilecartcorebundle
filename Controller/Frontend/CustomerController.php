@@ -184,9 +184,7 @@ class CustomerController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_FORGOT_PASSWORD_FORM, $event);
 
-        $form = $event->getForm();
-
-        $returnData = ['form' => $form];
+        $returnData = $event->getReturnData();
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
@@ -215,11 +213,12 @@ class CustomerController extends Controller
             ->dispatch(CoreEvents::CUSTOMER_FORGOT_PASSWORD_FORM, $event);
 
         $form = $event->getForm();
-
-        $formData = $form->getData();
-        $email = isset($formData['email']) ? $formData['email'] : '';
+        $returnData = $event->getReturnData();
 
         if ($form->handleRequest($request)->isValid()) {
+
+            $formData = $form->getData();
+            $email = isset($formData['email']) ? $formData['email'] : '';
 
             $entity = $this->get('cart.entity')
                 ->findOneBy($this->objectType, ['email' => $email]);
@@ -232,13 +231,19 @@ class CustomerController extends Controller
                     ->setRequest($request);
 
                 $this->get('event_dispatcher')
+                    ->dispatch(CoreEvents::CUSTOMER_FORGOT_PASSWORD, $event);
+
+                $event = new CoreEvent();
+                $event->setObjectType($this->objectType)
+                    ->setEntity($entity)
+                    ->setRequest($request);
+
+                $this->get('event_dispatcher')
                     ->dispatch(CoreEvents::CUSTOMER_FORGOT_PASSWORD_POST_RETURN, $event);
 
                 return $event->getResponse();
             }
         }
-
-        $returnData = ['form' => $form];
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)

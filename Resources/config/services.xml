@@ -196,6 +196,9 @@
         <parameter key="cart.listener.customer.profile.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerProfileReturn</parameter>
         <parameter key="cart.listener.customer.orders.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerOrdersReturn</parameter>
         <parameter key="cart.listener.customer.forgotpassword.form.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPasswordForm</parameter>
+        <parameter key="cart.listener.customer.forgotpassword.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPassword</parameter>
+        <parameter key="cart.listener.customer.forgotpassword.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPasswordReturn</parameter>
+        <parameter key="cart.listener.customer.forgotpassword.post.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPasswordPostReturn</parameter>
         <parameter key="cart.listener.customer.insert.class">MobileCart\CoreBundle\EventListener\Customer\CustomerInsert</parameter>
         <parameter key="cart.listener.customer.update.class">MobileCart\CoreBundle\EventListener\Customer\CustomerUpdate</parameter>
         <parameter key="cart.listener.customer.delete.class">MobileCart\CoreBundle\EventListener\Customer\CustomerDelete</parameter>
@@ -1845,6 +1848,48 @@
             </call>
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
+            </call>
+        </service>
+
+        <service id="cart.listener.customer.forgotpassword" lazy="true" class="%cart.listener.customer.forgotpassword.class%">
+            <tag name="kernel.event_listener" event="customer.forgotpassword" method="onCustomerForgotPassword" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setMailer">
+                <argument type="service" id="mailer" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+            <call method="setSecurityPasswordEncoder">
+                <argument type="service" id="security.password_encoder" />
+            </call>
+        </service>
+
+        <service id="cart.listener.customer.forgotpassword.return" lazy="true" class="%cart.listener.customer.forgotpassword.return.class%">
+            <tag name="kernel.event_listener" event="customer.forgotpassword.return" method="onCustomerForgotPasswordReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+
+        <service id="cart.listener.customer.forgotpassword.post.return" lazy="true" class="%cart.listener.customer.forgotpassword.post.return.class%">
+            <tag name="kernel.event_listener" event="customer.forgotpassword.post.return" method="onCustomerForgotPasswordPostReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
             </call>
         </service>
 

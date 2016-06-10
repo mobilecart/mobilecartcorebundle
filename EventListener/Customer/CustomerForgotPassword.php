@@ -6,6 +6,13 @@ use Symfony\Component\EventDispatcher\Event;
 
 class CustomerForgotPassword
 {
+    protected $securityPasswordEncoder;
+
+    protected $mailer;
+
+    protected $router;
+
+    protected $themeService;
 
     protected $entityService;
 
@@ -29,6 +36,50 @@ class CustomerForgotPassword
             : [];
     }
 
+    public function setMailer($mailer)
+    {
+        $this->mailer = $mailer;
+        return $this;
+    }
+
+    public function getMailer()
+    {
+        return $this->mailer;
+    }
+
+    public function setRouter($router)
+    {
+        $this->router = $router;
+        return $this;
+    }
+
+    public function getRouter()
+    {
+        return $this->router;
+    }
+
+    public function setThemeService($themeService)
+    {
+        $this->themeService = $themeService;
+        return $this;
+    }
+
+    public function getThemeService()
+    {
+        return $this->themeService;
+    }
+
+    public function setSecurityPasswordEncoder($encoder)
+    {
+        $this->securityPasswordEncoder = $encoder;
+        return $this;
+    }
+
+    public function getSecurityPasswordEncoder()
+    {
+        return $this->securityPasswordEncoder;
+    }
+
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
@@ -49,8 +100,33 @@ class CustomerForgotPassword
         $request = $event->getRequest();
 
         $randomStr = md5(microtime());
-        $entity->setForgotPassword($randomStr);
+        $plaintext = substr($randomStr, 0, 8);
+
+        $encoder = $this->getSecurityPasswordEncoder();
+        $encoded = $encoder->encodePassword($entity, $plaintext);
+        $entity->setHash($encoded);
         $this->getEntityService()->persist($entity);
+
+        $tplData = [
+            'password' => $plaintext,
+        ];
+
+        $tpl = 'Email:password_reset.html.twig';
+        $body = $this->getThemeService()->renderView('email', $tpl, $tplData);
+
+        try {
+
+            $message = \Swift_Message::newInstance()
+                ->setSubject('Password Reset')
+                //->setFrom('~')
+                ->setTo($entity->getEmail())
+                ->setBody($body, 'text/html');
+
+            $this->getMailer()->send($message);
+
+        } catch(\Exception $e) {
+            // todo : handle error
+        }
 
         $event->setReturnData($returnData);
     }
