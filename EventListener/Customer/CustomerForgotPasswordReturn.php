@@ -73,15 +73,15 @@ class CustomerForgotPasswordReturn
                 break;
             default:
 
+                $form = $returnData['form'];
+                $form = $form->createView();
+                $returnData['form'] = $form;
+
+                $response = $this->getThemeService()
+                    ->render('frontend', 'Customer:forgot_password.html.twig', $returnData);
+
                 break;
         }
-
-        $form = $returnData['form'];
-        $form = $form->createView();
-        $returnData['form'] = $form;
-
-        $response = $this->getThemeService()
-            ->render('frontend', 'Customer:forgot_password.html.twig', $returnData);
 
         $event->setResponse($response)
             ->setReturnData($returnData);
