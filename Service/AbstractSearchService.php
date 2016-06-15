@@ -473,11 +473,8 @@ abstract class AbstractSearchService
      */
     public function sanitize($str)
     {
-        $str = str_replace("'", '', $str);
-        $str = str_replace('"', '', $str);
         $str = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $str)));
         $str = str_replace('--', '-', $str);
-        $str = str_replace('-', ' ', $str);
         return $str;
     }
 
@@ -1390,6 +1387,10 @@ abstract class AbstractSearchService
         $format = $request->get($this->formatParam, 'html');
         $formats = $this->getFormats();
 
+        // set sortable info
+        // assuming method retrieves repository by key/object type
+        $repo = $this->getEntityService()->getRepository($this->getObjectType());
+
         if (isset($formats[$format])) {
             $this->setFormat($format);
         }
@@ -1399,19 +1400,27 @@ abstract class AbstractSearchService
         $filterVals = $request->get('filter_val', []);
 
         $categoryId = $this->getRequest()->get($this->categoryIdParam, '');
-        $this->query = $this->getRequest()->get($this->queryParam, '');
-        $this->page = $this->getRequest()->get($this->pageParam, 1);
-        $this->limit = $this->getRequest()->get($this->limitParam, 30);
-        $this->sortBy = $this->getRequest()->get($this->sortByParam, '');
+
+        $this->query = $this->sanitize($this->getRequest()->get($this->queryParam, ''));
+        $this->query = str_replace('-', ' ', $this->query);
+
+        $this->page = (int) $this->getRequest()->get($this->pageParam, 1);
+        $this->limit = (int) $this->getRequest()->get($this->limitParam, 30);
+
+        $sortable = $repo->getSortableFields();
+        $sortBy = $this->getRequest()->get($this->sortByParam, '');
+        if (!isset($sortable[$sortBy])) {
+
+            $this->sortBy = isset($sortable[0])
+                ? $sortable[0]
+                : 'id';
+        }
+
         $this->sortDir = $this->getRequest()->get($this->sortDirParam, '');
         if ($this->sortDir != 'desc') {
             $this->sortDir = 'asc';
         }
 
-        // set sortable info
-        // assuming method retrieves repository by key/object type
-        $repo = $this->getEntityService()->getRepository($this->getObjectType());
-        $sortable = $repo->getSortableFields();
         $filterable = $repo->getFilterableFields();
         $this->setIsEAV($repo->isEAV());
         $this->searchField = $repo->getSearchField(); // handle array of fields

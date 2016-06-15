@@ -118,6 +118,7 @@ final class CoreEvents
     const CUSTOMER_FORGOT_PASSWORD = 'customer.forgotpassword';
     const CUSTOMER_FORGOT_PASSWORD_FORM = 'customer.forgotpassword.form';
     const CUSTOMER_FORGOT_PASSWORD_RETURN = 'customer.forgotpassword.return';
+    const CUSTOMER_FORGOT_PASSWORD_SUCCESS = 'customer.forgotpassword.success';
     const CUSTOMER_FORGOT_PASSWORD_POST_RETURN = 'customer.forgotpassword.post.return';
     const CUSTOMER_ORDERS_RETURN = 'customer.orders.return';
     const CUSTOMER_ORDER_RETURN = 'customer.order.return';

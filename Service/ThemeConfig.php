@@ -58,6 +58,11 @@ class ThemeConfig
     public function setTheme($code, $layout, $tplPath, $assetDir, $enableSpa = 0)
     {
         $this->config[$code] = [];
+
+        if (isset($this->config[$layout][self::KEY_LAYOUT])) {
+            $layout = $this->config[$layout][self::KEY_LAYOUT];
+        }
+
         $this->config[$code][self::KEY_LAYOUT] = $layout;
         $this->config[$code][self::KEY_TEMPLATE] = $tplPath;
         $this->config[$code][self::KEY_ASSET_DIR] = $assetDir;

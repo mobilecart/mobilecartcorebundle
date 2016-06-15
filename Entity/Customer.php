@@ -299,7 +299,7 @@ class Customer
 
     public function __toString()
     {
-        return $this->getFirstName() . ' ' . $this->getLastName();
+        return $this->getEmail(); // email is required. first/last name are not
     }
 
     public function getId()

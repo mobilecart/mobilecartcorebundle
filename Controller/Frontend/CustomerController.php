@@ -257,6 +257,22 @@ class CustomerController extends Controller
     }
 
     /**
+     * @Route("/account/forgot-password/success", name="customer_forgot_password_success")
+     * @Method("GET")
+     */
+    public function forgotPasswordSuccessAction(Request $request)
+    {
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
+            ->setRequest($request);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CUSTOMER_FORGOT_PASSWORD_SUCCESS, $event);
+
+        return $event->getResponse();
+    }
+
+    /**
      * @Route("/customer/profile", name="customer_profile")
      * @Method("GET")
      */

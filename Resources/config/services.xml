@@ -199,6 +199,7 @@
         <parameter key="cart.listener.customer.forgotpassword.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPassword</parameter>
         <parameter key="cart.listener.customer.forgotpassword.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPasswordReturn</parameter>
         <parameter key="cart.listener.customer.forgotpassword.post.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPasswordPostReturn</parameter>
+        <parameter key="cart.listener.customer.forgotpassword.success.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPasswordSuccess</parameter>
         <parameter key="cart.listener.customer.insert.class">MobileCart\CoreBundle\EventListener\Customer\CustomerInsert</parameter>
         <parameter key="cart.listener.customer.update.class">MobileCart\CoreBundle\EventListener\Customer\CustomerUpdate</parameter>
         <parameter key="cart.listener.customer.delete.class">MobileCart\CoreBundle\EventListener\Customer\CustomerDelete</parameter>
@@ -1890,6 +1891,13 @@
             </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
+            </call>
+        </service>
+
+        <service id="cart.listener.customer.forgotpassword.success" lazy="true" class="%cart.listener.customer.forgotpassword.success.class%">
+            <tag name="kernel.event_listener" event="customer.forgotpassword.success" method="onCustomerForgotPasswordSuccess" priority="50" />
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
             </call>
         </service>
 

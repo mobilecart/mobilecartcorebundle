@@ -28,6 +28,11 @@ customer_forgot_password_post:
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Customer:forgotPasswordPost' }
     methods: [POST]
 
+customer_forgot_password_success:
+    path: /account/forgot-password/success
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Customer:forgotPasswordSuccess' }
+    methods: [GET]
+
 customer_profile:
     path: /customer/profile
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Customer:profile' }

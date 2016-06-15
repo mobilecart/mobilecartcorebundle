@@ -4,18 +4,13 @@ namespace MobileCart\CoreBundle\EventListener\Customer;
 
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
-class CustomerForgotPasswordPostReturn
+class CustomerForgotPasswordSuccess
 {
 
     protected $themeService;
 
-    protected $entityService;
-
     protected $event;
-
-    protected $router;
 
     protected function setEvent($event)
     {
@@ -35,17 +30,6 @@ class CustomerForgotPasswordPostReturn
             : [];
     }
 
-    public function setRouter($router)
-    {
-        $this->router = $router;
-        return $this;
-    }
-
-    public function getRouter()
-    {
-        return $this->router;
-    }
-
     public function setThemeService($themeService)
     {
         $this->themeService = $themeService;
@@ -57,18 +41,7 @@ class CustomerForgotPasswordPostReturn
         return $this->themeService;
     }
 
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    public function getEntityService()
-    {
-        return $this->entityService;
-    }
-
-    public function onCustomerForgotPasswordPostReturn(Event $event)
+    public function onCustomerForgotPasswordSuccess(Event $event)
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
@@ -79,7 +52,7 @@ class CustomerForgotPasswordPostReturn
             case 'json':
 
                 $returnData = [
-                    'success' => 1,
+                    'success' => 1
                 ];
 
                 $response = new JsonResponse($returnData);
@@ -87,10 +60,8 @@ class CustomerForgotPasswordPostReturn
                 break;
             default:
 
-                $params = [];
-                $route = 'customer_forgot_password_success';
-                $url = $this->getRouter()->generate($route, $params);
-                $response = new RedirectResponse($url);
+                $response = $this->getThemeService()
+                    ->render('frontend', 'Customer:forgot_password_success.html.twig', $returnData);
 
                 break;
         }

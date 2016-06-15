@@ -168,6 +168,9 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
                             $rangeMax = isset($rangeValues[1]) ? $rangeValues[1] : null;
                             if (isset($rangeMax)) {
 
+                                $rangeMin = (float) $rangeMin;
+                                $rangeMax = (float) $rangeMax;
+
                                 $this->addAdvFilter([
                                     'field' => $field,
                                     'op' => 'gte',
@@ -583,8 +586,8 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
 
             $this->sortDir = $sortDir;
             $this->sortBy = $sortBy;
-            $this->limit = $limit;
-            $this->page = $page;
+            $this->limit = (int) $limit;
+            $this->page = (int) $page;
             $this->filters = $filters;
             $this->advFilters = $advFilters;
             $this->facets = $facets;
