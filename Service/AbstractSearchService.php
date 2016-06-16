@@ -649,7 +649,7 @@ abstract class AbstractSearchService
      * @param $alias
      * @return $this
      */
-    public function addColumn($select, $alias)
+    public function addColumn($select, $alias = '')
     {
         $this->columns[] = [
             'select' => $select,
@@ -1409,7 +1409,10 @@ abstract class AbstractSearchService
 
         $sortable = $repo->getSortableFields();
         $sortBy = $this->getRequest()->get($this->sortByParam, '');
-        if (!isset($sortable[$sortBy])) {
+        if (isset($sortable[$sortBy])) {
+
+            $this->sortBy = $sortBy;
+        } else {
 
             $this->sortBy = isset($sortable[0])
                 ? $sortable[0]

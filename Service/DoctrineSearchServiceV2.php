@@ -430,8 +430,11 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
                 // add select
                 $select = $colData['select'];
                 $alias = $colData['alias'];
-                $cols[] = "{$select} as {$alias}";
+                if ($alias) {
+                    $select .= " as {$alias}";
+                }
 
+                $cols[] = $select;
             }
             $colSql = ',' . implode(',', $cols);
         }
