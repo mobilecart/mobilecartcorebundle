@@ -14,6 +14,8 @@ class CheckoutShippingAddressForm
 
     protected $router;
 
+    protected $themeService;
+
     protected $checkoutSessionService;
 
     protected function setEvent($event)
@@ -25,6 +27,17 @@ class CheckoutShippingAddressForm
     protected function getEvent()
     {
         return $this->event;
+    }
+
+    public function setThemeService($themeService)
+    {
+        $this->themeService = $themeService;
+        return $this;
+    }
+
+    public function getThemeService()
+    {
+        return $this->themeService;
     }
 
     public function setRouter($router)

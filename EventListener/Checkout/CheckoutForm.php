@@ -196,7 +196,7 @@ class CheckoutForm
             $cartSession->setPaymentMethodCodes($methodCodes);
         }
 
-        $themeService = $event->getThemeService();
+        $themeService = $this->getThemeService();
         $themeConfig = $themeService->getThemeConfig();
         $tplPath = $themeService->getTemplatePath($themeConfig->getFrontendTheme());
 

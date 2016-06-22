@@ -79,6 +79,10 @@ class CheckoutSubmitOrder
         $returnData['invalid'] = []; // r[invalid][section][field] = [msg, msg, msg]
         $returnData['success'] = $isValid;
 
+        $shippingService = $this->getOrderService()
+            ->getCartService()
+            ->getShippingService();
+
         // todo : keep a count of invalid requests, logout/lockout user if excessive
         // todo : change this to be more abstract , possibly use an event with listeners
 
@@ -86,7 +90,7 @@ class CheckoutSubmitOrder
             $returnData['invalid_sections'][] = CheckoutConstants::STEP_BILLING_ADDRESS;
         }
 
-        if (!$this->getCheckoutSessionService()->getIsValidShippingAddress()) {
+        if ($shippingService->getIsShippingEnabled() && !$this->getCheckoutSessionService()->getIsValidShippingAddress()) {
             $returnData['invalid_sections'][] = CheckoutConstants::STEP_SHIPPING_ADDRESS;
         }
 

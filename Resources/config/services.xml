@@ -587,6 +587,9 @@
             <call method="setCheckoutSessionService">
                 <argument type="service" id="cart.checkout.session" />
             </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
         </service>
 
         <!-- Event Listener: build shipping address form -->
@@ -597,6 +600,9 @@
             </call>
             <call method="setCheckoutSessionService">
                 <argument type="service" id="cart.checkout.session" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
             </call>
         </service>
 

@@ -15,6 +15,8 @@ class CheckoutShippingMethodForm
 
     protected $router;
 
+    protected $themeService;
+
     protected $checkoutSessionService;
 
     protected $shippingService;
@@ -39,6 +41,17 @@ class CheckoutShippingMethodForm
     public function getRouter()
     {
         return $this->router;
+    }
+
+    public function setThemeService($themeService)
+    {
+        $this->themeService = $themeService;
+        return $this;
+    }
+
+    public function getThemeService()
+    {
+        return $this->themeService;
     }
 
     public function getReturnData()
@@ -91,7 +104,7 @@ class CheckoutShippingMethodForm
             ? $returnData['sections']
             : [];
 
-        $themeService = $event->getThemeService();
+        $themeService = $this->getThemeService();
         $themeConfig = $themeService->getThemeConfig();
         $tplPath = $themeService->getTemplatePath($themeConfig->getFrontendTheme());
 

@@ -19,6 +19,8 @@ class CheckoutBillingAddressForm
 {
     protected $router;
 
+    protected $themeService;
+
     protected $checkoutSessionService;
 
     protected $event;
@@ -39,6 +41,17 @@ class CheckoutBillingAddressForm
         return $this->getEvent()->getReturnData()
             ? $this->getEvent()->getReturnData()
             : [];
+    }
+
+    public function setThemeService($themeService)
+    {
+        $this->themeService = $themeService;
+        return $this;
+    }
+
+    public function getThemeService()
+    {
+        return $this->themeService;
     }
 
     public function setRouter($router)

@@ -52,8 +52,7 @@ class CheckoutController extends Controller
         $event->setRequest($request)
             ->setAction($this->generateUrl('cart_checkout_submit_order'))
             ->setMethod('POST')
-            ->setUser($this->getUser())
-            ->setThemeService($this->get('cart.theme'));
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_FORM, $event);
@@ -199,8 +198,7 @@ class CheckoutController extends Controller
         $formEvent->setRequest($request)
             ->setAction($this->generateUrl('cart_checkout_submit_order'))
             ->setMethod('POST')
-            ->setSingleStep(CheckoutConstants::STEP_SHIPPING_METHOD)
-            ->setThemeService($this->get('cart.theme'));
+            ->setSingleStep(CheckoutConstants::STEP_SHIPPING_METHOD);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_FORM, $formEvent);
@@ -378,8 +376,7 @@ class CheckoutController extends Controller
         $event->setRequest($request)
             ->setAction($this->generateUrl('cart_checkout_submit_order'))
             ->setMethod('POST')
-            ->setUser($this->getUser())
-            ->setThemeService($this->get('cart.theme'));
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_FORM, $event);
