@@ -56,7 +56,7 @@ class CustomerInsert
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
-
+        $request = $event->getRequest();
         $entity = $event->getEntity();
         $formData = $event->getFormData();
 
@@ -84,6 +84,13 @@ class CustomerInsert
             $this->getEntityService()
                 ->handleVarValueCreate($event->getObjectType(), $entity, $formData);
 
+        }
+
+        if ($entity && $request->getSession()) {
+            $request->getSession()->getFlashBag()->add(
+                'success',
+                'Customer Successfully Created!'
+            );
         }
 
         $event->setReturnData($returnData);

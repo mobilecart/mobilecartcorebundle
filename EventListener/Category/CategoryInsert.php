@@ -56,6 +56,13 @@ class CategoryInsert
 
         }
 
+        if ($entity && $request->getSession()) {
+            $request->getSession()->getFlashBag()->add(
+                'success',
+                'Category Successfully Created!'
+            );
+        }
+
         // update images
         if ($imageJson = $request->get('images_json', [])) {
             $images = (array) @ json_decode($imageJson);

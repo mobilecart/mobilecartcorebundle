@@ -57,7 +57,7 @@ class OrderUpdate
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
-
+        $request = $event->getRequest();
         $entity = $event->getEntity();
         $formData = $event->getFormData();
 
@@ -69,6 +69,13 @@ class OrderUpdate
             $this->getEntityService()
                 ->handleVarValueUpdate($event->getObjectType(), $entity, $formData);
 
+        }
+
+        if ($entity && $request->getSession()) {
+            $request->getSession()->getFlashBag()->add(
+                'success',
+                'Order Successfully Updated!'
+            );
         }
 
         $event->setReturnData($returnData);

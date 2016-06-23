@@ -69,6 +69,13 @@ class ProductInsert
                 ->handleVarValueCreate($event->getObjectType(), $entity, $formData);
         }
 
+        if ($entity && $request->getSession()) {
+            $request->getSession()->getFlashBag()->add(
+                'success',
+                'Product Successfully Created!'
+            );
+        }
+
         // update categories
         $postedIds = $request->get('category_ids', []);
         if ($postedIds) {

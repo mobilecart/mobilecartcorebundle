@@ -66,6 +66,13 @@ class ProductUpdate
                 ->handleVarValueUpdate($event->getObjectType(), $entity, $formData);
         }
 
+        if ($entity && $request->getSession()) {
+            $request->getSession()->getFlashBag()->add(
+                'success',
+                'Product Successfully Updated!'
+            );
+        }
+
         // update categories
         $categoryIds = $entity->getCategoryIds();
         $postedIds = $request->get('category_ids', []);

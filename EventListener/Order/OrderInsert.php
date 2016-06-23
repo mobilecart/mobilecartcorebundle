@@ -156,7 +156,12 @@ class OrderInsert
 
         $event->setOrder($order);
 
-        // todo: setOrderItems(), setInvoice(), etc
+        if ($order && $request->getSession()) {
+            $request->getSession()->getFlashBag()->add(
+                'success',
+                'Order Successfully Created!'
+            );
+        }
 
         $event->setReturnData($returnData);
     }

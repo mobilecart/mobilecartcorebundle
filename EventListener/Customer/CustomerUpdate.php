@@ -83,6 +83,13 @@ class CustomerUpdate
 
         }
 
+        if ($entity && $request->getSession()) {
+            $request->getSession()->getFlashBag()->add(
+                'success',
+                'Customer Successfully Created!'
+            );
+        }
+
         $event->setReturnData($returnData);
     }
 }

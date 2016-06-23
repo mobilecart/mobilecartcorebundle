@@ -202,6 +202,16 @@ class CustomerAdminForm
                         $customFields[] = $name;
 
                         break;
+                    case 'checkbox':
+
+                        $form->add($name, 'checkbox', [
+                            'mapped' => false,
+                            'required' => false,
+                            'label' => $var->getName(),
+                        ]);
+
+                        $customFields[] = $name;
+                        break;
                     default:
                         $form->add($name, 'text', [
                             'mapped' => false,
@@ -235,6 +245,7 @@ class CustomerAdminForm
                         $objectVars[$name] = [
                             //'var' => $var,
                             'value' => $value,
+                            'input' => $var->getFormInput(),
                         ];
                     }
                 }
@@ -242,6 +253,9 @@ class CustomerAdminForm
                 foreach($objectVars as $name => $objectData) {
                     //$var = $objectData['var'];
                     $value = $objectData['value'];
+                    if ($objectData['input'] == 'checkbox') {
+                        $value = (bool) $value;
+                    }
                     $form->get($name)->setData($value);
                 }
             }

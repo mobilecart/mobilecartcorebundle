@@ -216,6 +216,7 @@ class ProductAdminForm
                         $objectVars[$name] = [
                             //'var' => $var,
                             'value' => $value,
+                            'input' => $var->getFormInput(),
                         ];
                     }
                 }
@@ -223,6 +224,9 @@ class ProductAdminForm
                 foreach($objectVars as $name => $objectData) {
                     //$var = $objectData['var'];
                     $value = $objectData['value'];
+                    if ($objectData['input'] == 'checkbox') {
+                        $value = (bool) $value;
+                    }
                     $form->get($name)->setData($value);
                 }
             }
