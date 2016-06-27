@@ -144,7 +144,16 @@ class CheckoutUpdateBillingAddress
             if (!$customerEntity->getId()) {
                 $customerEntity->fromArray($customerData);
                 //try {
-                    $this->getEntityService()->persist($customerEntity);
+                $this->getEntityService()->persist($customerEntity);
+                if ($customerEntity) {
+
+                    $this->getCheckoutSessionService()
+                        ->getCartSessionService()
+                        ->getCart()
+                        ->getCustomer()
+                        ->setId($customerEntity->getId());
+
+                }
                 //} catch(\Exception $e) { }
 
             }
