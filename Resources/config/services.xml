@@ -28,6 +28,8 @@
         <parameter key="cart.order.class">MobileCart\CoreBundle\Service\OrderService</parameter>
         <parameter key="cart.twig.frontend.class">MobileCart\CoreBundle\Twig\Extension\FrontendExtension</parameter>
         <parameter key="cart.class">MobileCart\CoreBundle\Service\CartService</parameter>
+        <parameter key="cart.allow.guest.checkout">0</parameter>
+        <parameter key="cart.allowed.country.ids">US,GB</parameter>
         <parameter key="cart.session.class">MobileCart\CoreBundle\Service\CartSessionService</parameter>
         <parameter key="cart.total.class">MobileCart\CoreBundle\Service\CartTotalService</parameter>
         <parameter key="cart.checkout.session.class">MobileCart\CoreBundle\Service\CheckoutSessionService</parameter>
@@ -524,11 +526,10 @@
                 <argument type="service" id="cart.discount" />
             </call>
             <call method="setAllowedCountryIds">
-                <argument type="string">US,GB</argument>
-                <!-- todo: move this to parameters -->
+                <argument type="string">%cart.allowed.country.ids%</argument>
             </call>
             <call method="setAllowGuestCheckout">
-                <argument type="string">0</argument>
+                <argument type="string">%cart.allow.guest.checkout%</argument>
             </call>
         </service>
 
