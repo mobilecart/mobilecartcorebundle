@@ -896,7 +896,10 @@ class OrderService
         $baseDiscountTotal = $cart->getTotal(DiscountTotal::KEY)->getValue();
         $baseGrandTotal = $cart->getTotal(GrandTotal::KEY)->getValue();
         $baseItemTotal = $cart->getTotal(ItemTotal::KEY)->getValue();
-        $baseShipmentTotal = $cart->getTotal(ShipmentTotal::KEY)->getValue();
+        $baseShipmentTotal = $cart->getTotal(ShipmentTotal::KEY)
+            ? $cart->getTotal(ShipmentTotal::KEY)->getValue()
+            : '0.00';
+
         $baseTaxTotal = $cart->getTotal(TaxTotal::KEY)->getValue();
 
         $order->setBaseCurrency($baseCurrency)
