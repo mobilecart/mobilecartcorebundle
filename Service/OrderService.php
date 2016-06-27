@@ -663,10 +663,6 @@ class OrderService
     {
         $cart = $this->getCart();
 
-        /** @var PaymentMethodServiceInterface $paymentMethodService */
-        $paymentMethodService = $this->getPaymentMethodService()
-            ->setPaymentData($this->getPaymentData());
-
         $currencyService = $this->getCurrencyService();
 
         $baseCurrency = $this->getCurrencyService()->getBaseCurrency();
@@ -681,12 +677,15 @@ class OrderService
             ? $baseGrandTotal
             : $currencyService->convert($baseGrandTotal, $currency, $baseCurrency);
 
-        $paymentMethodService->setOrderData([
-            'total' => $grandTotal,
-            'currency' => $currency,
-            'base_total' => $baseGrandTotal,
-            'base_currency' => $baseCurrency,
-        ]);
+        /** @var PaymentMethodServiceInterface $paymentMethodService */
+        $paymentMethodService = $this->getPaymentMethodService()
+            ->setPaymentData($this->getPaymentData())
+            ->setOrderData([
+                'total' => $grandTotal,
+                'currency' => $currency,
+                'base_total' => $baseGrandTotal,
+                'base_currency' => $baseCurrency,
+            ]);
 
         switch($paymentMethodService->getAction()) {
             case PaymentMethodServiceInterface::ACTION_AUTHORIZE:
@@ -721,16 +720,25 @@ class OrderService
                     throw new \Exception("Payment Token Failed");
                 }
 
+                $paymentData = $this->getPaymentData();
                 $customerTokenData = $paymentMethodService->extractCustomerTokenData();
 
                 $customerId = $this->getCart()->getCustomer()->getId();
                 $customer = $this->getEntityService()->find(EntityConstants::CUSTOMER, $customerId);
 
-                $customerToken = $this->getEntityService()->getInstance(EntityConstants::CUSTOMER_TOKEN);
-                $customerToken->fromArray($customerTokenData)
-                    ->setCustomer($customer);
+                $customerToken = $this->getEntityService()->findOneBy(EntityConstants::CUSTOMER_TOKEN, [
+                    'customer' => $customerId,
+                    'token' => $paymentData['token'],
+                ]);
 
-                $this->getEntityService()->persist($customerToken);
+                if (!$customerToken) {
+                    $customerToken = $this->getEntityService()->getInstance(EntityConstants::CUSTOMER_TOKEN);
+
+                    $customerToken->fromArray($customerTokenData)
+                        ->setCustomer($customer);
+
+                    $this->getEntityService()->persist($customerToken);
+                }
 
                 $paymentMethodService->setPaymentCustomerToken($customerToken);
 
@@ -775,6 +783,44 @@ class OrderService
 
                 break;
             case PaymentMethodServiceInterface::ACTION_PURCHASE_AND_SUBSCRIBE_RECURRING:
+
+                $isTokenCreated = $paymentMethodService->createToken()
+                    ->getIsTokenCreated();
+
+                if (!$isTokenCreated) {
+                    throw new \Exception("Payment Token Failed");
+                }
+
+                $paymentData = $this->getPaymentData();
+                $customerTokenData = $paymentMethodService->extractCustomerTokenData();
+
+                $customerId = $this->getCart()->getCustomer()->getId();
+                $customer = $this->getEntityService()->find(EntityConstants::CUSTOMER, $customerId);
+
+                $customerToken = $this->getEntityService()->findOneBy(EntityConstants::CUSTOMER_TOKEN, [
+                    'customer' => $customerId,
+                    'token' => $paymentData['token'],
+                ]);
+
+                if (!$customerToken) {
+                    $customerToken = $this->getEntityService()->getInstance(EntityConstants::CUSTOMER_TOKEN);
+
+                    $customerToken->fromArray($customerTokenData)
+                        ->setCustomer($customer);
+
+                    $this->getEntityService()->persist($customerToken);
+                }
+
+                $paymentMethodService->setPaymentCustomerToken($customerToken);
+
+                ////
+
+                $isSubscribed = $paymentMethodService->purchaseAndSubscribeRecurring()
+                    ->getIsPurchasedAndSubscribedRecurring();
+
+                if (!$isSubscribed) {
+                    throw new \Exception("Subscription Failed");
+                }
 
                 break;
             case PaymentMethodServiceInterface::ACTION_AUTHORIZE_REDIRECT:

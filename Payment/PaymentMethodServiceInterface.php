@@ -19,6 +19,8 @@ interface PaymentMethodServiceInterface
 
     const ACTION_PURCHASE_AND_SUBSCRIBE_RECURRING = 'purchase_and_subscribe_recurring'; // automatic 3rd party billing/subscription
 
+    const ACTION_RECURRING_WEBHOOK = 'recurring_webhook'; // for 3rd party services which capture payment and notify us via webhook
+
     const ACTION_AUTHORIZE_REDIRECT = 'authorize_redirect'; // example: paypal redirect . use value of order.payment_authorize
 
     const ACTION_PURCHASE_CALLBACK = 'purchase_callback'; // example: paypal IPN . use value of order.payment_authorize

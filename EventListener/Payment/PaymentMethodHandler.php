@@ -82,10 +82,16 @@ class PaymentMethodHandler
             return false;
         }
 
+        $methodRequest = $event->getCollectPaymentMethodRequest();
+        $paymentMethodService = $this->getPaymentMethodService();
+
         // trying to be more secure by not passing the full service into the view
         //  so , getting the service requires a flag to be set
         if ($event->getFindService()) {
             if ($event->getCode() == $this->getPaymentMethodService()->getCode()) {
+                if ($methodRequest->getAction()) {
+                    $this->getPaymentMethodService()->setAction($methodRequest->getAction());
+                }
                 $event->setService($this->getPaymentMethodService());
                 return true; // makes no difference
             }
@@ -95,24 +101,21 @@ class PaymentMethodHandler
 
         // todo : handle is_backend, is_frontend
 
-        $paymentMethodService = $this->getPaymentMethodService();
-
-        if (
-            $paymentMethodService->supportsAction(PaymentMethodServiceInterface::ACTION_PURCHASE_STORED_TOKEN)
-            && $this->getCartSessionService()
-            && $this->getCartSessionService()->getCustomerId()
-        ) {
-
-            $customerTokens = $this->getEntityService()->findBy(EntityConstants::CUSTOMER_TOKEN, [
-                'customer' => $this->getCartSessionService()->getCustomerId(),
-                'service' => $paymentMethodService->getCode(),
-            ]);
-
-            if ($customerTokens) {
-                $paymentMethodService->setCustomerTokens($customerTokens);
-                $paymentMethodService->setAction(PaymentMethodServiceInterface::ACTION_PURCHASE_STORED_TOKEN);
+        if ($methodRequest->getAction()) {
+            if ($paymentMethodService->supportsAction($methodRequest->getAction())) {
+                $paymentMethodService->setAction($methodRequest->getAction());
+            } else {
+                return false;
             }
+        }
 
+        $customerTokens = $this->getEntityService()->findBy(EntityConstants::CUSTOMER_TOKEN, [
+            'customer' => $this->getCartSessionService()->getCustomerId(),
+            'service' => $paymentMethodService->getCode(),
+        ]);
+
+        if ($customerTokens) {
+            $paymentMethodService->setCustomerTokens($customerTokens);
         }
 
         $form = $paymentMethodService->buildForm()
@@ -127,6 +130,10 @@ class PaymentMethodHandler
             ->set('label', $paymentMethodService->getLabel())
             ->set('action', $paymentMethodService->getAction())
             ->set('form', $form);
+
+        if ($methodRequest->getExternalPlanId()) {
+            $wrapper->set('external_plan_id', $methodRequest->getExternalPlanId());
+        }
 
         // payment form requirements
         // * dont conflict with parent form

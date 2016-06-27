@@ -372,16 +372,16 @@ class CheckoutController extends Controller
 
         // todo : keep a count of invalid requests, logout/lockout user if excessive
 
-        $event = new CoreEvent();
-        $event->setRequest($request)
+        $formEvent = new CoreEvent();
+        $formEvent->setRequest($request)
             ->setAction($this->generateUrl('cart_checkout_submit_order'))
             ->setMethod('POST')
             ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CHECKOUT_FORM, $event);
+            ->dispatch(CoreEvents::CHECKOUT_FORM, $formEvent);
 
-        $form = $event->getForm();
+        $form = $formEvent->getForm();
 
         // cases:
         //     anonymous / new customer:
@@ -397,7 +397,8 @@ class CheckoutController extends Controller
 
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setForm($form);
+            ->setForm($form)
+            ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_SUBMIT_ORDER, $event);

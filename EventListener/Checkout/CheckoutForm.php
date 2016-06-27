@@ -2,6 +2,8 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
+use MobileCart\CoreBundle\Constants\EntityConstants;
+use MobileCart\CoreBundle\Payment\PaymentMethodServiceInterface;
 use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\Form\CheckoutType;
 use MobileCart\CoreBundle\Payment\CollectPaymentMethodRequest;
@@ -159,6 +161,7 @@ class CheckoutForm
             ->getCartSessionService();
 
         $cart = $cartSession->getCart();
+        $customer = $cart->getCustomer();
 
         $formType = new CheckoutType();
         $formType->setBillingAddressForm($event->getBillingAddressForm())
@@ -176,11 +179,10 @@ class CheckoutForm
             $form->get('billing_address')->remove('email');
         }
 
-        // payment
-        $methodRequest = new CollectPaymentMethodRequest();
-
-        // todo : set payment action if necessary for cart items
-        //  otherwise, each payment method should have its own actions
+        // payment method request
+        $methodRequest = $event->getCollectPaymentMethodRequest()
+            ? $event->getCollectPaymentMethodRequest()
+            : new CollectPaymentMethodRequest();
 
         $paymentMethods = $this->getPaymentService()
             ->collectPaymentMethods($methodRequest);
@@ -223,7 +225,7 @@ class CheckoutForm
         ], $sections);
 
         // handle form sections
-        $customer = $cart->getCustomer();
+
         foreach($sections as $section => $sectionData) {
             if (!isset($sections[$section]['fields'])) {
                 continue;

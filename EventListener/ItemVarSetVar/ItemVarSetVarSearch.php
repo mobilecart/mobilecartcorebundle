@@ -31,8 +31,6 @@ class ItemVarSetVarSearch
         $this->setEvent($event);
         $returnData = $this->getReturnData();
 
-        // todo : get table names from EntityService
-
         $event->getSearch()
             ->setObjectType($event->getObjectType()) // Important: set this first
             ->parseRequest($event->getRequest())

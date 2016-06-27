@@ -9,6 +9,7 @@ class CollectPaymentMethodRequest extends ArrayWrapper
     public function __construct()
     {
         parent::__construct([
+            'action' => '', // this should be a value from PaymentMethodServiceInterface
             'include_all' => 0,
             'to_array'    => 0,
             'postcode'    => '',

@@ -63,7 +63,7 @@ class CheckoutUpdatePaymentMethod
              */
             $paymentMethodService->setIsSubmission(true);
 
-            // todo : set action
+            // todo : set action, look at cart items
 
             $form = $paymentMethodService->buildForm()
                 ->getForm();
@@ -77,6 +77,8 @@ class CheckoutUpdatePaymentMethod
             $isValid = (int) $form->isValid();
 
             if ($isValid) {
+
+                // set action here ?
 
                 $this->getCheckoutSessionService()
                     ->setPaymentMethodCode($paymentMethod)

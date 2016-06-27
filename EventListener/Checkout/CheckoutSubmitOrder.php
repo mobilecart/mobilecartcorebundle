@@ -116,24 +116,30 @@ class CheckoutSubmitOrder
         $paymentMethodCode = $this->getCheckoutSessionService()
             ->getPaymentMethodCode();
 
+        $paymentMethodService = $this->getCheckoutSessionService()
+            ->findPaymentMethodServiceByCode($paymentMethodCode);
+
         $paymentData = $this->getCheckoutSessionService()
             ->getPaymentData();
 
-        $paymentMethodService = $this->getCheckoutSessionService()
-            ->findPaymentMethodServiceByCode($paymentMethodCode);
+        if (isset($returnData['payment_data']) && is_array($returnData['payment_data'])) {
+            foreach($returnData['payment_data'] as $k => $v) {
+                $paymentData[$k] = $v;
+            }
+        }
 
         $cart = $this->getCheckoutSessionService()
             ->getCartSessionService()
             ->getCart();
 
         $orderService = $this->getOrderService()
-            ->setCart($cart);
-
-        $orderService->setPaymentMethodService($paymentMethodService)
+            ->setCart($cart)
+            ->setPaymentMethodService($paymentMethodService)
             ->setPaymentData($paymentData);
 
         // create order, orderItems, orderShipments, orderInvoice
         //  and payment, if necessary
+
         try {
             $orderService->submitCart();
             $isValid = 1;
@@ -154,11 +160,12 @@ class CheckoutSubmitOrder
 
             $returnData['redirect_url'] = $this->getRouter()->generate('cart_checkout_success', []);
         } else {
+
             if (!$this->getCheckoutSessionService()->getIsValidBillingAddress()) {
                 $returnData['invalid_sections'][] = CheckoutConstants::STEP_BILLING_ADDRESS;
             }
 
-            if (!$this->getCheckoutSessionService()->getIsValidShippingAddress()) {
+            if ($shippingService->getIsShippingEnabled() && !$this->getCheckoutSessionService()->getIsValidShippingAddress()) {
                 $returnData['invalid_sections'][] = CheckoutConstants::STEP_SHIPPING_ADDRESS;
             }
 
@@ -172,11 +179,13 @@ class CheckoutSubmitOrder
         }
 
         $returnData['success'] = $isValid;
+        if (isset($returnData['form'])) {
+            unset($returnData['form']); // fix warning: Recursion Detected
+        }
 
         $response = new JsonResponse($returnData);
 
         $event->setReturnData($returnData)
             ->setResponse($response);
-
     }
 }
