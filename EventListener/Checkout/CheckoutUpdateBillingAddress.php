@@ -2,6 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -12,6 +13,21 @@ class CheckoutUpdateBillingAddress
     protected $formFactory;
 
     protected $checkoutSessionService;
+
+    protected $passwordEncoder;
+
+    protected $entityService;
+
+    public function setEntityService($entityService)
+    {
+        $this->entityService = $entityService;
+        return $this;
+    }
+
+    public function getEntityService()
+    {
+        return $this->entityService;
+    }
 
     public function setEvent($event)
     {
@@ -53,6 +69,17 @@ class CheckoutUpdateBillingAddress
         return $this->checkoutSessionService;
     }
 
+    public function setSecurityPasswordEncoder($passwordEncoder)
+    {
+        $this->passwordEncoder = $passwordEncoder;
+        return $this;
+    }
+
+    public function getSecurityPasswordEncoder()
+    {
+        return $this->passwordEncoder;
+    }
+
     public function onCheckoutUpdateBillingAddress(Event $event)
     {
         $this->setEvent($event);
@@ -82,20 +109,43 @@ class CheckoutUpdateBillingAddress
 
         if ($isValid) {
 
+            $customerEntity = $cartCustomer->getId()
+                ? $this->getEntityService()->find(EntityConstants::CUSTOMER, $cartCustomer->getId())
+                : $this->getEntityService()->getInstance(EntityConstants::CUSTOMER);
+
             //update customer data in cart session
+            $customerData = [];
             $formData = $form->getData();
             foreach($form->all() as $childKey => $child) {
 
                 // extra precaution
-                if ($childKey == 'id') {
+                // potential security hole : guest checkout and updating data on existing user
+                if (in_array($childKey, ['id'])) {
                     continue;
                 }
+
+                if (!$customerEntity->getId() && $childKey == 'password') {
+                    $encoder = $this->getSecurityPasswordEncoder();
+                    $encoded = $encoder->encodePassword($customerEntity, $formData->get($childKey));
+                    $customerEntity->setHash($encoded);
+                    $customerData['hash'] = $encoded;
+                    continue;
+                }
+
+                if (!$customerEntity->getId()) {
+                    $customerData[$childKey] = $formData->get($childKey);
+                }
+
+                // todo : determine if customer is logged in, and update customer data
 
                 $cartCustomer->set($childKey, $formData->get($childKey));
             }
 
-            if ($cartCustomer->getId()) {
-                // todo : update customer entity
+            if (!$customerEntity->getId()) {
+                $customerEntity->fromArray($customerData);
+                //try {
+                    $this->getEntityService()->persist($customerEntity);
+                //} catch(\Exception $e) { }
 
             }
 

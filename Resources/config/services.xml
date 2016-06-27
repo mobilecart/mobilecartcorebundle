@@ -652,6 +652,9 @@
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
             </call>
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
         </service>
 
         <!-- Event Listener: render Totals and Discounts section of checkout -->

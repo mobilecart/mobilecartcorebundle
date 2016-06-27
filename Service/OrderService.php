@@ -868,10 +868,7 @@ class OrderService
 
             $customer = $this->getEntityService()->find(EntityConstants::CUSTOMER, $cartCustomer->getId());
             if (!$customer) {
-                $customer = $this->getEntityService()->getInstance(EntityConstants::CUSTOMER);
-                // todo : do more testing with this
-                $customer->fromArray($cartCustomer->getData());
-                $this->getEntityService()->persist($customer);
+                throw new \InvalidArgumentException("Customer account is required");
             }
 
             $order->setCustomer($customer)
