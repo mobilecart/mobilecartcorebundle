@@ -37,15 +37,10 @@ class CheckoutController extends Controller
             // todo : add flash message
             // $this->get('session')->getFlashBag()->add($code, $message);
 
-            //$url = $request->getUri();
             $url = $this->generateUrl('cart_checkout', []);
             $this->get('session')->set('redirect_url', $url);
 
             return $this->redirect($this->generateUrl('login_route', []));
-        }
-
-        if (!$checkoutService->getCartSessionService()->hasItems()) {
-            return $this->redirect($this->generateUrl('cart_view', []));
         }
 
         $event = new CoreEvent();

@@ -5,6 +5,7 @@ namespace MobileCart\CoreBundle\EventListener\Checkout;
 use Symfony\Component\EventDispatcher\Event;
 
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class CheckoutViewReturn
 {
@@ -131,10 +132,18 @@ class CheckoutViewReturn
         $this->setEvent($event);
         $returnData = $this->getReturnData();
 
-        $returnData['cart'] = $this->getCartSession()
+        $cart = $this->getCartSession()
             ->collectShippingMethods()
             ->collectTotals()
             ->getCart();
+
+        if (!$cart->hasItems()) {
+            $response = new RedirectResponse($this->getRouter()->generate('cart_view', []));
+            $event->setResponse($response);
+            return;
+        }
+
+        $returnData['cart'] = $cart;
 
         $returnData['country_regions'] = $this->getCartSession()
             ->getCountryRegions();

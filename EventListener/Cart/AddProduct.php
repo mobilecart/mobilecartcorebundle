@@ -11,11 +11,11 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
 
 class AddProduct
 {
-    public $entityService;
+    protected $entityService;
 
-    public $cartSessionService;
+    protected $cartSessionService;
 
-    public $shippingService;
+    protected $shippingService;
 
     protected $router;
 
@@ -300,6 +300,7 @@ class AddProduct
         }
 
         $this->getEntityService()->persist($cartEntity);
+        $event->setCartEntity($cartEntity);
         $cartId = $cartEntity->getId();
         $cart->setId($cartId);
 
