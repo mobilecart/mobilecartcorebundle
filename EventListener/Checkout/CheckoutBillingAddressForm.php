@@ -117,15 +117,17 @@ class CheckoutBillingAddressForm
             //$form->remove('email');
         }
 
-        $billingFields += [
-            'billing_name',
-            'billing_street',
-            'billing_city',
-            'billing_region',
-            'billing_postcode',
-            'billing_country_id',
-            'billing_phone',
-        ];
+        $billingFields = array_merge($billingFields,
+            [
+                'billing_name',
+                'billing_street',
+                'billing_city',
+                'billing_region',
+                'billing_postcode',
+                'billing_country_id',
+                'billing_phone',
+            ]
+        );
 
         $sections = array_merge([
             CheckoutConstants::STEP_BILLING_ADDRESS => [
