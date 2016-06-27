@@ -124,16 +124,41 @@ class CheckoutUpdateBillingAddress
                     continue;
                 }
 
-                if (!$customerEntity->getId() && $childKey == 'password') {
-                    $encoder = $this->getSecurityPasswordEncoder();
-                    $encoded = $encoder->encodePassword($customerEntity, $formData->get($childKey));
-                    $customerEntity->setHash($encoded);
-                    $customerData['hash'] = $encoded;
-                    continue;
-                }
-
                 if (!$customerEntity->getId()) {
-                    $customerData[$childKey] = $formData->get($childKey);
+
+                    $value = null;
+                    switch($childKey) {
+                        case 'password':
+                            $encoder = $this->getSecurityPasswordEncoder();
+                            $encoded = $encoder->encodePassword($customerEntity, $formData->get($childKey));
+                            $customerEntity->setHash($encoded);
+                            $customerData['hash'] = $encoded;
+                            break;
+                        case 'billing_name':
+                            $value = $formData->get($childKey);
+                            $parts = explode(' ', $value);
+                            $count = count($parts);
+                            $firstName = $parts[0];
+                            $lastName = '';
+                            if ($count == 2) {
+                                $lastName = $parts[1];
+                            } elseif ($count > 2) {
+                                unset($parts[0]);
+                                $lastName = implode(' ', $parts);
+                            }
+                            $customerData['first_name'] = $firstName;
+                            $customerData['last_name'] = $lastName;
+                            break;
+                        default:
+                            $value = $formData->get($childKey);
+                            break;
+                    }
+
+                    if (is_null($value)) {
+                        continue;
+                    }
+
+                    $customerData[$childKey] = $value;
                 }
 
                 // todo : determine if customer is logged in, and update customer data
@@ -155,7 +180,6 @@ class CheckoutUpdateBillingAddress
 
                 }
                 //} catch(\Exception $e) { }
-
             }
 
             // todo: if tax is enabled and shipping is disabled, then apply tax to billing
