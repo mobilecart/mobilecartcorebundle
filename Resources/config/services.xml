@@ -656,6 +656,9 @@
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>
+            <call method="setSecurityPasswordEncoder">
+                <argument type="service" id="security.password_encoder" />
+            </call>
         </service>
 
         <!-- Event Listener: render Totals and Discounts section of checkout -->
