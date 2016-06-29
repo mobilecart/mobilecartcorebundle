@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  */
 class OrderHistory
+    implements CartEntityInterface
 {
     /**
      * @var array
@@ -33,6 +34,13 @@ class OrderHistory
     private $id;
 
     /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="created_at", type="datetime", nullable=true)
+     */
+    private $created_at;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="user", type="string", length=255)
@@ -44,7 +52,7 @@ class OrderHistory
      *
      * @ORM\Column(name="history_type", type="integer")
      */
-    private $historyType;
+    private $history_type;
 
     /**
      * @var string
@@ -71,6 +79,11 @@ class OrderHistory
     public function getId()
     {
         return $this->id;
+    }
+
+    public function getObjectTypeName()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::ORDER_HISTORY;
     }
 
     /**
@@ -172,8 +185,33 @@ class OrderHistory
     public function getBaseData()
     {
         return [
-
+            'id' => $this->getId(),
+            'created_at' => $this->getCreatedAt(),
+            'history_type' => $this->getHistoryType(),
+            'message' => $this->getMessage(),
         ];
+    }
+
+    /**
+     * Set createdAt
+     *
+     * @param \DateTime $createdAt
+     * @return $this
+     */
+    public function setCreatedAt($createdAt)
+    {
+        $this->created_at = $createdAt;
+        return $this;
+    }
+
+    /**
+     * Get createdAt
+     *
+     * @return \DateTime
+     */
+    public function getCreatedAt()
+    {
+        return $this->created_at;
     }
 
     /**
@@ -200,26 +238,26 @@ class OrderHistory
     }
 
     /**
-     * Set historyType
+     * Set history_type
      *
      * @param integer $historyType
      * @return OrderHistory
      */
     public function setHistoryType($historyType)
     {
-        $this->historyType = $historyType;
+        $this->history_type = $historyType;
 
         return $this;
     }
 
     /**
-     * Get historyType
+     * Get history_type
      *
      * @return integer 
      */
     public function getHistoryType()
     {
-        return $this->historyType;
+        return $this->history_type;
     }
 
     /**

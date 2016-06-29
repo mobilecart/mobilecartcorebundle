@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  */
 class OrderInvoice
+    implements CartEntityInterface
 {
     /**
      * @var integer
@@ -20,6 +21,13 @@ class OrderInvoice
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="created_at", type="datetime", nullable=true)
+     */
+    private $created_at;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Order
@@ -100,6 +108,11 @@ class OrderInvoice
     public function getId()
     {
         return $this->id;
+    }
+
+    public function getObjectTypeName()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::ORDER_INVOICE;
     }
 
     /**
@@ -204,8 +217,30 @@ class OrderInvoice
     public function getBaseData()
     {
         return [
-
+            'created_at' => $this->getCreatedAt(),
         ];
+    }
+
+    /**
+     * Set createdAt
+     *
+     * @param \DateTime $createdAt
+     * @return $this
+     */
+    public function setCreatedAt($createdAt)
+    {
+        $this->created_at = $createdAt;
+        return $this;
+    }
+
+    /**
+     * Get createdAt
+     *
+     * @return \DateTime
+     */
+    public function getCreatedAt()
+    {
+        return $this->created_at;
     }
 
     /**

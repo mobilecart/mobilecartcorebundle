@@ -169,9 +169,9 @@ class CheckoutSubmitOrder
                 $returnData['invalid_sections'][] = CheckoutConstants::STEP_SHIPPING_ADDRESS;
             }
 
-            if (!$this->getCheckoutSessionService()->getIsValidTotals()) {
-                $returnData['invalid_sections'][] = CheckoutConstants::STEP_TOTALS_DISCOUNTS;
-            }
+//            if (!$this->getCheckoutSessionService()->getIsValidTotals()) {
+//                $returnData['invalid_sections'][] = CheckoutConstants::STEP_TOTALS_DISCOUNTS;
+//            }
 
             if (!$this->getCheckoutSessionService()->getIsValidPaymentMethod()) {
                 $returnData['invalid_sections'][] = CheckoutConstants::STEP_PAYMENT_METHODS;

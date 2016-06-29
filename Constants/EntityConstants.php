@@ -95,6 +95,7 @@ class EntityConstants
     const ORDER_INVOICE = 'order_invoice';
     const ORDER_PAYMENT = 'order_payment';
     const ORDER_REFUND = 'order_refund';
+    const ORDER_HISTORY = 'order_history';
     const PRODUCT = 'product';
     const PRODUCT_IMAGE = 'product_image';
     const REF_COUNTRY_REGION = 'ref_country_region';

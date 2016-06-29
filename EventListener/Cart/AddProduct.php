@@ -92,7 +92,7 @@ class AddProduct
         $format = $request->get('format', '');
 
         // todo : check inventory
-
+        $product = null;
         $productId = $request->get('id', '');
         $qty = $request->get('qty', 1);
         $simpleProductId = $request->get('simple_id', '');
@@ -101,9 +101,29 @@ class AddProduct
             $qty = $event->get('qty');
         }
 
+        $idField = $request->get('key', 'id');
+        $idFields = ['id', 'sku'];
+        if (!in_array($idField, $idFields)) {
+            $idField = 'id';
+        }
+
         $cart = $this->getCartSessionService()
             ->initCart()
             ->getCart();
+
+        if ($idField != 'id') {
+            if ($item = $cart->findItem($idField, $productId)) {
+                $productId = $item->getProductId();
+            } else {
+                $product = $this->getEntityService()->findOneBy(EntityConstants::PRODUCT, [
+                    $idField => $productId,
+                ]);
+
+                if ($product) {
+                    $productId = $product->getId();
+                }
+            }
+        }
 
         $cartId = $cart->getId();
         $customerId = $cart->getCustomer()->getId();
@@ -222,7 +242,10 @@ class AddProduct
 
         } else if ($productId) {
 
-            $product = $this->getEntityService()->find(EntityConstants::PRODUCT, $productId);
+            if ($idField == 'id' && !$product) {
+                $product = $this->getEntityService()->find(EntityConstants::PRODUCT, $productId);
+            }
+
             if (!$product) {
                 throw new NotFoundHttpException("Product not found with ID: '{$simpleProductId}''");
             }

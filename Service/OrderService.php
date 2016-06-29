@@ -938,6 +938,7 @@ class OrderService
 
         $baseReferenceNbr = '100000000';
         $order->setReferenceNbr($baseReferenceNbr);
+        $order->setCreatedAt(new \DateTime('now'));
 
         // save order
         $this->getEntityService()->persist($order);
@@ -1076,6 +1077,8 @@ class OrderService
                     $orderShipment->setCost($currencyService->convert($shipment->getCost(), $currency, $baseCurrency));
                 }
 
+                $orderShipment->setCreatedAt(new \DateTime('now'));
+
                 $this->getEntityService()->persist($orderShipment);
             }
         }
@@ -1115,6 +1118,8 @@ class OrderService
             $orderPayment->setInvoice($this->getInvoice());
         }
 
+        $orderPayment->setCreatedAt(new \DateTime('now'));
+
         $this->getEntityService()->persist($orderPayment);
         $this->setPayment($orderPayment);
 
@@ -1151,6 +1156,10 @@ class OrderService
             ->setCurrency($order->getCurrency())
             ->setAmountDue($order->getTotal())
             ->setAmountPaid($amountPaid);
+
+        if (!$invoice->getId()) {
+            $invoice->setCreatedAt(new \DateTime('now'));
+        }
 
         $this->getEntityService()->persist($invoice);
 
