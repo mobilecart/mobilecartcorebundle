@@ -94,8 +94,11 @@ class AddDiscount
 
         $cartSession = $this->getCartSessionService()->collectShippingMethods();
         $cart = $cartSession->getCart();
+        $cartId = $cart->getId();
 
-        //
+        $cartEntity = $cartId
+            ? $this->getEntityService()->find(EntityConstants::CART, $cartId)
+            : $this->getEntityService()->getInstance(EntityConstants::CART);
 
         $discountEntity = $this->getEntityService()->findOneBy(EntityConstants::DISCOUNT, [
             'coupon_code' => $code,
@@ -129,6 +132,7 @@ class AddDiscount
                         $item->fromArray($data);
                         $item->setQty($qty);
                         $cart->addItem($item);
+                        $event->setProductId($product->getId());
 
                     } else {
 
@@ -159,6 +163,20 @@ class AddDiscount
                     }
                 }
             }
+        }
+
+        if ($isValid) {
+
+            $cart = $this->getCartSessionService()
+                ->setCart($cart)
+                ->collectShippingMethods()
+                ->collectTotals()
+                ->getCart();
+
+            // update db
+            $cartEntity->setJson($cart->toJson());
+            $this->getEntityService()->persist($cartEntity);
+            $event->setCartEntity($cartEntity);
         }
 
         $returnData['cart'] = $cart;
