@@ -140,6 +140,11 @@ class OrderService
     protected $payment;
 
     /**
+     * @var bool
+     */
+    protected $paymentSuccess = false;
+
+    /**
      * @var string
      */
     protected $paymentMethodCode;
@@ -423,6 +428,24 @@ class OrderService
     }
 
     /**
+     * @param $success
+     * @return $this
+     */
+    public function setPaymentSuccess($success)
+    {
+        $this->paymentSuccess = $success;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getPaymentSuccess()
+    {
+        return $this->paymentSuccess;
+    }
+
+    /**
      * @param $paymentInfo
      * @return $this
      */
@@ -614,10 +637,7 @@ class OrderService
             // create invoice
             $this->createUpdateInvoice();
 
-            if ($this->getEnableCreatePayment()
-                && $this->getPaymentMethodService()
-                && $this->getPaymentMethodService()->getIsCaptured()
-            ) {
+            if ($this->getPaymentSuccess()) {
 
                 $this->createOrderPayment();
 
@@ -689,7 +709,7 @@ class OrderService
 
         switch($paymentMethodService->getAction()) {
             case PaymentMethodServiceInterface::ACTION_AUTHORIZE:
-
+                throw new \Exception("Error with Payment Handler"); // todo : replace this with logic
                 break;
             case PaymentMethodServiceInterface::ACTION_CAPTURE:
 
@@ -824,15 +844,17 @@ class OrderService
 
                 break;
             case PaymentMethodServiceInterface::ACTION_AUTHORIZE_REDIRECT:
-
+                throw new \Exception("Error with Payment Handler"); // todo : replace this with logic
                 break;
             case PaymentMethodServiceInterface::ACTION_PURCHASE_CALLBACK:
-
+                throw new \Exception("Error with Payment Handler"); // todo : replace this with logic
                 break;
             default:
-
+                throw new \Exception("Error with Payment Configuration");
                 break;
         }
+
+        $this->setPaymentSuccess(1);
 
         return $this;
     }

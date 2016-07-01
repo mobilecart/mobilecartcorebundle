@@ -630,6 +630,9 @@
         <!-- Event Listener: return view data for checkout -->
         <service id="cart.listener.checkout.view.return" lazy="true" class="%cart.listener.checkout.view.return.class%">
             <tag name="kernel.event_listener" event="checkout.view.return" method="onCheckoutViewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme" />
             </call>
