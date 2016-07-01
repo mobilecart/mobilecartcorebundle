@@ -125,6 +125,7 @@ class AddProduct
             }
         }
 
+        $event->setProductId($productId);
         $cartId = $cart->getId();
         $customerId = $cart->getCustomer()->getId();
         $customerEntity = false;
