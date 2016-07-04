@@ -143,8 +143,6 @@ class Login implements AuthenticationSuccessHandlerInterface
 
         $this->getEntityService()->persist($user);
 
-        // todo: observe event, for subscriptions, etc
-
         $event->setUser($user);
 
         $this->getEventDispatcher()
