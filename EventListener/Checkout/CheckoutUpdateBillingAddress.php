@@ -113,6 +113,19 @@ class CheckoutUpdateBillingAddress
                 ? $this->getEntityService()->find(EntityConstants::CUSTOMER, $cartCustomer->getId())
                 : $this->getEntityService()->getInstance(EntityConstants::CUSTOMER);
 
+            // allow the order to connect to the customer account
+            //  but don't allow the password to update
+            if (!$cartCustomer->getId() && isset($requestData['email'])) {
+
+                $aEntity = $this->getEntityService()->findOneBy(EntityConstants::CUSTOMER, [
+                    'email' => $requestData['email'],
+                ]);
+
+                if ($aEntity) {
+                    $customerEntity = $aEntity;
+                }
+            }
+
             //update customer data in cart session
             $customerData = [];
             $formData = $form->getData();
@@ -120,49 +133,59 @@ class CheckoutUpdateBillingAddress
 
                 // extra precaution
                 // potential security hole : guest checkout and updating data on existing user
-                if (in_array($childKey, ['id'])) {
+                if (in_array($childKey, [
+                    'id',
+                    'hash',
+                    'confirm_hash',
+                    'item_var_set_id',
+                    'failed_logins',
+                    'locked_at',
+                    'last_login_at',
+                    'api_key',
+                    'is_enabled',
+                    'is_expired',
+                    'is_locked',
+                    'password_updated_at',
+                    'is_password_expired',
+                ])) {
                     continue;
                 }
 
-                if (!$customerEntity->getId()) {
-
-                    $value = null;
-                    switch($childKey) {
-                        case 'password':
+                $value = null;
+                switch($childKey) {
+                    case 'password':
+                        if (!$customerEntity->getId()) {
                             $encoder = $this->getSecurityPasswordEncoder();
                             $encoded = $encoder->encodePassword($customerEntity, $formData->get($childKey));
                             $customerEntity->setHash($encoded);
                             $customerData['hash'] = $encoded;
-                            break;
-                        case 'billing_name':
-                            $value = $formData->get($childKey);
-                            $parts = explode(' ', $value);
-                            $count = count($parts);
-                            $firstName = $parts[0];
-                            $lastName = '';
-                            if ($count == 2) {
-                                $lastName = $parts[1];
-                            } elseif ($count > 2) {
-                                unset($parts[0]);
-                                $lastName = implode(' ', $parts);
-                            }
-                            $customerData['first_name'] = $firstName;
-                            $customerData['last_name'] = $lastName;
-                            break;
-                        default:
-                            $value = $formData->get($childKey);
-                            break;
-                    }
-
-                    if (is_null($value)) {
-                        continue;
-                    }
-
-                    $customerData[$childKey] = $value;
+                        }
+                        break;
+                    case 'billing_name':
+                        $value = $formData->get($childKey);
+                        $parts = explode(' ', $value);
+                        $count = count($parts);
+                        $firstName = $parts[0];
+                        $lastName = '';
+                        if ($count == 2) {
+                            $lastName = $parts[1];
+                        } elseif ($count > 2) {
+                            unset($parts[0]);
+                            $lastName = implode(' ', $parts);
+                        }
+                        $customerData['first_name'] = $firstName;
+                        $customerData['last_name'] = $lastName;
+                        break;
+                    default:
+                        $value = $formData->get($childKey);
+                        break;
                 }
 
-                // todo : determine if customer is logged in, and update customer data
+                if (is_null($value)) {
+                    continue;
+                }
 
+                $customerData[$childKey] = $value;
                 $cartCustomer->set($childKey, $formData->get($childKey));
             }
 

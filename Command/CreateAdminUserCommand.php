@@ -48,6 +48,7 @@ EOF
         $email = $input->getArgument('email');
         $password = $input->getArgument('password');
 
+        $action = 'Created';
         $entityService = $this->getContainer()->get('cart.entity');
         $adminUser = $entityService->findOneBy(EntityConstants::ADMIN_USER, [
             'email' => $email,
@@ -55,6 +56,8 @@ EOF
 
         if (!$adminUser) {
             $adminUser = $entityService->getInstance(EntityConstants::ADMIN_USER);
+        } else {
+            $action = 'Updated';
         }
 
         $encoder = $this->getContainer()->get('security.password_encoder');
@@ -62,11 +65,15 @@ EOF
 
         $adminUser->setEmail($email)
             ->setHash($encoded)
-            ->setIsEnabled(1);
+            ->setIsEnabled(1)
+            ->setFailedLogins(0)
+            ->setLockedAt(null)
+            ->setIsLocked(0)
+        ;
 
         $entityService->persist($adminUser);
 
-        $message = "Created AdminUser ({$adminUser->getId()}): {$email} / {$password} : {$encoded}";
+        $message = "{$action} AdminUser ({$adminUser->getId()}): {$email} / {$password} : {$encoded}";
         $output->writeln($message);
     }
 
