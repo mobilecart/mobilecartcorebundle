@@ -117,10 +117,10 @@ class FrontendExtension extends \Twig_Extension
      */
     public function getFilters()
     {
-        return array(
-            'var_dump' => new \Twig_Filter_Function('var_dump'),
-            'md5' => new \Twig_Filter_Function('md5'),
-        );
+        return [
+//            'var_dump' => new \Twig_Filter_Function('var_dump'),
+//            'md5' => new \Twig_Filter_Function('md5'),
+        ];
     }
 
     /**
