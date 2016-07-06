@@ -18,6 +18,7 @@ final class CoreEvents
 
     const LOGIN_SUCCESS = 'login.success';
     const LOGIN_LOCKED = 'login.locked';
+    const LOGOUT_SUCCESS = 'logout.success';
 
     const CART_ADD_PRODUCT = 'cart.add.product';
     const CART_ADD_SHIPMENT = 'cart.add.shipment';

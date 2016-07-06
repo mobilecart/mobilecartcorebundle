@@ -352,6 +352,9 @@
             <call method="setCartSessionService">
                 <argument type="service" id="cart.session" />
             </call>
+            <call method="setEventDispatcher">
+                <argument type="service" id="event_dispatcher" />
+            </call>
         </service>
 
         <!-- Guard Auth Service -->

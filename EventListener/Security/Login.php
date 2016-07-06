@@ -108,9 +108,12 @@ class Login implements AuthenticationSuccessHandlerInterface
         $class = get_class($user);
 
         $event = new CoreEvent();
+        $event->setUser($user);
 
         if ($class === $this->getEntityService()->getRepository(EntityConstants::CUSTOMER)->getClassName()) {
+
             $user = $this->getEntityService()->find(EntityConstants::CUSTOMER, $token->getUser()->getId());
+
             $this->getCartSessionService()
                 ->setCustomerEntity($user);
 
@@ -143,13 +146,14 @@ class Login implements AuthenticationSuccessHandlerInterface
 
         $this->getEntityService()->persist($user);
 
-        $event->setUser($user);
+        $event->setUser($user)
+            ->setReturnData($user->getData());
 
         $this->getEventDispatcher()
             ->dispatch(CoreEvents::LOGIN_SUCCESS, $event);
 
         if ($request->get('format', '') == 'json') {
-            return new JsonResponse(array_merge(['success' => 1], $token->getUser()->getData()));
+            return new JsonResponse(array_merge(['success' => 1], $event->getReturnData()));
         }
 
         return $this->httpUtils->createRedirectResponse($request, $this->determineTargetUrl($request));
