@@ -117,17 +117,21 @@ class Login implements AuthenticationSuccessHandlerInterface
             $this->getCartSessionService()
                 ->setCustomerEntity($user);
 
-            $currentCart = $this->getEntityService()->findOneBy(EntityConstants::CART, [
-                'customer' => $user->getId(),
-            ]);
+            $aCart = $this->getCartSessionService()->getCart();
+            if (!$aCart->hasItems()) {
 
-            if ($currentCart) {
+                $currentCart = $this->getEntityService()->findOneBy(EntityConstants::CART, [
+                    'customer' => $user->getId(),
+                ]);
 
-                $aCart = new Cart();
-                $aCart->importJson($currentCart->getJson());
+                if ($currentCart) {
 
-                $this->getCartSessionService()
-                    ->setCart($aCart);
+                    $aCart = new Cart();
+                    $aCart->importJson($currentCart->getJson());
+
+                    $this->getCartSessionService()
+                        ->setCart($aCart);
+                }
             }
 
             $this->getCartSessionService()

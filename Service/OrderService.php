@@ -80,6 +80,11 @@ class OrderService
     protected $order;
 
     /**
+     * @var CustomerToken
+     */
+    protected $customerToken;
+
+    /**
      * @var bool
      */
     protected $enableEnableCreatePayment = false;
@@ -317,6 +322,24 @@ class OrderService
     public function getOrder()
     {
         return $this->order;
+    }
+
+    /**
+     * @param $customerToken
+     * @return $this
+     */
+    public function setCustomerToken($customerToken)
+    {
+        $this->customerToken = $customerToken;
+        return $this;
+    }
+
+    /**
+     * @return CustomerToken
+     */
+    public function getCustomerToken()
+    {
+        return $this->customerToken;
     }
 
     /**
@@ -650,6 +673,7 @@ class OrderService
         $event->addData($this->getEventData())
             ->setCart($this->getCart())
             ->setOrder($this->getOrder())
+            ->setCustomerToken($this->getCustomerToken())
             ->setPayment($this->getPayment())
             ->setInvoice($this->getInvoice())
             ;
@@ -768,6 +792,8 @@ class OrderService
                     }
                 }
 
+                $this->setCustomerToken($customerToken);
+
                 $paymentMethodService->setPaymentCustomerToken($customerToken);
 
                 $isPurchasedStoredToken = $paymentMethodService->purchaseStoredToken()
@@ -803,6 +829,8 @@ class OrderService
                 if (!$customerToken) {
                     throw new \Exception("Stored Token Payment Failed");
                 }
+
+                $this->setCustomerToken($customerToken);
 
                 $paymentMethodService->setPaymentCustomerToken($customerToken);
 
@@ -848,6 +876,8 @@ class OrderService
                         $this->getEntityService()->persist($customerToken);
                     }
                 }
+
+                $this->setCustomerToken($customerToken);
 
                 $paymentMethodService->setPaymentCustomerToken($customerToken);
 

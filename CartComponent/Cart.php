@@ -269,6 +269,12 @@ class Cart extends ArrayWrapper
                     ? get_object_vars($itemObj)
                     : (array) $itemObj;
 
+                foreach($itemData as $k => $v) {
+                    if (is_object($v)) {
+                        $itemData[$k] = new ArrayWrapper(get_object_vars($v));
+                    }
+                }
+
                 $item = new Item();
                 $item->fromArray($itemData);
                 $this->addItem($item);
