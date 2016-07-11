@@ -128,6 +128,9 @@ class Login implements AuthenticationSuccessHandlerInterface
 
                     $aCart = new Cart();
                     $aCart->importJson($currentCart->getJson());
+                    $aCart->getCustomer()
+                        ->setEmail($user->getEmail())
+                        ->setId($user->getId());
 
                     $this->getCartSessionService()
                         ->setCart($aCart);

@@ -143,7 +143,9 @@ class CheckoutViewReturn
             return;
         }
 
+        $email = $cart->getCustomer()->getEmail();
         $returnData['cart'] = $cart;
+        $returnData['email'] = $email;
 
         $returnData['country_regions'] = $this->getCartSession()
             ->getCountryRegions();
