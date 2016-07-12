@@ -148,8 +148,11 @@ class Login implements AuthenticationSuccessHandlerInterface
         }
 
         $user->setFailedLogins(0)
-            ->setLastLoginAt(new \DateTime('now'))
-            ->setApiKey(sha1(microtime()));
+            ->setLastLoginAt(new \DateTime('now'));
+
+        if (!$user->getApiKey()) {
+            $user->setApiKey(sha1(microtime()));
+        }
 
         $this->getEntityService()->persist($user);
 
