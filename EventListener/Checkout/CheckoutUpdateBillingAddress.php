@@ -185,8 +185,20 @@ class CheckoutUpdateBillingAddress
                     continue;
                 }
 
-                $customerData[$childKey] = $value;
-                $cartCustomer->set($childKey, $formData->get($childKey));
+                if ($customerEntity->getId()) {
+                    switch($childKey) {
+                        case 'email':
+                            // no-op
+                            break;
+                        default:
+                            $cartCustomer->set($childKey, $value);
+                            $customerData[$childKey] = $value;
+                            break;
+                    }
+                } else {
+                    $cartCustomer->set($childKey, $formData->get($childKey));
+                    $customerData[$childKey] = $value;
+                }
             }
 
             if (!$customerEntity->getId()) {
