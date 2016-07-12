@@ -79,7 +79,9 @@ abstract class AbstractEntityService implements UserProviderInterface
     {
         return in_array($class, [
             $this->getRepository(EntityConstants::CUSTOMER)->getClassName(),
-            $this->getRepository(EntityConstants::ADMIN_USER)->getClassName()
+            $this->getRepository(EntityConstants::ADMIN_USER)->getClassName(),
+            'Proxies\\__CG__\\' . $this->getRepository(EntityConstants::CUSTOMER)->getClassName(),
+            'Proxies\\__CG__\\' . $this->getRepository(EntityConstants::ADMIN_USER)->getClassName(),
         ]);
     }
 
