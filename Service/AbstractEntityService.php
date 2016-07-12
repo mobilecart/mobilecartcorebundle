@@ -66,9 +66,11 @@ abstract class AbstractEntityService implements UserProviderInterface
 
         if ($class === $this->getRepository(EntityConstants::CUSTOMER)->getClassName()) {
             return $this->find(EntityConstants::CUSTOMER, $user->getId());
+        } else if ($class === $this->getRepository(EntityConstants::ADMIN_USER)->getClassName()) {
+            return $this->find(EntityConstants::ADMIN_USER, $user->getId());
         }
 
-        return $this->find(EntityConstants::ADMIN_USER, $user->getId());
+        return null;
     }
 
     /**
