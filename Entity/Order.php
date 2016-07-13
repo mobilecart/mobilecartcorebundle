@@ -58,7 +58,7 @@ class Order
     /**
      * @var string $billing_street
      *
-     * @ORM\Column(name="billing_street", type="string", length=255)
+     * @ORM\Column(name="billing_street", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"billing_address"})
      */
     private $billing_street;
@@ -66,7 +66,7 @@ class Order
     /**
      * @var string $billing_city
      *
-     * @ORM\Column(name="billing_city", type="string", length=255)
+     * @ORM\Column(name="billing_city", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"billing_address"})
      */
     private $billing_city;
@@ -74,7 +74,7 @@ class Order
     /**
      * @var string $billing_region
      *
-     * @ORM\Column(name="billing_region", type="string", length=255)
+     * @ORM\Column(name="billing_region", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"billing_address"})
      */
     private $billing_region;
