@@ -142,7 +142,7 @@ class Login implements AuthenticationSuccessHandlerInterface
                 ->collectTotals();
 
             $event->setIsCustomer(1);
-        } else {
+        } else if ($class === $this->getEntityService()->getRepository(EntityConstants::ADMIN_USER)->getClassName()) {
             $user = $this->getEntityService()->find(EntityConstants::ADMIN_USER, $token->getUser()->getId());
             $event->setIsAdmin(1);
         }

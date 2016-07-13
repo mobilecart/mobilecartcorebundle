@@ -24,6 +24,8 @@ class GuardTokenAuthService extends AbstractGuardAuthenticator
 {
     protected $entityService;
 
+    protected $allowAdminLogin = false;
+
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
@@ -33,6 +35,17 @@ class GuardTokenAuthService extends AbstractGuardAuthenticator
     public function getEntityService()
     {
         return $this->entityService;
+    }
+
+    public function setAllowAdminLogin($isAllowed)
+    {
+        $this->allowAdminLogin = $isAllowed;
+        return $this;
+    }
+
+    public function getAllowAdminLogin()
+    {
+        return $this->allowAdminLogin;
     }
 
     /**
@@ -67,6 +80,10 @@ class GuardTokenAuthService extends AbstractGuardAuthenticator
             return $customer;
         }
 
+        if (!$this->getAllowAdminLogin()) {
+            return null;
+        }
+
         return $this->getEntityService()->findOneBy(EntityConstants::ADMIN_USER, [
             'api_key' => $apiKey,
         ]);
@@ -90,8 +107,8 @@ class GuardTokenAuthService extends AbstractGuardAuthenticator
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
         $data = array(
-            'message' => strtr($exception->getMessageKey(), $exception->getMessageData())
-
+            'message' => strtr($exception->getMessageKey(), $exception->getMessageData()),
+            'success' => 0,
             // or to translate this message
             // $this->translator->trans($exception->getMessageKey(), $exception->getMessageData())
         );
@@ -106,7 +123,8 @@ class GuardTokenAuthService extends AbstractGuardAuthenticator
     {
         $data = [
             // you might translate this message
-            'message' => 'Authentication Required'
+            'message' => 'Authentication Required',
+            'success' => 0,
         ];
 
         return new JsonResponse($data, 401);

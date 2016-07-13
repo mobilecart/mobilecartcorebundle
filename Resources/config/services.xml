@@ -20,6 +20,7 @@
         <parameter key="cart.search.frontend">cart.search.doctrine</parameter>
         <parameter key="cart.upload.temp">/tmp</parameter>
         <parameter key="cart.auth.token.class">MobileCart\CoreBundle\Service\GuardTokenAuthService</parameter>
+        <parameter key="cart.auth.token.allow.admin">0</parameter>
         <parameter key="cart.search.doctrine.class">MobileCart\CoreBundle\Service\DoctrineSearchServiceV2</parameter>
         <parameter key="cart.currency.class">MobileCart\CoreBundle\Service\CurrencyService</parameter>
         <parameter key="cart.entity.class">MobileCart\CoreBundle\Service\DoctrineEntityService</parameter>
@@ -361,6 +362,9 @@
         <service id="cart.auth.token" class="%cart.auth.token.class%">
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setAllowAdminLogin">
+                <argument type="string">%cart.auth.token.allow.admin%</argument>
             </call>
         </service>
 
