@@ -105,7 +105,7 @@ class Order
     /**
      * @var string $shipping_name
      *
-     * @ORM\Column(name="shipping_name", type="string", length=255)
+     * @ORM\Column(name="shipping_name", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"shipping_address"})
      */
     private $shipping_name;
@@ -120,7 +120,7 @@ class Order
     /**
      * @var string $shipping_street
      *
-     * @ORM\Column(name="shipping_street", type="string", length=255)
+     * @ORM\Column(name="shipping_street", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"shipping_address"})
      */
     private $shipping_street;
@@ -128,7 +128,7 @@ class Order
     /**
      * @var string $shipping_city
      *
-     * @ORM\Column(name="shipping_city", type="string", length=255)
+     * @ORM\Column(name="shipping_city", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"shipping_address"})
      */
     private $shipping_city;
@@ -136,7 +136,7 @@ class Order
     /**
      * @var string $shipping_region
      *
-     * @ORM\Column(name="shipping_region", type="string", length=255)
+     * @ORM\Column(name="shipping_region", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"shipping_address"})
      */
     private $shipping_region;
@@ -144,7 +144,7 @@ class Order
     /**
      * @var string $shipping_postcode
      *
-     * @ORM\Column(name="shipping_postcode", type="string", length=32)
+     * @ORM\Column(name="shipping_postcode", type="string", length=32, nullable=true)
      * @Assert\NotBlank(groups={"shipping_address"})
      */
     private $shipping_postcode;
@@ -152,7 +152,7 @@ class Order
     /**
      * @var string $shipping_country_id
      *
-     * @ORM\Column(name="shipping_country_id", type="string", length=2)
+     * @ORM\Column(name="shipping_country_id", type="string", length=2, nullable=true)
      * @Assert\NotBlank(groups={"shipping_address"})
      */
     private $shipping_country_id;
