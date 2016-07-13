@@ -109,6 +109,7 @@ class FrontendExtension extends \Twig_Extension
             'cartShipments' => new \Twig_Function_Method($this, 'cartShipments', array('is_safe' => array('html'))),
             'cartShipment' => new \Twig_Function_Method($this, 'cartShipment', array('is_safe' => array('html'))),
             'categoryTree' => new \Twig_Function_Method($this, 'categoryTree', array('is_safe' => array('html'))),
+            'customerName' => new \Twig_Function_Method($this, 'customerName', array('is_safe' => array('html'))),
         ];
     }
 
@@ -869,5 +870,23 @@ class FrontendExtension extends \Twig_Extension
             ->getItems();
     }
 
+    /**
+     * @return string
+     */
+    public function customerName()
+    {
+        $cart = $this->getCartSessionService()
+            ->initCart()
+            ->getCart();
 
+        $customer = $cart->getCustomer();
+
+        if ($customer->getFirstName()) {
+            return $customer->getFirstName();
+        } else if ($customer->getEmail()) {
+            return $customer->getEmail();
+        }
+
+        return 'Guest';
+    }
 }
