@@ -169,10 +169,13 @@ class LoginFailed implements AuthenticationFailureHandlerInterface
         if ($request->get('format', '') == 'json') {
 
             // user account might be locked, but don't tell them that
+            $message = $event->getMessage()
+                ? $event->getMessage()
+                : 'login.failed';
 
             return new JsonResponse([
                 'success' => 0,
-                'message' => 'login.failed',
+                'message' => $message,
             ]);
         }
 
