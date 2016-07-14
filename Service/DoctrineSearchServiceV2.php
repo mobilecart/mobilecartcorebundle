@@ -332,10 +332,14 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
                         $advFilterParams[] = $value;
                         $whereConditions[] = "main.{$field} != ?";
                         break;
-                    case 'null':
-                        $advFilterParams[] = $value;
-                        $whereConditions[] = "main.{$field} IS NULL";
-                        break;
+//                    case 'null':
+//                        $advFilterParams[] = 'NULL';
+//                        $whereConditions[] = "main.{$field} IS ?";
+//                        break;
+//                    case 'notnull':
+//                        $advFilterParams[] = $value;
+//                        $whereConditions[] = "main.{$field} IS NOT NULL";
+//                        break;
                     case 'gt':
                         $advFilterParams[] = $value;
                         $whereConditions[] = "main.{$field} > ?";
