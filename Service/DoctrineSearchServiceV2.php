@@ -285,8 +285,11 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
                                 $bindTypes[$x] = \PDO::PARAM_INT;
                                 break;
                             case 'number':
-                                // todo : make this better
-                                $bindTypes[$x] = \PDO::PARAM_INT;
+                                if ($op == 'in') {
+                                    $bindTypes[$x] = \PDO::PARAM_STR;
+                                } else {
+                                    $bindTypes[$x] = \PDO::PARAM_INT;
+                                }
                                 break;
                             case 'string':
                                 $bindTypes[$x] = \PDO::PARAM_STR;
@@ -360,8 +363,10 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
                         if (is_array($value)) {
                             $value = implode(',', $value); // CSV
                         }
-                        $advFilterParams[] = '(' . $value . ')';
-                        $whereConditions[] = "main.{$field} in ?";
+                        //$advFilterParams[] = '(' . $value . ')';
+                        //$whereConditions[] = "main.{$field} in ?";
+                        $advFilterParams[] = $value;
+                        $whereConditions[] = "main.{$field} in (?)";
                         break;
                     default:
 
