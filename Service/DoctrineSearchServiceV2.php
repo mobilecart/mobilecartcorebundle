@@ -328,6 +328,14 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
                         $advFilterParams[] = $value;
                         $whereConditions[] = "main.{$field} = ?";
                         break;
+                    case 'notequal':
+                        $advFilterParams[] = $value;
+                        $whereConditions[] = "main.{$field} != ?";
+                        break;
+                    case 'null':
+                        $advFilterParams[] = $value;
+                        $whereConditions[] = "main.{$field} IS NULL";
+                        break;
                     case 'gt':
                         $advFilterParams[] = $value;
                         $whereConditions[] = "main.{$field} > ?";
@@ -345,7 +353,9 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
                         $whereConditions[] = "main.{$field} <= ?";
                         break;
                     case 'in':
-                        // assumes value is CSV
+                        if (is_array($value)) {
+                            $value = implode(',', $value); // CSV
+                        }
                         $advFilterParams[] = '(' . $value . ')';
                         $whereConditions[] = "main.{$field} in ?";
                         break;
