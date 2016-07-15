@@ -38,6 +38,7 @@ class CustomerRepository
     {
         return [
             'id' => 'ID',
+            'email' => 'Email',
             'first_name' => 'First Name',
             'last_name' => 'Last Name',
             'created_at' => 'Created At',
@@ -51,6 +52,11 @@ class CustomerRepository
     public function getFilterableFields()
     {
         return [
+            [
+                'code'  => 'email',
+                'label' => 'Email',
+                'type'  => 'string',
+            ],
             [
                 'code'  => 'first_name',
                 'label' => 'First Name',
