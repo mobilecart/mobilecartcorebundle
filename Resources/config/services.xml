@@ -197,6 +197,7 @@
         <parameter key="cart.listener.customer.register.post.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerRegisterPostReturn</parameter>
         <parameter key="cart.listener.customer.profile.form.class">MobileCart\CoreBundle\EventListener\Customer\CustomerProfileForm</parameter>
         <parameter key="cart.listener.customer.profile.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerProfileReturn</parameter>
+        <parameter key="cart.listener.customer.profile.post.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerProfilePostReturn</parameter>
         <parameter key="cart.listener.customer.orders.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerOrdersReturn</parameter>
         <parameter key="cart.listener.customer.forgotpassword.form.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPasswordForm</parameter>
         <parameter key="cart.listener.customer.forgotpassword.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPassword</parameter>
@@ -1851,6 +1852,17 @@
             </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Return data after Customer Account/Profile data is posted -->
+        <service id="cart.listener.customer.profile.post.return" lazy="true" class="%cart.listener.customer.profile.post.return.class%">
+            <tag name="kernel.event_listener" event="customer.profile.post.return" method="onCustomerProfilePostReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
             </call>
         </service>
 

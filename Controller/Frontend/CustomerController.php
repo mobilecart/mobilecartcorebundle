@@ -350,14 +350,18 @@ class CustomerController extends Controller
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CUSTOMER_UPDATE, $event);
 
+            $nav = new CoreEvent();
+            $this->get('event_dispatcher')
+                ->dispatch(CoreEvents::CUSTOMER_NAVIGATION, $nav);
+
             $event = new CoreEvent();
             $event->setObjectType($this->objectType)
-                ->setReturnData(['form' => $form->createView()])
+                ->setReturnData(array_merge(['form' => $form->createView()], $nav->getReturnData()))
                 ->setEntity($entity)
                 ->setRequest($request);
 
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CUSTOMER_PROFILE_RETURN, $event);
+                ->dispatch(CoreEvents::CUSTOMER_PROFILE_POST_RETURN, $event);
 
             return $event->getResponse();
         }

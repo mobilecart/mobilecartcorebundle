@@ -115,6 +115,7 @@ final class CoreEvents
     const CUSTOMER_REGISTER_CONFIRM = 'customer.register.confirm';
     const CUSTOMER_REGISTER_CONFIRM_RETURN = 'customer.register.confirm.return';
     const CUSTOMER_PROFILE_RETURN = 'customer.profile.return';
+    const CUSTOMER_PROFILE_POST_RETURN = 'customer.profile.post.return';
     const CUSTOMER_PROFILE_FORM = 'customer.profile.form';
     const CUSTOMER_FORGOT_PASSWORD = 'customer.forgotpassword';
     const CUSTOMER_FORGOT_PASSWORD_FORM = 'customer.forgotpassword.form';
