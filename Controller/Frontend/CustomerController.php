@@ -352,6 +352,7 @@ class CustomerController extends Controller
 
             $event = new CoreEvent();
             $event->setObjectType($this->objectType)
+                ->setReturnData(['form' => $form->createView()])
                 ->setEntity($entity)
                 ->setRequest($request);
 
