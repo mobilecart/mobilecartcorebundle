@@ -1380,6 +1380,7 @@ abstract class AbstractSearchService
      */
     public function init($objectType)
     {
+        $this->setObjectType($objectType);
         $repo = $this->getEntityService()->getRepository($objectType);
         $this->filterable = $repo->getFilterableFields();
         $this->setIsEAV($repo->isEAV());
