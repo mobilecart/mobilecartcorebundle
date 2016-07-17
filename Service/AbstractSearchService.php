@@ -1375,6 +1375,20 @@ abstract class AbstractSearchService
     }
 
     /**
+     * @param $objectType
+     * @return $this
+     */
+    public function init($objectType)
+    {
+        $repo = $this->getEntityService()->getRepository($objectType);
+        $this->filterable = $repo->getFilterableFields();
+        $this->setIsEAV($repo->isEAV());
+        $this->searchField = $repo->getSearchField(); // handle array of fields
+        $this->searchMethod = $repo->getSearchMethod();
+        return $this;
+    }
+
+    /**
      * Parse Request , set paginator parameters
      *
      * @param Request $request
