@@ -29,6 +29,7 @@ class TestEmailCommand extends ContainerAwareCommand
             ->setName('cart:test:email')
             ->setDescription('Send Test Email')
             ->addArgument('email', InputArgument::REQUIRED, 'Email Address')
+            ->addArgument('sender', InputArgument::REQUIRED, 'Sender Email Address')
             ->setHelp(<<<EOF
 The <info>%command.name%</info> command creates a Customer:
 
@@ -43,6 +44,7 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $sender = $input->getArgument('sender');
         $email = $input->getArgument('email');
         $mailer = $this->getContainer()->get('mailer');
         $subject = 'Test Email';
@@ -50,12 +52,12 @@ EOF
 
         $message = \Swift_Message::newInstance()
             ->setSubject($subject)
-            //->setFrom('~')
+            ->setFrom($sender)
             ->setTo($email)
             ->setBody($body, 'text/html');
 
         $message = $mailer->send($message)
-            ? "Message sent to: {$email}"
+            ? "Message sent to: {$email} , from: {$sender}"
             : "Error sending email";
 
         $output->writeln($message);
