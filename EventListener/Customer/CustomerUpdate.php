@@ -71,6 +71,7 @@ class CustomerUpdate
             $encoder = $this->getSecurityPasswordEncoder();
             $encoded = $encoder->encodePassword($entity, $formData['password']['first']);
             $entity->setHash($encoded);
+            $event->setIsPasswordChanged(1);
         }
 
         $this->getEntityService()->persist($entity);
@@ -86,7 +87,7 @@ class CustomerUpdate
         if ($entity && $request->getSession()) {
             $request->getSession()->getFlashBag()->add(
                 'success',
-                'Customer Successfully Created!'
+                'Customer Successfully Updated!'
             );
         }
 

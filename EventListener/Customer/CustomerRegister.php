@@ -11,6 +11,8 @@ class CustomerRegister
 
     protected $mailer;
 
+    protected $fromEmail = '';
+
     protected $router;
 
     protected $passwordEncoder;
@@ -46,6 +48,17 @@ class CustomerRegister
     public function getMailer()
     {
         return $this->mailer;
+    }
+
+    public function setFromEmail($fromEmail)
+    {
+        $this->fromEmail = $fromEmail;
+        return $this;
+    }
+
+    public function getFromEmail()
+    {
+        return $this->fromEmail;
     }
 
     public function setRouter($router)
@@ -138,7 +151,7 @@ class CustomerRegister
 
             $message = \Swift_Message::newInstance()
                 ->setSubject('Account Registration')
-                //->setFrom('~')
+                ->setFrom($this->getFromEmail())
                 ->setTo($entity->getEmail())
                 ->setBody($body, 'text/html');
 
