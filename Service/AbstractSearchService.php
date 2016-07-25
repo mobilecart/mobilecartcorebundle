@@ -467,6 +467,35 @@ abstract class AbstractSearchService
 
     }
 
+    public function reset()
+    {
+        $this->objectType = '';
+        $this->request = null;
+        $this->executedFacetCounts = false;
+        $this->executedFilters = false;
+        $this->result = [];
+        $this->filterable = [];
+        $this->sortable = [];
+        $this->filters = [];
+        $this->advFilters = [];
+        $this->query = '';
+        $this->categoryId = null;
+        $this->fulltextIds = [];
+        $this->filteredIds = [];
+        $this->sortDir = '';
+        $this->sortBy = '';
+        $this->limit = 15;
+        $this->page = 1;
+        $this->facetCounts = [];
+        $this->vars = [];
+        $this->varDatatypes = [];
+        $this->joins = [];
+        $this->columns = [];
+        $this->groupBy = [];
+        $this->isEAV = false;
+        return $this;
+    }
+
     /**
      * @param $str
      * @return mixed

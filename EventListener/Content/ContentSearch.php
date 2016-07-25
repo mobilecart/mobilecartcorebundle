@@ -2,6 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Content;
 
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\Event\CoreEvent;
 
@@ -60,6 +61,7 @@ class ContentSearch
 
         $returnData['search'] = $search;
         $returnData['result'] = $search->search();
+        $search->getEntityService()->populateChildData(EntityConstants::CONTENT_SLOT, $returnData['result']['entities']);
 
         $event->setReturnData($returnData);
     }

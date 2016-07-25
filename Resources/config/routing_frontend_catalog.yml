@@ -22,3 +22,13 @@ cart_categories:
     path: /categories
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Category:index' }
     methods: [GET]
+
+cart_content_view:
+    path: '/content/{slug}'
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Content:view' }
+    methods: [GET]
+
+cart_contents:
+    path: /contents
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Content:index' }
+    methods: [GET]

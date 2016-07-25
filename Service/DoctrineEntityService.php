@@ -455,6 +455,11 @@ class DoctrineEntityService
         return $this;
     }
 
+    /**
+     * @param $objectType
+     * @param $values
+     * @return $this
+     */
     public function populateImages($objectType, &$values)
     {
         $entityIds = [];
@@ -493,6 +498,58 @@ class DoctrineEntityService
                         $values[$idx][$code] = [];
                     }
                     $values[$idx][$code][] = $dataValue;
+                }
+            }
+        }
+    }
+
+    /**
+     * @param $objectType
+     * @param $values
+     * @param $newIdx
+     * @param string $column
+     * @return $this
+     */
+    public function populateChildData($objectType, &$values, $newIdx = '', $column = 'parent_id')
+    {
+        $entityIds = [];
+        foreach($values as $data) {
+            if (!isset($data['id'])) {
+                continue;
+            }
+            $entityIds[] = $data['id'];
+        }
+
+        if (!$entityIds) {
+            return $this;
+        }
+
+        if (!$newIdx) {
+            $newIdx = $objectType . 's';
+        }
+
+        $table = $this->getTableName($objectType);
+        $em = $this->getDoctrine()->getManager();
+        $map = array_flip($entityIds);
+
+        if ($entityIds) {
+            $entityIdsStr = implode(',', $entityIds);
+            $sql = "select * from {$table} where {$column} in ({$entityIdsStr})";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
+            $dataValues = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            if ($dataValues) {
+                foreach($dataValues as $dataValue) {
+
+                    $entityId = $dataValue[$column];
+                    $idx = $map[$entityId];
+
+                    if (!isset($values[$idx][$newIdx])) {
+                        $values[$idx][$newIdx] = [];
+                    }
+                    $values[$idx][$newIdx][] = $dataValue;
                 }
             }
         }
