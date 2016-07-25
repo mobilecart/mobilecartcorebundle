@@ -482,10 +482,10 @@ abstract class AbstractSearchService
      * Set HTTP Request
      * This is required for creating Facet add/remove URLs
      *
-     * @param Request $request
+     * @param Request|ArrayWrapper $request
      * @return $this
      */
-    public function setRequest(Request $request)
+    public function setRequest($request)
     {
         $this->request = $request;
         return $this;
@@ -1144,6 +1144,18 @@ abstract class AbstractSearchService
 
     /**
      * @param $sortBy
+     * @param string $sortDir
+     * @return $this
+     */
+    public function setSort($sortBy, $sortDir = 'asc')
+    {
+        $this->sortBy = $sortBy;
+        $this->sortDir = $sortDir;
+        return $this;
+    }
+
+    /**
+     * @param $sortBy
      * @return $this
      */
     public function setSortBy($sortBy)
@@ -1734,6 +1746,11 @@ abstract class AbstractSearchService
      */
     protected function populateFacetLinks()
     {
+        if (!$this->getRequest()) {
+            $this->facetCounts = [];
+            return $this;
+        }
+
         // facets and counts are already retrieved
         $facetCounts = $this->getFacetCounts();
 
