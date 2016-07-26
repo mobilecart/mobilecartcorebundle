@@ -506,11 +506,12 @@ class DoctrineEntityService
     /**
      * @param $objectType
      * @param $values
-     * @param $newIdx
      * @param string $column
+     * @param string $addtl
+     * @param string $newIdx
      * @return $this
      */
-    public function populateChildData($objectType, &$values, $newIdx = '', $column = 'parent_id')
+    public function populateData($objectType, &$values, $column = 'parent_id', $addtl = '', $newIdx = '')
     {
         $entityIds = [];
         foreach($values as $data) {
@@ -535,6 +536,9 @@ class DoctrineEntityService
         if ($entityIds) {
             $entityIdsStr = implode(',', $entityIds);
             $sql = "select * from {$table} where {$column} in ({$entityIdsStr})";
+            if ($addtl) {
+                $sql .= " {$addtl}";
+            }
 
             $stmt = $em->getConnection()->prepare($sql);
             $stmt->execute();
