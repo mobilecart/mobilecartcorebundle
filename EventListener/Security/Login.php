@@ -114,6 +114,10 @@ class Login implements AuthenticationSuccessHandlerInterface
 
             $user = $this->getEntityService()->find(EntityConstants::CUSTOMER, $token->getUser()->getId());
 
+            if ($user->getDefaultLocale()) {
+                $this->getCartSessionService()->getSession()->set('_locale', $user->getDefaultLocale());
+            }
+
             $this->getCartSessionService()
                 ->setCustomerEntity($user);
 
