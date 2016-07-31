@@ -1186,6 +1186,11 @@ class OrderService
             $orderPayment->setInvoice($this->getInvoice());
         }
 
+        if ($this->getCustomerToken()) {
+            $orderPayment->setToken($this->getCustomerToken()->getToken());
+            $orderPayment->setServiceAccountId($this->getCustomerToken()->getServiceAccountId());
+        }
+
         $orderPayment->setCreatedAt(new \DateTime('now'));
 
         $this->getEntityService()->persist($orderPayment);

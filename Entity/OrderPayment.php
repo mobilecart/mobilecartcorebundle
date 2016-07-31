@@ -37,6 +37,20 @@ class OrderPayment
     private $code;
 
     /**
+     * @var string $service_account_id
+     *
+     * @ORM\Column(name="service_account_id", type="string", length=255, nullable=true)
+     */
+    private $service_account_id;
+
+    /**
+     * @var string $token
+     *
+     * @ORM\Column(name="token", type="string", length=255, nullable=true)
+     */
+    private $token;
+
+    /**
      * @var string $label
      *
      * @ORM\Column(name="label", type="string", length=255, nullable=true)
@@ -225,6 +239,8 @@ class OrderPayment
             'id' => $this->getId(),
             'created_at' => $this->getCreatedAt(),
             'code' => $this->getCode(),
+            'service_account_id' => $this->getServiceAccountId(),
+            'token' => $this->getToken(),
             'label' => $this->getLabel(),
             'amount' => $this->getAmount(),
             'currency' => $this->getCurrency(),
@@ -275,6 +291,42 @@ class OrderPayment
     public function getCode()
     {
         return $this->code;
+    }
+
+    /**
+     * @param $serviceAccountId
+     * @return $this
+     */
+    public function setServiceAccountId($serviceAccountId)
+    {
+        $this->service_account_id = $serviceAccountId;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getServiceAccountId()
+    {
+        return $this->service_account_id;
+    }
+
+    /**
+     * @param $token
+     * @return $this
+     */
+    public function setToken($token)
+    {
+        $this->token = $token;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getToken()
+    {
+        return $this->token;
     }
 
     /**
