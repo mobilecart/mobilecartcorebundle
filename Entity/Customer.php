@@ -33,6 +33,20 @@ class Customer
     private $created_at;
 
     /**
+     * @var string $default_locale
+     *
+     * @ORM\Column(name="default_locale", type="string", length=4, nullable=true)
+     */
+    private $default_locale;
+
+    /**
+     * @var string $default_currency
+     *
+     * @ORM\Column(name="default_currency", type="string", length=4, nullable=true)
+     */
+    private $default_currency;
+
+    /**
      * @var string $first_name
      *
      * @ORM\Column(name="first_name", type="string", length=255, nullable=true)
@@ -559,6 +573,8 @@ class Customer
     }
 
     /**
+     * Unserialize for Symfony session
+     *
      * @param string $str
      * @return $this|void
      */
@@ -584,6 +600,8 @@ class Customer
     {
         return [
             'id'                  => $this->getId(),
+            'default_locale'      => $this->getDefaultLocale(),
+            'default_currency'    => $this->getDefaultCurrency(),
             //'group'               => '', todo
             'email'               => $this->getEmail(),
             // 'hash'                => $this->getHash(),
@@ -719,6 +737,42 @@ class Customer
     public function getCreatedAt()
     {
         return $this->created_at;
+    }
+
+    /**
+     * @param $defaultLocale
+     * @return $this
+     */
+    public function setDefaultLocale($defaultLocale)
+    {
+        $this->default_locale = $defaultLocale;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultLocale()
+    {
+        return $this->default_locale;
+    }
+
+    /**
+     * @param $defaultCurrency
+     * @return $this
+     */
+    public function setDefaultCurrency($defaultCurrency)
+    {
+        $this->default_currency = $defaultCurrency;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultCurrency()
+    {
+        return $this->default_currency;
     }
 
     /**
