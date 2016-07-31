@@ -241,4 +241,7 @@ final class CoreEvents
     const URL_REWRITE_CREATE_RETURN = 'url_rewrite.create.return';
     const URL_REWRITE_UPDATE_RETURN = 'url_rewrite.update.return';
     const URL_REWRITE_ADMIN_FORM = 'url_rewrite.admin.form';
+
+    const WEBHOOK_LOG_INSERT = 'webhook_log.insert';
+    const WEBHOOK_LOG_UPDATE = 'webhook_log.update';
 }

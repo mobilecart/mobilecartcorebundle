@@ -102,6 +102,7 @@ class EntityConstants
     const SEARCH_TERM = 'search_term';
     const SHIPPING_METHOD = 'shipping_method';
     const URL_REWRITE = 'url_rewrite';
+    const WEBHOOK_LOG = 'webhook_log';
 
     // Url Rewrite actions
     const REWRITE_ACTION_LIST = 'list';

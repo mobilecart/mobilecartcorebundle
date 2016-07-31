@@ -103,6 +103,7 @@
         <parameter key="cart.repo.search_term">MobileCartCoreBundle:SearchTerm</parameter>
         <parameter key="cart.repo.shipping_method">MobileCartCoreBundle:ShippingMethod</parameter>
         <parameter key="cart.repo.url_rewrite">MobileCartCoreBundle:UrlRewrite</parameter>
+        <parameter key="cart.repo.webhook_log">MobileCartCoreBundle:WebhookLog</parameter>
         <parameter key="cart.listener.home.view.return.class">MobileCart\CoreBundle\EventListener\Home\ViewReturn</parameter>
         <parameter key="cart.listener.dashboard.notifications.class">MobileCart\CoreBundle\EventListener\Dashboard\DashboardNotifications</parameter>
         <parameter key="cart.listener.dashboard.view.return.class">MobileCart\CoreBundle\EventListener\Dashboard\DashboardViewReturn</parameter>
@@ -294,6 +295,7 @@
         <parameter key="cart.listener.url_rewrite.insert.class">MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteInsert</parameter>
         <parameter key="cart.listener.url_rewrite.delete.class">MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteDelete</parameter>
         <parameter key="cart.listener.url_rewrite.admin.form.class">MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteAdminForm</parameter>
+        <parameter key="cart.listener.webhook_log.insert.class">MobileCart\CoreBundle\EventListener\WebhookLog\WebhookLogInsert</parameter>
     </parameters>
 
     <services>
@@ -1146,6 +1148,10 @@
             <call method="addObjectRepository">
                 <argument>url_rewrite</argument>
                 <argument>%cart.repo.url_rewrite%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>webhook_log</argument>
+                <argument>%cart.repo.webhook_log%</argument>
             </call>
         </service>
 
@@ -2701,6 +2707,15 @@
                 <argument type="service" id="form.factory" />
             </call>
         </service>
+
+        <!-- Webhook Listeners -->
+        <service id="cart.listener.webhook_log.insert" lazy="true" class="%cart.listener.webhook_log.insert.class%">
+            <tag name="kernel.event_listener" event="webhook_log.insert" method="onWebhookLogInsert" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+
     </services>
     
 </container>

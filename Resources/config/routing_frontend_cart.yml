@@ -98,6 +98,10 @@ cart_currency:
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Currency:index' }
     methods:  [GET, POST]
 
+cart_webhook:
+    path: '/webhook'
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Webhook:index' }
+
 api_shipping_rates:
     path: /api/shipping/
     defaults: { _controller: 'MobileCartCoreBundle:REST\Shipping:rates' }
