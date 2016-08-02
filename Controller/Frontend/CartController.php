@@ -166,7 +166,7 @@ class CartController extends Controller
 
     /**
      * @Route("/cart/discount/add", name="cart_add_discount")
-     * @Method("POST")
+     * @Method({"POST","GET"})
      */
     public function addDiscountAction(Request $request)
     {

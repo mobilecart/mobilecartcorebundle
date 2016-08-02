@@ -16,7 +16,7 @@ cart_shipment_add:
 cart_add_discount:
     path:     /cart/discount/add
     defaults: { _controller: MobileCartCoreBundle:Frontend/Cart:addDiscount }
-    methods:  [POST]
+    methods:  [GET, POST]
 
 cart_update_qtys:
     path: /cart/update-qtys
