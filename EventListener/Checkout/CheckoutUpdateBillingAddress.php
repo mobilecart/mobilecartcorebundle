@@ -18,6 +18,8 @@ class CheckoutUpdateBillingAddress
 
     protected $entityService;
 
+    protected $router;
+
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
@@ -78,6 +80,17 @@ class CheckoutUpdateBillingAddress
     public function getSecurityPasswordEncoder()
     {
         return $this->passwordEncoder;
+    }
+
+    public function setRouter($router)
+    {
+        $this->router = $router;
+        return $this;
+    }
+
+    public function getRouter()
+    {
+        return $this->router;
     }
 
     public function onCheckoutUpdateBillingAddress(Event $event)
@@ -249,6 +262,15 @@ class CheckoutUpdateBillingAddress
         $returnData['success'] = $isValid;
         $returnData['messages'] = $messages;
         $returnData['invalid'] = $invalid;
+
+        $cartService = $this->getCheckoutSessionService()->getCartSessionService()->getCartService();
+        if ($isValid && !$cartService->getIsSpaEnabled()) {
+            if ($cartService->getShippingService()->getIsShippingEnabled()) {
+                $returnData['redirect_url'] = $this->getRouter()->generate('cart_checkout_shipping_address', []);
+            } else {
+                $returnData['redirect_url'] = $this->getRouter()->generate('cart_checkout_totals_discounts', []);
+            }
+        }
 
         $response = new JsonResponse($returnData);
 

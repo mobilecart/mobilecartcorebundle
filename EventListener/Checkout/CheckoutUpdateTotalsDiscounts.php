@@ -14,6 +14,8 @@ class CheckoutUpdateTotalsDiscounts
 
     protected $event;
 
+    protected $router;
+
     public function setCheckoutSessionService($checkoutSessionService)
     {
         $this->checkoutSessionService = $checkoutSessionService;
@@ -43,6 +45,17 @@ class CheckoutUpdateTotalsDiscounts
             : [];
     }
 
+    public function setRouter($router)
+    {
+        $this->router = $router;
+        return $this;
+    }
+
+    public function getRouter()
+    {
+        return $this->router;
+    }
+
     public function onCheckoutUpdateTotalsDiscounts(Event $event)
     {
         $this->setEvent($event);
@@ -61,6 +74,11 @@ class CheckoutUpdateTotalsDiscounts
         $returnData['success'] = $isValid;
         $returnData['messages'] = [];
         $returnData['invalid'] = [];
+
+        $cartService = $this->getCheckoutSessionService()->getCartSessionService()->getCartService();
+        if ($isValid && !$cartService->getIsSpaEnabled()) {
+            $returnData['redirect_url'] = $this->getRouter()->generate('cart_checkout_payment', []);
+        }
 
         $this->getCheckoutSessionService()->setIsValidTotals($isValid);
 

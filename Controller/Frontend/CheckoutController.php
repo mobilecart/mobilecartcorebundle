@@ -44,36 +44,88 @@ class CheckoutController extends Controller
         }
 
         $event = new CoreEvent();
-        $event->setRequest($request)
-            ->setAction($this->generateUrl('cart_checkout_submit_order'))
-            ->setMethod('POST')
-            ->setUser($this->getUser());
 
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CHECKOUT_FORM, $event);
+        // is checkout multiple pages or a single page
+        if ($this->container->getParameter('cart.checkout.spa.enabled')) {
 
-        $form = $event->getForm();
-        
-        // cases:
-        //     anonymous / new customer:
-        //         save as new user needing activation, email customer
-        //         save new customer
-        //         add order to history
-        //     anonymous / existing non-activated customer:
-        //         force activation OR change email/info
-        //     anonymous / registered customer:
-        //         force login or registration
-        //     logged-in:
-        //         add order to customer history
+            $formEvent = new CoreEvent();
+            $formEvent->setRequest($request)
+                ->setAction($this->generateUrl('cart_checkout_submit_order'))
+                ->setMethod('POST')
+                ->setUser($this->getUser());
+
+            $this->get('event_dispatcher')
+                ->dispatch(CoreEvents::CHECKOUT_FORM, $formEvent);
+
+            $form = $formEvent->getForm();
+
+        } else {
+
+            // display billing address form if it's not single page app
+
+            $formEvent = new CoreEvent();
+            $formEvent->setRequest($request)
+                ->setAction($this->generateUrl('cart_checkout_update_billing_address'))
+                ->setMethod('POST')
+                ->setSingleStep(CheckoutConstants::STEP_BILLING_ADDRESS);
+
+            $this->get('event_dispatcher')
+                ->dispatch(CoreEvents::CHECKOUT_FORM, $formEvent);
+
+            $formType = $formEvent->getBillingAddressForm();
+            $form = $this->createForm($formType);
+
+            $event->setSingleStep(CheckoutConstants::STEP_BILLING_ADDRESS)
+                ->setStepNumber(1);
+        }
 
         $returnData = array_merge(
-            $event->getReturnData(), [
+            $formEvent->getReturnData(), [
+            'form' => $form->createView(),
+        ]);
+
+        $event->setRequest($request)
+            ->setReturnData($returnData);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CHECKOUT_VIEW_RETURN, $event);
+
+        return $event->getResponse();
+    }
+
+    /**
+     * @Route("/cart/checkout/shipping_address", name="cart_checkout_shipping_address")
+     * @Method("GET")
+     */
+    public function shippingAddressAction(Request $request)
+    {
+        $isSpaEnabled = $this->container->getParameter('cart.checkout.spa.enabled');
+        if ($isSpaEnabled) {
+            return $this->redirect($this->generateUrl('cart_checkout'));
+        }
+
+        $formEvent = new CoreEvent();
+        $formEvent->setRequest($request)
+            ->setAction($this->generateUrl('cart_checkout_update_shipping_address'))
+            ->setMethod('POST')
+            ->setSingleStep(CheckoutConstants::STEP_SHIPPING_ADDRESS);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CHECKOUT_FORM, $formEvent);
+
+        $formType = $formEvent->getShippingAddressForm();
+        $form = $this->createForm($formType);
+
+        $returnData = array_merge(
+            $formEvent->getReturnData(), [
             'form' => $form->createView(),
         ]);
 
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setReturnData($returnData);
+            ->setReturnData($returnData)
+            ->setSingleStep(CheckoutConstants::STEP_SHIPPING_ADDRESS)
+            ->setStepNumber(2);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_VIEW_RETURN, $event);
@@ -90,6 +142,11 @@ class CheckoutController extends Controller
         // check if login/registration is required
         $checkoutService = $this->get('cart.checkout.session');
         if (!$checkoutService->getAllowGuestCheckout() && !$this->getUser()) {
+
+            if (!$this->container->getParameter('cart.checkout.spa.enabled')) {
+                // todo : flash message
+                return $this->redirectToRoute('cart_checkout');
+            }
 
             return new JsonResponse([
                 'success' => 0,
@@ -134,6 +191,11 @@ class CheckoutController extends Controller
         // check if login/registration is required
         $checkoutService = $this->get('cart.checkout.session');
         if (!$checkoutService->getAllowGuestCheckout() && !$this->getUser()) {
+
+            if (!$this->container->getParameter('cart.checkout.spa.enabled')) {
+                // todo : flash message
+                return $this->redirectToRoute('cart_checkout');
+            }
 
             return new JsonResponse([
                 'success' => 0,
@@ -221,6 +283,16 @@ class CheckoutController extends Controller
         $event = new CoreEvent();
         $event->setRequest($request);
 
+        if (!$this->container->getParameter('cart.checkout.spa.enabled')) {
+
+            $stepNumber = $this->container->getParameter('cart.shipping.enabled')
+                ? 3
+                : 2;
+
+            $event->setSingleStep(CheckoutConstants::STEP_TOTALS_DISCOUNTS)
+                ->setStepNumber($stepNumber);
+        }
+
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_TOTALS_DISCOUNTS, $event);
 
@@ -238,6 +310,21 @@ class CheckoutController extends Controller
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_CONFIRM_ORDER, $event);
+
+        return $event->getResponse();
+    }
+
+    /**
+     * @Route("/cart/checkout/update/totals_discounts", name="cart_checkout_update_totals_discounts")
+     * @Method("POST")
+     */
+    public function updateTotalsDiscountsAction(Request $request)
+    {
+        $event = new CoreEvent();
+        $event->setRequest($request);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CHECKOUT_UPDATE_TOTALS_DISCOUNTS, $event);
 
         return $event->getResponse();
     }
@@ -277,6 +364,84 @@ class CheckoutController extends Controller
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_UPDATE_TOTALS_DISCOUNTS, $event);
+
+        return $event->getResponse();
+    }
+
+    /**
+     * @Route("/cart/checkout/payment", name="cart_checkout_payment")
+     * @Method("GET")
+     */
+    public function paymentMethodsAction(Request $request)
+    {
+        $isSpaEnabled = $this->container->getParameter('cart.checkout.spa.enabled');
+        if ($isSpaEnabled) {
+            return $this->redirect($this->generateUrl('cart_checkout'));
+        }
+
+        // check if login/registration is required
+        $checkoutService = $this->get('cart.checkout.session');
+        if (!$checkoutService->getAllowGuestCheckout() && !$this->getUser()) {
+
+            return new JsonResponse([
+                'success' => 0,
+                'errors' => [
+                    'Please login or register'
+                ]
+            ]);
+        }
+
+        // build Checkout form, but only want shipping address step
+        /*
+        $formEvent = new CoreEvent();
+        $formEvent->setRequest($request)
+            ->setAction($this->generateUrl('cart_checkout_submit_order'))
+            ->setMethod('POST')
+            ->setSingleStep(CheckoutConstants::STEP_PAYMENT_METHODS);
+
+        //*/
+
+        $formEvent = new CoreEvent();
+        $formEvent->setRequest($request)
+            ->setAction($this->generateUrl('cart_checkout_submit_order'))
+            ->setMethod('POST')
+            ->setUser($this->getUser());
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CHECKOUT_FORM, $formEvent);
+
+        $form = $formEvent->getForm();
+        $returnData = $formEvent->getReturnData();
+
+        $stepNumber = $this->container->getParameter('cart.shipping.enabled')
+            ? 4
+            : 3;
+
+        $returnData = array_merge(
+            $returnData,
+            $formEvent->getReturnData(), [
+                'form' => $form->createView(),
+        ]);
+
+        $returnData['step_number'] = $stepNumber;
+
+        $viewEvent = new CoreEvent();
+        $viewEvent->setRequest($request)
+            ->setReturnData($returnData);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CHECKOUT_VIEW_RETURN, $viewEvent);
+
+        $returnData = array_merge($viewEvent->getReturnData(), $returnData);
+        $returnData['section'] = CheckoutConstants::STEP_PAYMENT_METHODS;
+
+        $event = new CoreEvent();
+        $event->setRequest($request)
+            ->setReturnData($returnData)
+            ->setStepNumber($stepNumber);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CHECKOUT_PAYMENT_METHODS_VIEW_RETURN, $event);
 
         return $event->getResponse();
     }

@@ -13,6 +13,8 @@ class CheckoutUpdateShippingAddress
 
     protected $checkoutSessionService;
 
+    protected $router;
+
     public function setEvent($event)
     {
         $this->event = $event;
@@ -51,6 +53,17 @@ class CheckoutUpdateShippingAddress
     public function getCheckoutSessionService()
     {
         return $this->checkoutSessionService;
+    }
+
+    public function setRouter($router)
+    {
+        $this->router = $router;
+        return $this;
+    }
+
+    public function getRouter()
+    {
+        return $this->router;
     }
 
     public function onCheckoutUpdateShippingAddress(Event $event)
@@ -113,6 +126,11 @@ class CheckoutUpdateShippingAddress
         $returnData['success'] = $isValid;
         $returnData['messages'] = $messages;
         $returnData['invalid'] = $invalid;
+
+        $cartService = $this->getCheckoutSessionService()->getCartSessionService()->getCartService();
+        if ($isValid && !$cartService->getIsSpaEnabled()) {
+            $returnData['redirect_url'] = $this->getRouter()->generate('cart_checkout_totals_discounts', []);
+        }
 
         $response = new JsonResponse($returnData);
 

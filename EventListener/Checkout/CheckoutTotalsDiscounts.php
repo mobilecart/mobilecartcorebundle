@@ -89,6 +89,7 @@ class CheckoutTotalsDiscounts
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
+        $request = $event->getRequest();
 
         $returnData['cart'] = $this->getCartSession()
             ->collectShippingMethods()
@@ -98,6 +99,12 @@ class CheckoutTotalsDiscounts
         $returnData['is_shipping_enabled'] = $this->getCartSession()
             ->getShippingService()
             ->getIsShippingEnabled();
+
+        if (!$this->getCartSession()->getCartService()->getIsSpaEnabled() && !$request->get('reload', 0)) {
+            $this->setDefaultTemplate('Checkout:totals_discounts_full.html.twig');
+            $returnData['section'] = $event->getSingleStep();
+            $returnData['step_number'] = $event->getStepNumber();
+        }
 
         $response = $this->getThemeService()
             ->render($this->getLayout(), $this->getTemplate(), $returnData);

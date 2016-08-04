@@ -2,24 +2,21 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
-use Symfony\Component\EventDispatcher\Event;
-
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Payment\CollectPaymentMethodRequest;
 
-class CheckoutViewReturn
+class CheckoutPaymentMethodsViewReturn
 {
     protected $themeService;
 
-    protected $cartSession;
-
     protected $paymentService;
 
-    protected $entityService;
+    protected $cartSession;
 
     protected $layout = 'frontend';
 
-    protected $defaultTemplate = 'Checkout:index.html.twig';
+    protected $defaultTemplate = 'Checkout:payment_methods_full.html.twig';
 
     protected $event;
 
@@ -72,17 +69,6 @@ class CheckoutViewReturn
         return $this->themeService;
     }
 
-    public function setCartSession($cartSession)
-    {
-        $this->cartSession = $cartSession;
-        return $this;
-    }
-
-    public function getCartSession()
-    {
-        return $this->cartSession;
-    }
-
     public function setPaymentService($paymentService)
     {
         $this->paymentService = $paymentService;
@@ -94,15 +80,15 @@ class CheckoutViewReturn
         return $this->paymentService;
     }
 
-    public function setEntityService($entityService)
+    public function setCartSession($cartSession)
     {
-        $this->entityService = $entityService;
+        $this->cartSession = $cartSession;
         return $this;
     }
 
-    public function getEntityService()
+    public function getCartSession()
     {
-        return $this->entityService;
+        return $this->cartSession;
     }
 
     public function setLayout($layout)
@@ -127,50 +113,43 @@ class CheckoutViewReturn
         return $this->router;
     }
 
-    public function onCheckoutViewReturn(Event $event)
+    public function onCheckoutPaymentMethodsViewReturn(Event $event)
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
+        $request = $event->getRequest();
 
-        $cart = $this->getCartSession()
-            ->collectShippingMethods()
-            ->collectTotals()
-            ->getCart();
+        $returnData['section'] = $event->getSingleStep();
+        $returnData['step_number'] = $event->getStepNumber();
 
-        if (!$cart->hasItems()) {
-            $response = new RedirectResponse($this->getRouter()->generate('cart_view', []));
-            $event->setResponse($response);
-            return;
+        // payment method request
+        $methodRequest = $event->getCollectPaymentMethodRequest()
+            ? $event->getCollectPaymentMethodRequest()
+            : new CollectPaymentMethodRequest();
+
+        $paymentMethods = $this->getPaymentService()
+            ->collectPaymentMethods($methodRequest);
+
+        if ($paymentMethods) {
+            $methodCodes = [];
+
+            // paymentMethod is an ArrayWrapper : code, label, form
+            foreach($paymentMethods as $paymentMethod) {
+                $methodCodes[] = $paymentMethod->getCode();
+            }
+
+            $this->getCartSession()->setPaymentMethodCodes($methodCodes);
         }
 
-        $email = $cart->getCustomer()->getEmail();
-        $returnData['cart'] = $cart;
-        $returnData['email'] = $email;
-
-        $returnData['country_regions'] = $this->getCartSession()
-            ->getCountryRegions();
-
-        if ($this->getCartSession()->getCartService()->getIsSpaEnabled()) {
-
-            $returnData['is_shipping_enabled'] = $this->getCartSession()
-                ->getShippingService()
-                ->getIsShippingEnabled();
-
-            $returnData['totals_discounts_url'] = $this->getRouter()
-                ->generate('cart_checkout_totals_discounts', []);
-
-            $returnData['totals_discounts_section'] = CheckoutConstants::STEP_TOTALS_DISCOUNTS;
-
-        } else {
-
-            $returnData['section'] = $event->getSingleStep();
-            $returnData['step_number'] = $event->getStepNumber();
-            $this->defaultTemplate = 'Checkout:address.html.twig';
-        }
-
-        if (!isset($returnData['javascripts'])) {
-            $returnData['javascripts'] = [];
-        }
+        $returnData = array_merge($returnData,[
+            // this builds a form for each payment method
+            'order' => 50,
+            'label' => 'Payment',
+            'payment_methods' => $paymentMethods,
+            'post_url' => $this->getRouter()->generate('cart_checkout_update_payment', []),
+            'final_step' => 1,
+            'section' => CheckoutConstants::STEP_PAYMENT_METHODS,
+        ]);
 
         $response = $this->getThemeService()
             ->render($this->getLayout(), $this->getTemplate(), $returnData);

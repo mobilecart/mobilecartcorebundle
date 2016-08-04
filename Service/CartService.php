@@ -65,6 +65,13 @@ class CartService
     protected $allowGuestCheckout = false;
 
     /**
+     * Single page (1) or multi page form (0)
+     *
+     * @var int
+     */
+    protected $isSpaEnabled = 1;
+
+    /**
      * @param CartTotalService $cartTotalService
      * @return $this
      */
@@ -723,5 +730,23 @@ class CartService
     public function getAllowGuestCheckout()
     {
         return $this->allowGuestCheckout;
+    }
+
+    /**
+     * @param $isEnabled
+     * @return $this
+     */
+    public function setIsSpaEnabled($isEnabled)
+    {
+        $this->isSpaEnabled = $isEnabled;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getIsSpaEnabled()
+    {
+        return $this->isSpaEnabled;
     }
 }
