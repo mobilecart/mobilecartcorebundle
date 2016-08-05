@@ -90,7 +90,7 @@ class CustomerToken
 
     public function __toString()
     {
-        return $this->service . ' : ' . $this->token;
+        return $this->service . ' : ' . $this->service_account_id;
     }
 
     public function getObjectTypeName()
