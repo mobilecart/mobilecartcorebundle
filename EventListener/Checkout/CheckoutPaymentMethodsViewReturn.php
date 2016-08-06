@@ -5,6 +5,7 @@ namespace MobileCart\CoreBundle\EventListener\Checkout;
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
 use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\Payment\CollectPaymentMethodRequest;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class CheckoutPaymentMethodsViewReturn
 {
@@ -118,6 +119,17 @@ class CheckoutPaymentMethodsViewReturn
         $this->setEvent($event);
         $returnData = $this->getReturnData();
         $request = $event->getRequest();
+
+        $cart = $this->getCartSession()
+            ->collectShippingMethods()
+            ->collectTotals()
+            ->getCart();
+
+        if (!$cart->hasItems()) {
+            $response = new RedirectResponse($this->getRouter()->generate('cart_checkout', []));
+            $event->setResponse($response);
+            return;
+        }
 
         $returnData['section'] = $event->getSingleStep();
         $returnData['step_number'] = $event->getStepNumber();

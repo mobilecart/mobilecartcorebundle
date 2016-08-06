@@ -172,8 +172,9 @@ class CheckoutViewReturn
             $returnData['javascripts'] = [];
         }
 
-        $response = $this->getThemeService()
-            ->render($this->getLayout(), $this->getTemplate(), $returnData);
+        $response = $event->getDisableRender()
+            ? ''
+            : $this->getThemeService()->render($this->getLayout(), $this->getTemplate(), $returnData);
 
         $event->setResponse($response)
             ->setReturnData($returnData);

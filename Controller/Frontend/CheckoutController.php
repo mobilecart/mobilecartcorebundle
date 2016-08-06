@@ -375,7 +375,7 @@ class CheckoutController extends Controller
     public function paymentMethodsAction(Request $request)
     {
         $isSpaEnabled = $this->container->getParameter('cart.checkout.spa.enabled');
-        if ($isSpaEnabled) {
+        if (!$isSpaEnabled) {
             return $this->redirect($this->generateUrl('cart_checkout'));
         }
 
@@ -390,16 +390,6 @@ class CheckoutController extends Controller
                 ]
             ]);
         }
-
-        // build Checkout form, but only want shipping address step
-        /*
-        $formEvent = new CoreEvent();
-        $formEvent->setRequest($request)
-            ->setAction($this->generateUrl('cart_checkout_submit_order'))
-            ->setMethod('POST')
-            ->setSingleStep(CheckoutConstants::STEP_PAYMENT_METHODS);
-
-        //*/
 
         $formEvent = new CoreEvent();
         $formEvent->setRequest($request)
@@ -427,7 +417,8 @@ class CheckoutController extends Controller
 
         $viewEvent = new CoreEvent();
         $viewEvent->setRequest($request)
-            ->setReturnData($returnData);
+            ->setReturnData($returnData)
+            ->setDisableRender(1);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_VIEW_RETURN, $viewEvent);
