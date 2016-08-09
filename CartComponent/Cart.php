@@ -326,6 +326,18 @@ class Cart extends ArrayWrapper
             $this->setDiscountTaxableLast($discountTaxableLast);
         }
 
+        if ($cart) {
+            foreach($cart as $k => $v) {
+                if (in_array($k, ['id', 'customer', 'items', 'shipments', 'discounts', 'include_tax', 'tax_rate', 'discount_taxable_last'])) {
+                    continue;
+                }
+
+                if ($v instanceof \stdClass) {
+                    $cart[$k] = new ArrayWrapper(get_object_vars($v));
+                }
+            }
+        }
+
         return $this;
     }
 
