@@ -256,6 +256,12 @@ class Cart extends ArrayWrapper
                 ? get_object_vars($customerObj)
                 : (array) $customerObj;
 
+            foreach($customerData as $k => $v) {
+                if ($v instanceof \stdClass) {
+                    $customerData[$k] = new ArrayWrapper(get_object_vars($v));
+                }
+            }
+
             $customer = new Customer();
             $customer->fromArray($customerData);
             $this->setCustomer($customer);
