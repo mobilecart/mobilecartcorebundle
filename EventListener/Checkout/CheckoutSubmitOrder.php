@@ -155,6 +155,7 @@ class CheckoutSubmitOrder
 
             $this->getCheckoutSessionService()
                 ->getCartSessionService()
+                ->removeItems()
                 ->getSession()
                 ->set('order_id', $orderService->getOrder()->getId());
 

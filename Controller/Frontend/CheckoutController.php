@@ -375,7 +375,7 @@ class CheckoutController extends Controller
     public function paymentMethodsAction(Request $request)
     {
         $isSpaEnabled = $this->container->getParameter('cart.checkout.spa.enabled');
-        if ($isSpaEnabled) {
+        if ($isSpaEnabled || !$this->get('cart.session')->hasItems()) {
             return $this->redirect($this->generateUrl('cart_checkout'));
         }
 
