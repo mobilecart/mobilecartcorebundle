@@ -36,6 +36,7 @@
         <parameter key="cart.allowed.country.ids">US,GB</parameter>
         <parameter key="cart.session.class">MobileCart\CoreBundle\Service\CartSessionService</parameter>
         <parameter key="cart.total.class">MobileCart\CoreBundle\Service\CartTotalService</parameter>
+        <parameter key="cart.locale.class">MobileCart\CoreBundle\Service\LocaleService</parameter>
         <parameter key="cart.checkout.session.class">MobileCart\CoreBundle\Service\CheckoutSessionService</parameter>
         <parameter key="cart.discount.class">MobileCart\CoreBundle\Service\DiscountService</parameter>
         <parameter key="cart.geography.class">MobileCart\CoreBundle\Service\GeographyService</parameter>
@@ -387,6 +388,16 @@
                 <argument type="string">.</argument>
                 <argument type="string">,</argument>
                 <argument type="string">-1</argument>
+            </call>
+        </service>
+
+        <!-- Locale Service -->
+        <service id="cart.locale" lazy="true" class="%cart.locale.class%">
+            <call method="setDefaultLocale">
+                <argument type="string">%locale%</argument>
+            </call>
+            <call method="addLocale">
+                <argument type="string">%locale%</argument>
             </call>
         </service>
 

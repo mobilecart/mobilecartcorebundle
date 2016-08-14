@@ -113,6 +113,11 @@ cart_currency:
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Currency:index' }
     methods:  [GET, POST]
 
+cart_locale:
+    path: '/locale/{code}'
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Locale:index' }
+    methods:  [GET, POST]
+
 cart_webhook:
     path: '/webhook'
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Webhook:index' }
