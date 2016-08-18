@@ -43,6 +43,7 @@ class ContentRepository
             'page_title' => 'Page Title',
             'name' => 'Name',
             'slug' => 'Slug',
+            'is_public' => 'Is Public',
         ];
     }
 
@@ -81,6 +82,11 @@ class ContentRepository
                 'code'  => 'slug',
                 'label' => 'Slug',
                 'type'  => 'string',
+            ],
+            [
+                'code' => 'is_public',
+                'label' => 'Is Public',
+                'type' => 'boolean',
             ],
         ];
     }

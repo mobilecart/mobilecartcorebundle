@@ -95,7 +95,7 @@ class FrontendExtension extends \Twig_Extension
             'getPages' => new \Twig_Function_Method($this, 'getPages', array('is_safe' => array('html'))),
             'getRedirect' => new \Twig_Function_Method($this, 'getRedirect', array('is_safe' => array('html'))),
             //'facetLink' =>  new \Twig_Function_Method($this, 'getCart', array('is_safe' => array('html'))),
-            //'cart' => new \Twig_Function_Method($this, 'getCart', array('is_safe' => array('html'))),
+            'cart' => new \Twig_Function_Method($this, 'getCart', array('is_safe' => array('html'))),
             'renderGridField' => new \Twig_Function_Method($this, 'renderGridField', array('is_safe' => array('html'))),
             'renderGridBackUrl' => new \Twig_Function_Method($this, 'renderGridBackUrl', array('is_safe' => array('html'))),
             //'categoryList' => new \Twig_Function_Method($this, 'getCategories', array('is_safe' => array('html'))),
@@ -744,6 +744,16 @@ class FrontendExtension extends \Twig_Extension
                 '<span aria-hidden="true">&raquo;</span></button>';
 
         return $html;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCart()
+    {
+        return $this->getCartSessionService()
+            ->initCart()
+            ->getCart();
     }
 
     /**
