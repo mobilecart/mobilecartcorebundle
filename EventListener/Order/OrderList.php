@@ -97,13 +97,8 @@ class OrderList
                 'sort' => 1,
             ],
             [
-                'key' => 'item_total',
-                'label' => 'Item Total',
-                'sort' => 1,
-            ],
-            [
-                'key' => 'shipping_total',
-                'label' => 'Shipping Total',
+                'key' => 'created_at',
+                'label' => 'Created At',
                 'sort' => 1,
             ],
         ];

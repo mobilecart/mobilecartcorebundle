@@ -90,7 +90,7 @@ class CustomerRepository
      */
     public function getSearchField()
     {
-        return 'last_name';
+        return ['email', 'first_name', 'last_name'];
     }
 
     /**

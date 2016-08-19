@@ -37,7 +37,11 @@ class OrderRepository
     public function getSortableFields()
     {
         return [
+            'id' => 'ID',
             'total' => 'Total',
+            'billing_name' => 'Name',
+            'customer_id' => 'Customer ID',
+            'created_at' => 'Created At',
         ];
     }
 

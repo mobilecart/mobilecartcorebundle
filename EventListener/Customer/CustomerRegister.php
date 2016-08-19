@@ -123,6 +123,7 @@ class CustomerRegister
 
         $confirmHash = md5(microtime());
         $entity->setConfirmHash($confirmHash);
+        $entity->setCreatedAt(new \DateTime('now'));
 
         $this->getEntityService()->persist($entity);
 

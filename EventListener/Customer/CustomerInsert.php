@@ -77,6 +77,8 @@ class CustomerInsert
             $entity->setHash($encoded);
         }
 
+        $entity->setCreatedAt(new \DateTime('now'));
+
         $this->getEntityService()->persist($entity);
 
         if ($formData) {
