@@ -102,6 +102,11 @@ class ProductList
                 'label' => 'In Stock',
                 'sort' => 1,
             ],
+            [
+                'created_at' => 'created_at',
+                'label' => 'Created At',
+                'sort' => 1,
+            ],
         ];
 
         switch($event->getSection()) {

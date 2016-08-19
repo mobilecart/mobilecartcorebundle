@@ -190,7 +190,7 @@ class ProductRepository
      */
     public function getSearchField()
     {
-        return ['name', 'fulltext_search'];
+        return ['name', 'sku', 'fulltext_search'];
     }
 
     /**

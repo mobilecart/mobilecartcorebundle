@@ -100,6 +100,11 @@ class CustomerList
                 'label' => 'Email',
                 'sort' => 1,
             ],
+            [
+                'key' => 'created_at',
+                'label' => 'Created At',
+                'sort' => 1,
+            ],
         ];
 
         switch($format) {
