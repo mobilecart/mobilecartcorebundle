@@ -1640,6 +1640,9 @@ abstract class AbstractSearchService
                             if (isset($filterable['choices'])) {
                                 $aFilter['choices'] = $filterable['choices'];
                             }
+                            if (isset($filterable['table'])) {
+                                $aFilter['table'] = $filterable['table'];
+                            }
                             break;
                         }
                     }
