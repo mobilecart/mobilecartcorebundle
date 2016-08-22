@@ -274,6 +274,9 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
                 $field = $advFilter['field'];
                 $op = $advFilter['op'];
                 $value = $advFilter['value'];
+                $table = isset($advFilter['table'])
+                    ? $advFilter['table']
+                    : 'main';
 
                 $found = false;
                 foreach($filterable as $filterInfo) {
@@ -343,47 +346,47 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
                 switch($op) {
                     case 'contains':
                         $advFilterParams[] = '%'. $value . '%';
-                        $whereConditions[] = "main.{$field} like ?";
+                        $whereConditions[] = "{$table}.{$field} like ?";
                         break;
                     case 'starts':
                         $advFilterParams[] = $value . '%';
-                        $whereConditions[] = "main.{$field} like ?";
+                        $whereConditions[] = "{$table}.{$field} like ?";
                         break;
                     case 'ends':
                         $advFilterParams[] = '%'. $value;
-                        $whereConditions[] = "main.{$field} like ?";
+                        $whereConditions[] = "{$table}.{$field} like ?";
                         break;
                     case 'equals':
                         $advFilterParams[] = $value;
-                        $whereConditions[] = "main.{$field} = ?";
+                        $whereConditions[] = "{$table}.{$field} = ?";
                         break;
                     case 'notequal':
                         $advFilterParams[] = $value;
-                        $whereConditions[] = "main.{$field} != ?";
+                        $whereConditions[] = "{$table}.{$field} != ?";
                         break;
 //                    case 'null':
 //                        $advFilterParams[] = 'NULL';
-//                        $whereConditions[] = "main.{$field} IS ?";
+//                        $whereConditions[] = "{$table}.{$field} IS ?";
 //                        break;
 //                    case 'notnull':
 //                        $advFilterParams[] = $value;
-//                        $whereConditions[] = "main.{$field} IS NOT NULL";
+//                        $whereConditions[] = "{$table}.{$field} IS NOT NULL";
 //                        break;
                     case 'gt':
                         $advFilterParams[] = $value;
-                        $whereConditions[] = "main.{$field} > ?";
+                        $whereConditions[] = "{$table}.{$field} > ?";
                         break;
                     case 'gte':
                         $advFilterParams[] = $value;
-                        $whereConditions[] = "main.{$field} >= ?";
+                        $whereConditions[] = "{$table}.{$field} >= ?";
                         break;
                     case 'lt':
                         $advFilterParams[] = $value;
-                        $whereConditions[] = "main.{$field} < ?";
+                        $whereConditions[] = "{$table}.{$field} < ?";
                         break;
                     case 'lte':
                         $advFilterParams[] = $value;
-                        $whereConditions[] = "main.{$field} <= ?";
+                        $whereConditions[] = "{$table}.{$field} <= ?";
                         break;
                     case 'in':
                         if (!is_array($value)) {
@@ -395,7 +398,7 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
                                 $advFilterParams[] = $val;
                             }
                             $paramStr = implode(',', $value);
-                            $whereConditions[] = "main.{$field} in ({$paramStr})";
+                            $whereConditions[] = "{$table}.{$field} in ({$paramStr})";
                         }
 
                         break;
