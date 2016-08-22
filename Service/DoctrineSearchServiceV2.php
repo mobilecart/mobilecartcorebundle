@@ -660,7 +660,7 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
         $em = $this->getEntityService()->getDoctrine()->getManager();
         $repoStr = $this->getObjectRepository($this->getObjectType());
         $repo = $this->getEntityService()->getRepository($this->getObjectType());
-        $sortable = $repo->getSortableFields();
+        //$sortable = $repo->getSortableFields();
         $offset = ($this->getPage() - 1) * $this->getLimit();
 
         // main filter execution
@@ -687,7 +687,7 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
         $mainSql = $this->mainSql;
 
         // sort
-        if (isset($sortable[$this->getSortBy()])) {
+        if (isset($this->sortable[$this->getSortBy()])) {
             $mainSql .= " order by {$this->getSortBy()} {$this->getSortDir()}";
         }
 
