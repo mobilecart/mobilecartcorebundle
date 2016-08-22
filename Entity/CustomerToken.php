@@ -90,7 +90,7 @@ class CustomerToken
 
     public function __toString()
     {
-        return $this->service . ' : ' . $this->service_account_id;
+        return $this->service_account_id; // most common for stripe
     }
 
     public function getObjectTypeName()
