@@ -103,7 +103,7 @@ class ProductList
                 'sort' => 1,
             ],
             [
-                'created_at' => 'created_at',
+                'key' => 'created_at',
                 'label' => 'Created At',
                 'sort' => 1,
             ],

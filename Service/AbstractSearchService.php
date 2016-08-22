@@ -1278,6 +1278,23 @@ abstract class AbstractSearchService
     }
 
     /**
+     * @param array $filterable
+     * @return $this
+     */
+    public function addFilterable(array $filterable)
+    {
+        if (isset($filterable['code'])) {
+            $this->filterable[] = $filterable;
+        } else if ($filterable) {
+            foreach($filterable as $data) {
+                $this->filterable[] = $data;
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * @return array
      */
     public function getFilterable()
@@ -1292,6 +1309,26 @@ abstract class AbstractSearchService
     public function setSortable(array $sortable)
     {
         $this->sortable = $sortable;
+        return $this;
+    }
+
+    /**
+     * @param $key
+     * @param string|array $label
+     * @return $this
+     */
+    public function addSortable($key, $label = '')
+    {
+        if (is_array($key)) {
+            if ($key) {
+                foreach($key as $k => $label) {
+                    $this->sortable[$k] = $label;
+                }
+            }
+        } else {
+            $this->sortable[$key] = $label;
+        }
+
         return $this;
     }
 
@@ -1431,7 +1468,7 @@ abstract class AbstractSearchService
     }
 
     /**
-     * Parse Request , set paginator parameters
+     * Parse Request , set filters, sort, and paginator parameters
      *
      * @param Request $request
      * @return $this
@@ -1463,16 +1500,31 @@ abstract class AbstractSearchService
         $this->page = (int) $this->getRequest()->get($this->pageParam, 1);
         $this->limit = (int) $this->getRequest()->get($this->limitParam, 30);
 
-        $sortable = $repo->getSortableFields();
+        // HANDLE SORT
+        // listeners should call addSortable() before calling parseRequest()
+        $this->addSortable($repo->getSortableFields());
         $sortBy = $this->getRequest()->get($this->sortByParam, '');
-        if (isset($sortable[$sortBy])) {
-
+        if (isset($this->sortable[$sortBy])) {
             $this->sortBy = $sortBy;
+        } else if (isset($this->sortable[0])) {
+            $this->sortBy = $this->sortable[0];
         } else {
+            $this->sortBy = 'id';
+        }
 
-            $this->sortBy = isset($sortable[0])
-                ? $sortable[0]
-                : 'id';
+        // transform array to be similar to filterable array
+        if ($this->sortable) {
+            foreach($this->sortable as $code => $label) {
+                $this->sortable[$code] = [
+                    'code' => $code,
+                    'label' => $label,
+                ];
+                $isActive = (int) ($this->getSortBy() == $code);
+                $this->sortable[$code]['isActive'] = $isActive;
+                if ($isActive) {
+                    $this->sortable[$code]['direction'] = $this->getSortDir();
+                }
+            }
         }
 
         $this->sortDir = $this->getRequest()->get($this->sortDirParam, '');
@@ -1480,7 +1532,9 @@ abstract class AbstractSearchService
             $this->sortDir = 'asc';
         }
 
-        $filterable = $repo->getFilterableFields();
+        // HANDLE FILTERS
+        // listeners should call addFilterable() before calling parseRequest()
+        $this->addFilterable($repo->getFilterableFields());
         $this->setIsEAV($repo->isEAV());
         $this->searchField = $repo->getSearchField(); // handle array of fields
         $this->searchMethod = $repo->getSearchMethod();
@@ -1490,6 +1544,26 @@ abstract class AbstractSearchService
         if ($categoryId) {
             $this->setCategoryId($categoryId);
             //$this->addFacetFilter('category_ids', $categoryId);
+        }
+
+        // populate $this->filters[] using keys from entity repository
+        if ($this->filterable) {
+            foreach($this->filterable as $filterInfo) {
+                $urlKey = $filterInfo['code'];
+                $filterVal = $this->request->get($urlKey, '');
+
+                // avoid conflict in frontend product listing
+                if ($urlKey == 'slug'
+                    && $this->getCategoryId()
+                    && $this->objectType == EntityConstants::PRODUCT) {
+
+                    continue;
+                }
+
+                if (strlen($filterVal)) {
+                    $this->addFilter($urlKey, $filterVal);
+                }
+            }
         }
 
         if ($this->getIsEAV()) {
@@ -1529,47 +1603,8 @@ abstract class AbstractSearchService
             }
         }
 
-        $sortableInfo = [];
-
-        if ($sortable) {
-            foreach($sortable as $code => $label) {
-                $isActive = (int) ($this->getSortBy() == $code);
-
-                $sortableInfo[] = [
-                    'code'      => $code,
-                    'label'     => $label,
-                    'isActive'  => $isActive,
-                    'direction' => $this->getSortDir(),
-                ];
-            }
-        }
-
-        $this->sortable = $sortableInfo;
-        $this->filterable = $filterable;
-
-        // populate $this->filters[] using keys from entity repository
-        if ($filterable) {
-            foreach($filterable as $filterInfo) {
-                $urlKey = $filterInfo['code'];
-                $filterVal = $this->request->get($urlKey, '');
-
-                // avoid conflict in frontend product listing
-                if ($urlKey == 'slug'
-                    && $this->getCategoryId()
-                    && $this->objectType == EntityConstants::PRODUCT) {
-
-                    continue;
-                }
-
-                if (strlen($filterVal)) {
-                    $this->addFilter($urlKey, $filterVal);
-                }
-            }
-        }
-
         // build advanced filters: [field operator value]
         $advFilters = [];
-
         $validOps = $this->getFilterOps();
         if ($filterVals) {
             foreach($filterVals as $idx => $filterVal) {
