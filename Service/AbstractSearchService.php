@@ -1407,6 +1407,29 @@ abstract class AbstractSearchService
     }
 
     /**
+     * @param $field
+     * @return $this
+     */
+    public function addSearchField($field)
+    {
+        if (is_array($this->searchField)) {
+            if (is_array($field)) {
+                $this->searchField = $this->searchField + $field;
+            } else {
+                $this->searchField = $this->searchField + [$field];
+            }
+        } else {
+            if (is_array($field)) {
+                $this->searchField = [$this->searchField] + $field;
+            } else {
+                $this->searchField = [$this->searchField, $field];
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * @return string|array
      */
     public function getSearchField()
@@ -1461,6 +1484,7 @@ abstract class AbstractSearchService
         $this->setObjectType($objectType);
         $repo = $this->getEntityService()->getRepository($objectType);
         $this->filterable = $repo->getFilterableFields();
+        $this->sortable = $repo->getSortableFields();
         $this->setIsEAV($repo->isEAV());
         $this->searchField = $repo->getSearchField(); // handle array of fields
         $this->searchMethod = $repo->getSearchMethod();
@@ -1537,6 +1561,7 @@ abstract class AbstractSearchService
         $this->addFilterable($repo->getFilterableFields());
         $this->setIsEAV($repo->isEAV());
         $this->searchField = $repo->getSearchField(); // handle array of fields
+        //$this->addSearchField($repo->getSearchField()); // not good yet
         $this->searchMethod = $repo->getSearchMethod();
 
         // only need the ID in some cases
