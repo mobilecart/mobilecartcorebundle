@@ -65,7 +65,9 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
         // search text filter
         if ($this->getQuery()
             && $this->getSearchField()
-            && $this->getSearchMethod()) {
+            && $this->getSearchMethod()
+            && !$this->getFulltextIds() // assuming this means we're handling the query with a search engine
+        ) {
 
             if (is_array($this->getSearchField())) {
                 if (count($this->getSearchField()) > 1) {
