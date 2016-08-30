@@ -242,6 +242,8 @@ class CustomerController extends Controller
                     ->dispatch(CoreEvents::CUSTOMER_FORGOT_PASSWORD_POST_RETURN, $event);
 
                 return $event->getResponse();
+            } else {
+                $returnData['error'] = 1;
             }
         }
 
