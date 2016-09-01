@@ -116,10 +116,11 @@
         <parameter key="cart.listener.checkout.form.shipping.address.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutShippingAddressForm</parameter>
         <parameter key="cart.listener.checkout.form.shipping.methods.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutShippingMethodForm</parameter>
         <parameter key="cart.listener.checkout.form.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutForm</parameter>
+        <parameter key="cart.listener.checkout.form.payment_methods.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutPaymentMethods</parameter>
         <parameter key="cart.listener.checkout.payment.methods.view.return.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutPaymentMethodsViewReturn</parameter>
         <parameter key="cart.listener.checkout.view.return.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutViewReturn</parameter>
         <parameter key="cart.listener.checkout.update.billing.address.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdateBillingAddress</parameter>
-        <parameter key="cart.listener.checkout.totals.discounts.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutTotalsDiscounts</parameter>
+        <parameter key="cart.listener.checkout.totals.discounts.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutTotalsDiscountsViewReturn</parameter>
         <parameter key="cart.listener.checkout.confirm.order.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutConfirmOrder</parameter>
         <parameter key="cart.listener.checkout.update.payment.methods.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdatePaymentMethods</parameter>
         <parameter key="cart.listener.checkout.update.shipping.address.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdateShippingAddress</parameter>
@@ -626,6 +627,26 @@
             <tag name="kernel.event_listener" event="checkout.form" method="onCheckoutForm" priority="90" />
             <call method="setRouter">
                 <argument type="service" id="router" />
+            </call>
+            <call method="setCheckoutSessionService">
+                <argument type="service" id="cart.checkout.session" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+
+        <!-- Event Listener: build payment form -->
+        <service id="cart.listener.checkout.form.payment_methods" lazy="true" class="%cart.listener.checkout.form.payment_methods.class%">
+            <tag name="kernel.event_listener" event="checkout.form" method="onCheckoutForm" priority="80" />
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+            <call method="setPaymentService">
+                <argument type="service" id="cart.payment" />
             </call>
             <call method="setCheckoutSessionService">
                 <argument type="service" id="cart.checkout.session" />

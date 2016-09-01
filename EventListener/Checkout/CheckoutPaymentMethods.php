@@ -9,7 +9,7 @@ use MobileCart\CoreBundle\Form\CheckoutType;
 use MobileCart\CoreBundle\Payment\CollectPaymentMethodRequest;
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
 
-class CheckoutForm
+class CheckoutPaymentMethods
 {
     protected $entityService;
 
@@ -142,7 +142,9 @@ class CheckoutForm
 
     public function onCheckoutForm(Event $event)
     {
-        if ($event->getSingleStep()) {
+        if ($event->getSingleStep()
+            && $event->getSingleStep() != CheckoutConstants::STEP_PAYMENT_METHODS) {
+
             return false;
         }
 
@@ -163,20 +165,23 @@ class CheckoutForm
         $cart = $cartSession->getCart();
         $customer = $cart->getCustomer();
 
-        $formType = new CheckoutType();
-        $formType->setBillingAddressForm($event->getBillingAddressForm())
-            ->setShippingAddressForm($event->getShippingAddressForm())
-            ->setShippingMethodForm($event->getShippingMethodForm());
+        // payment method request
+        $methodRequest = $event->getCollectPaymentMethodRequest()
+            ? $event->getCollectPaymentMethodRequest()
+            : new CollectPaymentMethodRequest();
 
-        $form = $this->getFormFactory()->create($formType, $entity, [
-            'action' => $event->getAction(),
-            'method' => $event->getMethod(),
-            'translation_domain' => 'checkout',
-        ]);
+        $paymentMethods = $this->getPaymentService()
+            ->collectPaymentMethods($methodRequest);
 
-        // todo : handle this in the billing address form event listener
-        if (!$this->getDisplayEmailInput()) {
-            $form->get('billing_address')->remove('email');
+        if ($paymentMethods) {
+            $methodCodes = [];
+
+            // paymentMethod is an ArrayWrapper : code, label, form
+            foreach($paymentMethods as $paymentMethod) {
+                $methodCodes[] = $paymentMethod->getCode();
+            }
+
+            $cartSession->setPaymentMethodCodes($methodCodes);
         }
 
         $themeService = $this->getThemeService();
@@ -186,79 +191,19 @@ class CheckoutForm
         // sections are also defined in other listeners
         //  in which case, we are combining sections here
         $sections = array_merge([
-            CheckoutConstants::STEP_TOTALS_DISCOUNTS => [
-                'order' => 40,
-                'label' => 'Totals and Discounts',
-                'template' => $tplPath . 'Checkout:totals_discounts.html.twig',
-                'js_template' => $tplPath . 'Checkout:totals_discounts_js.html.twig',
-                'post_url' => $this->getRouter()->generate('cart_checkout_update_discount', []),
+            CheckoutConstants::STEP_PAYMENT_METHODS => [
+                // this builds a form for each payment method
+                'order' => 50,
+                'label' => 'Payment',
+                'template' => $tplPath . 'Checkout:payment_methods.html.twig',
+                'js_template' => $tplPath . 'Checkout:payment_methods_js.html.twig',
+                'payment_methods' => $paymentMethods,
+                'post_url' => $this->getRouter()->generate('cart_checkout_update_payment', []),
+                'final_step' => 1,
             ],
         ], $sections);
 
-        // handle form sections
-
-        foreach($sections as $section => $sectionData) {
-            if (!isset($sections[$section]['fields'])) {
-                continue;
-            }
-            foreach($sections[$section]['fields'] as $field) {
-                if ($customerValue = $customer->get($field)) {
-                    $form->get($section)->get($field)->setData($customerValue);
-                }
-            }
-        }
-
-        // get sort orders
-        $sectionOrder = [];
-        foreach($sections as $k => $v) {
-            // set aside the order, for re-ordering
-            $sectionOrder[$k] = $sections[$k]['order'];
-        }
-
-        // crude/quick sort and order the checkout steps
-        $sectionOrder = array_flip($sectionOrder);
-        ksort($sectionOrder);
-        $sectionOrder = array_values($sectionOrder);
-
-        // re-order the sections
-        $checkoutSections = [];
-        $x = 0;
-        foreach($sectionOrder as $section) {
-            $checkoutSections[$section] = $sections[$section];
-            $x++;
-            if (isset($sectionOrder[$x])) {
-                $nextSection = $sectionOrder[$x];
-                $checkoutSections[$section]['next_section_id'] = $nextSection;
-            } else {
-                $checkoutSections[$section]['final_step'] = 1;
-                $checkoutSections[$section]['next_section_id'] = '';
-            }
-        }
-
-        // build data for checkout widget
-        $widgetFields = ['post_url', 'next_section_id', 'fields'];
-
-        $returnData['widget_sections'] = [];
-        foreach($checkoutSections as $k => $v) {
-            $returnData['widget_sections'][$k]['section_id'] = $k;
-            foreach($checkoutSections[$k] as $k2 => $v2) {
-                if (in_array($k2, $widgetFields)) {
-                    $returnData['widget_sections'][$k][$k2] = $v2;
-                }
-            }
-        }
-
-        // all sections ; ordered
-        $returnData['sections'] = $checkoutSections;
-        $returnData['form_name'] = $form->getName();
-
-        $returnData['confirm_order_url'] = $this->getRouter()
-            ->generate('cart_checkout_confirm_order', []);
-
-        $returnData['submit_order_url'] = $this->getRouter()
-            ->generate('cart_checkout_submit_order', []);
-
-        $event->setForm($form)
-            ->setReturnData($returnData);
+        $returnData['sections'] = $sections;
+        $event->setReturnData($returnData);
     }
 }

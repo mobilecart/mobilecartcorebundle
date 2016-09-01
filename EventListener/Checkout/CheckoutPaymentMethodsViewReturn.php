@@ -131,9 +131,6 @@ class CheckoutPaymentMethodsViewReturn
             return;
         }
 
-        $returnData['section'] = $event->getSingleStep();
-        $returnData['step_number'] = $event->getStepNumber();
-
         // payment method request
         $methodRequest = $event->getCollectPaymentMethodRequest()
             ? $event->getCollectPaymentMethodRequest()

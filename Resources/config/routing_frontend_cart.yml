@@ -93,11 +93,6 @@ cart_checkout_update_payment:
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:updatePaymentMethod' }
     methods: [POST]
 
-cart_checkout_summary:
-    path: /cart/checkout/summary
-    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:orderSummary' }
-    methods: [GET]
-
 cart_checkout_submit_order:
     path: /cart/checkout/post
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:submitOrder' }

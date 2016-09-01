@@ -4,7 +4,7 @@ namespace MobileCart\CoreBundle\EventListener\Checkout;
 
 use Symfony\Component\EventDispatcher\Event;
 
-class CheckoutTotalsDiscounts
+class CheckoutTotalsDiscountsViewReturn
 {
     protected $themeService;
 

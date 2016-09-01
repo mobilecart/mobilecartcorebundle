@@ -4,7 +4,6 @@ namespace MobileCart\CoreBundle\EventListener\Payment;
 
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\Constants\EntityConstants;
-use MobileCart\CoreBundle\Payment\PaymentMethodServiceInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 class PaymentMethodHandler
