@@ -194,6 +194,13 @@ class Customer
     private $tokens;
 
     /**
+     * @var \MobileCart\CoreBundle\Entity\CustomerAddress
+     *
+     * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\CustomerAddress", mappedBy="customer")
+     */
+    private $addresses;
+
+    /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarSet
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\ItemVarSet")
@@ -1233,6 +1240,24 @@ class Customer
     public function getTokens()
     {
         return $this->tokens;
+    }
+
+    /**
+     * @param CustomerAddress $customerAddress
+     * @return $this
+     */
+    public function addAddress(CustomerAddress $customerAddress)
+    {
+        $this->addresses[] = $customerAddress;
+        return $this;
+    }
+
+    /**
+     * @return CustomerAddress
+     */
+    public function getAddresses()
+    {
+        return $this->addresses;
     }
 
     /**

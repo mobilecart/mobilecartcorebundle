@@ -65,6 +65,7 @@
         <parameter key="cart.repo.content_var_value_text">MobileCartCoreBundle:ContentVarValueText</parameter>
         <parameter key="cart.repo.content_var_value_varchar">MobileCartCoreBundle:ContentVarValueVarchar</parameter>
         <parameter key="cart.repo.customer">MobileCartCoreBundle:Customer</parameter>
+        <parameter key="cart.repo.customer_address">MobileCartCoreBundle:CustomerAddress</parameter>
         <parameter key="cart.repo.customer_token">MobileCartCoreBundle:CustomerToken</parameter>
         <parameter key="cart.repo.customer_var_value_datetime">MobileCartCoreBundle:CategoryVarValueDatetime</parameter>
         <parameter key="cart.repo.customer_var_value_decimal">MobileCartCoreBundle:CategoryVarValueDecimal</parameter>
@@ -1095,6 +1096,10 @@
             <call method="addObjectRepository">
                 <argument>customer</argument>
                 <argument>%cart.repo.customer%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>customer_address</argument>
+                <argument>%cart.repo.customer_address%</argument>
             </call>
             <call method="addObjectRepository">
                 <argument>customer_token</argument>
