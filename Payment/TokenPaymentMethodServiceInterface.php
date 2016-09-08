@@ -29,6 +29,17 @@ interface TokenPaymentMethodServiceInterface extends PaymentMethodServiceInterfa
     public function getPaymentCustomerToken();
 
     /**
+     * @param $subscriptionCustomer
+     * @return mixed
+     */
+    public function setSubscriptionCustomer($subscriptionCustomer);
+
+    /**
+     * @return mixed
+     */
+    public function getSubscriptionCustomer();
+
+    /**
      * Create a Token for use in multiple payments
      *
      * @return mixed
@@ -105,4 +116,28 @@ interface TokenPaymentMethodServiceInterface extends PaymentMethodServiceInterfa
     public function setIsPurchasedAndSubscribedRecurring($isPurchasedAndSubscribedRecurring);
 
     public function getIsPurchasedAndSubscribedRecurring();
+
+    /**
+     * Cancel a recurring subscription
+     *  which is handled by a 3rd party service
+     *
+     * @return mixed
+     */
+    public function cancelRecurring();
+
+    public function buildCancelRecurringRequest();
+
+    public function setCancelRecurringRequest($cancelRecurringRequest);
+
+    public function getCancelRecurringRequest();
+
+    public function sendCancelRecurringRequest();
+
+    public function setCancelRecurringResponse($cancelRecurringResponse);
+
+    public function getCancelRecurringResponse();
+
+    public function setIsCanceledRecurring($isCanceled);
+
+    public function getIsCanceledRecurring();
 }

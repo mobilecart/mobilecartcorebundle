@@ -25,6 +25,8 @@ interface PaymentMethodServiceInterface
 
     const ACTION_PURCHASE_CALLBACK = 'purchase_callback'; // example: paypal IPN . use value of order.payment_authorize
 
+    const ACTION_CANCEL_RECURRING = 'cancel_recurring'; // for 3rd party subscriptions, this constant might not be needed
+
     public function setDefaultAction($action);
 
     public function getDefaultAction();

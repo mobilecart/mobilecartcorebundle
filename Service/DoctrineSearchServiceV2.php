@@ -241,10 +241,23 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
                     $cond = '';
                     foreach($this->getSearchField() as $searchField) {
                         $bindTypes[$x] = \PDO::PARAM_STR;
+
+                        $tbl = 'main';
+
+                        if (is_array($searchField)) {
+                            if (isset($searchField['table']) && isset($searchField['column'])) {
+                                $tbl = $searchField['table'];
+                                $searchField = $searchField['column'];
+                            } else {
+                                continue;
+                            }
+                        }
+
+                        // cond is empty, add a leading parentheses
                         if (!$cond) {
-                            $cond .= "(main.{$searchField} like ?";
+                            $cond .= "({$tbl}.{$searchField} like ?";
                         } else {
-                            $cond .= " OR main.{$searchField} like ?";
+                            $cond .= " OR {$tbl}.{$searchField} like ?";
                         }
                         $x++;
                     }
@@ -255,9 +268,21 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
                     $fields = $this->getSearchField();
                     $searchField = $fields[0];
 
-                    $bindTypes[$x] = \PDO::PARAM_STR;
-                    $whereConditions[] = "main.{$searchField} like ?";
-                    $x++;
+                    $tbl = 'main';
+                    if (is_array($searchField)) {
+                        if (isset($searchField['table']) && isset($searchField['column'])) {
+                            $tbl = $searchField['table'];
+                            $searchField = $searchField['column'];
+
+                            $bindTypes[$x] = \PDO::PARAM_STR;
+                            $whereConditions[] = "{$tbl}.{$searchField} like ?";
+                            $x++;
+                        }
+                    } else {
+                        $bindTypes[$x] = \PDO::PARAM_STR;
+                        $whereConditions[] = "main.{$searchField} like ?";
+                        $x++;
+                    }
                 }
             } else {
                 $bindTypes[$x] = \PDO::PARAM_STR;

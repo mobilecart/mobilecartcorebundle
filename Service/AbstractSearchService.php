@@ -1414,13 +1414,13 @@ abstract class AbstractSearchService
     {
         if (is_array($this->searchField)) {
             if (is_array($field)) {
-                $this->searchField = $this->searchField + $field;
+                $this->searchField = array_merge($this->searchField, $field);
             } else {
-                $this->searchField = $this->searchField + [$field];
+                $this->searchField = array_merge($this->searchField, [$field]);
             }
         } else {
             if (is_array($field)) {
-                $this->searchField = [$this->searchField] + $field;
+                $this->searchField = array_merge([$this->searchField], $field);
             } else {
                 $this->searchField = [$this->searchField, $field];
             }
