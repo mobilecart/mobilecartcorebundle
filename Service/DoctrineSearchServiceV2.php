@@ -535,7 +535,7 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
 
         $this->filtersSql = "select distinct(main.id) from {$mainTable} main {$joinSql} where {$conditionsSql}";
         $this->mainSql = "select distinct(main.id), main.* {$colSql} from {$mainTable} main {$joinSql} where {$conditionsSql} {$groupSql}";
-        $this->countSql = "select count(distinct(main.id)) as count from {$mainTable} main {$joinSql} where {$conditionsSql}";
+        $this->countSql = "select count(distinct(main.id)) as count from {$mainTable} main {$joinSql} where {$conditionsSql} {$groupSql}";
         $this->bindTypes = $bindTypes;
         $this->filterParams = $filterParams;
         $this->advFilterParams = $advFilterParams;

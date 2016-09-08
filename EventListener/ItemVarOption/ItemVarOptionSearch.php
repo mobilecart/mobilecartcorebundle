@@ -34,8 +34,8 @@ class ItemVarOptionSearch
         $event->getSearch()
             ->setObjectType($event->getObjectType()) // Important: set this first
             ->parseRequest($event->getRequest())
-            ->addJoin('inner', 'item_var', 'iiv', 'id', 'item_var_id')
-            ->addColumn('iiv.name', 'item_var_name')
+            ->addJoin('inner', 'item_var', 'id', 'item_var_id')
+            ->addColumn('item_var.name', 'item_var_name')
             ->search();
 
         $event->setReturnData($returnData);
