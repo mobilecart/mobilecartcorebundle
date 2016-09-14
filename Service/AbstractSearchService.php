@@ -502,7 +502,7 @@ abstract class AbstractSearchService
      */
     public function sanitize($str)
     {
-        $str = strtolower(trim(preg_replace('/[^A-Za-z0-9-@.]+/', '-', $str)));
+        $str = strtolower(trim(preg_replace('/[^A-Za-z0-9-@._]+/', '-', $str)));
         $str = str_replace('--', '-', $str);
         return $str;
     }
@@ -1414,15 +1414,31 @@ abstract class AbstractSearchService
     {
         if (is_array($this->searchField)) {
             if (is_array($field)) {
-                $this->searchField = array_merge($this->searchField, $field);
+
+                $this->searchField = $this->searchField
+                    ? array_merge($this->searchField, $field)
+                    : $field;
+
             } else {
-                $this->searchField = array_merge($this->searchField, [$field]);
+
+                $this->searchField = $this->searchField
+                    ? array_merge($this->searchField, [$field])
+                    : [$field];
+
             }
         } else {
             if (is_array($field)) {
-                $this->searchField = array_merge([$this->searchField], $field);
+
+                $this->searchField = $this->searchField
+                    ? array_merge([$this->searchField], $field)
+                    : $field;
+
             } else {
-                $this->searchField = [$this->searchField, $field];
+
+                $this->searchField = $this->searchField
+                    ? [$this->searchField, $field]
+                    : [$field];
+
             }
         }
 
