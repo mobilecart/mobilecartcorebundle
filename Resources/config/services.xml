@@ -83,6 +83,7 @@
         <parameter key="cart.repo.item_var_option_varchar">MobileCartCoreBundle:ItemVarOptionVarchar</parameter>
         <parameter key="cart.repo.item_var_set">MobileCartCoreBundle:ItemVarSet</parameter>
         <parameter key="cart.repo.item_var_set_var">MobileCartCoreBundle:ItemVarSetVar</parameter>
+        <parameter key="cart.repo.object_log">MobileCartCoreBundle:ObjectLog</parameter>
         <parameter key="cart.repo.order">MobileCartCoreBundle:Order</parameter>
         <parameter key="cart.repo.order_var_value_datetime">MobileCartCoreBundle:OrderVarValueDatetime</parameter>
         <parameter key="cart.repo.order_var_value_decimal">MobileCartCoreBundle:OrderVarValueDecimal</parameter>
@@ -1128,6 +1129,10 @@
             <call method="addObjectRepository">
                 <argument>discount</argument>
                 <argument>%cart.repo.discount%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>object_log</argument>
+                <argument>%cart.repo.object_log%</argument>
             </call>
             <call method="addObjectRepository">
                 <argument>order</argument>
