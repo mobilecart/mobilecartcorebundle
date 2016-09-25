@@ -2,6 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Customer;
 
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Component\EventDispatcher\Event;
 
 class CustomerRegister
@@ -113,6 +114,12 @@ class CustomerRegister
         $entity = $event->getEntity();
         $formData = $event->getFormData();
         $request = $event->getRequest();
+
+        $itemVarSet = $this->getEntityService()->findOneBy(EntityConstants::ITEM_VAR_SET, [
+            'object_type' => EntityConstants::CUSTOMER,
+        ]);
+
+        $entity->setItemVarSet($itemVarSet);
 
         // encode password, handle hash
         if (isset($formData['password']['first']) && $formData['password']['first']) {
