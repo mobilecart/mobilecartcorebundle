@@ -571,7 +571,7 @@ class DoctrineEntityService
     public function handleVarValueCreate($objectType, $entity, array $formData)
     {
         if (!$objectType) {
-            $objectType = $entity->getObjectType();
+            $objectType = $entity->getObjectTypeName();
         }
 
         if ($formData) {
@@ -924,6 +924,10 @@ class DoctrineEntityService
      */
     public function handleVarValueUpdate($objectType, $entity, array $formData)
     {
+        if (!$objectType) {
+            $objectType = $entity->getObjectTypeName();
+        }
+
         if ($formData) {
 
             $baseData = $entity->getBaseData();
