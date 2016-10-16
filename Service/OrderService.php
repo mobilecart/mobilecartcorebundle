@@ -706,6 +706,7 @@ class OrderService
     public function processPayment()
     {
         $cart = $this->getCart();
+        $email = $cart->getCustomer()->getEmail();
 
         $currencyService = $this->getCurrencyService();
 
@@ -729,6 +730,7 @@ class OrderService
                 'currency' => $currency,
                 'base_total' => $baseGrandTotal,
                 'base_currency' => $baseCurrency,
+                'email' => $email, // some gateways need the email address
             ]);
 
         switch($paymentMethodService->getAction()) {
