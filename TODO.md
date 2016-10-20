@@ -14,8 +14,7 @@
 * better code coverage in Unit Tests
 * some PCI compliance
 * better Twig functions for images, improve support for CDNs
-* possibly move Route annotations into routing.yml
-* possibly change services.xml to services.yaml
+* DONE - move Route annotations into routing.yml
 * possibly change Injection in services.xml to use constructors instead of setters, but probably keep setters available to other Bundles
 * finish Single Page Application / javascript implementation
 * At least 1 of the major Shipping vendors is integrated : Fedex, UPS, USPS
