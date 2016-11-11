@@ -97,6 +97,7 @@
         <parameter key="cart.repo.order_payment">MobileCartCoreBundle:OrderPayment</parameter>
         <parameter key="cart.repo.order_refund">MobileCartCoreBundle:OrderRefund</parameter>
         <parameter key="cart.repo.product">MobileCartCoreBundle:Product</parameter>
+        <parameter key="cart.repo.product_config">MobileCartCoreBundle:ProductConfig</parameter>
         <parameter key="cart.repo.product_image">MobileCartCoreBundle:ProductImage</parameter>
         <parameter key="cart.repo.product_var_value_datetime">MobileCartCoreBundle:ProductVarValueDatetime</parameter>
         <parameter key="cart.repo.product_var_value_decimal">MobileCartCoreBundle:ProductVarValueDecimal</parameter>
@@ -1181,6 +1182,10 @@
             <call method="addObjectRepository">
                 <argument>product</argument>
                 <argument>%cart.repo.product%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>product_config</argument>
+                <argument>%cart.repo.product_config%</argument>
             </call>
             <call method="addObjectRepository">
                 <argument>product_image</argument>
