@@ -99,6 +99,7 @@ class EntityConstants
     const ORDER_HISTORY = 'order_history';
     const PRODUCT = 'product';
     const PRODUCT_IMAGE = 'product_image';
+    const PRODUCT_CONFIG = 'product_config';
     const REF_COUNTRY_REGION = 'ref_country_region';
     const SEARCH_TERM = 'search_term';
     const SHIPPING_METHOD = 'shipping_method';
