@@ -134,7 +134,7 @@ class AddProduct
             ? $this->getEntityService()->find(EntityConstants::CART, $cartId)
             : $this->getEntityService()->getInstance(EntityConstants::CART);
 
-        if (!$cartId && !$cartEntity->getCustomer()) {
+        if (!$cartId) {
 
             $cartEntity->setJson($cart->toJson())
                 ->setCreatedAt(new \DateTime('now'));
@@ -144,7 +144,9 @@ class AddProduct
                 $customerEntity = $this->getEntityService()
                     ->find(EntityConstants::CUSTOMER, $customerId);
 
-                $cartEntity->setCustomer($customerEntity);
+                if ($customerEntity) {
+                    $cartEntity->setCustomer($customerEntity);
+                }
             }
 
             $this->getEntityService()->persist($cartEntity);
@@ -201,7 +203,7 @@ class AddProduct
 
         } else if ($this->getCartSessionService()->hasProductId($simpleProductId)) {
 
-            if ($this->getIsAdd()) {
+            if ($event->getIsAdd()) {
 
                 $this->getCartSessionService()
                     ->addProductQty($simpleProductId, $qty);
