@@ -111,6 +111,7 @@ class FrontendExtension extends \Twig_Extension
             'cartShipments' => new \Twig_Function_Method($this, 'cartShipments', array('is_safe' => array('html'))),
             'cartShipment' => new \Twig_Function_Method($this, 'cartShipment', array('is_safe' => array('html'))),
             'categoryTree' => new \Twig_Function_Method($this, 'categoryTree', array('is_safe' => array('html'))),
+            'subcategoryList' => new \Twig_Function_Method($this, 'subcategoryList', array('is_safe' => array('html'))),
             'customerName' => new \Twig_Function_Method($this, 'customerName', array('is_safe' => array('html'))),
         ];
     }
@@ -393,6 +394,14 @@ class FrontendExtension extends \Twig_Extension
     }
 
     /**
+     * @return mixed
+     */
+    public function getEntityService()
+    {
+        return $this->getCartSessionService()->getCartService()->getDiscountService()->getEntityService();
+    }
+
+    /**
      * @param $router
      * @return $this
      */
@@ -584,36 +593,87 @@ class FrontendExtension extends \Twig_Extension
     }
 
     /**
-     * @param Category $category
+     * @param int $categoryId
      * @param string $class
      * @param int $count
+     * @param bool $hideFirst
      * @return string
      */
-    public function categoryTree(Category $category, $class='', $count=0)
+    public function categoryTree($categoryId, $class='', $count=0, $hideFirst = false)
     {
+        $category = is_object($categoryId)
+            ? $categoryId
+            : $this->getEntityService()->find('category', $categoryId);
+
+        if (!$category) {
+            return '';
+        }
+
         $out = '<ul>';
         if ($class && !$count) {
             $out = "<ul class=\"{$class}\">";
         }
-        $out .= '<li>' . $category->getName() . '</li>';
+
         if ($children = $category->getChildCategories()) {
-            $out .= '<li><ul>';
+
+            if ((!$count && !$hideFirst) || $count) {
+
+                $out .= '<li>';
+                if (!$count && !$hideFirst) {
+                    $out .= $category->getName();
+                }
+
+                $out .= '<i class="fa fa-angle-down"> </i><ul>';
+            }
+
             foreach($children as $child) {
                 $childCategories = $child->getChildCategories();
                 if (count($childCategories)) {
+                    $out .= '<li>' .
+                    $out .= $child->getName();
+                    $out .= '<i class="fa fa-angle-down"> </i>';
                     $out .= $this->categoryTree($child, '', $count+1);
+                    $out .= '</li>';
                 } else {
-                    $link = "/{$child->getSlug()}";
-                    if (!is_int(strpos($child->getSlug(), '/'))) {
-                        $link = $this->router->generate('mobile_cart_item', array('slug' => $child->getSlug()));
-                    }
-
+                    $link = $this->getRouter()->generate('cart_category_products', ['slug' => $child->getSlug()]);
                     $out .= '<li><a href="'. $link .'">' . $child->getName() . '</a></li>';
                 }
             }
-            $out .= '</ul></li>';
+
+            if ((!$count && !$hideFirst) || $count) {
+                $out .= '</ul></li>';
+            }
+        } else {
+            $link = $this->getRouter()->generate('cart_category_products', ['slug' => $category->getSlug()]);
+            $out .= '<li><a href="'. $link .'">' . $category->getName() . '</a></li>';
         }
         $out .= '</ul>';
+        return $out;
+    }
+
+    /**
+     * @param $categoryId
+     * @return string
+     */
+    public function subcategoryList($categoryId)
+    {
+        $category = is_object($categoryId)
+            ? $categoryId
+            : $this->getEntityService()->find('category', $categoryId);
+
+        if (!$category) {
+            return '';
+        }
+
+        $out = '<ul>';
+        if ($children = $category->getChildCategories()) {
+            foreach($children as $child) {
+                $link = $this->getRouter()->generate('cart_category_products', ['slug' => $child->getSlug()]);
+                $out .= '<li><a href="' . $link . '">' . $child->getName() . '</a></li>';
+            }
+        }
+        $out .= '</ul>';
+
         return $out;
     }
 
