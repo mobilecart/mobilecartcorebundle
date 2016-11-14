@@ -11,6 +11,7 @@
 
 namespace MobileCart\CoreBundle\Twig\Extension;
 
+use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use Symfony\Component\HttpKernel\KernelInterface;
 use MobileCart\CoreBundle\Entity\Category;
 use MobileCart\CoreBundle\Entity\Product;
@@ -174,6 +175,12 @@ class FrontendExtension extends \Twig_Extension
             $path = $objectData->getImagePath($code);
             if ($path) {
                 return $path;
+            }
+        } elseif ($objectData instanceof ArrayWrapper && $objectData->getImages()) {
+            foreach($objectData->getImages() as $imageData) {
+                if ($imageData['code'] == $code) {
+                    return $imageData['path'];
+                }
             }
         }
 
