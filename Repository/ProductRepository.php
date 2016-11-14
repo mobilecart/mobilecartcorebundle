@@ -167,6 +167,21 @@ class ProductRepository
                 ],
             ],
             [
+                'code'  => 'is_public',
+                'label' => 'Public',
+                'type'  => 'boolean',
+                'choices' => [
+                    [
+                        'value' => 0,
+                        'label' => 'No',
+                    ],
+                    [
+                        'value' => 1,
+                        'label' => 'Yes',
+                    ],
+                ],
+            ],
+            [
                 'code'  => 'is_taxable',
                 'label' => 'Taxable',
                 'type'  => 'boolean',
