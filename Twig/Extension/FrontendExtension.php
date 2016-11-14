@@ -103,6 +103,7 @@ class FrontendExtension extends \Twig_Extension
             'cartHasShipmentMethodId' => new \Twig_Function_Method($this, 'cartHasShipmentMethodId', array('is_safe' => array('html'))),
             'cartHasShipmentMethodCode' => new \Twig_Function_Method($this, 'cartHasShipmentMethodCode', array('is_safe' => array('html'))),
             'cartTotals' => new \Twig_Function_Method($this, 'getCartTotals', array('is_safe' => array('html'))),
+            'cartTotal' => new \Twig_Function_Method($this, 'getCartTotal', array('is_safe' => array('html'))),
             'cartDiscounts' => new \Twig_Function_Method($this, 'getCartDiscounts', array('is_safe' => array('html'))),
             'cartItems' => new \Twig_Function_Method($this, 'getCartItems', array('is_safe' => array('html'))),
             'cartShippingMethods' => new \Twig_Function_Method($this, 'getCartShippingMethods', array('is_safe' => array('html'))),
@@ -842,6 +843,24 @@ class FrontendExtension extends \Twig_Extension
         }
 
         return $this->totals;
+    }
+
+    /**
+     * @param $key
+     * @return null
+     */
+    public function getCartTotal($key)
+    {
+        $totals = $this->getCartTotals();
+        if ($totals) {
+            foreach($totals as $total) {
+                if ($total->getKey() == $key) {
+                    return $total;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
