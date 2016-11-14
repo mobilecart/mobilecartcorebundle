@@ -314,6 +314,13 @@ class CartSessionService
         if ($parentOptions) {
             $item->set('parent_options', $parentOptions);
         }
+        if ($pimages = $product->getImages()) {
+            $images = [];
+            foreach($pimages as $image) {
+                $images[] = $image->getData();
+            }
+            $item->setImages($images);
+        }
         $this->addItem($item, $qty);
         return $this;
     }
