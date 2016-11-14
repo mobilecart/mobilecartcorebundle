@@ -179,7 +179,10 @@ class FrontendExtension extends \Twig_Extension
             }
         } elseif ($objectData instanceof ArrayWrapper && $objectData->getImages()) {
             foreach($objectData->getImages() as $imageData) {
-                if ($imageData['code'] == $code) {
+                if (is_object($imageData)) {
+                    $imageData = get_object_vars($imageData);
+                }
+                if (isset($imageData['code']) && $imageData['code'] == $code) {
                     return $imageData['path'];
                 }
             }

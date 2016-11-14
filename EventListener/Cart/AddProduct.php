@@ -268,6 +268,14 @@ class AddProduct
                 $this->getCartSessionService()
                     ->addProduct($child, $qty, $parentOptions);
 
+                $cartItem = $this->getCartSessionService()
+                    ->getCart()
+                    ->findItem('product_id', $child->getId());
+
+                $itemJson = $cartItem
+                    ? $cartItem->toJson()
+                    : json_encode($child->getData());
+
                 // insert row
                 $cartItemEntity = $this->getEntityService()
                     ->getInstance(EntityConstants::CART_ITEM);
@@ -275,7 +283,7 @@ class AddProduct
                 $cartItemEntity->setCart($cartEntity)
                     ->setSku($child->getSku())
                     ->setQty($qty)
-                    ->setJson(json_encode($child->getData()));
+                    ->setJson($itemJson);
 
                 $this->getEntityService()->persist($cartItemEntity);
 
@@ -291,10 +299,18 @@ class AddProduct
                 $cartItemEntity = $this->getEntityService()
                     ->getInstance(EntityConstants::CART_ITEM);
 
+                $cartItem = $this->getCartSessionService()
+                    ->getCart()
+                    ->findItem('product_id', $product->getId());
+
+                $itemJson = $cartItem
+                    ? $cartItem->toJson()
+                    : json_encode($product->getData());
+
                 $cartItemEntity->setCart($cartEntity)
                     ->setSku($product->getSku())
                     ->setQty($qty)
-                    ->setJson(json_encode($product->getData()));
+                    ->setJson($itemJson);
 
                 $this->getEntityService()->persist($cartItemEntity);
 
