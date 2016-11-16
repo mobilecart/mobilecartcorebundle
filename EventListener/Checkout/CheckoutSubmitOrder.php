@@ -105,6 +105,14 @@ class CheckoutSubmitOrder
         if ($returnData['invalid_sections']) {
             $returnData['success'] = 0;
 
+            if (isset($returnData['form'])) {
+                unset($returnData['form']); // fix warning: Recursion Detected
+            }
+
+            if (isset($returnData['sections'])) {
+                unset($returnData['sections']);
+            }
+
             $response = new JsonResponse($returnData);
 
             $event->setReturnData($returnData)
