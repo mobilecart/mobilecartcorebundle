@@ -92,6 +92,7 @@ class RemoveShipment
         $cart = $cartSession->getCart();
 
         $returnData['cart'] = $cart;
+        $returnData['success'] = 1;
 
         $event->setReturnData($returnData);
     }

@@ -90,6 +90,7 @@ class AddShipment
         $request = $event->getRequest();
         $format = $request->get('format', '');
         $code = $request->get('shipping_method', '');
+        $success = 0;
 
         $cartSession = $this->getCartSessionService()
             ->collectShippingMethods();
@@ -106,9 +107,11 @@ class AddShipment
                 ->collectTotals();
 
             $cart = $cartSession->getCart();
+            $success = 1;
         }
 
         $returnData['cart'] = $cart;
+        $returnData['success'] = $success;
 
         $response = '';
         switch($format) {

@@ -181,6 +181,7 @@ class AddDiscount
 
         $returnData['cart'] = $cart;
         $returnData['is_valid_code'] = $isValid;
+        $returnData['success'] = $isValid;
 
         if ($isValid && $request->getSession()) {
             $request->getSession()->getFlashBag()->add(

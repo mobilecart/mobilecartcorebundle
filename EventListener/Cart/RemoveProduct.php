@@ -73,6 +73,7 @@ class RemoveProduct
             ->getCart();
 
         $returnData['cart'] = $cart;
+        $returnData['success'] = 1;
 
         $response = '';
         switch($format) {

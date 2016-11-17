@@ -70,6 +70,7 @@ class RemoveProducts
             ->getCart();
 
         $returnData['cart'] = $cart;
+        $returnData['success'] = 1;
 
         //@todo: save cart, set id
         //$cartSession->setCart($returnData['cart']);

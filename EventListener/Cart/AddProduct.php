@@ -87,7 +87,7 @@ class AddProduct
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
-
+        $success = 0;
         $request = $event->getRequest();
         $format = $request->get('format', '');
 
@@ -162,6 +162,8 @@ class AddProduct
 
             if ($event->getIsAdd()) {
 
+                // todo: check inventory
+
                 $this->getCartSessionService()
                     ->addProductQty($productId, $qty);
 
@@ -200,6 +202,8 @@ class AddProduct
                     $cartItem->setId($cartItemEntity->getId());
                 }
             }
+
+            $success = 1;
 
         } else if ($this->getCartSessionService()->hasProductId($simpleProductId)) {
 
@@ -242,6 +246,8 @@ class AddProduct
                     $cartItem->setId($cartItemEntity->getId());
                 }
             }
+
+            $success = 1;
 
         } else if ($productId) {
 
@@ -290,6 +296,8 @@ class AddProduct
                 $cart->findItem('sku', $child->getSku())
                     ->setId($cartItemEntity->getId());
 
+                $success = 1;
+
             } else {
 
                 $this->getCartSessionService()
@@ -317,6 +325,7 @@ class AddProduct
                 $cart->findItem('sku', $product->getSku())
                     ->setId($cartItemEntity->getId());
 
+                $success = 1;
             }
         }
 
@@ -347,6 +356,7 @@ class AddProduct
         $cart->setId($cartId);
 
         $returnData['cart'] = $cart;
+        $returnData['success'] = $success;
 
         $response = '';
         switch($format) {
