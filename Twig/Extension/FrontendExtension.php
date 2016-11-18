@@ -79,6 +79,7 @@ class FrontendExtension extends \Twig_Extension
             'imagePath' => new \Twig_Function_Method($this, 'imagePath', ['is_safe' => ['html']]),
             'sortable' => new \Twig_Function_Method($this, 'sortable', ['is_safe' => ['html']]),
             'sortDir' => new \Twig_Function_Method($this, 'sortDir', ['is_safe' => ['html']]),
+            'sortBy' => new \Twig_Function_Method($this, 'sortBy', ['is_safe' => ['html']]),
             'theme' => new \Twig_Function_Method($this, 'theme', array('is_safe' => array('html'))),
             'layout' => new \Twig_Function_Method($this, 'layout', array('is_safe' => array('html'))),
             'frontend' => new \Twig_Function_Method($this, 'frontend', array('is_safe' => array('html'))),
@@ -460,6 +461,17 @@ class FrontendExtension extends \Twig_Extension
     }
 
     /**
+     * @return string
+     */
+    public function sortBy()
+    {
+        $sortByKey = 'sort';
+        return isset($_GET[$sortByKey])
+            ? $_GET[$sortByKey]
+            : '';
+    }
+
+    /**
      * @return array
      */
     public function sortableProduct()
@@ -744,11 +756,11 @@ class FrontendExtension extends \Twig_Extension
     }
 
     /**
-     * @param $lastPageNbr
      * @param $currentPage
+     * @param $lastPageNbr
      * @return array
      */
-    public function getPages($lastPageNbr, $currentPage)
+    public function getPages($currentPage, $lastPageNbr)
     {
         $pages = [];
         for ($x=1; $x <= $lastPageNbr; $x++) {
