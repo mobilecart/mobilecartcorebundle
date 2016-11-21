@@ -11,6 +11,8 @@
 
 namespace MobileCart\CoreBundle\Controller;
 
+use MobileCart\CoreBundle\Event\CoreEvent;
+use MobileCart\CoreBundle\Event\CoreEvents;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
@@ -29,8 +31,15 @@ class SecurityController extends Controller
             'error'         => $helper->getLastAuthenticationError(),
         ];
 
+        $event = new CoreEvent();
+        $event->setRequest($request)
+            ->setReturnData($returnData);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::LOGIN_VIEW_RETURN, $event);
+
         return $this->get('cart.theme')
-            ->render('frontend', 'Security:login.html.twig', $returnData);
+            ->render('frontend', 'Security:login.html.twig', $event->getReturnData());
     }
 
     // no annotations here
