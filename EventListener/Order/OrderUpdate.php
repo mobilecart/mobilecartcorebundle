@@ -67,7 +67,7 @@ class OrderUpdate
 
             // update var values
             $this->getEntityService()
-                ->handleVarValueUpdate($event->getObjectType(), $entity, $formData);
+                ->persistVariants($event->getObjectType(), $entity, $formData);
 
         }
 

@@ -66,7 +66,7 @@ class ProductInsert
         if ($formData) {
 
             $this->getEntityService()
-                ->handleVarValueCreate($event->getObjectType(), $entity, $formData);
+                ->persistVariants($event->getObjectType(), $entity, $formData);
         }
 
         if ($entity && $request->getSession()) {

@@ -551,7 +551,7 @@ class Product
 
             if ($itemVar->getFormInput() == 'multiselect') {
                 if (!isset($data[$itemVar->getCode()])) {
-                    $data[$itemVar->getCode()] = array();
+                    $data[$itemVar->getCode()] = [];
                 }
                 $data[$itemVar->getCode()][] = $value;
             } else {
@@ -607,7 +607,7 @@ class Product
 
             if ($itemVar->getFormInput() == 'multiselect') {
                 if (!isset($data[$itemVar->getCode()])) {
-                    $data[$itemVar->getCode()] = array();
+                    $data[$itemVar->getCode()] = [];
                 }
                 $data[$itemVar->getCode()][] = $value;
             } else {
