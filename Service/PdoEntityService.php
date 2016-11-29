@@ -263,6 +263,10 @@ class PdoEntityService
             $entity = new ArrayWrapper($entity);
         }
 
+        if (!$objectType) {
+            $objectType = $entity->getObjectTypeName();
+        }
+
         // build delete query
         $id = $entity->getId();
 
@@ -423,7 +427,7 @@ class PdoEntityService
         }
     }
 
-    public function handleVarValueSave($objectType, $entity, array $data)
+    public function persistVariants($objectType, $entity, array $data)
     {
         if (is_array($entity)) {
             $entity = new ArrayWrapper($entity);
@@ -436,6 +440,36 @@ class PdoEntityService
         if (!$entityId && isset($data['id'])) {
             $entityId = $data['id'];
             unset($data['id']);
+        }
+
+        // check if we have multi-select inputs before we getVarValues(), which executes queries
+        $hasMultiSelect = false;
+        foreach($data as $k => $v) {
+            if (is_array($v)) {
+                $hasMultiSelect = true;
+                break;
+            }
+        }
+
+        // Note : if there's no value selected in a select input
+        //  it won't show up in the post data
+        // You need to detect that yourself and pass in an empty array for that key; if you want the values deleted
+        if ($hasMultiSelect) {
+            $currentValues = $entity->getVarValues();
+            if ($currentValues) {
+                foreach($currentValues as $varValue) {
+                    $itemVar = $varValue->getItemVar();
+                    $code = $itemVar->getCode();
+                    $value = $varValue->getValue();
+
+                    if (isset($data[$code])
+                        && is_array($data[$code])
+                        && (!count($data[$code]) || !in_array($value, $data[$code]))
+                    ) {
+                        $this->remove($varValue);
+                    }
+                }
+            }
         }
 
         // loop on variant data
@@ -457,32 +491,32 @@ class PdoEntityService
 
             $varValueObjectType = $this->getVarValueKey($objectType, $itemVar['datatype']);
 
-            switch($itemVar['input_type']) {
+            $varOptionObjectType = '';
+            switch($itemVar['datatype']) {
+                case EntityConstants::DATETIME:
+                    $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_DATETIME;
+                    break;
+                case EntityConstants::DECIMAL:
+                    $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_DECIMAL;
+                    break;
+                case EntityConstants::INT:
+                    $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_INT;
+                    break;
+                case EntityConstants::VARCHAR:
+                    $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_VARCHAR;
+                    break;
+                case EntityConstants::TEXT:
+                    $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_TEXT;
+                    break;
+                default:
+                    continue;
+                    break;
+            }
+
+            switch($itemVar['form_input']) {
                 case EntityConstants::INPUT_SELECT:
 
-                    $varOptionObjectType = '';
-
-                    switch($itemVar['datatype']) {
-                        case EntityConstants::DATETIME:
-                            $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_DATETIME;
-                            break;
-                        case EntityConstants::DECIMAL:
-                            $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_DECIMAL;
-                            break;
-                        case EntityConstants::INT:
-                            $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_INT;
-                            break;
-                        case EntityConstants::VARCHAR:
-                            $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_VARCHAR;
-                            break;
-                        case EntityConstants::TEXT:
-                            $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_TEXT;
-                            break;
-                        default:
-                            continue;
-                            break;
-                    }
-
+                    // check if we have a ItemVarOption
                     $varOption = $this->findOneBy($varOptionObjectType, [
                         'item_var_id' => $itemVar['id'],
                         'value' => $v
@@ -490,7 +524,7 @@ class PdoEntityService
 
                     $varOptionId = $varOption
                         ? $varOption['id']
-                        : 0;
+                        : null;
 
                     if (!$varOption) {
                         // save new option
@@ -535,30 +569,8 @@ class PdoEntityService
                     break;
                 case EntityConstants::INPUT_MULTISELECT:
 
-                    $varOptionObjectType = '';
-
-                    switch($itemVar['datatype']) {
-                        case EntityConstants::DATETIME:
-                            $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_DATETIME;
-                            break;
-                        case EntityConstants::DECIMAL:
-                            $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_DECIMAL;
-                            break;
-                        case EntityConstants::INT:
-                            $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_INT;
-                            break;
-                        case EntityConstants::VARCHAR:
-                            $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_VARCHAR;
-                            break;
-                        case EntityConstants::TEXT:
-                            $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_TEXT;
-                            break;
-                        default:
-                            continue;
-                            break;
-                    }
-
-                    $varValues = $this->findBy($varOptionObjectType, [
+                    // load all values for this entity and variant
+                    $varValues = $this->findBy($varValueObjectType, [
                         'parent_id' => $entityId,
                         'item_var_id' => $itemVar['id'],
                     ]);
@@ -567,6 +579,9 @@ class PdoEntityService
                         $v = [$v];
                     }
 
+                    // loop on form data
+                    //  check for var option . automatically create new var option
+                    //
                     foreach($v as $varValue) {
 
                         $varOption = $this->findOneBy($varOptionObjectType, [
@@ -599,11 +614,13 @@ class PdoEntityService
 
                             // figure out if we already have this value, avoid a duplicate being saved
                             $exists = false;
-                            foreach($varValues as $k => $aVarValue) {
-                                if ($aVarValue['value'] == $varValue) {
-                                    unset($varValues[$k]);
-                                    $exists = true;
-                                    break;
+                            if ($varValues) {
+                                foreach($varValues as $k => $aVarValue) {
+                                    if ($aVarValue['value'] == $varValue) {
+                                        unset($varValues[$k]);
+                                        $exists = true;
+                                        break;
+                                    }
                                 }
                             }
 
@@ -617,13 +634,6 @@ class PdoEntityService
                                 'parent_id' => $entityId,
                                 'value' => $varValue,
                             ];
-
-                            // look for for row
-                            $this->findOneBy($varValueObjectType, [
-                                'parent_id' => $entityId,
-                                'item_var_id' => $itemVar['id'],
-                                'item_var_option_id' => $varOptionId,
-                            ]);
 
                             $this->persist($varValueData, $varValueObjectType);
                         }
@@ -659,37 +669,5 @@ class PdoEntityService
                     break;
             }
         }
-    }
-
-    /**
-     * Create EAV Values for a newly created Entity
-     *  only creates rows for submitted vars
-     *
-     * @param $objectType
-     * @param $entity
-     * @param array $formData
-     * @return $this
-     * @throws \InvalidArgumentException
-     */
-    public function handleVarValueCreate($objectType, $entity, array $formData)
-    {
-        $this->handleVarValueSave($objectType, $entity, $formData);
-        return $this;
-    }
-
-    /**
-     * Update EAV Values for an existing Entity
-     *  look for existing rows and remove if necessary
-     *
-     * @param $objectType
-     * @param $entity
-     * @param array $formData
-     * @return $this
-     * @throws \Exception
-     */
-    public function handleVarValueUpdate($objectType, $entity, array $formData)
-    {
-        $this->handleVarValueSave($objectType, $entity, $formData);
-        return $this;
     }
 }

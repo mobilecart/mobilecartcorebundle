@@ -1022,7 +1022,7 @@ class OrderService
         // handle EAV, if necessary
         //if ($formData /* && $this->getEntityService()->isEAV() */) {
         //    $this->getEntityService()
-        //        ->handleVarValueCreate(EntityConstants::ORDER, $order, $formData);
+        //        ->persistVariants(EntityConstants::ORDER, $order, $formData);
         //}
 
         // set order for further processing

@@ -560,1070 +560,251 @@ class DoctrineEntityService
     }
 
     /**
-     * Create EAV Values for a newly created Entity
-     *  only creates rows for submitted vars
+     * Update EAV for a single entity
      *
      * @param $objectType
      * @param $entity
-     * @param array $formData
+     * @param array $data
      * @return $this
      */
-    public function handleVarValueCreate($objectType, $entity, array $formData)
+    public function persistVariants($objectType, $entity, array $data)
     {
+        // nothing to do if there's no data
+        if (!$data) {
+            return $this;
+        }
+
         if (!$objectType) {
             $objectType = $entity->getObjectTypeName();
         }
 
-        if ($formData) {
+        // separate base data from variant data
+        $instance = $this->getInstance($objectType);
+        $baseDataKeys = array_keys($instance->getBaseData());
 
-            $baseData = $entity->getBaseData();
+        // check if we have multi-select inputs before we getVarValues(), which executes queries
+        $hasMultiSelect = false;
+        foreach($data as $k => $v) {
+            if (is_array($v)) {
+                $hasMultiSelect = true;
+                break;
+            }
+        }
 
-            foreach($formData as $key => $value) {
+        // Note : if there's no value selected in a select input
+        //  it won't show up in the post data
+        // You need to detect that yourself and pass in an empty array for that key; if you want the values deleted
+        if ($hasMultiSelect) {
+            $currentValues = $entity->getVarValues();
+            if ($currentValues) {
+                foreach($currentValues as $varValue) {
+                    $itemVar = $varValue->getItemVar();
+                    $code = $itemVar->getCode();
+                    $value = $varValue->getValue();
 
-                /**
-                 * Logic overview:
-                 *
-                 *  Load Variant
-                 *  Handle input type: multiselect, select, text
-                 *  Save value(s) and possible associations according to what is expected
-                 *
-                 */
-
-                if (isset($baseData[$key])) {
-                    // skip un-necessary lookups
-                    continue;
-                }
-
-                $pVar = false;
-                if (substr($key, 0, strlen('var_')) == 'var_') {
-                    $info = explode('_', $key);
-                    $varId = isset($info[1]) ? $info[1] : 0;
-                    if (!$varId) {
-                        continue;
+                    if (isset($data[$code])
+                        && is_array($data[$code])
+                        && (!count($data[$code]) || !in_array($value, $data[$code]))
+                    ) {
+                        $this->remove($varValue);
                     }
-
-                    /** @var ItemVar $pVar */
-                    $pVar = $this->getRepository(EntityConstants::ITEM_VAR)->find($varId);
-
-                } else {
-
-                    /** @var ItemVar $pVar */
-                    $pVar = $this->getRepository(EntityConstants::ITEM_VAR)->findOneBy([
-                        'code' => $key,
-                    ]);
-                }
-
-                if (!$pVar) {
-                    continue;
-                }
-
-                switch($pVar->getDatatype()) {
-                    case EntityConstants::DATETIME:
-                        $pVarValue = $this->getVarValueInstance($objectType, EntityConstants::DATETIME);
-
-                        switch($pVar->getFormInput()) {
-                            case EntityConstants::INPUT_MULTISELECT:
-                                // assuming: multiple values, all associated to options
-
-                                if (!is_array($value)) {
-                                    $value = [$value];
-                                }
-
-                                foreach($value as $aVal) {
-
-                                    $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_DATETIME, [
-                                        'value' => $aVal,
-                                    ]);
-
-                                    if ($varOption) {
-                                        $pVarValue = $this->getVarValueInstance($objectType, EntityConstants::DATETIME);
-                                        $pVarValue->setItemVarOption($varOption);
-                                        $pVarValue->setParent($entity);
-                                        $pVarValue->setItemVar($pVar);
-                                        $pVarValue->setValue($aVal);
-                                        $this->persist($pVarValue);
-                                    }
-                                }
-
-                                break;
-                            case EntityConstants::INPUT_SELECT:
-                                // assuming: single value, associated to option
-
-                                $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_DATETIME, [
-                                    'value' => $value,
-                                ]);
-
-                                if ($varOption) {
-                                    $pVarValue->setItemVarOption($varOption);
-                                    $pVarValue->setParent($entity);
-                                    $pVarValue->setItemVar($pVar);
-                                    $pVarValue->setValue($value);
-                                    $this->persist($pVarValue);
-                                }
-
-                                break;
-                            default:
-                                // assuming: single value, not associated to option
-
-                                //$value = gmdate('Y-m-d H:i:s', strtotime($value));
-
-                                $pVarValue->setParent($entity);
-                                $pVarValue->setItemVar($pVar);
-                                $pVarValue->setValue($value);
-                                $this->persist($pVarValue);
-
-                                break;
-                        }
-
-                        break;
-                    case EntityConstants::DECIMAL:
-                        $pVarValue = $this->getVarValueInstance($objectType, EntityConstants::DECIMAL);
-
-                        switch($pVar->getFormInput()) {
-                            case EntityConstants::INPUT_MULTISELECT:
-                                // assuming: multiple values, all associated to options
-
-                                if (!is_array($value)) {
-                                    $value = [$value];
-                                }
-
-                                foreach($value as $aVal) {
-
-                                    $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_DECIMAL, [
-                                        'value' => $aVal,
-                                    ]);
-
-                                    if ($varOption) {
-                                        $pVarValue = $this->getVarValueInstance($objectType, EntityConstants::DECIMAL);
-                                        $pVarValue->setItemVarOption($varOption);
-                                        $pVarValue->setParent($entity);
-                                        $pVarValue->setItemVar($pVar);
-                                        $pVarValue->setValue($aVal);
-                                        $this->persist($pVarValue);
-                                    }
-                                }
-
-                                break;
-                            case EntityConstants::INPUT_SELECT:
-                                // assuming: single value, associated to option
-
-                                $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_DECIMAL, [
-                                    'value' => $value,
-                                ]);
-
-                                if ($varOption) {
-                                    $pVarValue->setItemVarOption($varOption);
-                                    $pVarValue->setParent($entity);
-                                    $pVarValue->setItemVar($pVar);
-                                    $pVarValue->setValue($value);
-                                    $this->persist($pVarValue);
-                                }
-
-                                break;
-                            default:
-                                // assuming: single value, not associated to option
-
-                                // $value = (float) $value;
-
-                                $pVarValue->setParent($entity);
-                                $pVarValue->setItemVar($pVar);
-                                $pVarValue->setValue($value);
-                                $this->persist($pVarValue);
-
-                                break;
-                        }
-
-                        break;
-                    case EntityConstants::INT:
-                        $pVarValue = $this->getVarValueInstance($objectType, EntityConstants::INT);
-
-                        switch($pVar->getFormInput()) {
-                            case EntityConstants::INPUT_MULTISELECT:
-                                // assuming: multiple values, all associated to options
-
-                                if (!is_array($value)) {
-                                    $value = [$value];
-                                }
-
-                                foreach($value as $aVal) {
-
-                                    $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_INT, [
-                                        'value' => $aVal,
-                                    ]);
-
-                                    if ($varOption) {
-                                        $pVarValue = $this->getVarValueInstance($objectType, EntityConstants::INT);
-                                        $pVarValue->setItemVarOption($varOption);
-                                        $pVarValue->setParent($entity);
-                                        $pVarValue->setItemVar($pVar);
-                                        $pVarValue->setValue($aVal);
-                                        $this->persist($pVarValue);
-                                    }
-                                }
-
-                                break;
-                            case EntityConstants::INPUT_SELECT:
-                                // assuming: single value, associated to option
-
-                                $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_INT, [
-                                    'value' => $value,
-                                ]);
-
-                                if ($varOption) {
-                                    $pVarValue->setItemVarOption($varOption);
-                                    $pVarValue->setParent($entity);
-                                    $pVarValue->setItemVar($pVar);
-                                    $pVarValue->setValue($value);
-                                    $this->persist($pVarValue);
-                                }
-
-                                break;
-                            default:
-                                // assuming: single value, not associated to option
-
-                                $pVarValue->setParent($entity);
-                                $pVarValue->setItemVar($pVar);
-                                $pVarValue->setValue($value);
-                                $this->persist($pVarValue);
-
-                                break;
-                        }
-
-                        break;
-                    case EntityConstants::VARCHAR:
-                        $pVarValue = $this->getVarValueInstance($objectType, EntityConstants::VARCHAR);
-
-                        switch($pVar->getFormInput()) {
-                            case EntityConstants::INPUT_MULTISELECT:
-                                // assuming: multiple values, all associated to options
-
-                                if (!is_array($value)) {
-                                    $value = [$value];
-                                }
-
-                                foreach($value as $aVal) {
-
-                                    $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_VARCHAR, [
-                                        'value' => $aVal,
-                                    ]);
-
-                                    if ($varOption) {
-                                        $pVarValue = $this->getVarValueInstance($objectType, EntityConstants::VARCHAR);
-                                        $pVarValue->setItemVarOption($varOption);
-                                        $pVarValue->setParent($entity);
-                                        $pVarValue->setItemVar($pVar);
-                                        $pVarValue->setValue($aVal);
-                                        $this->persist($pVarValue);
-                                    }
-                                }
-
-                                break;
-                            case EntityConstants::INPUT_SELECT:
-                                // assuming: single value, associated to option
-
-                                $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_VARCHAR, [
-                                    'value' => $value,
-                                ]);
-
-                                if ($varOption) {
-                                    $pVarValue->setItemVarOption($varOption);
-                                    $pVarValue->setParent($entity);
-                                    $pVarValue->setItemVar($pVar);
-                                    $pVarValue->setValue($value);
-                                    $this->persist($pVarValue);
-                                }
-
-                                break;
-                            default:
-                                // assuming: single value, not associated to option
-
-                                $pVarValue->setParent($entity);
-                                $pVarValue->setItemVar($pVar);
-                                $pVarValue->setValue($value);
-                                $this->persist($pVarValue);
-
-                                break;
-                        }
-
-                        break;
-                    case EntityConstants::TEXT:
-                        $pVarValue = $this->getVarValueInstance($objectType, EntityConstants::TEXT);
-
-                        switch($pVar->getFormInput()) {
-                            case EntityConstants::INPUT_MULTISELECT:
-                                // assuming: multiple values, all associated to options
-
-                                if (!is_array($value)) {
-                                    $value = [$value];
-                                }
-
-                                foreach($value as $aVal) {
-
-                                    $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_TEXT, [
-                                        'value' => $aVal,
-                                    ]);
-
-                                    if ($varOption) {
-                                        $pVarValue = $this->getVarValueInstance($objectType, EntityConstants::TEXT);
-                                        $pVarValue->setItemVarOption($varOption);
-                                        $pVarValue->setParent($entity);
-                                        $pVarValue->setItemVar($pVar);
-                                        $pVarValue->setValue($aVal);
-                                        $this->persist($pVarValue);
-                                    }
-                                }
-
-                                break;
-                            case EntityConstants::INPUT_SELECT:
-                                // assuming: single value, associated to option
-
-                                $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_TEXT, [
-                                    'value' => $value,
-                                ]);
-
-                                if ($varOption) {
-                                    $pVarValue->setItemVarOption($varOption);
-                                    $pVarValue->setParent($entity);
-                                    $pVarValue->setItemVar($pVar);
-                                    $pVarValue->setValue($value);
-                                    $this->persist($pVarValue);
-                                }
-
-                                break;
-                            default:
-                                // assuming: single value, not associated to option
-
-                                $pVarValue->setParent($entity);
-                                $pVarValue->setItemVar($pVar);
-                                $pVarValue->setValue($value);
-                                $this->persist($pVarValue);
-
-                                break;
-                        }
-
-                        break;
-                    default:
-                        // don't save anything
-                        break;
                 }
             }
         }
 
-        return $this;
-    }
+        // loop on variant data
+        foreach($data as $k => $v) {
 
-    /**
-     * Update EAV Values for an existing Entity
-     *  look for existing rows and remove if necessary
-     *
-     * @param $objectType
-     * @param $entity
-     * @param array $formData
-     * @return $this
-     * @throws \Exception
-     */
-    public function handleVarValueUpdate($objectType, $entity, array $formData)
-    {
-        if (!$objectType) {
-            $objectType = $entity->getObjectTypeName();
-        }
+            if (in_array($k, $baseDataKeys)) {
+                unset($data[$k]);
+                continue;
+            }
 
-        if ($formData) {
+            // load variant and determine input type
+            $itemVar = $this->findOneBy(EntityConstants::ITEM_VAR, [
+                'code' => $k,
+            ]);
 
-            $baseData = $entity->getBaseData();
-            $currentData = $entity->getData();
+            if (!$itemVar) {
+                continue;
+            }
 
-            foreach($formData as $key => $value) {
+            $varValueObjectType = $this->getVarValueKey($objectType, $itemVar->getDatatype());
 
-                /**
-                 * Logic overview:
-                 *
-                 *  Load Variant
-                 *  Handle input type: multiselect, select, text
-                 *  Save value(s) and possible associations according to what is expected
-                 *
-                 */
-
-                if (isset($baseData[$key])) {
-                    // skip un-necessary lookups
+            $varOptionObjectType = '';
+            switch($itemVar->getDatatype()) {
+                case EntityConstants::DATETIME:
+                    $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_DATETIME;
+                    break;
+                case EntityConstants::DECIMAL:
+                    $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_DECIMAL;
+                    break;
+                case EntityConstants::INT:
+                    $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_INT;
+                    break;
+                case EntityConstants::VARCHAR:
+                    $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_VARCHAR;
+                    break;
+                case EntityConstants::TEXT:
+                    $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_TEXT;
+                    break;
+                default:
                     continue;
-                }
+                    break;
+            }
 
-                $pVar = false;
-                if (substr($key, 0, strlen('var_')) == 'var_') {
-                    $info = explode('_', $key);
-                    $varId = isset($info[1]) ? $info[1] : 0;
-                    if (!$varId) {
-                        continue;
+            // most simple way to separate the logic is on the form input
+            // its either single-option, multi-option, or single value
+            switch($itemVar->getFormInput()) {
+                case EntityConstants::INPUT_SELECT:
+
+                    $varOption = $this->findOneBy($varOptionObjectType, [
+                        'item_var' => $itemVar->getId(),
+                        'value' => $v
+                    ]);
+
+                    $varOptionId = $varOption
+                        ? $varOption->getId()
+                        : 0;
+
+                    if (!$varOption) {
+
+                        // save new var option
+                        $varOption = $this->getInstance($varOptionObjectType);
+                        $varOption->setItemVar($itemVar)
+                            ->setValue($v)
+                            ->setUrlValue($this->slugify($v));
+
+                        $this->persist($varOption);
+
+                        // insert new row in x_var_value_y
+
+                        $varValue = $this->getInstance($varValueObjectType);
+                        $varValue->setItemVar($itemVar)
+                            ->setItemVarOption($varOption)
+                            ->setParent($entity)
+                            ->setValue($v);
+
+                    } else {
+
+                        // we have a ItemVarOption
+
+                        // look for for existing VarValue in x_var_value_y
+                        //  we can only have 1 value, since it's not a multi-select
+
+                        $varValue = $this->findOneBy($varValueObjectType, [
+                            'parent' => $entity->getId(),
+                            'item_var' => $itemVar->getId(),
+                            'item_var_option' => $varOptionId,
+                        ]);
+
+                        if (!$varValue) {
+
+                            $varValue = $this->getInstance($varValueObjectType);
+                            $varValue->setItemVar($itemVar)
+                                ->setParent($entity)
+                                ->setItemVarOption($varOption);
+                        }
+
+                        $varValue->setValue($v);
+                        $this->persist($varValue);
                     }
 
-                    /** @var ItemVar $pVar */
-                    $pVar = $this->getRepository(EntityConstants::ITEM_VAR)->find($varId);
+                    break;
+                case EntityConstants::INPUT_MULTISELECT:
 
-                } else {
-
-                    /** @var ItemVar $pVar */
-                    $pVar = $this->getRepository(EntityConstants::ITEM_VAR)->findOneBy([
-                        'code' => $key,
+                    // load all values for this entity and variant
+                    $varValues = $this->findBy($varValueObjectType, [
+                        'parent' => $entity->getId(),
+                        'item_var' => $itemVar->getId(),
                     ]);
-                }
 
-                if (!$pVar) {
-                    continue;
-                }
+                    if (!is_array($v)) {
+                        $v = [$v];
+                    }
 
-                switch($pVar->getDatatype()) {
-                    case EntityConstants::DATETIME:
+                    // loop on form data
+                    foreach($v as $varValue) {
 
-                        switch($pVar->getFormInput()) {
-                            case EntityConstants::INPUT_MULTISELECT:
-                                // assuming: multiple values, all associated to options
+                        // see if we have a VarOption with the specified value
+                        $varOption = $this->findOneBy($varOptionObjectType, [
+                            'item_var' => $itemVar->getId(),
+                            'value' => $varValue
+                        ]);
 
-                                if (!is_array($value)) {
-                                    $value = [$value];
-                                }
+                        // if we dont have an Option, create one
+                        if (!$varOption) {
 
-                                $currentValues = isset($currentData[$key])
-                                    ? $currentData[$key]
-                                    : [];
+                            // automatically create new var option
+                            $varOption = $this->getInstance($varOptionObjectType);
+                            $varOption->setItemVar($itemVar)
+                                ->setValue($v)
+                                ->setUrlValue($this->slugify($v));
 
-                                $added = array_diff($currentValues, $value);
-                                $removed = array_diff($value, $currentValues);
+                            $this->persist($varOption);
 
-                                foreach($value as $aVal) {
+                            // insert new row in x_var_value_y
 
-                                    if (in_array($aVal, $added)) {
+                            $aVarValue = $this->getInstance($varValueObjectType);
+                            $aVarValue->setItemVar($itemVar)
+                                ->setItemVarOption($varOption)
+                                ->setParent($entity)
+                                ->setValue($varValue);
 
-                                        $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_DATETIME, [
-                                            'value' => $aVal,
-                                        ]);
+                            $this->persist($aVarValue);
 
-                                        if ($varOption) {
-                                            $pVarValue = $this->getVarValueInstance($objectType, $pVar->getDatatype());
-                                            $pVarValue->setItemVarOption($varOption);
-                                            $pVarValue->setParent($entity);
-                                            $pVarValue->setItemVar($pVar);
-                                            $pVarValue->setValue($aVal);
-                                            $this->persist($pVarValue);
-                                        }
-                                    } elseif (in_array($aVal, $removed)) {
+                        } else {
 
-                                        $children = $entity->getVarValuesDatetime();
-                                        if ($children->count()) {
-                                            foreach($children as $child) {
-                                                if ($child->getItemVar()->getId() != $pVar->getId()) {
-                                                    continue;
-                                                }
+                            // we have a VarOption
 
-                                                if ($child->getValue() == $aVal) {
-                                                    $this->remove($child);
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    } // else, nothing changed
-                                }
-
-                                break;
-                            case EntityConstants::INPUT_SELECT:
-                                // assuming: single value, associated to option
-
-                                $currentValue = isset($currentData[$key])
-                                    ? $currentData[$key]
-                                    : '';
-
-                                if (!$currentValue && !$value) {
-                                    continue;
-                                }
-
-                                if ($value == $currentValue) {
-                                    continue;
-                                }
-
-                                $children = $entity->getVarValuesDatetime();
-                                if ($children->count()) {
-                                    foreach($children as $child) {
-                                        if ($child->getItemVar()->getId() != $pVar->getId()) {
-                                            continue;
-                                        }
-
-                                        $this->remove($child);
+                            // figure out if we already have this value, and avoid a duplicate being saved
+                            $exists = false;
+                            if ($varValues) {
+                                foreach($varValues as $k => $aVarValue) {
+                                    if ($aVarValue->getValue() == $varValue) {
+                                        unset($varValues[$k]); // unset values as we find them. whatever is left is deleted
+                                        $exists = true;
+                                        break;
                                     }
                                 }
+                            }
 
-                                $pVarValue = $this->getVarValueInstance($objectType, $pVar->getDatatype());
+                            if ($exists) {
+                                // we already have the value, nothing to do
+                                continue;
+                            }
 
-                                $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_DATETIME, [
-                                    'value' => $value,
-                                ]);
+                            // assuming we need to create a VarValue
 
-                                if ($varOption) {
-                                    $pVarValue->setItemVarOption($varOption);
-                                    $pVarValue->setParent($entity);
-                                    $pVarValue->setItemVar($pVar);
-                                    $pVarValue->setValue($value);
-                                    $this->persist($pVarValue);
-                                }
+                            $aVarValue = $this->getInstance($varValueObjectType);
+                            $aVarValue->setItemVar($itemVar)
+                                ->setParent($entity)
+                                ->setItemVarOption($varOption)
+                                ->setValue($varValue);
 
-                                break;
-                            default:
-                                // assuming: single value, not associated to option
-
-                                $currentValue = isset($currentData[$key])
-                                    ? $currentData[$key]
-                                    : '';
-
-                                if (!$currentValue && !$value) {
-                                    continue;
-                                }
-
-                                if ($value == $currentValue) {
-                                    continue;
-                                }
-
-                                $children = $entity->getVarValuesDatetime();
-                                if ($children->count()) {
-                                    foreach($children as $child) {
-                                        if ($child->getItemVar()->getId() != $pVar->getId()) {
-                                            continue;
-                                        }
-
-                                        $this->remove($child);
-                                    }
-                                }
-
-                                $pVarValue = $this->getVarValueInstance($objectType, $pVar->getDatatype());
-                                $pVarValue->setParent($entity);
-                                $pVarValue->setItemVar($pVar);
-                                $pVarValue->setValue($value);
-                                $this->persist($pVarValue);
-
-                                break;
+                            $this->persist($aVarValue);
                         }
-
-                        break;
-                    case EntityConstants::DECIMAL:
-
-                        switch($pVar->getFormInput()) {
-                            case EntityConstants::INPUT_MULTISELECT:
-                                // assuming: multiple values, all associated to options
-
-                                if (!is_array($value)) {
-                                    $value = [$value];
-                                }
-
-                                $currentValues = isset($currentData[$key])
-                                    ? $currentData[$key]
-                                    : [];
-
-                                $added = array_diff($currentValues, $value);
-                                $removed = array_diff($value, $currentValues);
-
-                                foreach($value as $aVal) {
-
-                                    if (in_array($aVal, $added)) {
-
-                                        $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_DECIMAL, [
-                                            'value' => $aVal,
-                                        ]);
-
-                                        if ($varOption) {
-                                            $pVarValue = $this->getVarValueInstance($objectType, $pVar->getDatatype());
-                                            $pVarValue->setItemVarOption($varOption);
-                                            $pVarValue->setParent($entity);
-                                            $pVarValue->setItemVar($pVar);
-                                            $pVarValue->setValue($aVal);
-                                            $this->persist($pVarValue);
-                                        }
-                                    } elseif (in_array($aVal, $removed)) {
-
-                                        $children = $entity->getVarValuesDecimal();
-                                        if ($children->count()) {
-                                            foreach($children as $child) {
-                                                if ($child->getItemVar()->getId() != $pVar->getId()) {
-                                                    continue;
-                                                }
-
-                                                if ($child->getValue() == $aVal) {
-                                                    $this->remove($child);
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    } // else, nothing changed
-                                }
-
-                                break;
-                            case EntityConstants::INPUT_SELECT:
-                                // assuming: single value, associated to option
-
-                                $currentValue = isset($currentData[$key])
-                                    ? $currentData[$key]
-                                    : '';
-
-                                if (!$currentValue && !$value) {
-                                    continue;
-                                }
-
-                                if ($value == $currentValue) {
-                                    continue;
-                                }
-
-                                $children = $entity->getVarValuesDecimal();
-                                if ($children->count()) {
-                                    foreach($children as $child) {
-                                        if ($child->getItemVar()->getId() != $pVar->getId()) {
-                                            continue;
-                                        }
-
-                                        $this->remove($child);
-                                    }
-                                }
-
-                                $pVarValue = $this->getVarValueInstance($objectType, $pVar->getDatatype());
-
-                                $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_DECIMAL, [
-                                    'value' => $value,
-                                ]);
-
-                                if ($varOption) {
-                                    $pVarValue->setItemVarOption($varOption);
-                                    $pVarValue->setParent($entity);
-                                    $pVarValue->setItemVar($pVar);
-                                    $pVarValue->setValue($value);
-                                    $this->persist($pVarValue);
-                                }
-
-                                break;
-                            default:
-                                // assuming: single value, not associated to option
-
-                                $currentValue = isset($currentData[$key])
-                                    ? $currentData[$key]
-                                    : '';
-
-                                if (!$currentValue && !$value) {
-                                    continue;
-                                }
-
-                                if ($value == $currentValue) {
-                                    continue;
-                                }
-
-                                $children = $entity->getVarValuesDecimal();
-                                if ($children->count()) {
-                                    foreach($children as $child) {
-                                        if ($child->getItemVar()->getId() != $pVar->getId()) {
-                                            continue;
-                                        }
-
-                                        $this->remove($child);
-                                    }
-                                }
-
-                                $pVarValue = $this->getVarValueInstance($objectType, $pVar->getDatatype());
-                                $pVarValue->setParent($entity);
-                                $pVarValue->setItemVar($pVar);
-                                $pVarValue->setValue($value);
-                                $this->persist($pVarValue);
-
-                                break;
-                        }
-
-                        break;
-                    case EntityConstants::INT:
-
-                        switch($pVar->getFormInput()) {
-                            case EntityConstants::INPUT_MULTISELECT:
-                                // assuming: multiple values, all associated to options
-
-                                if (!is_array($value)) {
-                                    $value = [$value];
-                                }
-
-                                $currentValues = isset($currentData[$key])
-                                    ? $currentData[$key]
-                                    : [];
-
-                                $added = array_diff($currentValues, $value);
-                                $removed = array_diff($value, $currentValues);
-
-                                foreach($value as $aVal) {
-
-                                    if (in_array($aVal, $added)) {
-
-                                        $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_INT, [
-                                            'value' => $aVal,
-                                        ]);
-
-                                        if ($varOption) {
-                                            $pVarValue = $this->getVarValueInstance($objectType, $pVar->getDatatype());
-                                            $pVarValue->setItemVarOption($varOption);
-                                            $pVarValue->setParent($entity);
-                                            $pVarValue->setItemVar($pVar);
-                                            $pVarValue->setValue($aVal);
-                                            $this->persist($pVarValue);
-                                        }
-                                    } elseif (in_array($aVal, $removed)) {
-
-                                        $children = $entity->getVarValuesInt();
-                                        if ($children->count()) {
-                                            foreach($children as $child) {
-                                                if ($child->getItemVar()->getId() != $pVar->getId()) {
-                                                    continue;
-                                                }
-
-                                                if ($child->getValue() == $aVal) {
-                                                    $this->remove($child);
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    } // else, nothing changed
-                                }
-
-                                break;
-                            case EntityConstants::INPUT_SELECT:
-                                // assuming: single value, associated to option
-
-                                $currentValue = isset($currentData[$key])
-                                    ? $currentData[$key]
-                                    : '';
-
-                                if (!$currentValue && !$value) {
-                                    continue;
-                                }
-
-                                if ($value == $currentValue) {
-                                    continue;
-                                }
-
-                                $children = $entity->getVarValuesInt();
-                                if ($children->count()) {
-                                    foreach($children as $child) {
-                                        if ($child->getItemVar()->getId() != $pVar->getId()) {
-                                            continue;
-                                        }
-
-                                        $this->remove($child);
-                                    }
-                                }
-
-                                $pVarValue = $this->getVarValueInstance($objectType, $pVar->getDatatype());
-
-                                $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_INT, [
-                                    'value' => $value,
-                                ]);
-
-                                if ($varOption) {
-                                    $pVarValue->setItemVarOption($varOption);
-                                    $pVarValue->setParent($entity);
-                                    $pVarValue->setItemVar($pVar);
-                                    $pVarValue->setValue($value);
-                                    $this->persist($pVarValue);
-                                }
-
-                                break;
-                            default:
-                                // assuming: single value, not associated to option
-
-                                $currentValue = isset($currentData[$key])
-                                    ? $currentData[$key]
-                                    : '';
-
-                                if (!$currentValue && !$value) {
-                                    continue;
-                                }
-
-                                if ($value == $currentValue) {
-                                    continue;
-                                }
-
-                                $children = $entity->getVarValuesInt();
-                                if ($children->count()) {
-                                    foreach($children as $child) {
-                                        if ($child->getItemVar()->getId() != $pVar->getId()) {
-                                            continue;
-                                        }
-
-                                        $this->remove($child);
-                                    }
-                                }
-
-                                $pVarValue = $this->getVarValueInstance($objectType, $pVar->getDatatype());
-                                $pVarValue->setParent($entity);
-                                $pVarValue->setItemVar($pVar);
-                                $pVarValue->setValue($value);
-                                $this->persist($pVarValue);
-
-                                break;
-                        }
-
-                        break;
-                    case EntityConstants::VARCHAR:
-
-                        switch($pVar->getFormInput()) {
-                            case EntityConstants::INPUT_MULTISELECT:
-                                // assuming: multiple values, all associated to options
-
-                                if (!is_array($value)) {
-                                    $value = [$value];
-                                }
-
-                                $currentValues = isset($currentData[$key])
-                                    ? $currentData[$key]
-                                    : [];
-
-                                $added = array_diff($currentValues, $value);
-                                $removed = array_diff($value, $currentValues);
-
-                                foreach($value as $aVal) {
-
-                                    if (in_array($aVal, $added)) {
-
-                                        $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_VARCHAR, [
-                                            'value' => $aVal,
-                                        ]);
-
-                                        if ($varOption) {
-                                            $pVarValue = $this->getVarValueInstance($objectType, $pVar->getDatatype());
-                                            $pVarValue->setItemVarOption($varOption);
-                                            $pVarValue->setParent($entity);
-                                            $pVarValue->setItemVar($pVar);
-                                            $pVarValue->setValue($aVal);
-                                            $this->persist($pVarValue);
-                                        }
-                                    } elseif (in_array($aVal, $removed)) {
-
-                                        $children = $entity->getVarValuesVarchar();
-                                        if ($children->count()) {
-                                            foreach($children as $child) {
-                                                if ($child->getItemVar()->getId() != $pVar->getId()) {
-                                                    continue;
-                                                }
-
-                                                if ($child->getValue() == $aVal) {
-                                                    $this->remove($child);
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    } // else, nothing changed
-                                }
-
-                                break;
-                            case EntityConstants::INPUT_SELECT:
-                                // assuming: single value, associated to option
-
-                                $currentValue = isset($currentData[$key])
-                                    ? $currentData[$key]
-                                    : '';
-
-                                if (!$currentValue && !$value) {
-                                    continue;
-                                }
-
-                                if ($value == $currentValue) {
-                                    continue;
-                                }
-
-                                $children = $entity->getVarValuesVarchar();
-                                if ($children->count()) {
-                                    foreach($children as $child) {
-                                        if ($child->getItemVar()->getId() != $pVar->getId()) {
-                                            continue;
-                                        }
-
-                                        $this->remove($child);
-                                    }
-                                }
-
-                                $pVarValue = $this->getVarValueInstance($objectType, $pVar->getDatatype());
-
-                                $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_VARCHAR, [
-                                    'value' => $value,
-                                ]);
-
-                                if ($varOption) {
-                                    $pVarValue->setItemVarOption($varOption);
-                                    $pVarValue->setParent($entity);
-                                    $pVarValue->setItemVar($pVar);
-                                    $pVarValue->setValue($value);
-                                    $this->persist($pVarValue);
-                                }
-
-                                break;
-                            default:
-                                // assuming: single value, not associated to option
-
-                                $currentValue = isset($currentData[$key])
-                                    ? $currentData[$key]
-                                    : '';
-
-                                if (!$currentValue && !$value) {
-                                    continue;
-                                }
-
-                                if ($value == $currentValue) {
-                                    continue;
-                                }
-
-                                $children = $entity->getVarValuesVarchar();
-                                if ($children->count()) {
-                                    foreach($children as $child) {
-                                        if ($child->getItemVar()->getId() != $pVar->getId()) {
-                                            continue;
-                                        }
-
-                                        $this->remove($child);
-                                    }
-                                }
-
-                                $pVarValue = $this->getVarValueInstance($objectType, $pVar->getDatatype());
-                                $pVarValue->setParent($entity);
-                                $pVarValue->setItemVar($pVar);
-                                $pVarValue->setValue($value);
-                                $this->persist($pVarValue);
-
-                                break;
-                        }
-
-                        break;
-                    case EntityConstants::TEXT:
-
-                        switch($pVar->getFormInput()) {
-                            case EntityConstants::INPUT_MULTISELECT:
-                                // assuming: multiple values, all associated to options
-
-                                if (!is_array($value)) {
-                                    $value = [$value];
-                                }
-
-                                $currentValues = isset($currentData[$key])
-                                    ? $currentData[$key]
-                                    : [];
-
-                                $added = array_diff($currentValues, $value);
-                                $removed = array_diff($value, $currentValues);
-
-                                foreach($value as $aVal) {
-
-                                    if (in_array($aVal, $added)) {
-
-                                        $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_TEXT, [
-                                            'value' => $aVal,
-                                        ]);
-
-                                        if ($varOption) {
-                                            $pVarValue = $this->getVarValueInstance($objectType, $pVar->getDatatype());
-                                            $pVarValue->setItemVarOption($varOption);
-                                            $pVarValue->setParent($entity);
-                                            $pVarValue->setItemVar($pVar);
-                                            $pVarValue->setValue($aVal);
-                                            $this->persist($pVarValue);
-                                        }
-                                    } elseif (in_array($aVal, $removed)) {
-
-                                        $children = $entity->getVarValuesText();
-                                        if ($children->count()) {
-                                            foreach($children as $child) {
-                                                if ($child->getItemVar()->getId() != $pVar->getId()) {
-                                                    continue;
-                                                }
-
-                                                if ($child->getValue() == $aVal) {
-                                                    $this->remove($child);
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    } // else, nothing changed
-                                }
-
-                                break;
-                            case EntityConstants::INPUT_SELECT:
-                                // assuming: single value, associated to option
-
-                                $currentValue = isset($currentData[$key])
-                                    ? $currentData[$key]
-                                    : '';
-
-                                if (!$currentValue && !$value) {
-                                    continue;
-                                }
-
-                                if ($value == $currentValue) {
-                                    continue;
-                                }
-
-                                $children = $entity->getVarValuesText();
-                                if ($children->count()) {
-                                    foreach($children as $child) {
-                                        if ($child->getItemVar()->getId() != $pVar->getId()) {
-                                            continue;
-                                        }
-
-                                        $this->remove($child);
-                                    }
-                                }
-
-                                $pVarValue = $this->getVarValueInstance($objectType, $pVar->getDatatype());
-
-                                $varOption = $this->findOneBy(EntityConstants::ITEM_VAR_OPTION_TEXT, [
-                                    'value' => $value,
-                                ]);
-
-                                if ($varOption) {
-                                    $pVarValue->setItemVarOption($varOption);
-                                    $pVarValue->setParent($entity);
-                                    $pVarValue->setItemVar($pVar);
-                                    $pVarValue->setValue($value);
-                                    $this->persist($pVarValue);
-                                }
-
-                                break;
-                            default:
-                                // assuming: single value, not associated to option
-
-                                $currentValue = isset($currentData[$key])
-                                    ? $currentData[$key]
-                                    : '';
-
-                                if (!$currentValue && !$value) {
-                                    continue;
-                                }
-
-                                if ($value == $currentValue) {
-                                    continue;
-                                }
-
-                                $children = $entity->getVarValuesText();
-                                if ($children->count()) {
-                                    foreach($children as $child) {
-                                        if ($child->getItemVar()->getId() != $pVar->getId()) {
-                                            continue;
-                                        }
-
-                                        $this->remove($child);
-                                    }
-                                }
-
-                                $pVarValue = $this->getVarValueInstance($objectType, $pVar->getDatatype());
-                                $pVarValue->setParent($entity);
-                                $pVarValue->setItemVar($pVar);
-                                $pVarValue->setValue($value);
-                                $this->persist($pVarValue);
-
-                                break;
-                        }
-
-                        break;
-                    default:
-
-                        // don't save anything
-
-                        break;
-                }
+                    }
+
+                    break;
+                default:
+
+                    // look for for row
+                    $varValue = $this->findOneBy($varValueObjectType, [
+                        'parent' => $entity->getId(),
+                        'item_var' => $itemVar->getId(),
+                    ]);
+
+                    if (!$varValue) {
+                        $varValue = $this->getInstance($varValueObjectType);
+                        $varValue->setItemVar($itemVar)
+                            ->setParent($entity);
+                    }
+
+                    $varValue->setValue($v);
+                    $this->persist($varValue);
+
+                    break;
             }
         }
 
