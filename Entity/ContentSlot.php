@@ -223,7 +223,7 @@ class ContentSlot
 
     /**
      * @param int $oldId
-     * @return Content
+     * @return ContentSlot
      */
     public function setOldId($oldId)
     {

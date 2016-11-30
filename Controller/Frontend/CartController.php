@@ -49,7 +49,8 @@ class CartController extends Controller
     {
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setIsAdd(1);
+            ->setIsAdd(1)
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CART_ADD_PRODUCT, $event);
@@ -64,7 +65,8 @@ class CartController extends Controller
     public function addShipmentAction(Request $request)
     {
         $event = new CoreEvent();
-        $event->setRequest($request);
+        $event->setRequest($request)
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CART_ADD_SHIPMENT, $event);
@@ -87,7 +89,8 @@ class CartController extends Controller
                 if ($qty < 1) {
 
                     $event = new CoreEvent();
-                    $event->setRequest($request);
+                    $event->setRequest($request)
+                        ->setUser($this->getUser());
 
                     $this->get('event_dispatcher')
                         ->dispatch(CoreEvents::CART_REMOVE_PRODUCT, $event);
@@ -98,7 +101,8 @@ class CartController extends Controller
                     $event->setRequest($request)
                         ->setProductId($productId)
                         ->setQty($qty)
-                        ->setIsAdd(0);
+                        ->setIsAdd(0)
+                        ->setUser($this->getUser());
 
                     $this->get('event_dispatcher')
                         ->dispatch(CoreEvents::CART_ADD_PRODUCT, $event);
@@ -117,7 +121,8 @@ class CartController extends Controller
     public function removeProductAction(Request $request)
     {
         $event = new CoreEvent();
-        $event->setRequest($request);
+        $event->setRequest($request)
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CART_REMOVE_PRODUCT, $event);
@@ -132,7 +137,8 @@ class CartController extends Controller
     public function removeProductsAction(Request $request)
     {
         $event = new CoreEvent();
-        $event->setRequest($request);
+        $event->setRequest($request)
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CART_REMOVE_PRODUCTS, $event);
@@ -171,7 +177,8 @@ class CartController extends Controller
     public function addDiscountAction(Request $request)
     {
         $event = new CoreEvent();
-        $event->setRequest($request);
+        $event->setRequest($request)
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CART_ADD_DISCOUNT, $event);

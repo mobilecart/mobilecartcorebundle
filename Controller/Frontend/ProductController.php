@@ -41,7 +41,9 @@ class ProductController extends Controller
             'slug' => $request->get('slug', ''),
         ]);
 
-        if (!$entity) {
+        $isAdmin = ($this->getUser() && in_array('ROLE_ADMIN', $this->getUser()->getRoles()));
+
+        if (!$entity || (!$entity->getIsPublic() && !$isAdmin)) {
             throw $this->createNotFoundException('Unable to find Product entity.');
         }
 

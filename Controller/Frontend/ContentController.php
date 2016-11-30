@@ -26,6 +26,7 @@ class ContentController extends Controller
 
     /**
      * @Route("/content/{slug}", name="cart_content_view")
+     * @Method("GET")
      */
     public function viewAction(Request $request)
     {

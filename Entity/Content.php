@@ -291,24 +291,27 @@ class Content
     }
 
     /**
-     * Getter , after fully loading
-     *  use only if necessary, and avoid calling multiple times
+     * Get All Data or specific key of data
      *
      * @param string $key
      * @return array|null
      */
     public function getData($key = '')
     {
-        $data = array_merge($this->getVarValuesData(), $this->getBaseData());
-
         if (strlen($key) > 0) {
 
+            $data = $this->getBaseData();
+            if (isset($data[$key])) {
+                return $data[$key];
+            }
+
+            $data = $this->getVarValuesData();
             return isset($data[$key])
                 ? $data[$key]
                 : null;
         }
 
-        return $data;
+        return array_merge($this->getVarValuesData(), $this->getBaseData());
     }
 
     /**
