@@ -38,7 +38,7 @@ class CustomerGroup
     /**
      * @var \MobileCart\CoreBundle\Entity\Customer $customers
      *
-     * @ORM\ManyToMany(targetEntity="MobileCart\CoreBundle\Entity\Customer")
+     * @ORM\ManyToMany(targetEntity="MobileCart\CoreBundle\Entity\Customer", inversedBy="groups")
      * @ORM\JoinTable(name="customer_group_member",
      *   joinColumns={
      *     @ORM\JoinColumn(name="customer_group_id", referencedColumnName="id")

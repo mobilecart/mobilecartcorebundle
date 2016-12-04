@@ -201,6 +201,13 @@ class Customer
     private $addresses;
 
     /**
+     * @var \MobileCart\CoreBundle\Entity\CustomerGroup
+     *
+     * @ORM\ManyToMany(targetEntity="CustomerGroup", mappedBy="customers")
+     */
+    private $groups;
+
+    /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarSet
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\ItemVarSet")
@@ -295,6 +302,13 @@ class Customer
     private $is_locked;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="hack_attempts", type="integer", nullable=true)
+     */
+    private $hack_attempts;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="password_updated_at", type="datetime", nullable=true)
@@ -310,6 +324,8 @@ class Customer
 
     public function __construct()
     {
+        $this->groups = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->addresses = new \Doctrine\Common\Collections\ArrayCollection();
         $this->tokens = new \Doctrine\Common\Collections\ArrayCollection();
         $this->var_values_datetime = new \Doctrine\Common\Collections\ArrayCollection();
         $this->var_values_decimal = new \Doctrine\Common\Collections\ArrayCollection();
@@ -409,6 +425,15 @@ class Customer
             $data = $this->getBaseData();
             if (isset($data[$key])) {
                 return $data[$key];
+            }
+
+            switch($key) {
+                case 'customer_group':
+
+                    break;
+                default:
+                    // no-op
+                    break;
             }
 
             $data = $this->getVarValuesData();
@@ -516,7 +541,7 @@ class Customer
 
             if ($itemVar->getFormInput() == 'multiselect') {
                 if (!isset($data[$itemVar->getCode()])) {
-                    $data[$itemVar->getCode()] = array();
+                    $data[$itemVar->getCode()] = [];
                 }
                 $data[$itemVar->getCode()][] = $value;
             } else {
@@ -612,10 +637,11 @@ class Customer
             'id'                  => $this->getId(),
             'default_locale'      => $this->getDefaultLocale(),
             'default_currency'    => $this->getDefaultCurrency(),
-            //'group'               => '', todo
+            // 'customer_groups'               => '', todo
             'email'               => $this->getEmail(),
             // 'hash'                => $this->getHash(),
             // 'confirm_hash'        => $this->getConfirmHash(),
+            // 'hack_attempts'       => $this->getHackAttempts(),
             'name'                => $this->getName(),
             'first_name'          => $this->getFirstName(),
             'last_name'           => $this->getLastName(),
@@ -1226,6 +1252,24 @@ class Customer
     }
 
     /**
+     * @param $hackAttempts
+     * @return $this
+     */
+    public function setHackAttempts($hackAttempts)
+    {
+        $this->hack_attempts = $hackAttempts;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getHackAttempts()
+    {
+        return $this->hack_attempts;
+    }
+
+    /**
      * @param CustomerToken $customerToken
      * @return $this
      */
@@ -1256,11 +1300,29 @@ class Customer
     }
 
     /**
-     * @return CustomerAddress
+     * @return ArrayCollection|CustomerAddress
      */
     public function getAddresses()
     {
         return $this->addresses;
+    }
+
+    /**
+     * @param CustomerGroup $customerGroup
+     * @return $this
+     */
+    public function addGroup(CustomerGroup $customerGroup)
+    {
+        $this->groups[] = $customerGroup;
+        return $this;
+    }
+
+    /**
+     * @return ArrayCollection|CustomerGroup
+     */
+    public function getGroups()
+    {
+        return $this->groups;
     }
 
     /**
