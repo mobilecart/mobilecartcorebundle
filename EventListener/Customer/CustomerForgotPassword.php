@@ -99,33 +99,73 @@ class CustomerForgotPassword
         $entity = $event->getEntity();
         $request = $event->getRequest();
 
-        $randomStr = md5(microtime());
-        $plaintext = substr($randomStr, 0, 8);
+        $confirmHash = md5(microtime());
+        $plaintext = substr($confirmHash, 0, 8);
 
-        $encoder = $this->getSecurityPasswordEncoder();
-        $encoded = $encoder->encodePassword($entity, $plaintext);
-        $entity->setHash($encoded);
-        $this->getEntityService()->persist($entity);
+        if ($event->getEmailPassword()) {
 
-        $tplData = [
-            'password' => $plaintext,
-        ];
+            $encoder = $this->getSecurityPasswordEncoder();
+            $encoded = $encoder->encodePassword($entity, $plaintext);
+            $entity->setHash($encoded);
 
-        $tpl = 'Email:password_reset.html.twig';
-        $body = $this->getThemeService()->renderView('email', $tpl, $tplData);
+            $this->getEntityService()->persist($entity);
 
-        try {
+            $tplData = [
+                'password' => $plaintext,
+            ];
 
-            $message = \Swift_Message::newInstance()
-                ->setSubject('Password Reset')
-                //->setFrom('~')
-                ->setTo($entity->getEmail())
-                ->setBody($body, 'text/html');
+            $tpl = 'Email:password_reset.html.twig';
+            $body = $this->getThemeService()->renderView('email', $tpl, $tplData);
 
-            $this->getMailer()->send($message);
+            try {
 
-        } catch(\Exception $e) {
-            // todo : handle error
+                $message = \Swift_Message::newInstance()
+                    ->setSubject('Password Reset')
+                    //->setFrom('~')
+                    ->setTo($entity->getEmail())
+                    ->setBody($body, 'text/html');
+
+                $this->getMailer()->send($message);
+
+            } catch(\Exception $e) {
+                // todo : handle error
+            }
+
+        } else {
+
+            $entity->setConfirmHash($confirmHash);
+            $this->getEntityService()->persist($entity);
+
+            $route = 'customer_register_confirm';
+
+            $urlData = [
+                'id' => $entity->getId(),
+                'hash' => $confirmHash,
+            ];
+
+            $url = $this->getRouter()->generate($route, $urlData);
+
+            $tplData = array_merge($entity->getData(), [
+                'url' => $url,
+            ]);
+
+            $tpl = 'Email:register_confirm.html.twig';
+
+            $body = $this->getThemeService()->renderView('email', $tpl, $tplData);
+
+            try {
+
+                $message = \Swift_Message::newInstance()
+                    ->setSubject('Password Reset')
+                    //->setFrom('~')
+                    ->setTo($entity->getEmail())
+                    ->setBody($body, 'text/html');
+
+                $this->getMailer()->send($message);
+
+            } catch(\Exception $e) {
+                // todo : handle error
+            }
         }
 
         $event->setReturnData($returnData);

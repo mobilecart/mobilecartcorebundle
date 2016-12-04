@@ -130,7 +130,7 @@ class AdminUser
         return $this->getFirstName() . ' ' . $this->getLastName();
     }
 
-    public function getObjectTypeName()
+    public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::ADMIN_USER;
     }

@@ -55,7 +55,7 @@ class SearchTerm
         return $this->id;
     }
 
-    public function getObjectTypeName()
+    public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::SEARCH_TERM;
     }

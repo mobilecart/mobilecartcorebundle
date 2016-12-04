@@ -264,7 +264,7 @@ class PdoEntityService
         }
 
         if (!$objectType) {
-            $objectType = $entity->getObjectTypeName();
+            $objectType = $entity->getObjectTypeKey();
         }
 
         // build delete query

@@ -129,7 +129,7 @@ class OrderPayment
         return $this->id;
     }
 
-    public function getObjectTypeName()
+    public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::ORDER_PAYMENT;
     }

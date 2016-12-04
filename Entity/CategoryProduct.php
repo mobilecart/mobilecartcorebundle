@@ -58,7 +58,7 @@ class CategoryProduct
         return $this->id;
     }
 
-    public function getObjectTypeName()
+    public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::CATEGORY_PRODUCT;
     }

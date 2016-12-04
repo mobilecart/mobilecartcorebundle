@@ -49,20 +49,44 @@ class CustomerRegisterConfirm
         $hash = $request->get('hash', '');
         $entity = $this->getEntityService()->find($event->getObjectType(), $id);
 
-        if ($entity && $entity->getConfirmHash() == $hash) {
+        // need extra security here to prevent hi-jacking
+        //  current logic doesn't allow more than 15 brute force attempts
+        //   or enable a locked account
+
+        if ($entity
+            && !$entity->getIsLocked()
+            && $entity->getConfirmHash() == $hash) {
 
             $apiKey = md5(microtime());
 
             $entity->setConfirmHash('')
                 ->setIsEnabled(1)
-                ->setApiKey($apiKey);
-
-            // todo : update password_updated_at
+                ->setIsLocked(0)
+                ->setApiKey($apiKey)
+                ->setFailedLogins(0)
+                ->setPasswordUpdatedAt(new \DateTime('now'))
+            ;
 
             $this->getEntityService()->persist($entity);
             $event->setSuccess(1);
             $event->setEntity($entity);
         } else {
+
+            if ($entity) {
+
+                // lock the account if we suspect brute force attempts
+
+                $entity->setFailedLogins($entity->getFailedLogins() + 1);
+                if ($entity->getFailedLogins() > 15
+                    && !$entity->getIsLocked()
+                ) {
+                    $entity->setIsLocked(1);
+                }
+
+                $this->getEntityService()->persist($entity);
+                $event->setEntity($entity);
+            }
+
             $event->setSuccess(0);
         }
 

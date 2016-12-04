@@ -55,7 +55,7 @@ class ItemVarSet
         $this->item_var_set_vars = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
-    public function getObjectTypeName()
+    public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::ITEM_VAR_SET;
     }

@@ -575,7 +575,7 @@ class DoctrineEntityService
         }
 
         if (!$objectType) {
-            $objectType = $entity->getObjectTypeName();
+            $objectType = $entity->getObjectTypeKey();
         }
 
         // separate base data from variant data

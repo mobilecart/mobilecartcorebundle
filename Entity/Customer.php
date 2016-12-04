@@ -302,13 +302,6 @@ class Customer
     private $is_locked;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="hack_attempts", type="integer", nullable=true)
-     */
-    private $hack_attempts;
-
-    /**
      * @var \DateTime
      *
      * @ORM\Column(name="password_updated_at", type="datetime", nullable=true)
@@ -344,7 +337,7 @@ class Customer
         return $this->id;
     }
 
-    public function getObjectTypeName()
+    public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::CUSTOMER;
     }
@@ -641,7 +634,6 @@ class Customer
             'email'               => $this->getEmail(),
             // 'hash'                => $this->getHash(),
             // 'confirm_hash'        => $this->getConfirmHash(),
-            // 'hack_attempts'       => $this->getHackAttempts(),
             'name'                => $this->getName(),
             'first_name'          => $this->getFirstName(),
             'last_name'           => $this->getLastName(),
@@ -1252,24 +1244,6 @@ class Customer
     }
 
     /**
-     * @param $hackAttempts
-     * @return $this
-     */
-    public function setHackAttempts($hackAttempts)
-    {
-        $this->hack_attempts = $hackAttempts;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getHackAttempts()
-    {
-        return $this->hack_attempts;
-    }
-
-    /**
      * @param CustomerToken $customerToken
      * @return $this
      */
@@ -1571,6 +1545,10 @@ class Customer
         return $this->is_locked;
     }
 
+    /**
+     * @param \DateTime $passwordUpdatedAt
+     * @return $this
+     */
     public function setPasswordUpdatedAt($passwordUpdatedAt)
     {
         $this->password_updated_at = $passwordUpdatedAt;

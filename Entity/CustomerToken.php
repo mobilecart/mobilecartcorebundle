@@ -93,7 +93,7 @@ class CustomerToken
         return $this->service_account_id; // most common for stripe
     }
 
-    public function getObjectTypeName()
+    public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::CUSTOMER_TOKEN;
     }
