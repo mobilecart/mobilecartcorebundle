@@ -89,7 +89,7 @@ class AddProduct
         $returnData = $this->getReturnData();
         $success = 0;
         $request = $event->getRequest();
-        $format = $request->get('format', '');
+        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
         // todo : check inventory
         $product = null;

@@ -89,7 +89,7 @@ class CustomerProfilePostReturn
         $objectType = $event->getObjectType();
 
         $request = $event->get('request');
-        $format = $request->get('format', '');
+        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
         $response = '';
         switch($format) {

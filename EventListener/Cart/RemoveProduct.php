@@ -61,7 +61,7 @@ class RemoveProduct
         $returnData = $this->getReturnData();
 
         $request = $event->getRequest();
-        $format = $request->get('format', '');
+        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
         $productId = $event->getProductId()
             ? $event->getProductId()
             : $request->get('product_id', '');

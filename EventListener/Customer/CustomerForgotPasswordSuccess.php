@@ -46,7 +46,7 @@ class CustomerForgotPasswordSuccess
         $this->setEvent($event);
         $returnData = $this->getReturnData();
         $request = $event->getRequest();
-        $format = $request->get('format', '');
+        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
         $response = '';
         switch($format) {
             case 'json':

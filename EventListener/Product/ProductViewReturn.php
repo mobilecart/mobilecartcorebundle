@@ -81,7 +81,7 @@ class ProductViewReturn
         $config = @ (array) json_decode($product->getConfig());
         $typeSections = [];
         $objectType = EntityConstants::PRODUCT;
-        $format = $request->get('format', '');
+        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
         $response = '';
         switch($format) {

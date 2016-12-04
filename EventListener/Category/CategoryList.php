@@ -62,7 +62,7 @@ class CategoryList
 
         $request = $event->getRequest();
 
-        $format = $request->get('format', '');
+        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
         $response = '';
 
@@ -103,14 +103,22 @@ class CategoryList
                     ],
                 ];
 
+                $template = $event->getCustomTemplate()
+                    ? $event->getCustomTemplate()
+                    : 'Category:index.html.twig';
+
                 $response = $this->getThemeService()
-                    ->render('admin', 'Category:index.html.twig', $returnData);
+                    ->render('admin', $template, $returnData);
 
                 break;
             case CoreEvent::SECTION_FRONTEND:
 
+                $template = $event->getCustomTemplate()
+                    ? $event->getCustomTemplate()
+                    : 'Category:index.html.twig';
+
                 $response = $this->getThemeService()
-                    ->render('frontend', 'Category:index.html.twig', $returnData);
+                    ->render('frontend', $template, $returnData);
 
                 break;
             default:

@@ -64,7 +64,7 @@ class ProductSearch
                 break;
         }
 
-        if ($request->get('format', '') == 'json') {
+        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
             $loadVarValues = 1;
         }
 

@@ -166,7 +166,7 @@ class Login implements AuthenticationSuccessHandlerInterface
         $this->getEventDispatcher()
             ->dispatch(CoreEvents::LOGIN_SUCCESS, $event);
 
-        if ($request->get('format', '') == 'json') {
+        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
             return new JsonResponse(array_merge(['success' => 1], $event->getReturnData()));
         }
 

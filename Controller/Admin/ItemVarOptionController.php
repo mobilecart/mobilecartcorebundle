@@ -173,7 +173,7 @@ class ItemVarOptionController extends Controller
             return $returnEvent->getResponse();
         }
 
-        if ($request->get('format', '') == 'json') {
+        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
             $invalid = [];
             $messages = [];
@@ -348,7 +348,7 @@ class ItemVarOptionController extends Controller
             return $returnEvent->getResponse();
         }
 
-        if ($request->get('format', '') == 'json') {
+        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
             $invalid = [];
             $messages = [];
