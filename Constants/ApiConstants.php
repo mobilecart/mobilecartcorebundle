@@ -18,5 +18,5 @@ class ApiConstants
 
     const PARAM_HASH = 'hash';
 
-    
+    const PARAM_RESPONSE_TYPE = 'format';
 }
