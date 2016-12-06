@@ -47,6 +47,13 @@ class ItemVarInsert
         $entity = $event->getEntity();
         $this->getEntityService()->persist($entity);
 
+        if ($entity && $event->getRequest()->getSession()) {
+            $event->getRequest()->getSession()->getFlashBag()->add(
+                'success',
+                'Custom Field Created!'
+            );
+        }
+
         $event->setReturnData($returnData);
     }
 }

@@ -1,14 +1,15 @@
 <?php
 
-namespace MobileCart\CoreBundle\EventListener\ContentSlot;
+namespace MobileCart\CoreBundle\EventListener\CustomerAddress;
 
 use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
-class ContentSlotUpdate
+class CustomerAddressEditReturn
 {
-
     protected $entityService;
+
+    protected $themeService;
 
     protected $event;
 
@@ -41,32 +42,39 @@ class ContentSlotUpdate
         return $this->entityService;
     }
 
-    public function onContentSlotUpdate(Event $event)
+    public function setThemeService($themeService)
+    {
+        $this->themeService = $themeService;
+        return $this;
+    }
+
+    public function getThemeService()
+    {
+        return $this->themeService;
+    }
+
+    public function onCustomerAddressEditReturn(Event $event)
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
 
         $entity = $event->getEntity();
-        $formData = $event->getFormData();
-        $request = $event->getRequest();
 
-        if (isset($formData['parent_id'])) {
-            $parentId = $formData['parent_id'];
-            $content = $this->getEntityService()->find(EntityConstants::CONTENT, $parentId);
-            if ($content) {
-                $entity->setParent($content);
+        $returnData['template_sections'] = [];
+        $form = $returnData['form'];
+        $returnData['form'] = $form->createView();
+        $returnData['entity'] = $entity;
+
+        if ($messages = $event->getMessages()) {
+            foreach($messages as $code => $message) {
+                $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
             }
         }
 
-        $this->getEntityService()->persist($entity);
-
-        if ($entity && $event->getRequest()->getSession()) {
-            $event->getRequest()->getSession()->getFlashBag()->add(
-                'success',
-                'Content Slot Updated!'
-            );
-        }
+        $response = $this->getThemeService()
+            ->render('frontend', 'CustomerAddress:edit.html.twig', $returnData);
 
         $event->setReturnData($returnData);
+        $event->setResponse($response);
     }
 }

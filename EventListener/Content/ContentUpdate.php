@@ -55,7 +55,7 @@ class ContentUpdate
         if ($entity && $request->getSession()) {
             $request->getSession()->getFlashBag()->add(
                 'success',
-                'Content Successfully Updated!'
+                'Content Updated!'
             );
         }
 

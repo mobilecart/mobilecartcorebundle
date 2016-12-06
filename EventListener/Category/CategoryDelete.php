@@ -49,6 +49,13 @@ class CategoryDelete
         $entity = $event->getEntity();
         $this->getEntityService()->remove($entity, EntityConstants::CATEGORY);
 
+        if ($entity && $event->getRequest()->getSession()) {
+            $event->getRequest()->getSession()->getFlashBag()->add(
+                'success',
+                'Category Deleted!'
+            );
+        }
+
         $event->setReturnData($returnData);
     }
 }

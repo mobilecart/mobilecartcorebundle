@@ -102,6 +102,7 @@ class CategoryAdminForm
                     'meta_description',
                     'sort_order',
                     'custom_template',
+                    'display_mode',
                 ]
             ],
         ];

@@ -17,9 +17,11 @@ class ItemVarOptionType extends AbstractType
         $builder
             ->add('item_var')
             ->add('value')
+            ->add('sort_order')
             ->add('url_value')
             ->add('additional_price')
-            ->add('is_in_stock');
+            ->add('is_in_stock')
+        ;
     }
 
     /**

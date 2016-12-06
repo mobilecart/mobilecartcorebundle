@@ -59,7 +59,7 @@ class CategoryInsert
         if ($entity && $request->getSession()) {
             $request->getSession()->getFlashBag()->add(
                 'success',
-                'Category Successfully Created!'
+                'Category Created!'
             );
         }
 

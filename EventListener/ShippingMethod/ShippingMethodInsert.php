@@ -47,6 +47,13 @@ class ShippingMethodInsert
         $entity = $event->getEntity();
         $this->getEntityService()->persist($entity);
 
+        if ($entity && $event->getRequest()->getSession()) {
+            $event->getRequest()->getSession()->getFlashBag()->add(
+                'success',
+                'Shipping Method Created!'
+            );
+        }
+
         $event->setReturnData($returnData);
     }
 }

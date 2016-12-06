@@ -703,6 +703,12 @@ class FrontendExtension extends \Twig_Extension
         if ($field == 'id' && $this->getThemeConfig()->getAdminEditRoute($objectType)) {
             $routeId = $this->getThemeConfig()->getAdminEditRoute($objectType);
             $url = $this->router->generate($routeId, ['id' => $value]);
+            if (is_int(strpos($objectType, 'item_var_option_'))
+                && isset($_GET['datatype'])
+                && in_array($_GET['datatype'], ['datetime','decimal','int','text','varchar'])) {
+
+                $url = $this->router->generate($routeId, ['id' => $value, 'datatype' => $_GET['datatype']]);
+            }
             return '<a href="' . $url . '">' . $value . '</a>';
         }
 

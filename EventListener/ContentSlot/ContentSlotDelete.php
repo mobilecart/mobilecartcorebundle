@@ -49,6 +49,13 @@ class ContentSlotDelete
         $entity = $event->getEntity();
         $this->getEntityService()->remove($entity, EntityConstants::CONTENT_SLOT);
 
+        if ($entity && $event->getRequest()->getSession()) {
+            $event->getRequest()->getSession()->getFlashBag()->add(
+                'success',
+                'Content Slot Deleted!'
+            );
+        }
+
         $event->setReturnData($returnData);
     }
 }

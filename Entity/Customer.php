@@ -89,6 +89,13 @@ class Customer
     private $billing_name;
 
     /**
+     * @var string $billing_company
+     *
+     * @ORM\Column(name="billing_company", type="string", length=255, nullable=true)
+     */
+    private $billing_company;
+
+    /**
      * @var string $billing_phone
      *
      * @ORM\Column(name="billing_phone", type="string", length=24, nullable=true)
@@ -143,6 +150,13 @@ class Customer
      * @ORM\Column(name="shipping_name", type="string", length=255, nullable=true)
      */
     private $shipping_name;
+
+    /**
+     * @var string $shipping_company
+     *
+     * @ORM\Column(name="shipping_company", type="string", length=255, nullable=true)
+     */
+    private $shipping_company;
 
     /**
      * @var string $shipping_phone
@@ -638,6 +652,7 @@ class Customer
             'first_name'          => $this->getFirstName(),
             'last_name'           => $this->getLastName(),
             'billing_name'        => $this->getBillingName(),
+            'billing_company'     => $this->getBillingCompany(),
             'billing_phone'       => $this->getBillingPhone(),
             'billing_street'      => $this->getBillingStreet(),
             'billing_city'        => $this->getBillingCity(),
@@ -646,6 +661,7 @@ class Customer
             'billing_country_id'  => $this->getBillingCountryId(),
             'is_shipping_same'    => $this->getIsShippingSame(),
             'shipping_name'       => $this->getShippingName(),
+            'shipping_company'    => $this->getShippingCompany(),
             'shipping_phone'      => $this->getShippingPhone(),
             'shipping_street'     => $this->getShippingStreet(),
             'shipping_city'       => $this->getShippingCity(),
@@ -874,6 +890,24 @@ class Customer
     }
 
     /**
+     * @param $billingCompany
+     * @return $this
+     */
+    public function setBillingCompany($billingCompany)
+    {
+        $this->billing_company = $billingCompany;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBillingCompany()
+    {
+        return $this->billing_company;
+    }
+
+    /**
      * @param $billingPhone
      * @return $this
      */
@@ -1051,6 +1085,24 @@ class Customer
     public function getShippingName()
     {
         return $this->shipping_name;
+    }
+
+    /**
+     * @param $shippingCompany
+     * @return $this
+     */
+    public function setShippingCompany($shippingCompany)
+    {
+        $this->shipping_company = $shippingCompany;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getShippingCompany()
+    {
+        return $this->shipping_company;
     }
 
     /**

@@ -49,6 +49,13 @@ class UrlRewriteDelete
         $entity = $event->getEntity();
         $this->getEntityService()->remove($entity, EntityConstants::URL_REWRITE);
 
+        if ($entity && $event->getRequest()->getSession()) {
+            $event->getRequest()->getSession()->getFlashBag()->add(
+                'success',
+                'URL Rewrite Deleted!'
+            );
+        }
+
         $event->setReturnData($returnData);
     }
 }

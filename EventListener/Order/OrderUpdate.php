@@ -74,7 +74,7 @@ class OrderUpdate
         if ($entity && $request->getSession()) {
             $request->getSession()->getFlashBag()->add(
                 'success',
-                'Order Successfully Updated!'
+                'Order Updated!'
             );
         }
 

@@ -61,7 +61,7 @@ class CategoryUpdate
         if ($entity && $request->getSession()) {
             $request->getSession()->getFlashBag()->add(
                 'success',
-                'Category Successfully Created!'
+                'Category Updated!'
             );
         }
 

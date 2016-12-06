@@ -42,6 +42,13 @@ class CustomerAddress
     /**
      * @var string
      *
+     * @ORM\Column(name="company", type="string", length=255, nullable=true)
+     */
+    private $company;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="phone", type="string", length=24, nullable=true)
      */
     private $phone;
@@ -79,7 +86,7 @@ class CustomerAddress
      *
      * @ORM\Column(name="country_id", type="string", length=2, nullable=true)
      */
-    private $countryId;
+    private $country_id;
 
 
     /**
@@ -182,6 +189,7 @@ class CustomerAddress
     {
         return [
             'name'       => $this->getName(),
+            'company'    => $this->getCompany(),
             'phone'      => $this->getPhone(),
             'street'     => $this->getStreet(),
             'city'       => $this->getCity(),
@@ -230,6 +238,24 @@ class CustomerAddress
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * @param $company
+     * @return $this
+     */
+    public function setCompany($company)
+    {
+        $this->company = $company;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCompany()
+    {
+        return $this->company;
     }
 
     /**
@@ -348,25 +374,24 @@ class CustomerAddress
     }
 
     /**
-     * Set countryId
+     * Set country_id
      *
      * @param string $countryId
      * @return CustomerAddress
      */
     public function setCountryId($countryId)
     {
-        $this->countryId = $countryId;
-
+        $this->country_id = $countryId;
         return $this;
     }
 
     /**
-     * Get countryId
+     * Get country_id
      *
      * @return string 
      */
     public function getCountryId()
     {
-        return $this->countryId;
+        return $this->country_id;
     }
 }

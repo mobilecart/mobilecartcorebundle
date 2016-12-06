@@ -159,7 +159,7 @@ class OrderInsert
         if ($order && $request->getSession()) {
             $request->getSession()->getFlashBag()->add(
                 'success',
-                'Order Successfully Created!'
+                'Order Created!'
             );
         }
 

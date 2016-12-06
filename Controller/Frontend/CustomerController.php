@@ -13,22 +13,14 @@ namespace MobileCart\CoreBundle\Controller\Frontend;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-
 use MobileCart\CoreBundle\Event\CoreEvents;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
 class CustomerController extends Controller
 {
-
     protected $objectType = EntityConstants::CUSTOMER;
 
-    /**
-     * @Route("/account/register", name="customer_register")
-     * @Method("GET")
-     */
     public function registerAction(Request $request)
     {
         $entity = $this->get('cart.entity')->getInstance($this->objectType);
@@ -61,10 +53,6 @@ class CustomerController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/account/create", name="customer_register_post")
-     * @Method("POST")
-     */
     public function registerPostAction(Request $request)
     {
         $entity = $this->get('cart.entity')->getInstance($this->objectType);
@@ -123,10 +111,6 @@ class CustomerController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/account/check-email", name="customer_check_email")
-     * @Method("GET")
-     */
     public function registerCheckEmailAction(Request $request)
     {
         $event = new CoreEvent();
@@ -139,10 +123,6 @@ class CustomerController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/account/confirm", name="customer_register_confirm")
-     * @Method("GET")
-     */
     public function registerConfirmAction(Request $request)
     {
         $event = new CoreEvent();
@@ -167,10 +147,6 @@ class CustomerController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/account/forgot-password", name="customer_forgot_password")
-     * @Method("GET")
-     */
     public function forgotPasswordAction(Request $request)
     {
         //check if customer is authenticated, redirect to profile page if they are
@@ -197,10 +173,6 @@ class CustomerController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/account/forgot-password", name="customer_forgot_password_post")
-     * @Method("POST")
-     */
     public function forgotPasswordPostAction(Request $request)
     {
         $event = new CoreEvent();
@@ -258,10 +230,6 @@ class CustomerController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/account/forgot-password/success", name="customer_forgot_password_success")
-     * @Method("GET")
-     */
     public function forgotPasswordSuccessAction(Request $request)
     {
         $event = new CoreEvent();
@@ -274,10 +242,6 @@ class CustomerController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/customer/profile", name="customer_profile")
-     * @Method("GET")
-     */
     public function profileAction(Request $request)
     {
         $entity = $this->getUser();
@@ -319,10 +283,6 @@ class CustomerController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/customer/update", name="customer_update")
-     * @Method("PUT")
-     */
     public function updateAction(Request $request)
     {
         $entity = $this->getUser();
@@ -390,10 +350,6 @@ class CustomerController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/customer/orders", name="customer_orders")
-     * @Method("GET")
-     */
     public function orderHistoryAction(Request $request)
     {
         $entity = $this->getUser();
@@ -418,10 +374,6 @@ class CustomerController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/customer/order/{orderId}", name="customer_order")
-     * @Method("GET")
-     */
     public function orderViewAction(Request $request)
     {
         $event = new CoreEvent();

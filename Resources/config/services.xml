@@ -217,6 +217,17 @@
         <parameter key="cart.listener.customer.insert.class">MobileCart\CoreBundle\EventListener\Customer\CustomerInsert</parameter>
         <parameter key="cart.listener.customer.update.class">MobileCart\CoreBundle\EventListener\Customer\CustomerUpdate</parameter>
         <parameter key="cart.listener.customer.delete.class">MobileCart\CoreBundle\EventListener\Customer\CustomerDelete</parameter>
+        <parameter key="cart.listener.customer_address.search.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressSearch</parameter>
+        <parameter key="cart.listener.customer_address.list.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressList</parameter>
+        <parameter key="cart.listener.customer_address.form.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressForm</parameter>
+        <parameter key="cart.listener.customer_address.new.return.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressNewReturn</parameter>
+        <parameter key="cart.listener.customer_address.create.return.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressCreateReturn</parameter>
+        <parameter key="cart.listener.customer_address.edit.return.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressEditReturn</parameter>
+        <parameter key="cart.listener.customer_address.insert.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressInsert</parameter>
+        <parameter key="cart.listener.customer_address.update.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressUpdate</parameter>
+        <parameter key="cart.listener.customer_address.create.return.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressCreateReturn</parameter>
+        <parameter key="cart.listener.customer_address.update.return.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressUpdateReturn</parameter>
+        <parameter key="cart.listener.customer_address.delete.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressDelete</parameter>
         <parameter key="cart.listener.discount.search.class">MobileCart\CoreBundle\EventListener\Discount\DiscountSearch</parameter>
         <parameter key="cart.listener.discount.list.class">MobileCart\CoreBundle\EventListener\Discount\DiscountList</parameter>
         <parameter key="cart.listener.discount.new.return.class">MobileCart\CoreBundle\EventListener\Discount\DiscountNewReturn</parameter>
@@ -449,6 +460,10 @@
                 <argument type="string">cart_admin_customer_edit</argument>
             </call>
             <call method="addAdminEditRoute">
+                <argument type="string">customer_address</argument>
+                <argument type="string">cart_admin_customer_address_edit</argument>
+            </call>
+            <call method="addAdminEditRoute">
                 <argument type="string">discount</argument>
                 <argument type="string">cart_admin_discount_edit</argument>
             </call>
@@ -457,7 +472,23 @@
                 <argument type="string">cart_admin_item_var_edit</argument>
             </call>
             <call method="addAdminEditRoute">
-                <argument type="string">item_var_option</argument>
+                <argument type="string">item_var_option_datetime</argument>
+                <argument type="string">cart_admin_item_var_option_edit</argument>
+            </call>
+            <call method="addAdminEditRoute">
+                <argument type="string">item_var_option_decimal</argument>
+                <argument type="string">cart_admin_item_var_option_edit</argument>
+            </call>
+            <call method="addAdminEditRoute">
+                <argument type="string">item_var_option_int</argument>
+                <argument type="string">cart_admin_item_var_option_edit</argument>
+            </call>
+            <call method="addAdminEditRoute">
+                <argument type="string">item_var_option_text</argument>
+                <argument type="string">cart_admin_item_var_option_edit</argument>
+            </call>
+            <call method="addAdminEditRoute">
+                <argument type="string">item_var_option_varchar</argument>
                 <argument type="string">cart_admin_item_var_option_edit</argument>
             </call>
             <call method="addAdminEditRoute">
@@ -2058,6 +2089,90 @@
             <tag name="kernel.event_listener" event="customer.delete" method="onCustomerDelete" priority="50" />
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+
+        <!-- Event Listeners : Customer Address -->
+        <service id="cart.listener.customer_address.list" lazy="true" class="%cart.listener.customer_address.list.class%">
+            <tag name="kernel.event_listener" event="customer_address.list" method="onCustomerAddressList" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.customer_address.search" lazy="true" class="%cart.listener.customer_address.search.class%">
+            <tag name="kernel.event_listener" event="customer_address.search" method="onCustomerAddressSearch" priority="50" />
+        </service>
+        <service id="cart.listener.customer_address.new.return" lazy="true" class="%cart.listener.customer_address.new.return.class%">
+            <tag name="kernel.event_listener" event="customer_address.new.return" method="onCustomerAddressNewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.customer_address.form" lazy="true" class="%cart.listener.customer_address.form.class%">
+            <tag name="kernel.event_listener" event="customer_address.form" method="onCustomerAddressForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setCurrencyService">
+                <argument type="service" id="cart.currency" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+            <!-- For Allowed Country IDs -->
+            <call method="setCartService">
+                <argument type="service" id="cart" />
+            </call>
+        </service>
+        <service id="cart.listener.customer_address.insert" lazy="true" class="%cart.listener.customer_address.insert.class%">
+            <tag name="kernel.event_listener" event="customer_address.insert" method="onCustomerAddressInsert" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.customer_address.update" lazy="true" class="%cart.listener.customer_address.update.class%">
+            <tag name="kernel.event_listener" event="customer_address.update" method="onCustomerAddressUpdate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.customer_address.delete" lazy="true" class="%cart.listener.customer_address.delete.class%">
+            <tag name="kernel.event_listener" event="customer_address.delete" method="onCustomerAddressDelete" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.customer_address.create.return" lazy="true" class="%cart.listener.customer_address.create.return.class%">
+            <tag name="kernel.event_listener" event="customer_address.create.return" method="onCustomerAddressCreateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.customer_address.update.return" lazy="true" class="%cart.listener.customer_address.update.return.class%">
+            <tag name="kernel.event_listener" event="customer_address.update.return" method="onCustomerAddressUpdateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.customer_address.edit.return" lazy="true" class="%cart.listener.customer_address.edit.return.class%">
+            <tag name="kernel.event_listener" event="customer_address.edit.return" method="onCustomerAddressEditReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
             </call>
         </service>
 

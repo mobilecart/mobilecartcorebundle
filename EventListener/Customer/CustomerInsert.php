@@ -91,7 +91,7 @@ class CustomerInsert
         if ($entity && $request->getSession()) {
             $request->getSession()->getFlashBag()->add(
                 'success',
-                'Customer Successfully Created!'
+                'Customer Created!'
             );
         }
 

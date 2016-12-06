@@ -66,6 +66,13 @@ class Category
     private $custom_template;
 
     /**
+     * @var integer $display_mode
+     *
+     * @ORM\Column(name="display_mode", type="integer", nullable=true)
+     */
+    private $display_mode;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="page_title", type="text", nullable=true)
@@ -469,6 +476,7 @@ class Category
             'old_id' => $this->getOldId(),
             'sort_order' => $this->getSortOrder(),
             'custom_template' => $this->getCustomTemplate(),
+            'display_mode' => $this->getDisplayMode(),
             'is_public' => $this->getIsPublic(),
             'is_searchable' => $this->getIsSearchable(),
             'page_title' => $this->getPageTitle(),
@@ -537,6 +545,24 @@ class Category
     public function getCustomTemplate()
     {
         return $this->custom_template;
+    }
+
+    /**
+     * @param $displayMode
+     * @return $this
+     */
+    public function setDisplayMode($displayMode)
+    {
+        $this->display_mode = $displayMode;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDisplayMode()
+    {
+        return $this->display_mode;
     }
 
     /**

@@ -51,12 +51,31 @@ class EntityConstants
     const CONTENT_TYPE_EMBED = 'embed';
     const CONTENT_TYPE_HTML = 'html';
 
+    /**
+     * @return array
+     */
     static function getContentTypes()
     {
         return [
             self::CONTENT_TYPE_IMAGE => 'Image',
             self::CONTENT_TYPE_EMBED => 'Embed / Video',
             self::CONTENT_TYPE_HTML => 'Text / HTML',
+        ];
+    }
+
+    const DISPLAY_PRODUCTS = 1;
+    const DISPLAY_TEMPLATE = 2;
+    const DISPLAY_TEMPLATE_PRODUCTS = 3;
+
+    /**
+     * @return array
+     */
+    static function getDisplayModes()
+    {
+        return [
+            self::DISPLAY_PRODUCTS => 'Products only',
+            self::DISPLAY_TEMPLATE => 'Template only',
+            self::DISPLAY_TEMPLATE_PRODUCTS => 'Template and Products',
         ];
     }
 

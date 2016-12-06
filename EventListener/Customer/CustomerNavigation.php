@@ -46,12 +46,16 @@ class CustomerNavigation
 
         $returnData['navigation'] = [
             'customer_profile' => [
-                'label' => 'Profile',
+                'label' => 'Customer Account',
                 'url'   => $this->getRouter()->generate('customer_profile', []),
             ],
             'customer_orders' => [
                 'label' => 'Orders',
                 'url'   => $this->getRouter()->generate('customer_orders', []),
+            ],
+            'customer_addresses' => [
+                'label' => 'Addresses',
+                'url'   => $this->getRouter()->generate('customer_addresses', []),
             ],
         ];
 

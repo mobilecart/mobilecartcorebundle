@@ -48,6 +48,13 @@ class ShippingMethodDelete
         $entity = $event->getEntity();
         $this->getEntityService()->remove($entity);
 
+        if ($entity && $event->getRequest()->getSession()) {
+            $event->getRequest()->getSession()->getFlashBag()->add(
+                'success',
+                'Shipping Method Deleted!'
+            );
+        }
+
         $event->setReturnData($returnData);
     }
 }

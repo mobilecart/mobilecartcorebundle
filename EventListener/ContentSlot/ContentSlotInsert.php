@@ -50,6 +50,13 @@ class ContentSlotInsert
 
         $this->getEntityService()->persist($entity);
 
+        if ($entity && $event->getRequest()->getSession()) {
+            $event->getRequest()->getSession()->getFlashBag()->add(
+                'success',
+                'Content Slot Created!'
+            );
+        }
+
         $event->setReturnData($returnData);
     }
 }

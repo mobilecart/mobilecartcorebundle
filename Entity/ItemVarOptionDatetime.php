@@ -67,6 +67,13 @@ class ItemVarOptionDatetime
     private $additional_price;
 
     /**
+     * @var integer $sort_order
+     *
+     * @ORM\Column(name="sort_order", type="integer", nullable=true)
+     */
+    private $sort_order;
+
+    /**
      * @param $key
      * @param $value
      * @return $this
@@ -176,6 +183,7 @@ class ItemVarOptionDatetime
             'url_value' => $this->getUrlValue(),
             'is_in_stock' => $this->getIsInStock(),
             'additional_price' => $this->getAdditionalPrice(),
+            'sort_order' => $this->getSortOrder(),
         ];
     }
 
@@ -303,5 +311,23 @@ class ItemVarOptionDatetime
     public function getAdditionalPrice()
     {
         return $this->additional_price;
+    }
+
+    /**
+     * @param $sort
+     * @return $this
+     */
+    public function setSortOrder($sort)
+    {
+        $this->sort_order = $sort;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSortOrder()
+    {
+        return $this->sort_order;
     }
 }

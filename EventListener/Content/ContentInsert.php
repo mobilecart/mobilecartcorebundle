@@ -53,7 +53,7 @@ class ContentInsert
         if ($entity && $request->getSession()) {
             $request->getSession()->getFlashBag()->add(
                 'success',
-                'Content Successfully Created!'
+                'Content Created!'
             );
         }
 

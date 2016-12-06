@@ -106,7 +106,7 @@ class ProductType extends AbstractType
             ])
         ;
 
-        // todo : pass this in from a listener and service
+        // todo : user setter/getter in this class, and pass values from a listener and service
         $choices = \MobileCart\CoreBundle\Entity\Product::$stockTypes;
         $builder->add('stock_type', 'choice', [
             'choices'   => $choices,

@@ -48,6 +48,13 @@ class ItemVarSetUpdate
         $entity = $event->getEntity();
         $this->getEntityService()->persist($entity);
 
+        if ($entity && $event->getRequest()->getSession()) {
+            $event->getRequest()->getSession()->getFlashBag()->add(
+                'success',
+                'Custom Field Set Updated!'
+            );
+        }
+
         $event->setReturnData($returnData);
     }
 }

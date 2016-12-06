@@ -74,6 +74,13 @@ class ItemVarOptionInt
     private $additional_price;
 
     /**
+     * @var integer $sort_order
+     *
+     * @ORM\Column(name="sort_order", type="integer", nullable=true)
+     */
+    private $sort_order;
+
+    /**
      * @param $key
      * @param $value
      * @return $this
@@ -184,6 +191,7 @@ class ItemVarOptionInt
             'is_in_stock' => $this->getIsInStock(),
             'is_boolean' => $this->getIsBoolean(),
             'additional_price' => $this->getAdditionalPrice(),
+            'sort_order' => $this->getSortOrder(),
         ];
     }
 
@@ -329,5 +337,23 @@ class ItemVarOptionInt
     public function getAdditionalPrice()
     {
         return $this->additional_price;
+    }
+
+    /**
+     * @param $sort
+     * @return $this
+     */
+    public function setSortOrder($sort)
+    {
+        $this->sort_order = $sort;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSortOrder()
+    {
+        return $this->sort_order;
     }
 }

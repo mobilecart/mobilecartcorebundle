@@ -1,13 +1,11 @@
 <?php
 
-namespace MobileCart\CoreBundle\EventListener\ItemVar;
+namespace MobileCart\CoreBundle\EventListener\CustomerAddress;
 
 use Symfony\Component\EventDispatcher\Event;
-use MobileCart\CoreBundle\Constants\EntityConstants;
 
-class ItemVarDelete
+class CustomerAddressInsert
 {
-
     protected $entityService;
 
     protected $event;
@@ -41,18 +39,22 @@ class ItemVarDelete
         return $this->entityService;
     }
 
-    public function onItemVarDelete(Event $event)
+    public function onCustomerAddressInsert(Event $event)
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
-
+        $request = $event->getRequest();
         $entity = $event->getEntity();
-        $this->getEntityService()->remove($entity, EntityConstants::ITEM_VAR);
+        $formData = $event->getFormData();
 
-        if ($entity && $event->getRequest()->getSession()) {
-            $event->getRequest()->getSession()->getFlashBag()->add(
+        $entity->setCustomer($event->getCustomer());
+
+        $this->getEntityService()->persist($entity);
+
+        if ($entity && $request->getSession()) {
+            $request->getSession()->getFlashBag()->add(
                 'success',
-                'Custom Field Deleted!'
+                'Customer Address Created!'
             );
         }
 

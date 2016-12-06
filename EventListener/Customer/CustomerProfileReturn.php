@@ -98,8 +98,12 @@ class CustomerProfileReturn
                     }
                 }
 
+                $template = $event->getTemplate()
+                    ? $event->getTemplate()
+                    : 'Customer:profile.html.twig';
+
                 $response = $this->getThemeService()
-                    ->render('frontend', 'Customer:profile.html.twig', $returnData);
+                    ->render('frontend', $template, $returnData);
 
                 break;
         }

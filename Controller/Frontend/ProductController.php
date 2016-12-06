@@ -44,7 +44,7 @@ class ProductController extends Controller
         $isAdmin = ($this->getUser() && in_array('ROLE_ADMIN', $this->getUser()->getRoles()));
 
         if (!$entity || (!$entity->getIsPublic() && !$isAdmin)) {
-            throw $this->createNotFoundException('Unable to find Product entity.');
+            throw $this->createNotFoundException('Unable to find Product');
         }
 
         $addToCartForm = $this->createAddToCartForm($entity->getId());
@@ -120,8 +120,6 @@ class ProductController extends Controller
             throw $this->createNotFoundException('Unable to find Category entity.');
         }
 
-        // todo : add data to return data for customizing facet links
-
         $searchEvent = new CoreEvent();
         $searchEvent->setRequest($request)
             ->setSearch($search)
@@ -129,16 +127,21 @@ class ProductController extends Controller
             ->setObjectType($this->objectType)
             ->setSection(CoreEvent::SECTION_FRONTEND);
 
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::PRODUCT_SEARCH, $searchEvent);
+
+        if ($category->getDisplayMode() != EntityConstants::DISPLAY_TEMPLATE) {
+
+            // don't need to search for products if we're not displaying any
+
+            $this->get('event_dispatcher')
+                ->dispatch(CoreEvents::PRODUCT_SEARCH, $searchEvent);
+        }
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setRequest($request)
             ->setReturnData($searchEvent->getReturnData())
+            ->setCategory($category)
             ->setSection(CoreEvent::SECTION_FRONTEND);
-
-        // todo : add data to return data for customizing form action of listing form
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::PRODUCT_LIST, $event);

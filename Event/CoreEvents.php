@@ -130,6 +130,18 @@ final class CoreEvents
     const CUSTOMER_ORDER_RETURN = 'customer.order.return';
     const CUSTOMER_NAVIGATION = 'customer.navigation';
 
+    const CUSTOMER_ADDRESS_LIST = 'customer_address.list';
+    const CUSTOMER_ADDRESS_SEARCH = 'customer_address.search';
+    const CUSTOMER_ADDRESS_UPDATE = 'customer_address.update';
+    const CUSTOMER_ADDRESS_INSERT = 'customer_address.insert';
+    const CUSTOMER_ADDRESS_DELETE = 'customer_address.delete';
+    const CUSTOMER_ADDRESS_SAVE = 'customer_address.save';
+    const CUSTOMER_ADDRESS_FORM = 'customer_address.form';
+    const CUSTOMER_ADDRESS_EDIT_RETURN = 'customer_address.edit.return';
+    const CUSTOMER_ADDRESS_NEW_RETURN = 'customer_address.new.return';
+    const CUSTOMER_ADDRESS_CREATE_RETURN = 'customer_address.create.return';
+    const CUSTOMER_ADDRESS_UPDATE_RETURN = 'customer_address.update.return';
+
     const DISCOUNT_LIST = 'discount.list';
     const DISCOUNT_SEARCH = 'discount.search';
     const DISCOUNT_UPDATE = 'discount.update';

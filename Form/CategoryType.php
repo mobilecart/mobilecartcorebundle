@@ -5,6 +5,7 @@ namespace MobileCart\CoreBundle\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 
 class CategoryType extends AbstractType
 {
@@ -50,6 +51,10 @@ class CategoryType extends AbstractType
             ->add('custom_template', 'choice', [
                 'required' => false,
                 'choices' => $this->getCustomTemplates(),
+            ])
+            ->add('display_mode', 'choice', [
+                'required' => false,
+                'choices' => EntityConstants::getDisplayModes()
             ])
             //->add('item_var_set')
         ;

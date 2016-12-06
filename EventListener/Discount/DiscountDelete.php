@@ -49,6 +49,13 @@ class DiscountDelete
         $entity = $event->getEntity();
         $this->getEntityService()->remove($entity, EntityConstants::DISCOUNT);
 
+        if ($entity && $event->getRequest()->getSession()) {
+            $event->getRequest()->getSession()->getFlashBag()->add(
+                'success',
+                'Discount Deleted!'
+            );
+        }
+
         $event->setReturnData($returnData);
     }
 }

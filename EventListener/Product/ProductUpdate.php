@@ -69,7 +69,7 @@ class ProductUpdate
         if ($entity && $request->getSession()) {
             $request->getSession()->getFlashBag()->add(
                 'success',
-                'Product Successfully Updated!'
+                'Product Updated!'
             );
         }
 

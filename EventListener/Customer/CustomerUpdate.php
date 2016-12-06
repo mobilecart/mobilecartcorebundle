@@ -87,7 +87,7 @@ class CustomerUpdate
         if ($entity && $request->getSession()) {
             $request->getSession()->getFlashBag()->add(
                 'success',
-                'Customer Successfully Updated!'
+                'Customer Updated!'
             );
         }
 

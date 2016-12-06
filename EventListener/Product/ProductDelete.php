@@ -49,6 +49,13 @@ class ProductDelete
         $entity = $event->getEntity();
         $this->getEntityService()->remove($entity, EntityConstants::PRODUCT);
 
+        if ($entity && $event->getRequest()->getSession()) {
+            $event->getRequest()->getSession()->getFlashBag()->add(
+                'success',
+                'Product Deleted!'
+            );
+        }
+
         $event->setReturnData($returnData);
     }
 }

@@ -11,6 +11,7 @@
 
 namespace MobileCart\CoreBundle\Service;
 
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
@@ -29,8 +30,16 @@ abstract class AbstractEntityService implements UserProviderInterface
     protected $productTypes = [];
 
     /**
-     * @param $email
-     * @return mixed
+     * Loads the user for the given username.
+     *
+     * This method must throw UsernameNotFoundException if the user is not
+     * found.
+     *
+     * @param string $email The username
+     *
+     * @return UserInterface
+     *
+     * @throws UsernameNotFoundException if the user is not found
      */
     public function loadUserByUsername($email)
     {
@@ -42,9 +51,15 @@ abstract class AbstractEntityService implements UserProviderInterface
             return $customer;
         }
 
-        return $this->findOneBy(EntityConstants::ADMIN_USER, [
+        $admin = $this->findOneBy(EntityConstants::ADMIN_USER, [
             'email' => $email,
         ]);
+
+        if ($admin) {
+            return $admin;
+        }
+
+        throw new UsernameNotFoundException("User not found");
     }
 
     /**

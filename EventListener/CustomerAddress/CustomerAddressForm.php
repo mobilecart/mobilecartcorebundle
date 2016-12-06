@@ -1,11 +1,12 @@
 <?php
 
-namespace MobileCart\CoreBundle\EventListener\ItemVarOption;
+namespace MobileCart\CoreBundle\EventListener\CustomerAddress;
 
 use Symfony\Component\EventDispatcher\Event;
-use MobileCart\CoreBundle\Form\ItemVarOptionType;
+use Symfony\Component\Intl\Intl;
+use MobileCart\CoreBundle\Form\CustomerAddressType;
 
-class ItemVarOptionAdminForm
+class CustomerAddressForm
 {
     protected $entityService;
 
@@ -14,6 +15,8 @@ class ItemVarOptionAdminForm
     protected $formFactory;
 
     protected $router;
+
+    protected $cartService;
 
     protected $event;
 
@@ -79,14 +82,35 @@ class ItemVarOptionAdminForm
         return $this->router;
     }
 
-    public function onItemVarOptionAdminForm(Event $event)
+    public function setCartService($cartService)
+    {
+        $this->cartService = $cartService;
+        return $this;
+    }
+
+    public function getCartService()
+    {
+        return $this->cartService;
+    }
+
+    public function onCustomerAddressForm(Event $event)
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
 
         $entity = $event->getEntity();
 
-        $formType = new ItemVarOptionType();
+        $allCountries = Intl::getRegionBundle()->getCountryNames();
+        $allowedCountries = $this->getCartService()->getAllowedCountryIds();
+
+        $countries = [];
+        foreach($allowedCountries as $countryId) {
+            $countries[$countryId] = $allCountries[$countryId];
+        }
+
+        $formType = new CustomerAddressType();
+        $formType->setCountries($countries);
+
         $form = $this->getFormFactory()->create($formType, $entity, [
             'action' => $event->getAction(),
             'method' => $event->getMethod(),
@@ -97,16 +121,19 @@ class ItemVarOptionAdminForm
                 'label' => 'General',
                 'id' => 'general',
                 'fields' => [
-                    'item_var',
-                    'value',
-                    'sort_order',
-                    'additional_price',
-                    'is_in_stock',
-                    'url_value',
+                    'name',
+                    'company',
+                    'phone',
+                    'street',
+                    'city',
+                    'region',
+                    'postcode',
+                    'country_id'
                 ],
             ],
         ];
 
+        $returnData['country_regions'] = $this->getCartService()->getCountryRegions();
         $returnData['form_sections'] = $formSections;
         $returnData['form'] = $form;
 

@@ -112,6 +112,7 @@ class CustomerProfileForm
                     'last_name',
                     'email',
                     'billing_name',
+                    'billing_company',
                     'billing_phone',
                     'billing_street',
                     'billing_city',
@@ -126,6 +127,7 @@ class CustomerProfileForm
                 'fields' => [
                     'is_shipping_same',
                     'shipping_name',
+                    'shipping_company',
                     'shipping_phone',
                     'shipping_street',
                     'shipping_city',
@@ -155,10 +157,11 @@ class CustomerProfileForm
             if ($vars) {
                 foreach($vars as $var) {
 
+                    $name = $var->getCode();
                     switch($var->getFormInput()) {
                         case 'select':
                         case 'multiselect':
-                            $name = 'var_' . $var->getId() . '_option';
+
                             $options = $var->getItemVarOptions();
                             $choices = [];
                             if ($options) {
@@ -179,7 +182,7 @@ class CustomerProfileForm
 
                             break;
                         default:
-                            $name = 'var_' . $var->getId();
+
                             $form->add($name, 'text', [
                                 'mapped' => false,
                                 'label'  => $var->getName(),
@@ -197,11 +200,8 @@ class CustomerProfileForm
                 $objectVars = [];
                 foreach($varValues as $varValue) {
                     $var = $varValue->getItemVar();
-                    $name = 'var_' . $var->getId();
+                    $name = $var->getCode();
                     $isMultiple = ($var->getFormInput() == 'multiselect');
-                    if ($isMultiple) {
-                        $name .= '_option';
-                    }
 
                     $value = ($varValue->getItemVarOption())
                         ? $varValue->getItemVarOption()->getId()

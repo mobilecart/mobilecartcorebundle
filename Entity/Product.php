@@ -218,7 +218,7 @@ class Product
     private $config;
 
     /**
-     * @var integer $type
+     * @var integer $visibility
      *
      * @ORM\Column(name="visibility", type="integer", nullable=true)
      */

@@ -72,7 +72,7 @@ class ProductInsert
         if ($entity && $request->getSession()) {
             $request->getSession()->getFlashBag()->add(
                 'success',
-                'Product Successfully Created!'
+                'Product Created!'
             );
         }
 

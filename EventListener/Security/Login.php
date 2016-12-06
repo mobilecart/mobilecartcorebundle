@@ -149,6 +149,12 @@ class Login implements AuthenticationSuccessHandlerInterface
         } else if ($class === $this->getEntityService()->getRepository(EntityConstants::ADMIN_USER)->getClassName()) {
             $user = $this->getEntityService()->find(EntityConstants::ADMIN_USER, $token->getUser()->getId());
             $event->setIsAdmin(1);
+
+            // might as well create a blank cart for admin
+            //  this prevents bugs while testing shopping cart also
+            $aCart = new Cart();
+            $this->getCartSessionService()
+                ->setCart($aCart);
         }
 
         $user->setFailedLogins(0)

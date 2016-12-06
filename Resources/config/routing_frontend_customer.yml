@@ -49,6 +49,36 @@ customer_orders:
     methods: [GET]
 
 customer_order:
-    path: '/customer/order/{orderId}'
+    path: /customer/order/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Customer:orderView' }
     methods: [GET]
+
+customer_addresses:
+    path: /customer/addresses
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\CustomerAddress:index' }
+    methods: [GET]
+
+customer_address_new:
+    path: /customer/address/new
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\CustomerAddress:new' }
+    methods: [GET]
+
+customer_address_create:
+    path: /customer/address/create
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\CustomerAddress:create' }
+    methods: [POST]
+
+customer_address_edit:
+    path: /customer/address/{id}/edit
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\CustomerAddress:edit' }
+    methods: [GET]
+
+customer_address_update:
+    path: /customer/address/{id}/update
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\CustomerAddress:update' }
+    methods: [PUT]
+
+customer_address_delete:
+    path: /customer/address/{id}/delete
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\CustomerAddress:delete' }
+    methods: [DELETE]

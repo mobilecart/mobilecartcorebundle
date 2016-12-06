@@ -57,15 +57,16 @@ class CustomerRegisterConfirm
             && !$entity->getIsLocked()
             && $entity->getConfirmHash() == $hash) {
 
-            $apiKey = md5(microtime());
-
             $entity->setConfirmHash('')
                 ->setIsEnabled(1)
                 ->setIsLocked(0)
-                ->setApiKey($apiKey)
                 ->setFailedLogins(0)
                 ->setPasswordUpdatedAt(new \DateTime('now'))
             ;
+
+            if (!$entity->getApiKey()) {
+                $entity->setApiKey(sha1(microtime()));
+            }
 
             $this->getEntityService()->persist($entity);
             $event->setSuccess(1);

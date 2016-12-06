@@ -2,6 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Product;
 
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -118,8 +119,52 @@ class ProductList
                 break;
             case CoreEvent::SECTION_FRONTEND:
 
-                $response = $this->getThemeService()
-                    ->render('frontend', 'Product:index.html.twig', $returnData);
+                if ($event->getCategory()) {
+
+                    switch($event->getCategory()->getDisplayMode()) {
+                        case EntityConstants::DISPLAY_TEMPLATE:
+
+                            $response = $this->getThemeService()
+                                ->render('frontend', $event->getCategory()->getCustomTemplate(), $returnData);
+
+                            break;
+                        case EntityConstants::DISPLAY_TEMPLATE_PRODUCTS:
+
+                            $returnData['custom_template_html'] = $this->getThemeService()
+                                ->render('frontend', $event->getCategory()->getCustomTemplate(), $returnData);
+
+                            $template = $event->getTemplate()
+                                ? $event->getTemplate()
+                                : 'Product:index.html.twig';
+
+                            $response = $this->getThemeService()
+                                ->render('frontend', $template, $returnData);
+
+                            break;
+                        case EntityConstants::DISPLAY_PRODUCTS:
+
+                            $template = $event->getTemplate()
+                                ? $event->getTemplate()
+                                : 'Product:index.html.twig';
+
+                            $response = $this->getThemeService()
+                                ->render('frontend', $template, $returnData);
+
+                            break;
+                        default:
+
+                            break;
+                    }
+
+                } else {
+
+                    $template = $event->getTemplate()
+                        ? $event->getTemplate()
+                        : 'Product:index.html.twig';
+
+                    $response = $this->getThemeService()
+                        ->render('frontend', $template, $returnData);
+                }
 
                 break;
             case CoreEvent::SECTION_BACKEND:
@@ -163,8 +208,12 @@ class ProductList
                     ],
                 ];
 
+                $template = $event->getTemplate()
+                    ? $event->getTemplate()
+                    : 'Product:index.html.twig';
+
                 $response = $this->getThemeService()
-                    ->render('admin', 'Product:index.html.twig', $returnData);
+                    ->render('admin', $template, $returnData);
 
                 break;
             default:
