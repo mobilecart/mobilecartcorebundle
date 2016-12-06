@@ -1046,15 +1046,16 @@ class Product
             "var_code":"size",
             "label":"Size",
             "product_values":[
-             {
-              "value":"blue",
-              "products":[231,232,233]
-             },
-             {
-              "value":"green",
-              "products":[232,233,234]
-             }
-         ]},
+              {
+                "value":"blue",
+                "products":[231,232,233]
+              },
+              {
+                "value":"green",
+                "products":[232,233,234]
+               }
+            ]
+         },
          {
             "var_code":"color",
             "label":"Color",
@@ -1100,11 +1101,19 @@ class Product
                             } else if (is_array($childData[$varCode])) {
                                 $childData[$varCode][] = $varValue->getValue();
                             } else {
-                                $oldValue = $childData[$varCode];
-                                $childData[$varCode] = [
-                                    $varValue->getValue(),
-                                    $oldValue
-                                ];
+
+                                $oldValue = isset($childData[$varCode])
+                                    ? $childData[$varCode]
+                                    : null;
+
+                                if (is_null($oldValue)) {
+                                    $childData[$varCode] = [$varValue->getValue()];
+                                } else {
+                                    $childData[$varCode] = [
+                                        $varValue->getValue(),
+                                        $oldValue
+                                    ];
+                                }
                             }
 
                             if (!isset($tmpLabels[$varCode])) {
@@ -1134,7 +1143,7 @@ class Product
 
                 if (!isset($childData[$varCode])) {
                     continue;
-                } else if (is_array($childData[$varCode])) {
+                } elseif (is_array($childData[$varCode])) {
                     foreach($childData[$varCode] as $value) {
 
                         if (!isset($tmpValues[$varCode][$value])) {
@@ -1145,7 +1154,7 @@ class Product
                             $tmpValues[$varCode][$value][] = $childProductId;
                         }
                     }
-                } else if (isset($childData[$varCode])) {
+                } elseif (isset($childData[$varCode])) {
 
                     $value = $childData[$varCode];
 
@@ -1164,9 +1173,14 @@ class Product
 
         if ($tmpValues) {
             foreach($tmpValues as $varCode => $varCodeValues) {
+
+                $label = isset($tmpLabels[$varCode])
+                    ? $tmpLabels[$varCode]
+                    : $varCode;
+
                 $data = [
                     'var_code' => $varCode,
-                    'label' => $tmpLabels[$varCode],
+                    'label' => $label,
                     'product_values' => [],
                 ];
 
