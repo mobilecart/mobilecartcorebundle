@@ -153,6 +153,13 @@ class ProductList
                             break;
                         default:
 
+                            $template = $event->getTemplate()
+                                ? $event->getTemplate()
+                                : 'Product:index.html.twig';
+
+                            $response = $this->getThemeService()
+                                ->render('frontend', $template, $returnData);
+
                             break;
                     }
 

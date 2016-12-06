@@ -330,6 +330,13 @@ class Product
     private $qty;
 
     /**
+     * @var integer $min_qty
+     *
+     * @ORM\Column(name="min_qty", type="integer", nullable=true)
+     */
+    private $min_qty;
+
+    /**
      * @var string $fulltext_search
      *
      * @ORM\Column(name="fulltext_search", type="text", nullable=true)
@@ -443,6 +450,7 @@ class Product
             'sku' => $this->getSku(),
             'price' => $this->getPrice(),
             'qty' => $this->getQty(),
+            'min_qty' => $this->getMinQty(),
             'is_in_stock' => (bool) $this->getIsInStock(),
             'is_discountable' => (bool) $this->getIsDiscountable(),
             'is_taxable' => (bool) $this->getIsTaxable(),
@@ -1492,6 +1500,26 @@ class Product
     public function getQty()
     {
         return $this->qty;
+    }
+
+    /**
+     * @param $qty
+     * @return Product
+     */
+    public function setMinQty($qty)
+    {
+        $this->min_qty = $qty;
+        return $this;
+    }
+
+    /**
+     * Get min_qty
+     *
+     * @return integer
+     */
+    public function getMinQty()
+    {
+        return $this->min_qty;
     }
 
     /**
