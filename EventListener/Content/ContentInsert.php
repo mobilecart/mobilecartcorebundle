@@ -60,7 +60,7 @@ class ContentInsert
         if ($formData) {
 
             $this->getEntityService()
-                ->persistVariants($event->getObjectType(), $entity, $formData);
+                ->persistVariants($entity, $formData);
 
         }
 

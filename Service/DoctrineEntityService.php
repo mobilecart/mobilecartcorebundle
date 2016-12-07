@@ -562,21 +562,18 @@ class DoctrineEntityService
     /**
      * Update EAV for a single entity
      *
-     * @param $objectType
      * @param $entity
      * @param array $data
      * @return $this
      */
-    public function persistVariants($objectType, $entity, array $data)
+    public function persistVariants($entity, array $data)
     {
         // nothing to do if there's no data
         if (!$data) {
             return $this;
         }
 
-        if (!$objectType) {
-            $objectType = $entity->getObjectTypeKey();
-        }
+        $objectType = $entity->getObjectTypeKey();
 
         // separate base data from variant data
         $instance = $this->getInstance($objectType);

@@ -63,7 +63,7 @@ class ContentUpdate
 
             // update var values
             $this->getEntityService()
-                ->persistVariants($event->getObjectType(), $entity, $formData);
+                ->persistVariants($entity, $formData);
         }
 
         // update images

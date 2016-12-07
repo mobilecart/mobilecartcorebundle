@@ -427,11 +427,20 @@ class PdoEntityService
         }
     }
 
-    public function persistVariants($objectType, $entity, array $data)
+    /**
+     * Update EAV for a single entity
+     *
+     * @param $entity
+     * @param array $data
+     * @return $this
+     */
+    public function persistVariants($entity, array $data)
     {
         if (is_array($entity)) {
             $entity = new ArrayWrapper($entity);
         }
+
+        $objectType = $entity->getObjectTypeKey();
 
         // separate base data from variant data
         $instance = $this->getInstance($objectType);
@@ -475,7 +484,7 @@ class PdoEntityService
         // loop on variant data
         foreach($data as $k => $v) {
 
-            if (in_array($k, $baseDataKeys)) {
+            if (in_array($k, $baseDataKeys) || in_array($k, ['object_type_key'])) {
                 unset($data[$k]);
                 continue;
             }
