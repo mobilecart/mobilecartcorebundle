@@ -14,22 +14,22 @@ cart_admin_category_new:
     methods: [GET]
 
 cart_admin_category_show:
-    path: '/admin/category/{id}'
+    path: /admin/category/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Category:show' }
     methods: [GET]
 
 cart_admin_category_edit:
-    path: '/admin/category/{id}/edit'
+    path: /admin/category/{id}/edit
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Category:edit' }
     methods: [GET]
 
 cart_admin_category_update:
-    path: '/admin/category/{id}'
+    path: /admin/category/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Category:update' }
     methods: [PUT]
 
 cart_admin_category_delete:
-    path: '/admin/category/{id}'
+    path: /admin/category/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Category:delete' }
     methods: [DELETE]
 
@@ -54,22 +54,22 @@ cart_admin_content_new:
     methods: [GET]
 
 cart_admin_content_show:
-    path: '/admin/content/{id}'
+    path: /admin/content/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Content:show' }
     methods: [GET]
 
 cart_admin_content_edit:
-    path: '/admin/content/{id}/edit'
+    path: /admin/content/{id}/edit
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Content:edit' }
     methods: [GET]
 
 cart_admin_content_update:
-    path: '/admin/content/{id}'
+    path: /admin/content/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Content:update' }
     methods: [PUT]
 
 cart_admin_content_delete:
-    path: '/admin/content/{id}'
+    path: /admin/content/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Content:delete' }
     methods: [DELETE]
 
@@ -94,22 +94,22 @@ cart_admin_content_slot_new:
     methods: [GET]
 
 cart_admin_content_slot_show:
-    path: '/admin/content_slot/{id}'
+    path: /admin/content_slot/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ContentSlot:show' }
     methods: [GET]
 
 cart_admin_content_slot_edit:
-    path: '/admin/content_slot/{id}/edit'
+    path: /admin/content_slot/{id}/edit
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ContentSlot:edit' }
     methods: [GET]
 
 cart_admin_content_slot_update:
-    path: '/admin/content_slot/{id}'
+    path: /admin/content_slot/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ContentSlot:update' }
     methods: [PUT]
 
 cart_admin_content_slot_delete:
-    path: '/admin/content_slot/{id}'
+    path: /admin/content_slot/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ContentSlot:delete' }
     methods: [DELETE]
 
@@ -134,22 +134,22 @@ cart_admin_customer_new:
     methods: [GET]
 
 cart_admin_customer_show:
-    path: '/admin/customer/{id}'
+    path: /admin/customer/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Customer:show' }
     methods: [GET]
 
 cart_admin_customer_edit:
-    path: '/admin/customer/{id}/edit'
+    path: /admin/customer/{id}/edit
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Customer:edit' }
     methods: [GET]
 
 cart_admin_customer_update:
-    path: '/admin/customer/{id}'
+    path: /admin/customer/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Customer:update' }
     methods: [PUT]
 
 cart_admin_customer_delete:
-    path: '/admin/customer/{id}'
+    path: /admin/customer/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Customer:delete' }
     methods: [DELETE]
 
@@ -179,7 +179,7 @@ cart_admin_discount_new:
     methods: [GET]
 
 cart_admin_discount_show:
-    path: '/admin/discount/{id}'
+    path: /admin/discount/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Discount:show' }
     methods: [GET]
 
@@ -189,7 +189,7 @@ cart_admin_discount_edit:
     methods: [GET]
 
 cart_admin_discount_update:
-    path: '/admin/discount/{id}'
+    path: /admin/discount/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Discount:update' }
     methods: [PUT]
 
@@ -234,22 +234,22 @@ cart_admin_item_var_new:
     methods: [GET]
 
 cart_admin_item_var_show:
-    path: '/admin/item_var/{id}'
+    path: /admin/item_var/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVar:show' }
     methods: [GET]
 
 cart_admin_item_var_edit:
-    path: '/admin/item_var/{id}/edit'
+    path: /admin/item_var/{id}/edit
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVar:edit' }
     methods: [GET]
 
 cart_admin_item_var_update:
-    path: '/admin/item_var/{id}'
+    path: /admin/item_var/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVar:update' }
     methods: [PUT]
 
 cart_admin_item_var_delete:
-    path: '/admin/item_var/{id}'
+    path: /admin/item_var/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVar:delete' }
     methods: [DELETE]
 
@@ -274,22 +274,22 @@ cart_admin_item_var_option_new:
     methods: [GET]
 
 cart_admin_item_var_option_show:
-    path: '/admin/item_var_option/{id}'
+    path: /admin/item_var_option/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarOption:show' }
     methods: [GET]
 
 cart_admin_item_var_option_edit:
-    path: '/admin/item_var_option/{id}/edit'
+    path: /admin/item_var_option/{id}/edit
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarOption:edit' }
     methods: [GET]
 
 cart_admin_item_var_option_update:
-    path: '/admin/item_var_option/{id}'
+    path: /admin/item_var_option/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarOption:update' }
     methods: [PUT]
 
 cart_admin_item_var_option_delete:
-    path: '/admin/item_var_option/{id}'
+    path: /admin/item_var_option/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarOption:delete' }
     methods: [DELETE]
 
@@ -314,22 +314,22 @@ cart_admin_item_var_set_new:
     methods: [GET]
 
 cart_admin_item_var_set_show:
-    path: '/admin/item_var_set/{id}'
+    path: /admin/item_var_set/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSet:show' }
     methods: [GET]
 
 cart_admin_item_var_set_edit:
-    path: '/admin/item_var_set/{id}/edit'
+    path: /admin/item_var_set/{id}/edit
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSet:edit' }
     methods: [GET]
 
 cart_admin_item_var_set_update:
-    path: '/admin/item_var_set/{id}'
+    path: /admin/item_var_set/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSet:update' }
     methods: [PUT]
 
 cart_admin_item_var_set_delete:
-    path: '/admin/item_var_set/{id}'
+    path: /admin/item_var_set/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSet:delete' }
     methods: [DELETE]
 
@@ -354,22 +354,22 @@ cart_admin_item_var_set_var_new:
     methods: [GET]
 
 cart_admin_item_var_set_var_show:
-    path: '/admin/item_var_set_var/{id}'
+    path: /admin/item_var_set_var/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSetVar:show' }
     methods: [GET]
 
 cart_admin_item_var_set_var_edit:
-    path: '/admin/item_var_set_var/{id}/edit'
+    path: /admin/item_var_set_var/{id}/edit
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSetVar:edit' }
     methods: [GET]
 
 cart_admin_item_var_set_var_update:
-    path: '/admin/item_var_set_var/{id}'
+    path: /admin/item_var_set_var/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSetVar:update' }
     methods: [PUT]
 
 cart_admin_item_var_set_var_delete:
-    path: '/admin/item_var_set_var/{id}'
+    path: /admin/item_var_set_var/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSetVar:delete' }
     methods: [DELETE]
 
@@ -394,7 +394,7 @@ cart_admin_order_new:
     methods: [GET]
 
 cart_admin_order_show:
-    path: '/admin/order/{id}'
+    path: /admin/order/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:show' }
     methods: [GET]
 
@@ -444,7 +444,7 @@ cart_admin_order_customer:
     methods: [POST]
 
 cart_admin_order_delete:
-    path: '/admin/order/{id}'
+    path: /admin/order/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:delete' }
     methods: [DELETE]
 
@@ -469,7 +469,7 @@ cart_admin_product_new:
     methods: [GET]
 
 cart_admin_product_show:
-    path: '/admin/product/{id}'
+    path: /admin/product/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:show' }
     methods: [GET]
 
@@ -479,17 +479,17 @@ cart_admin_product_create:
     methods: [POST]
 
 cart_admin_product_edit:
-    path: '/admin/product/{id}/edit'
+    path: /admin/product/{id}/edit
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:edit' }
     methods: [GET]
 
 cart_admin_product_update:
-    path: '/admin/product/{id}'
+    path: /admin/product/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:update' }
     methods: [PUT]
 
 cart_admin_product_delete:
-    path: '/admin/product/{id}'
+    path: /admin/product/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:delete' }
     methods: [DELETE]
 
@@ -519,22 +519,22 @@ cart_admin_shipping_method_new:
     methods: [GET]
 
 cart_admin_shipping_method_show:
-    path: '/admin/shipping_method/{id}'
+    path: /admin/shipping_method/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ShippingMethod:show' }
     methods: [GET]
 
 cart_admin_shipping_method_edit:
-    path: '/admin/shipping_method/{id}/edit'
+    path: /admin/shipping_method/{id}/edit
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ShippingMethod:edit' }
     methods: [GET]
 
 cart_admin_shipping_method_update:
-    path: '/admin/shipping_method/{id}'
+    path: /admin/shipping_method/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ShippingMethod:update' }
     methods: [PUT]
 
 cart_admin_shipping_method_delete:
-    path: '/admin/shipping_method/{id}'
+    path: /admin/shipping_method/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ShippingMethod:delete' }
     methods: [DELETE]
 
@@ -559,22 +559,22 @@ cart_admin_url_rewrite_new:
     methods: [GET]
 
 cart_admin_url_rewrite_show:
-    path: '/admin/url_rewrite/{id}'
+    path: /admin/url_rewrite/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\UrlRewrite:show' }
     methods: [GET]
 
 cart_admin_url_rewrite_edit:
-    path: '/admin/url_rewrite/{id}/edit'
+    path: /admin/url_rewrite/{id}/edit
     defaults: { _controller: 'MobileCartCoreBundle:Admin\UrlRewrite:edit' }
     methods: [GET]
 
 cart_admin_url_rewrite_update:
-    path: '/admin/url_rewrite/{id}'
+    path: /admin/url_rewrite/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\UrlRewrite:update' }
     methods: [PUT]
 
 cart_admin_url_rewrite_delete:
-    path: '/admin/url_rewrite/{id}'
+    path: /admin/url_rewrite/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\UrlRewrite:delete' }
     methods: [DELETE]
 

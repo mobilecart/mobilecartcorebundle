@@ -49,6 +49,13 @@ class Order
     private $billing_name;
 
     /**
+     * @var string $billing_company
+     *
+     * @ORM\Column(name="billing_company", type="string", length=255, nullable=true)
+     */
+    private $billing_company;
+
+    /**
      * @var string $billing_phone
      *
      * @ORM\Column(name="billing_phone", type="string", length=24, nullable=true)
@@ -109,6 +116,13 @@ class Order
      * @Assert\NotBlank(groups={"shipping_address"})
      */
     private $shipping_name;
+
+    /**
+     * @var string $shipping_company
+     *
+     * @ORM\Column(name="shipping_company", type="string", length=255, nullable=true)
+     */
+    private $shipping_company;
 
     /**
      * @var string $shipping_phone
@@ -687,6 +701,7 @@ class Order
             'base_shipping_total' => $this->getBaseShippingTotal(),
             'base_refund_total' => $this->getBaseRefundTotal(),
             'billing_name' => $this->getBillingName(),
+            'billing_company' => $this->getBillingCompany(),
             'billing_phone' => $this->getBillingPhone(),
             'billing_street' => $this->getBillingStreet(),
             'billing_city' => $this->getBillingCity(),
@@ -694,6 +709,7 @@ class Order
             'billing_postcode' => $this->getBillingPostcode(),
             'billing_country_id' => $this->getBillingCountryId(),
             'shipping_name' => $this->getShippingName(),
+            'shipping_company' => $this->getShippingCompany(),
             'shipping_phone' => $this->getShippingPhone(),
             'shipping_street' => $this->getShippingStreet(),
             'shipping_city' => $this->getShippingCity(),
@@ -1232,6 +1248,24 @@ class Order
     }
 
     /**
+     * @param $company
+     * @return $this
+     */
+    public function setBillingCompany($company)
+    {
+        $this->billing_company = $company;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBillingCompany()
+    {
+        return $this->billing_company;
+    }
+
+    /**
      * @param $billingPhone
      * @return $this
      */
@@ -1373,6 +1407,24 @@ class Order
     public function getShippingName()
     {
         return $this->shipping_name;
+    }
+
+    /**
+     * @param $company
+     * @return $this
+     */
+    public function setShippingCompany($company)
+    {
+        $this->shipping_company = $company;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getShippingCompany()
+    {
+        return $this->shipping_company;
     }
 
     /**

@@ -4,7 +4,7 @@ cart_home:
     methods: [GET]
 
 cart_product_view:
-    path: '/product/{slug}'
+    path: /product/{slug}
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Product:view' }
     methods: [GET]
 
@@ -14,7 +14,7 @@ cart_products:
     methods: [GET]
 
 cart_category_products:
-    path: '/category/{slug}'
+    path: /category/{slug}
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Product:category' }
     methods: [GET]
 
@@ -24,7 +24,7 @@ cart_categories:
     methods: [GET]
 
 cart_content_view:
-    path: '/content/{slug}'
+    path: /content/{slug}
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Content:view' }
     methods: [GET]
 
