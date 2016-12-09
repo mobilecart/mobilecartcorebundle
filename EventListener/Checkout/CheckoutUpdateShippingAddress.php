@@ -2,6 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -14,6 +15,8 @@ class CheckoutUpdateShippingAddress
     protected $checkoutSessionService;
 
     protected $router;
+
+    protected $entityService;
 
     public function setEvent($event)
     {
@@ -66,6 +69,17 @@ class CheckoutUpdateShippingAddress
         return $this->router;
     }
 
+    public function setEntityService($entityService)
+    {
+        $this->entityService = $entityService;
+        return $this;
+    }
+
+    public function getEntityService()
+    {
+        return $this->entityService;
+    }
+
     public function onCheckoutUpdateShippingAddress(Event $event)
     {
         if (!$this->getCheckoutSessionService()->getCartSessionService()->getShippingService()->getIsShippingEnabled()) {
@@ -102,14 +116,62 @@ class CheckoutUpdateShippingAddress
 
         if ($isValid) {
 
+            $customerEntity = $cartCustomer->getId()
+                ? $this->getEntityService()->find(EntityConstants::CUSTOMER, $cartCustomer->getId())
+                : null;
+
             //update customer data in cart session
             $formData = $form->getData();
             foreach($form->all() as $childKey => $child) {
-                $cartCustomer->set($childKey, $formData->get($childKey));
+
+                // blacklist
+                if (in_array($childKey, [
+                    'id',
+                    'item_var_set_id',
+                    'hash',
+                    'confirm_hash',
+                    'item_var_set_id',
+                    'failed_logins',
+                    'locked_at',
+                    'created_at',
+                    'last_login_at',
+                    'api_key',
+                    'is_enabled',
+                    'is_expired',
+                    'is_locked',
+                    'password_updated_at',
+                    'is_password_expired',
+                ])) {
+                    continue;
+                }
+
+                $value = $formData->get($childKey);
+
+                if ($entity->getId()) {
+                    switch($childKey) {
+                        case 'email':
+                            // no-op
+                            break;
+                        default:
+                            $cartCustomer->set($childKey, $value);
+                            $customerData[$childKey] = $value;
+                            break;
+                    }
+                } else {
+                    $cartCustomer->set($childKey, $value);
+                    $customerData[$childKey] = $value;
+                    if ($customerEntity->getId()) {
+                        $customerEntity->set($childKey, $value);
+                    }
+                }
             }
 
+            if ($customerEntity->getId()) {
+                try {
+                    $this->getEntityService()->persist($customerEntity);
+                } catch(\Exception $e) { }
+            }
         } else {
-
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {

@@ -133,8 +133,7 @@ class CheckoutUpdateBillingAddress
             $formData = $form->getData();
             foreach($form->all() as $childKey => $child) {
 
-                // extra precaution
-                // potential security hole : guest checkout and updating data on existing user
+                // blacklist
                 if (in_array($childKey, [
                     'id',
                     'item_var_set_id',
@@ -222,8 +221,6 @@ class CheckoutUpdateBillingAddress
             }
 
             // todo: if tax is enabled and shipping is disabled, then apply tax to billing
-
-            // todo : collect totals regardless
 
             // todo : set totals to returnData
 

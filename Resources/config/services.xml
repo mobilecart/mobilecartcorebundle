@@ -812,6 +812,9 @@
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
         </service>
 
         <!-- Event Listener: after shipping address is updated, collect shipping methods, set to session, set to form -->
