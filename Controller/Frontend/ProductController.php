@@ -13,13 +13,6 @@ namespace MobileCart\CoreBundle\Controller\Frontend;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
-
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
@@ -28,10 +21,6 @@ class ProductController extends Controller
 {
     protected $objectType = EntityConstants::PRODUCT;
 
-    /**
-     * @Route("/product/{slug}", name="cart_product_view")
-     * @Method("GET")
-     */
     public function viewAction(Request $request)
     {
         $entityServiceParam = $this->container->getParameter('cart.load.frontend');
@@ -76,10 +65,6 @@ class ProductController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/products", name="cart_products")
-     * @Method("GET")
-     */
     public function indexAction(Request $request)
     {
         $searchParam = $this->container->getParameter('cart.search.frontend');
@@ -153,14 +138,5 @@ class ProductController extends Controller
             ->dispatch(CoreEvents::PRODUCT_LIST, $event);
 
         return $event->getResponse();
-    }
-
-    private function createAddToCartForm($id)
-    {
-        return $this->createFormBuilder(['id' => $id, 'qty' => 1])
-            ->add('id', 'hidden')
-            ->add('qty', 'text')
-            ->getForm()
-        ;
     }
 }
