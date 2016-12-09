@@ -47,7 +47,13 @@ class ProductController extends Controller
             throw $this->createNotFoundException('Unable to find Product');
         }
 
-        $addToCartForm = $this->createAddToCartForm($entity->getId());
+        $formEvent = new CoreEvent();
+        $formEvent->setEntity($entity);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::PRODUCT_ADDTOCART_FORM, $formEvent);
+
+        $addToCartForm = $formEvent->getForm();
 
         $configData = @ (array) json_decode($entity->getConfig());
 

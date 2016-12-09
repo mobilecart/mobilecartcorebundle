@@ -60,6 +60,7 @@ final class CoreEvents
     const PRODUCT_CREATE_RETURN = 'product.create.return';
     const PRODUCT_UPDATE_RETURN = 'product.update.return';
     const PRODUCT_ADMIN_FORM = 'product.admin.form';
+    const PRODUCT_ADDTOCART_FORM = 'product.addtocart.form';
 
     const CATEGORY_LIST = 'category.list';
     const CATEGORY_SEARCH = 'category.search';

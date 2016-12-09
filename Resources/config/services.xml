@@ -138,6 +138,7 @@
         <parameter key="cart.listener.payment.method.handler.class">MobileCart\CoreBundle\EventListener\Payment\PaymentMethodHandler</parameter>
         <parameter key="cart.listener.cart.view.return.class">MobileCart\CoreBundle\EventListener\Cart\ViewReturn</parameter>
         <parameter key="cart.listener.cart.add.product.class">MobileCart\CoreBundle\EventListener\Cart\AddProduct</parameter>
+        <parameter key="cart.listener.cart.addtocart.product.form.class">MobileCart\CoreBundle\EventListener\Cart\ProductAddToCartForm</parameter>
         <parameter key="cart.listener.cart.remove.product.class">MobileCart\CoreBundle\EventListener\Cart\RemoveProduct</parameter>
         <parameter key="cart.listener.cart.remove.products.class">MobileCart\CoreBundle\EventListener\Cart\RemoveProducts</parameter>
         <parameter key="cart.listener.cart.add.shipment.class">MobileCart\CoreBundle\EventListener\Cart\AddShipment</parameter>
@@ -1344,6 +1345,14 @@
             </call>
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Add Product to Cart : from a User Session, not for APIs -->
+        <service id="cart.listener.cart.addtocart.product.form" lazy="true" class="%cart.listener.cart.addtocart.product.form.class%">
+            <tag name="kernel.event_listener" event="product.addtocart.form" method="onProductAddToCartForm" priority="50" />
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
             </call>
         </service>
 
