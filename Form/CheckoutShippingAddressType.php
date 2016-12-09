@@ -34,6 +34,10 @@ class CheckoutShippingAddressType extends AbstractType
                 'attr' => ['class' => 'shipping-input'],
                 'label' => 'shipping.name',
             ])
+            ->add('shipping_company', 'text', [
+                'attr' => ['class' => 'shipping-input'],
+                'label' => 'shipping.company',
+            ])
             ->add('shipping_street', 'text', [
                 'attr' => ['class' => 'shipping-input'],
                 'label' => 'shipping.street',

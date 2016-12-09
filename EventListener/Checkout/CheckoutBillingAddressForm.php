@@ -120,6 +120,7 @@ class CheckoutBillingAddressForm
         $billingFields = array_merge($billingFields,
             [
                 'billing_name',
+                'billing_company',
                 'billing_street',
                 'billing_city',
                 'billing_region',

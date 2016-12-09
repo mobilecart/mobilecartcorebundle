@@ -108,6 +108,7 @@ class CheckoutShippingAddressForm
                 'fields' => [
                     'is_shipping_same',
                     'shipping_name',
+                    'shipping_company',
                     'shipping_street',
                     'shipping_city',
                     'shipping_region',

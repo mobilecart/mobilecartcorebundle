@@ -38,6 +38,10 @@ class CheckoutBillingAddressType extends AbstractType
                 'attr' => ['class' => 'billing-input'],
                 'label' => 'billing.name',
             ])
+            ->add('billing_company', 'text', [
+                'attr' => ['class' => 'billing-input'],
+                'label' => 'billing.company',
+            ])
             ->add('billing_street', 'text', [
                 'attr' => ['class' => 'billing-input'],
                 'label' => 'billing.street',

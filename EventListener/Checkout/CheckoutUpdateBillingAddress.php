@@ -102,9 +102,11 @@ class CheckoutUpdateBillingAddress
         $formType = $event->getForm();
         $entity = $event->getEntity();
 
-        $cartCustomer = $this->getCheckoutSessionService()
+        $cart = $this->getCheckoutSessionService()
             ->getCartSessionService()
-            ->getCustomer();
+            ->getCart();
+
+        $cartCustomer = $cart->getCustomer();
 
         $form = $this->getFormFactory()->create($formType, $entity, [
             'action' => $event->getAction(),
@@ -126,19 +128,6 @@ class CheckoutUpdateBillingAddress
                 ? $this->getEntityService()->find(EntityConstants::CUSTOMER, $cartCustomer->getId())
                 : $this->getEntityService()->getInstance(EntityConstants::CUSTOMER);
 
-            // allow the order to connect to the customer account
-            //  but don't allow the password to update
-            if (!$cartCustomer->getId() && isset($requestData['email'])) {
-
-                $aEntity = $this->getEntityService()->findOneBy(EntityConstants::CUSTOMER, [
-                    'email' => $requestData['email'],
-                ]);
-
-                if ($aEntity) {
-                    $customerEntity = $aEntity;
-                }
-            }
-
             //update customer data in cart session
             $customerData = [];
             $formData = $form->getData();
@@ -148,11 +137,13 @@ class CheckoutUpdateBillingAddress
                 // potential security hole : guest checkout and updating data on existing user
                 if (in_array($childKey, [
                     'id',
+                    'item_var_set_id',
                     'hash',
                     'confirm_hash',
                     'item_var_set_id',
                     'failed_logins',
                     'locked_at',
+                    'created_at',
                     'last_login_at',
                     'api_key',
                     'is_enabled',
@@ -188,6 +179,8 @@ class CheckoutUpdateBillingAddress
                         }
                         $customerData['first_name'] = $firstName;
                         $customerData['last_name'] = $lastName;
+                        $cartCustomer->set('first_name', $firstName);
+                        $cartCustomer->set('last_name', $lastName);
                         break;
                     default:
                         $value = $formData->get($childKey);
@@ -214,20 +207,18 @@ class CheckoutUpdateBillingAddress
                 }
             }
 
-            if (!$customerEntity->getId()) {
+            if ($customerEntity->getId()) {
+                try {
+                    $this->getEntityService()->persist($customerEntity);
+                } catch(\Exception $e) { }
+            } else {
                 $customerEntity->fromArray($customerData);
-                //try {
-                $this->getEntityService()->persist($customerEntity);
-                if ($customerEntity) {
-
-                    $this->getCheckoutSessionService()
-                        ->getCartSessionService()
-                        ->getCart()
-                        ->getCustomer()
-                        ->setId($customerEntity->getId());
-
-                }
-                //} catch(\Exception $e) { }
+                try {
+                    $this->getEntityService()->persist($customerEntity);
+                    if ($customerEntity->getId()) {
+                        $cartCustomer->setId($customerEntity->getId());
+                    }
+                } catch(\Exception $e) { }
             }
 
             // todo: if tax is enabled and shipping is disabled, then apply tax to billing
@@ -241,6 +232,8 @@ class CheckoutUpdateBillingAddress
                 ->collectShippingMethods()
                 ->collectTotals()
                 ->getCart();
+
+            $cart->setCustomer($cartCustomer);
 
             $returnData['cart'] = $cart;
 
