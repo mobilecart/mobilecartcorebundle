@@ -73,7 +73,29 @@ class CheckoutController extends Controller
                 ->dispatch(CoreEvents::CHECKOUT_FORM, $formEvent);
 
             $formType = $formEvent->getBillingAddressForm();
+
+            // todo : stuff this logic into a listener, set a flag for single-page-app enabled
             $form = $this->createForm($formType);
+            $returnData = $formEvent->getReturnData();
+
+            $sections = isset($returnData['sections'])
+                ? $returnData['sections']
+                : [];
+
+            $cartSession = $this->get('cart.session');
+            $cart = $cartSession->getCart();
+            $customer = $cart->getCustomer();
+
+            foreach($sections as $section => $sectionData) {
+                if (!isset($sections[$section]['fields'])) {
+                    continue;
+                }
+                foreach($sections[$section]['fields'] as $field) {
+                    if ($customerValue = $customer->get($field)) {
+                        $form->get($field)->setData($customerValue);
+                    }
+                }
+            }
 
             $event->setSingleStep(CheckoutConstants::STEP_BILLING_ADDRESS)
                 ->setStepNumber(1);
