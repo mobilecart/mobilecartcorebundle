@@ -42,21 +42,12 @@ class ProductController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::PRODUCT_ADDTOCART_FORM, $formEvent);
 
-        $addToCartForm = $formEvent->getForm();
-
-        $configData = @ (array) json_decode($entity->getConfig());
-
-        $returnData = [
-            'entity'         => $entity,
-            'addtocart_form' => $addToCartForm->createView(),
-            'config_data'    => $configData,
-        ];
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setRequest($request)
-            ->setReturnData($returnData)
+            ->setReturnData($formEvent->getReturnData())
             ->setEntity($entity)
+            ->setForm($formEvent->getForm())
             ->setSection(CoreEvent::SECTION_FRONTEND);
 
         $this->get('event_dispatcher')
@@ -91,10 +82,6 @@ class ProductController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/category/{slug}", name="cart_category_products")
-     * @Method("GET")
-     */
     public function categoryAction(Request $request)
     {
         $searchParam = $this->container->getParameter('cart.search.frontend');
@@ -117,7 +104,6 @@ class ProductController extends Controller
             ->setCategory($category)
             ->setObjectType($this->objectType)
             ->setSection(CoreEvent::SECTION_FRONTEND);
-
 
         if ($category->getDisplayMode() != EntityConstants::DISPLAY_TEMPLATE) {
 

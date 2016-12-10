@@ -44,11 +44,12 @@ class ProductAddToCartForm
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
-        $id = $event->getEntity()->getId();
+
         $data = [
-            'id' => $id,
+            'id' => $event->getEntity()->getId(),
             'qty' => 1
         ];
+
         $options = [];
         $type = 'Symfony\Component\Form\Extension\Core\Type\FormType';
         $form = $this->getFormFactory()->createBuilder($type, $data, $options)
@@ -56,8 +57,7 @@ class ProductAddToCartForm
             ->add('qty', 'text')
             ->getForm();
 
-        $event->setForm($form);
-        $returnData['form'] = $form;
-        $event->setReturnData($returnData);
+        $event->setForm($form)
+            ->setReturnData($returnData);
     }
 }

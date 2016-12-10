@@ -74,11 +74,12 @@ class ProductViewReturn
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
-
-        $product = $event->getEntity();
+        $entity = $event->getEntity();
+        $form = $event->getForm();
+        $returnData['entity'] = $entity;
 
         $request = $event->getRequest();
-        $config = @ (array) json_decode($product->getConfig());
+
         $typeSections = [];
         $objectType = EntityConstants::PRODUCT;
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
@@ -88,12 +89,14 @@ class ProductViewReturn
             case 'json':
 
                 $returnData = [
-                    'entity' => $product->getData(),
+                    'entity' => $entity->getData(),
                 ];
                 $response = new JsonResponse($returnData);
-
                 break;
             default:
+
+                $returnData['config_data'] = @ (array) json_decode($entity->getConfig());
+                $returnData['form'] = $form->createView();
 
                 $customTpl = $event->getCustomTemplate();
                 if (!$customTpl && $event->getEntity()->getCustomTemplate()) {
