@@ -13,11 +13,6 @@ namespace MobileCart\CoreBundle\Controller\Frontend;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
@@ -26,10 +21,6 @@ class CategoryController extends Controller
 {
     protected $objectType = EntityConstants::CATEGORY;
 
-    /**
-     * @Route("/categories", name="cart_categories")
-     * @Method("GET")
-     */
     public function indexAction(Request $request)
     {
         $searchParam = $this->container->getParameter('cart.search.frontend');

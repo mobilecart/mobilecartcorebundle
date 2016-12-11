@@ -23,11 +23,6 @@ use MobileCart\CoreBundle\Event\CoreEvent;
 
 class HomeController extends Controller
 {
-
-    /**
-     * @Route("/", name="cart_home")
-     * @Method("GET")
-     */
     public function indexAction(Request $request)
     {
         $event = new CoreEvent();

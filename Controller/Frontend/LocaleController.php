@@ -12,21 +12,11 @@
 namespace MobileCart\CoreBundle\Controller\Frontend;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-/**
- * Locale controller.
- *
- */
 class LocaleController extends Controller
 {
-	/**
-     * @Route("/locale/{code}", name="cart_locale")
-     * @Template()
-     */
     public function indexAction(Request $request)
     {
         $localeService = $this->container->get('cart.locale');
@@ -42,5 +32,4 @@ class LocaleController extends Controller
 
         return new RedirectResponse($redirect);
     }
-
 }

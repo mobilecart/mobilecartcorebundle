@@ -12,21 +12,11 @@
 namespace MobileCart\CoreBundle\Controller\Frontend;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-/**
- * Currency controller.
- *
- */
 class CurrencyController extends Controller
 {
-	/**
-     * @Route("/currency/{code}", name="cart_currency")
-     * @Template()
-     */
     public function indexAction(Request $request)
     {
         $currencyService = $this->container->get('cart.currency');
@@ -42,5 +32,4 @@ class CurrencyController extends Controller
 
         return new RedirectResponse($redirect);
     }
-
 }

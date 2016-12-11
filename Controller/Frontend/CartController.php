@@ -12,24 +12,14 @@
 namespace MobileCart\CoreBundle\Controller\Frontend;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-
 use MobileCart\CoreBundle\Event\CoreEvents;
 use MobileCart\CoreBundle\Event\CoreEvent;
 
 class CartController extends Controller
 {
-    /**
-     * @Route("/cart/view", name="cart_view")
-     * @Method("GET")
-     */
     public function indexAction(Request $request)
     {
         $event = new CoreEvent();
@@ -41,10 +31,6 @@ class CartController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/cart/add/{id}", name="cart_add_item")
-     * @Method({"POST","GET"})
-     */
     public function addProductAction(Request $request)
     {
         $event = new CoreEvent();
@@ -58,10 +44,6 @@ class CartController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/cart/shipment/add", name="cart_shipment_add")
-     * @Method("POST")
-     */
     public function addShipmentAction(Request $request)
     {
         $event = new CoreEvent();
@@ -74,10 +56,6 @@ class CartController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/cart/update-qtys", name="cart_update_qtys")
-     * @Method("POST")
-     */
     public function updateQtysAction(Request $request)
     {
         $qtys = $request->get('qty', []);
@@ -113,11 +91,7 @@ class CartController extends Controller
 
         return $event->getResponse();
     }
-    
-    /**
-     * @Route("/cart/remove/{product_id}", name="cart_remove_item")
-     * @Method({"POST","GET"})
-     */
+
     public function removeProductAction(Request $request)
     {
         $event = new CoreEvent();
@@ -130,10 +104,6 @@ class CartController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/cart/products/remove", name="cart_remove_items")
-     * @Method({"POST","GET"})
-     */
     public function removeProductsAction(Request $request)
     {
         $event = new CoreEvent();
@@ -146,10 +116,6 @@ class CartController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/cart/totals", name="cart_totals")
-     * @Method("GET")
-     */
     public function totalsAction(Request $request)
     {
         $totalsMap = $this->get('cart.session')
@@ -170,10 +136,6 @@ class CartController extends Controller
         return new JsonResponse($totals);
     }
 
-    /**
-     * @Route("/cart/discount/add", name="cart_add_discount")
-     * @Method({"POST","GET"})
-     */
     public function addDiscountAction(Request $request)
     {
         $event = new CoreEvent();

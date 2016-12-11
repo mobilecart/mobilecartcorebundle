@@ -13,22 +13,12 @@ namespace MobileCart\CoreBundle\Controller\Frontend;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-
 use MobileCart\CoreBundle\Event\CoreEvents;
 use MobileCart\CoreBundle\Event\CoreEvent;
 
 class WebhookController extends Controller
 {
-
-    /**
-     * @Route("/webhook", name="cart_webhook")
-     * @Method("GET")
-     */
     public function indexAction(Request $request)
     {
         $input = @file_get_contents("php://input");

@@ -12,9 +12,6 @@
 namespace MobileCart\CoreBundle\Controller\Frontend;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
@@ -24,10 +21,6 @@ class ContentController extends Controller
 {
     protected $objectType = EntityConstants::CONTENT;
 
-    /**
-     * @Route("/content/{slug}", name="cart_content_view")
-     * @Method("GET")
-     */
     public function viewAction(Request $request)
     {
         $entityServiceParam = $this->container->getParameter('cart.load.frontend');
@@ -55,10 +48,6 @@ class ContentController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/contents", name="cart_contents")
-     * @Method("GET")
-     */
     public function indexAction(Request $request)
     {
         $searchParam = $this->container->getParameter('cart.search.frontend');

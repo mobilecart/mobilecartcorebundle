@@ -12,12 +12,8 @@
 namespace MobileCart\CoreBundle\Controller\Frontend;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
@@ -25,10 +21,6 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
 
 class CheckoutController extends Controller
 {
-    /**
-     * @Route("/cart/checkout", name="cart_checkout")
-     * @Method("GET")
-     */
     public function indexAction(Request $request)
     {
         // check if login/registration is required
@@ -115,10 +107,6 @@ class CheckoutController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/cart/checkout/shipping_address", name="cart_checkout_shipping_address")
-     * @Method("GET")
-     */
     public function shippingAddressAction(Request $request)
     {
         $isSpaEnabled = $this->container->getParameter('cart.checkout.spa.enabled');
@@ -155,10 +143,6 @@ class CheckoutController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/cart/checkout/totals_discounts", name="cart_checkout_totals_discounts")
-     * @Method("GET")
-     */
     public function totalsDiscountsAction(Request $request)
     {
         $event = new CoreEvent();
@@ -180,10 +164,6 @@ class CheckoutController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/cart/checkout/payment", name="cart_checkout_payment")
-     * @Method("GET")
-     */
     public function paymentMethodsAction(Request $request)
     {
         $isSpaEnabled = $this->container->getParameter('cart.checkout.spa.enabled');
@@ -248,10 +228,6 @@ class CheckoutController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/cart/checkout/confirm_order", name="cart_checkout_confirm_order")
-     * @Method("GET")
-     */
     public function confirmOrderAction(Request $request)
     {
         $event = new CoreEvent();
@@ -263,12 +239,6 @@ class CheckoutController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * Handle the complete posted data
-     *
-     * @Route("/cart/checkout/post", name="cart_checkout_submit_order")
-     * @Method("POST")
-     */
     public function submitOrderAction(Request $request)
     {
         // check if login/registration is required
@@ -306,11 +276,6 @@ class CheckoutController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * Show success/confirmation page
-     *
-     * @Route("/cart/checkout/success", name="cart_checkout_success")
-     */
     public function successAction(Request $request)
     {
         $event = new CoreEvent();
@@ -322,10 +287,6 @@ class CheckoutController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/cart/checkout/update/billing_address", name="cart_checkout_update_billing_address")
-     * @Method("POST")
-     */
     public function updateBillingAddressAction(Request $request)
     {
         // check if login/registration is required
@@ -371,10 +332,6 @@ class CheckoutController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/cart/checkout/update/shipping_address", name="cart_checkout_update_shipping_address")
-     * @Method("POST")
-     */
     public function updateShippingAddressAction(Request $request)
     {
         // check if login/registration is required
@@ -421,10 +378,6 @@ class CheckoutController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/cart/checkout/update/shipping_method", name="cart_checkout_update_shipping_method")
-     * @Method("POST")
-     */
     public function updateShippingMethodAction(Request $request)
     {
         // check if login/registration is required
@@ -463,10 +416,6 @@ class CheckoutController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/cart/checkout/update/totals_discounts", name="cart_checkout_update_totals_discounts")
-     * @Method("POST")
-     */
     public function updateTotalsDiscountsAction(Request $request)
     {
         $event = new CoreEvent();
@@ -478,10 +427,6 @@ class CheckoutController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/cart/checkout/update/discount", name="cart_checkout_update_discount")
-     * @Method("POST")
-     */
     public function updateDiscountAction(Request $request)
     {
         // check if login/registration is required
@@ -517,10 +462,6 @@ class CheckoutController extends Controller
         return $event->getResponse();
     }
 
-    /**
-     * @Route("/cart/checkout/update/payment", name="cart_checkout_update_payment")
-     * @Method("POST")
-     */
     public function updatePaymentMethodAction(Request $request)
     {
         // check if login/registration is required
@@ -543,5 +484,4 @@ class CheckoutController extends Controller
 
         return $event->getResponse();
     }
-    
 }

@@ -6,7 +6,7 @@ cart_view:
 cart_add_item:
     path:      /cart/add/{id}
     defaults:  { _controller: MobileCartCoreBundle:Frontend/Cart:addProduct }
-    methods:  [POST]
+    methods:  [GET, POST]
 
 cart_shipment_add:
     path:     /cart/shipment/add
@@ -104,17 +104,17 @@ cart_checkout_success:
     methods: [GET]
 
 cart_currency:
-    path: '/currency/{code}'
+    path: /currency/{code}
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Currency:index' }
     methods:  [GET, POST]
 
 cart_locale:
-    path: '/locale/{code}'
+    path: /locale/{code}
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Locale:index' }
     methods:  [GET, POST]
 
 cart_webhook:
-    path: '/webhook'
+    path: /webhook
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Webhook:index' }
 
 api_shipping_rates:
