@@ -92,7 +92,7 @@ class AddProduct
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
         $success = 0;
         $errors = [];
-
+        $cartItemEntity = null;
         $product = null;
         $productId = $request->get('id', '');
         $qty = $request->get('qty', 1);
@@ -189,11 +189,11 @@ class AddProduct
                     } else {
 
                         if (!$minQtyMet) {
-                            $errors[] = "Minimum Qty is not met : {$cartItem->getSku()}";
+                            $errors[] = "Minimum Qty is not met : {$cartItem->getSku()}, Qty: {$cartItem->getMinQty()}";
                         }
 
                         if (!$maxQtyMet) {
-                            $errors[] = "Insufficient stock level : {$cartItem->getSku()}";
+                            $errors[] = "Insufficient stock level : {$cartItem->getSku()}, Available: {$cartItem->getAvailQty()}";
                         }
                     }
                 } else {
@@ -209,11 +209,11 @@ class AddProduct
                     } else {
 
                         if (!$minQtyMet) {
-                            $errors[] = "Minimum Qty is not met : {$cartItem->getSku()}";
+                            $errors[] = "Minimum Qty is not met : {$cartItem->getSku()}, Qty: {$cartItem->getMinQty()}";
                         }
 
                         if (!$maxQtyMet) {
-                            $errors[] = "Insufficient stock level : {$cartItem->getSku()}";
+                            $errors[] = "Insufficient stock level : {$cartItem->getSku()}, Available: {$cartItem->getAvailQty()}";
                         }
                     }
                 }
@@ -276,11 +276,11 @@ class AddProduct
                     } else {
 
                         if (!$minQtyMet) {
-                            $errors[] = "Minimum Qty is not met : {$cartItem->getSku()}";
+                            $errors[] = "Minimum Qty is not met : {$cartItem->getSku()}, Qty: {$cartItem->getMinQty()}";
                         }
 
                         if (!$maxQtyMet) {
-                            $errors[] = "Insufficient stock level : {$cartItem->getSku()}";
+                            $errors[] = "Insufficient stock level : {$cartItem->getSku()}, Available: {$cartItem->getAvailQty()}";
                         }
                     }
 
@@ -297,11 +297,11 @@ class AddProduct
                     } else {
 
                         if (!$minQtyMet) {
-                            $errors[] = "Minimum Qty is not met : {$cartItem->getSku()}";
+                            $errors[] = "Minimum Qty is not met : {$cartItem->getSku()}, Qty: {$cartItem->getMinQty()}";
                         }
 
                         if (!$maxQtyMet) {
-                            $errors[] = "Insuffcient stock level : {$cartItem->getSku()}";
+                            $errors[] = "Insufficient stock level : {$cartItem->getSku()}, Available: {$cartItem->getAvailQty()}";
                         }
                     }
                 }
@@ -418,11 +418,11 @@ class AddProduct
                     }
 
                     if (!$minQtyMet) {
-                        $errors[] = "Minimum Qty is not met : {$product->getSku()}";
+                        $errors[] = "Minimum Qty is not met : {$product->getSku()}, Qty: {$child->getMinQty()}";
                     }
 
                     if (!$maxQtyMet) {
-                        $errors[] = "Insuffcient stock level : {$product->getSku()}";
+                        $errors[] = "Insufficient stock level : {$product->getSku()}, Available: {$child->getQty()}";
                     }
 
                 }
@@ -482,11 +482,11 @@ class AddProduct
                     }
 
                     if (!$minQtyMet) {
-                        $errors[] = "Minimum Qty is not met : {$product->getSku()}";
+                        $errors[] = "Minimum Qty is not met : {$product->getSku()}, Qty: {$product->getMinQty()}";
                     }
 
                     if (!$maxQtyMet) {
-                        $errors[] = "Insuffcient stock level : {$product->getSku()}";
+                        $errors[] = "Insufficient stock level : {$product->getSku()}, Available: {$product->getQty()}";
                     }
                 }
             }
@@ -514,7 +514,9 @@ class AddProduct
         }
 
         $this->getEntityService()->persist($cartEntity);
-        $event->setCartEntity($cartEntity);
+        $event->setCartEntity($cartEntity)
+            ->setCartItemEntity($cartItemEntity);
+
         $cartId = $cartEntity->getId();
         $cart->setId($cartId);
 
