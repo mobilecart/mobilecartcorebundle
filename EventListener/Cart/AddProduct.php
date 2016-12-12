@@ -540,11 +540,11 @@ class AddProduct
                         );
                     }
 
-                    if ($slug) {
+                    if ($slug && $event->getIsAdd()) {
                         $route = 'cart_product_view';
                         $params = ['slug' => $slug];
                     }
-                } elseif ($success) {
+                } elseif ($success && $event->getIsAdd()) {
                     $request->getSession()->getFlashBag()->add(
                         'success',
                         'Product Added to Cart'
