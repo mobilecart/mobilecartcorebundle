@@ -108,6 +108,8 @@ class AddProduct
             $idField = 'id';
         }
 
+        $slug = '';
+
         $cart = $this->getCartSessionService()
             ->initCart()
             ->getCart();
@@ -115,6 +117,7 @@ class AddProduct
         if ($idField != 'id') {
             if ($item = $cart->findItem($idField, $productId)) {
                 $productId = $item->getProductId();
+                $slug = $item->getSlug();
             } else {
                 $product = $this->getEntityService()->findOneBy(EntityConstants::PRODUCT, [
                     $idField => $productId,
@@ -122,6 +125,7 @@ class AddProduct
 
                 if ($product) {
                     $productId = $product->getId();
+                    $slug = $product->getSlug();
                 }
             }
         }
@@ -165,6 +169,7 @@ class AddProduct
 
             // update db
             if ($cartItem) {
+                $slug = $cartItem->getSlug();
 
                 $minQty = (int) $cartItem->getMinQty();
                 $availQty = $cartItem->getAvailQty();
@@ -184,7 +189,7 @@ class AddProduct
                     } else {
 
                         if (!$minQtyMet) {
-                            $errors[] = "Min Qty is not met : {$cartItem->getSku()}";
+                            $errors[] = "Minimum Qty is not met : {$cartItem->getSku()}";
                         }
 
                         if (!$maxQtyMet) {
@@ -204,7 +209,7 @@ class AddProduct
                     } else {
 
                         if (!$minQtyMet) {
-                            $errors[] = "Min Qty is not met : {$cartItem->getSku()}";
+                            $errors[] = "Minimum Qty is not met : {$cartItem->getSku()}";
                         }
 
                         if (!$maxQtyMet) {
@@ -251,6 +256,8 @@ class AddProduct
             // update db
             if ($cartItem) {
 
+                $slug = $cartItem->getSlug();
+
                 $minQty = (int) $cartItem->getMinQty();
                 $availQty = $cartItem->getAvailQty();
                 $isQtyManaged = $cartItem->getIsQtyManaged();
@@ -269,7 +276,7 @@ class AddProduct
                     } else {
 
                         if (!$minQtyMet) {
-                            $errors[] = "Min Qty is not met : {$cartItem->getSku()}";
+                            $errors[] = "Minimum Qty is not met : {$cartItem->getSku()}";
                         }
 
                         if (!$maxQtyMet) {
@@ -290,7 +297,7 @@ class AddProduct
                     } else {
 
                         if (!$minQtyMet) {
-                            $errors[] = "Min Qty is not met : {$cartItem->getSku()}";
+                            $errors[] = "Minimum Qty is not met : {$cartItem->getSku()}";
                         }
 
                         if (!$maxQtyMet) {
@@ -341,6 +348,7 @@ class AddProduct
                 throw new NotFoundHttpException("Product not found with ID: '{$simpleProductId}''");
             }
 
+            $slug = $product->getSlug();
             $parentOptions = [];
             if ($simpleProductId) {
 
@@ -410,7 +418,7 @@ class AddProduct
                     }
 
                     if (!$minQtyMet) {
-                        $errors[] = "Min Qty is not met : {$product->getSku()}";
+                        $errors[] = "Minimum Qty is not met : {$product->getSku()}";
                     }
 
                     if (!$maxQtyMet) {
@@ -474,7 +482,7 @@ class AddProduct
                     }
 
                     if (!$minQtyMet) {
-                        $errors[] = "Min Qty is not met : {$product->getSku()}";
+                        $errors[] = "Minimum Qty is not met : {$product->getSku()}";
                     }
 
                     if (!$maxQtyMet) {
@@ -521,12 +529,20 @@ class AddProduct
                 break;
             default:
 
+                $route = 'cart_view';
+                $params = [];
+
                 if ($errors) {
                     foreach($errors as $error) {
                         $request->getSession()->getFlashBag()->add(
                             CoreEvent::MSG_ERROR,
                             $error
                         );
+                    }
+
+                    if ($slug) {
+                        $route = 'cart_product_view';
+                        $params = ['slug' => $slug];
                     }
                 } elseif ($success) {
                     $request->getSession()->getFlashBag()->add(
@@ -535,8 +551,6 @@ class AddProduct
                     );
                 }
 
-                $params = [];
-                $route = 'cart_view';
                 $url = $this->getRouter()->generate($route, $params);
                 $response = new RedirectResponse($url);
                 break;
