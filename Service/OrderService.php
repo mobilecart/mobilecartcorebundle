@@ -651,7 +651,16 @@ class OrderService
             $this->processPayment();
         }
 
+        // save order
         $this->createOrder();
+
+        // save order shipments first
+        //  because order items can save a reference to a shipment
+        $this->createOrderShipments();
+
+        // save order items
+        //  each item could reference a shipment
+        $this->createOrderItems();
 
         if ($this->getEnableCreateInvoice()
             || $this->getEnableCreatePayment()
@@ -1028,12 +1037,6 @@ class OrderService
         // set order for further processing
         $this->setOrder($order);
 
-        // save items
-        $this->createOrderItems();
-
-        // todo: save shipments
-        //$this->createOrderShipment();
-
         return $this;
     }
 
@@ -1088,6 +1091,18 @@ class OrderService
                 }
 
                 $this->getEntityService()->persist($orderItem);
+
+                $product = $this->getEntityService()->find(EntityConstants::PRODUCT, $item->getProductId());
+                if ($product && $product->getIsQtyManaged()) {
+
+                    $newQty = $product->getQty() - $item->getQty();
+                    $product->setQty($newQty);
+                    if ($newQty <= 0) {
+                        $product->setIsInStock(0);
+                    }
+
+                    $this->getEntityService()->persist($product);
+                }
             }
         }
 
@@ -1098,7 +1113,7 @@ class OrderService
      * @return $this
      * @throws \Exception
      */
-    public function createOrderShipment()
+    public function createOrderShipments()
     {
         if (!$this->getOrder()) {
             throw new \Exception("Cannot create Order Shipments. Order is not set");

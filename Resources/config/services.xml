@@ -92,7 +92,6 @@
         <parameter key="cart.repo.order_var_value_varchar">MobileCartCoreBundle:OrderVarValueVarchar</parameter>
         <parameter key="cart.repo.order_item">MobileCartCoreBundle:OrderItem</parameter>
         <parameter key="cart.repo.order_shipment">MobileCartCoreBundle:OrderShipment</parameter>
-        <!-- todo: add column <parameter key="cart.repo.order_shipment_item">MobileCartCoreBundle:OrderShipmentItem</parameter> -->
         <parameter key="cart.repo.order_invoice">MobileCartCoreBundle:OrderInvoice</parameter>
         <parameter key="cart.repo.order_payment">MobileCartCoreBundle:OrderPayment</parameter>
         <parameter key="cart.repo.order_refund">MobileCartCoreBundle:OrderRefund</parameter>

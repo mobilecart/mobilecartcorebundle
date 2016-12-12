@@ -30,6 +30,27 @@ class OrderShipment
     private $created_at;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="company", type="string", length=255)
+     */
+    private $company;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="method", type="string", length=255)
+     */
+    private $method;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="tracking", type="text", nullable=true)
+     */
+    private $tracking;
+
+    /**
      * @var \MobileCart\CoreBundle\Entity\Order
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Order", inversedBy="shipments")
@@ -38,6 +59,69 @@ class OrderShipment
      * })
      */
     private $order;
+
+    /**
+     * @var \MobileCart\CoreBundle\Entity\OrderItem
+     *
+     * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\OrderItem", mappedBy="order")
+     */
+    private $items;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=255, nullable=true)
+     */
+    private $name;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="company_name", type="string", length=255, nullable=true)
+     */
+    private $company_name;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="phone", type="string", length=24, nullable=true)
+     */
+    private $phone;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="street", type="string", length=255, nullable=true)
+     */
+    private $street;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="city", type="string", length=255, nullable=true)
+     */
+    private $city;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="region", type="string", length=255, nullable=true)
+     */
+    private $region;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="postcode", type="string", length=16, nullable=true)
+     */
+    private $postcode;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="country_id", type="string", length=2, nullable=true)
+     */
+    private $country_id;
 
     /**
      * @var integer $id
@@ -61,6 +145,20 @@ class OrderShipment
     private $cost;
 
     /**
+     * @var float $tax
+     *
+     * @ORM\Column(name="tax", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $tax;
+
+    /**
+     * @var float $discount
+     *
+     * @ORM\Column(name="discount", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $discount;
+
+    /**
      * @var string $currency
      *
      * @ORM\Column(name="currency", type="string", length=8)
@@ -82,32 +180,30 @@ class OrderShipment
     private $base_cost;
 
     /**
+     * @var float $base_tax
+     *
+     * @ORM\Column(name="base_tax", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $base_tax;
+
+    /**
+     * @var float $base_discount
+     *
+     * @ORM\Column(name="base_discount", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $base_discount;
+
+    /**
      * @var string $base_currency
      *
      * @ORM\Column(name="base_currency", type="string", length=8)
      */
     private $base_currency;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="company", type="string", length=255)
-     */
-    private $company;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="method", type="string", length=255)
-     */
-    private $method;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="tracking", type="text", nullable=true)
-     */
-    private $tracking;
+    public function __construct()
+    {
+        $this->items = new \Doctrine\Common\Collections\ArrayCollection();
+    }
 
     /**
      * Get id
@@ -226,7 +322,29 @@ class OrderShipment
     public function getBaseData()
     {
         return [
+            'id' => $this->getId(),
             'created_at' => $this->getCreatedAt(),
+            'company' => $this->getCompany(),
+            'method' => $this->getMethod(),
+            'tracking' => $this->getTracking(),
+            'name' => $this->getName(),
+            'company_name' => $this->getCompany(),
+            'phone' => $this->getPhone(),
+            'street' => $this->getStreet(),
+            'city' => $this->getCity(),
+            'region' => $this->getRegion(),
+            'postcode' => $this->getPostcode(),
+            'country_id' => $this->getCountryId(),
+            'price' => $this->getPrice(),
+            'cost' => $this->getCost(),
+            'tax' => $this->getTax(),
+            'discount' => $this->getDiscount(),
+            'currency' => $this->getCurrency(),
+            'base_price' => $this->getBasePrice(),
+            'base_cost' => $this->getBaseCost(),
+            'base_tax' => $this->getBaseTax(),
+            'base_discount' => $this->getBaseDiscount(),
+            'base_currency' => $this->getBaseCurrency(),
         ];
     }
 
@@ -250,6 +368,179 @@ class OrderShipment
     public function getCreatedAt()
     {
         return $this->created_at;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     * @return CustomerAddress
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param $company
+     * @return $this
+     */
+    public function setCompanyName($company)
+    {
+        $this->company_name = $company;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCompanyName()
+    {
+        return $this->company_name;
+    }
+
+    /**
+     * Set phone
+     *
+     * @param string $phone
+     * @return CustomerAddress
+     */
+    public function setPhone($phone)
+    {
+        $this->phone = $phone;
+        return $this;
+    }
+
+    /**
+     * Get phone
+     *
+     * @return string
+     */
+    public function getPhone()
+    {
+        return $this->phone;
+    }
+
+    /**
+     * Set street
+     *
+     * @param string $street
+     * @return CustomerAddress
+     */
+    public function setStreet($street)
+    {
+        $this->street = $street;
+        return $this;
+    }
+
+    /**
+     * Get street
+     *
+     * @return string
+     */
+    public function getStreet()
+    {
+        return $this->street;
+    }
+
+    /**
+     * Set city
+     *
+     * @param string $city
+     * @return CustomerAddress
+     */
+    public function setCity($city)
+    {
+        $this->city = $city;
+        return $this;
+    }
+
+    /**
+     * Get city
+     *
+     * @return string
+     */
+    public function getCity()
+    {
+        return $this->city;
+    }
+
+    /**
+     * Set region
+     *
+     * @param string $region
+     * @return CustomerAddress
+     */
+    public function setRegion($region)
+    {
+        $this->region = $region;
+        return $this;
+    }
+
+    /**
+     * Get region
+     *
+     * @return string
+     */
+    public function getRegion()
+    {
+        return $this->region;
+    }
+
+    /**
+     * Set postcode
+     *
+     * @param string $postcode
+     * @return CustomerAddress
+     */
+    public function setPostcode($postcode)
+    {
+        $this->postcode = $postcode;
+        return $this;
+    }
+
+    /**
+     * Get postcode
+     *
+     * @return string
+     */
+    public function getPostcode()
+    {
+        return $this->postcode;
+    }
+
+    /**
+     * Set country_id
+     *
+     * @param string $countryId
+     * @return CustomerAddress
+     */
+    public function setCountryId($countryId)
+    {
+        $this->country_id = $countryId;
+        return $this;
+    }
+
+    /**
+     * Get country_id
+     *
+     * @return string
+     */
+    public function getCountryId()
+    {
+        return $this->country_id;
     }
 
     /**
@@ -354,6 +645,28 @@ class OrderShipment
     }
 
     /**
+     * Add order items
+     *
+     * @param OrderItem $item
+     * @return Order
+     */
+    public function addItem(OrderItem $item)
+    {
+        $this->items[] = $item;
+        return $this;
+    }
+
+    /**
+     * Get order items
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getItems()
+    {
+        return $this->items;
+    }
+
+    /**
      * Set price
      *
      * @param float $price
@@ -389,6 +702,42 @@ class OrderShipment
     public function getCost()
     {
         return $this->cost;
+    }
+
+    /**
+     * @param $tax
+     * @return $this
+     */
+    public function setTax($tax)
+    {
+        $this->tax = $tax;
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getTax()
+    {
+        return $this->tax;
+    }
+
+    /**
+     * @param $discount
+     * @return $this
+     */
+    public function setDiscount($discount)
+    {
+        $this->discount = $discount;
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getDiscount()
+    {
+        return $this->discount;
     }
 
     /**
@@ -445,6 +794,42 @@ class OrderShipment
     public function getBaseCost()
     {
         return $this->base_cost;
+    }
+
+    /**
+     * @param $tax
+     * @return $this
+     */
+    public function setBaseTax($tax)
+    {
+        $this->base_tax = $tax;
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getBaseTax()
+    {
+        return $this->base_tax;
+    }
+
+    /**
+     * @param $discount
+     * @return $this
+     */
+    public function setBaseDiscount($discount)
+    {
+        $this->base_discount = $discount;
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getBaseDiscount()
+    {
+        return $this->base_discount;
     }
 
     /**

@@ -87,11 +87,11 @@ class AddProduct
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
-        $success = 0;
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
+        $success = 0;
+        $errors = [];
 
-        // todo : check inventory
         $product = null;
         $productId = $request->get('id', '');
         $qty = $request->get('qty', 1);
@@ -160,22 +160,60 @@ class AddProduct
 
         if ($this->getCartSessionService()->hasProductId($productId)) {
 
-            if ($event->getIsAdd()) {
-
-                // todo: check inventory
-
-                $this->getCartSessionService()
-                    ->addProductQty($productId, $qty);
-
-            } else {
-
-                $this->getCartSessionService()
-                    ->setProductQty($productId, $qty);
-
-            }
+            $cartItem = $cart->findItem('product_id', $productId);
 
             // update db
-            if ($cartItem = $cart->findItem('product_id', $productId)) {
+            if ($cartItem) {
+
+                $minQty = (int) $cartItem->getMinQty();
+                $availQty = $cartItem->getAvailQty();
+                $isQtyManaged = $cartItem->getIsQtyManaged();
+
+                if ($event->getIsAdd()) {
+
+                    $newQty = $cartItem->getQty() + $qty;
+                    $minQtyMet = $minQty == 0 || ($minQty > 0 && $newQty >= $minQty);
+                    $maxQtyMet = !$isQtyManaged || ($isQtyManaged && $newQty < $availQty);
+
+                    if ($minQtyMet && $maxQtyMet) {
+
+                        $this->getCartSessionService()
+                            ->addProductQty($productId, $qty);
+
+                    } else {
+
+                        if (!$minQtyMet) {
+                            $errors[] = "Min Qty is not met";
+                        }
+
+                        if (!$maxQtyMet) {
+                            $errors[] = "Insuffcient stock level";
+                        }
+                    }
+                } else {
+
+                    $minQtyMet = $minQty == 0 || ($minQty > 0 && $qty >= $minQty);
+                    $maxQtyMet = !$isQtyManaged || ($isQtyManaged && $qty < $availQty);
+
+                    if ($minQtyMet && $maxQtyMet) {
+
+                        $this->getCartSessionService()
+                            ->setProductQty($productId, $qty);
+
+                    } else {
+
+                        if (!$minQtyMet) {
+                            $errors[] = "Min Qty is not met";
+                        }
+
+                        if (!$maxQtyMet) {
+                            $errors[] = "Insuffcient stock level";
+                        }
+                    }
+                }
+
+                $cartItem = $cart->findItem('product_id', $productId);
+
                 if ($cartItem->getId()) {
                     // update row
 
@@ -207,19 +245,59 @@ class AddProduct
 
         } else if ($this->getCartSessionService()->hasProductId($simpleProductId)) {
 
-            if ($event->getIsAdd()) {
-
-                $this->getCartSessionService()
-                    ->addProductQty($simpleProductId, $qty);
-
-            } else {
-
-                $this->getCartSessionService()
-                    ->setProductQty($simpleProductId, $qty);
-            }
+            $cartItem = $cart->findItem('product_id', $simpleProductId);
 
             // update db
-            if ($cartItem = $cart->findItem('product_id', $simpleProductId)) {
+            if ($cartItem) {
+
+                $minQty = (int) $cartItem->getMinQty();
+                $availQty = $cartItem->getAvailQty();
+                $isQtyManaged = $cartItem->getIsQtyManaged();
+
+                if ($event->getIsAdd()) {
+
+                    $newQty = $cartItem->getQty() + $qty;
+                    $minQtyMet = $minQty == 0 || ($minQty > 0 && $newQty >= $minQty);
+                    $maxQtyMet = !$isQtyManaged || ($isQtyManaged && $newQty < $availQty);
+
+                    if ($minQtyMet && $maxQtyMet) {
+
+                        $this->getCartSessionService()
+                            ->addProductQty($simpleProductId, $qty);
+
+                    } else {
+
+                        if (!$minQtyMet) {
+                            $errors[] = "Min Qty is not met";
+                        }
+
+                        if (!$maxQtyMet) {
+                            $errors[] = "Insuffcient stock level";
+                        }
+                    }
+
+                } else {
+
+                    $minQtyMet = $minQty == 0 || ($minQty > 0 && $qty >= $minQty);
+                    $maxQtyMet = !$isQtyManaged || ($isQtyManaged && $qty < $availQty);
+
+                    if ($minQtyMet && $maxQtyMet) {
+
+                        $this->getCartSessionService()
+                            ->setProductQty($simpleProductId, $qty);
+
+                    } else {
+
+                        if (!$minQtyMet) {
+                            $errors[] = "Min Qty is not met";
+                        }
+
+                        if (!$maxQtyMet) {
+                            $errors[] = "Insuffcient stock level";
+                        }
+                    }
+                }
+
                 if ($cartItem->getId()) {
                     // update row
 
@@ -251,6 +329,9 @@ class AddProduct
 
         } else if ($productId) {
 
+            // The Cart does not already have this product
+            //  so we know this is an insert, not an update
+
             if ($idField == 'id' && !$product) {
                 $product = $this->getEntityService()->find(EntityConstants::PRODUCT, $productId);
             }
@@ -267,65 +348,138 @@ class AddProduct
                     throw new NotFoundHttpException("Child Product not found with ID: '{$simpleProductId}''");
                 }
 
-                $parentOptions['id'] = $product->getId();
-                $parentOptions['sku'] = $product->getSku();
-                $parentOptions['slug'] = $product->getSlug();
+                $minQty = (int) $child->getMinQty();
+                $minQtyMet = $minQty == 0 || ($minQty > 0 && $qty >= $child->getMinQty());
+                $maxQtyMet = !$child->getIsQtyManaged() || ($child->getIsQtyManaged() && $qty < $child->getQty());
 
-                $this->getCartSessionService()
-                    ->addProduct($child, $qty, $parentOptions);
+                if ($child->getIsEnabled()
+                    && $child->getIsInStock()
+                    && $minQtyMet
+                    && $maxQtyMet
+                ) {
 
-                $cartItem = $this->getCartSessionService()
-                    ->getCart()
-                    ->findItem('product_id', $child->getId());
+                    $parentOptions['id'] = $product->getId();
+                    $parentOptions['sku'] = $product->getSku();
+                    $parentOptions['slug'] = $product->getSlug();
 
-                $itemJson = $cartItem
-                    ? $cartItem->toJson()
-                    : json_encode($child->getData());
+                    $this->getCartSessionService()
+                        ->addProduct($child, $qty, $parentOptions);
 
-                // insert row
-                $cartItemEntity = $this->getEntityService()
-                    ->getInstance(EntityConstants::CART_ITEM);
+                    $cartItem = $this->getCartSessionService()
+                        ->getCart()
+                        ->findItem('product_id', $child->getId());
 
-                $cartItemEntity->setCart($cartEntity)
-                    ->setSku($child->getSku())
-                    ->setQty($qty)
-                    ->setJson($itemJson);
+                    if ($cartItem) {
 
-                $this->getEntityService()->persist($cartItemEntity);
+                        $cartItem->setQtyAvail($child->getQty())
+                            ->setIsQtyManaged((int) $child->getIsQtyManaged());
+                    }
 
-                $cart->findItem('sku', $child->getSku())
-                    ->setId($cartItemEntity->getId());
+                    $itemJson = $cartItem
+                        ? $cartItem->toJson()
+                        : json_encode($child->getData());
 
-                $success = 1;
+                    // insert row
+                    $cartItemEntity = $this->getEntityService()
+                        ->getInstance(EntityConstants::CART_ITEM);
 
+                    $cartItemEntity->setCart($cartEntity)
+                        ->setSku($child->getSku())
+                        ->setQty($qty)
+                        ->setJson($itemJson);
+
+                    $this->getEntityService()->persist($cartItemEntity);
+
+                    $cart->findItem('sku', $child->getSku())
+                        ->setId($cartItemEntity->getId());
+
+                    $event->setCartItemEntity($cartItemEntity);
+
+                    $success = 1;
+
+                } else {
+                    // add errors to response
+
+                    if (!$child->getIsEnabled()) {
+                        $errors[] = "Product is not enabled";
+                    }
+
+                    if (!$child->getIsInStock()) {
+                        $errors[] = "Product is not in stock";
+                    }
+
+                    if (!$minQtyMet) {
+                        $errors[] = "Min Qty is not met";
+                    }
+
+                    if (!$maxQtyMet) {
+                        $errors[] = "Insuffcient stock level";
+                    }
+
+                }
             } else {
 
-                $this->getCartSessionService()
-                    ->addProduct($product, $qty, $parentOptions);
+                $minQty = (int) $product->getMinQty();
+                $minQtyMet = $minQty == 0 || ($minQty > 0 && $qty >= $product->getMinQty());
+                $maxQtyMet = !$product->getIsQtyManaged() || ($product->getIsQtyManaged() && $qty < $product->getQty());
 
-                // insert row
-                $cartItemEntity = $this->getEntityService()
-                    ->getInstance(EntityConstants::CART_ITEM);
+                if ($product->getIsEnabled()
+                    && $product->getIsInStock()
+                    && $minQtyMet
+                    && $maxQtyMet
+                ) {
 
-                $cartItem = $this->getCartSessionService()
-                    ->getCart()
-                    ->findItem('product_id', $product->getId());
+                    $this->getCartSessionService()
+                        ->addProduct($product, $qty, $parentOptions);
 
-                $itemJson = $cartItem
-                    ? $cartItem->toJson()
-                    : json_encode($product->getData());
+                    // insert row
+                    $cartItemEntity = $this->getEntityService()
+                        ->getInstance(EntityConstants::CART_ITEM);
 
-                $cartItemEntity->setCart($cartEntity)
-                    ->setSku($product->getSku())
-                    ->setQty($qty)
-                    ->setJson($itemJson);
+                    $cartItem = $this->getCartSessionService()
+                        ->getCart()
+                        ->findItem('product_id', $product->getId());
 
-                $this->getEntityService()->persist($cartItemEntity);
+                    if ($cartItem) {
 
-                $cart->findItem('sku', $product->getSku())
-                    ->setId($cartItemEntity->getId());
+                        $cartItem->setQtyAvail($product->getQty())
+                            ->setIsQtyManaged((int) $product->getIsQtyManaged());
+                    }
 
-                $success = 1;
+                    $itemJson = $cartItem
+                        ? $cartItem->toJson()
+                        : json_encode($product->getData());
+
+                    $cartItemEntity->setCart($cartEntity)
+                        ->setSku($product->getSku())
+                        ->setQty($qty)
+                        ->setJson($itemJson);
+
+                    $this->getEntityService()->persist($cartItemEntity);
+
+                    $cart->findItem('sku', $product->getSku())
+                        ->setId($cartItemEntity->getId());
+
+                    $success = 1;
+                } else {
+                    // add errors to response
+
+                    if (!$product->getIsEnabled()) {
+                        $errors[] = "Product is not enabled";
+                    }
+
+                    if (!$product->getIsInStock()) {
+                        $errors[] = "Product is not in stock";
+                    }
+
+                    if (!$minQtyMet) {
+                        $errors[] = "Min Qty is not met";
+                    }
+
+                    if (!$maxQtyMet) {
+                        $errors[] = "Insuffcient stock level";
+                    }
+                }
             }
         }
 
@@ -357,6 +511,7 @@ class AddProduct
 
         $returnData['cart'] = $cart;
         $returnData['success'] = $success;
+        $returnData['errors'] = $errors;
 
         $response = '';
         switch($format) {

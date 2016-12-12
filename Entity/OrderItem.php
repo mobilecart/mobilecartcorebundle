@@ -22,6 +22,13 @@ class OrderItem
     private $id;
 
     /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="created_at", type="datetime", nullable=true)
+     */
+    private $created_at;
+
+    /**
      * @var \MobileCart\CoreBundle\Entity\Order
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Order", inversedBy="items")
@@ -30,6 +37,16 @@ class OrderItem
      * })
      */
     private $order;
+
+    /**
+     * @var \MobileCart\CoreBundle\Entity\OrderShipment
+     *
+     * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\OrderShipment", inversedBy="items")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="order_shipment_id", referencedColumnName="id")
+     * })
+     */
+    private $shipment;
 
     /**
      * @var integer $product_id
@@ -67,6 +84,20 @@ class OrderItem
     private $cost;
 
     /**
+     * @var float $tax
+     *
+     * @ORM\Column(name="tax", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $tax;
+
+    /**
+     * @var float $discount
+     *
+     * @ORM\Column(name="discount", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $discount;
+
+    /**
      * @var string $currency
      *
      * @ORM\Column(name="currency", type="string", length=8)
@@ -88,13 +119,25 @@ class OrderItem
     private $base_cost;
 
     /**
+     * @var float $base_tax
+     *
+     * @ORM\Column(name="base_tax", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $base_tax;
+
+    /**
+     * @var float $base_discount
+     *
+     * @ORM\Column(name="base_discount", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $base_discount;
+
+    /**
      * @var string $base_currency
      *
      * @ORM\Column(name="base_currency", type="string", length=8)
      */
     private $base_currency;
-
-    // todo: base/tax, base/refund, base/discount
 
     /**
      * @var integer $qty
@@ -118,6 +161,28 @@ class OrderItem
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set createdAt
+     *
+     * @param \DateTime $createdAt
+     * @return $this
+     */
+    public function setCreatedAt($createdAt)
+    {
+        $this->created_at = $createdAt;
+        return $this;
+    }
+
+    /**
+     * Get createdAt
+     *
+     * @return \DateTime
+     */
+    public function getCreatedAt()
+    {
+        return $this->created_at;
     }
 
     /**
@@ -223,14 +288,19 @@ class OrderItem
     {
         return [
             'id' => $this->getId(),
+            'created_at' => $this->getCreatedAt(),
             'product_id' => $this->getProductId(),
             'sku' => $this->getSku(),
             'name' => $this->getName(),
             'price' => $this->getPrice(),
             'cost' => $this->getCost(),
+            'tax' => $this->getTax(),
+            'discount' => $this->getDiscount(),
             'currency' => $this->getCurrency(),
             'base_price' => $this->getBasePrice(),
             'base_cost' => $this->getBaseCost(),
+            'base_tax' => $this->getBaseTax(),
+            'base_discount' => $this->getBaseDiscount(),
             'base_currency' => $this->getBaseCurrency(),
             'qty' => $this->getQty(),
         ];
@@ -335,6 +405,42 @@ class OrderItem
     }
 
     /**
+     * @param $tax
+     * @return $this
+     */
+    public function setTax($tax)
+    {
+        $this->tax = $tax;
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getTax()
+    {
+        return $this->tax;
+    }
+
+    /**
+     * @param $discount
+     * @return $this
+     */
+    public function setDiscount($discount)
+    {
+        $this->discount = $discount;
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getDiscount()
+    {
+        return $this->discount;
+    }
+
+    /**
      * @param $currency
      * @return $this
      */
@@ -388,6 +494,42 @@ class OrderItem
     public function getBaseCost()
     {
         return $this->base_cost;
+    }
+
+    /**
+     * @param $tax
+     * @return $this
+     */
+    public function setBaseTax($tax)
+    {
+        $this->base_tax = $tax;
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getBaseTax()
+    {
+        return $this->base_tax;
+    }
+
+    /**
+     * @param $discount
+     * @return $this
+     */
+    public function setBaseDiscount($discount)
+    {
+        $this->base_discount = $discount;
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getBaseDiscount()
+    {
+        return $this->base_discount;
     }
 
     /**
@@ -466,5 +608,23 @@ class OrderItem
     public function getOrder()
     {
         return $this->order;
+    }
+
+    /**
+     * @param OrderShipment $shipment
+     * @return $this
+     */
+    public function setShipment(OrderShipment $shipment)
+    {
+        $this->shipment = $shipment;
+        return $this;
+    }
+
+    /**
+     * @return OrderShipment
+     */
+    public function getShipment()
+    {
+        return $this->shipment;
     }
 }
