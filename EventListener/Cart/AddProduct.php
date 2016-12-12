@@ -2,6 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -183,11 +184,11 @@ class AddProduct
                     } else {
 
                         if (!$minQtyMet) {
-                            $errors[] = "Min Qty is not met";
+                            $errors[] = "Min Qty is not met : {$cartItem->getSku()}";
                         }
 
                         if (!$maxQtyMet) {
-                            $errors[] = "Insuffcient stock level";
+                            $errors[] = "Insufficient stock level : {$cartItem->getSku()}";
                         }
                     }
                 } else {
@@ -203,11 +204,11 @@ class AddProduct
                     } else {
 
                         if (!$minQtyMet) {
-                            $errors[] = "Min Qty is not met";
+                            $errors[] = "Min Qty is not met : {$cartItem->getSku()}";
                         }
 
                         if (!$maxQtyMet) {
-                            $errors[] = "Insuffcient stock level";
+                            $errors[] = "Insufficient stock level : {$cartItem->getSku()}";
                         }
                     }
                 }
@@ -268,11 +269,11 @@ class AddProduct
                     } else {
 
                         if (!$minQtyMet) {
-                            $errors[] = "Min Qty is not met";
+                            $errors[] = "Min Qty is not met : {$cartItem->getSku()}";
                         }
 
                         if (!$maxQtyMet) {
-                            $errors[] = "Insuffcient stock level";
+                            $errors[] = "Insufficient stock level : {$cartItem->getSku()}";
                         }
                     }
 
@@ -289,11 +290,11 @@ class AddProduct
                     } else {
 
                         if (!$minQtyMet) {
-                            $errors[] = "Min Qty is not met";
+                            $errors[] = "Min Qty is not met : {$cartItem->getSku()}";
                         }
 
                         if (!$maxQtyMet) {
-                            $errors[] = "Insuffcient stock level";
+                            $errors[] = "Insuffcient stock level : {$cartItem->getSku()}";
                         }
                     }
                 }
@@ -401,19 +402,19 @@ class AddProduct
                     // add errors to response
 
                     if (!$child->getIsEnabled()) {
-                        $errors[] = "Product is not enabled";
+                        $errors[] = "Product is not enabled : {$product->getSku()}";
                     }
 
                     if (!$child->getIsInStock()) {
-                        $errors[] = "Product is not in stock";
+                        $errors[] = "Product is not in stock : {$product->getSku()}";
                     }
 
                     if (!$minQtyMet) {
-                        $errors[] = "Min Qty is not met";
+                        $errors[] = "Min Qty is not met : {$product->getSku()}";
                     }
 
                     if (!$maxQtyMet) {
-                        $errors[] = "Insuffcient stock level";
+                        $errors[] = "Insuffcient stock level : {$product->getSku()}";
                     }
 
                 }
@@ -465,19 +466,19 @@ class AddProduct
                     // add errors to response
 
                     if (!$product->getIsEnabled()) {
-                        $errors[] = "Product is not enabled";
+                        $errors[] = "Product is not enabled : {$product->getSku()}";
                     }
 
                     if (!$product->getIsInStock()) {
-                        $errors[] = "Product is not in stock";
+                        $errors[] = "Product is not in stock : {$product->getSku()}";
                     }
 
                     if (!$minQtyMet) {
-                        $errors[] = "Min Qty is not met";
+                        $errors[] = "Min Qty is not met : {$product->getSku()}";
                     }
 
                     if (!$maxQtyMet) {
-                        $errors[] = "Insuffcient stock level";
+                        $errors[] = "Insuffcient stock level : {$product->getSku()}";
                     }
                 }
             }
@@ -519,6 +520,21 @@ class AddProduct
                 $response = new JsonResponse($returnData);
                 break;
             default:
+
+                if ($errors) {
+                    foreach($errors as $error) {
+                        $request->getSession()->getFlashBag()->add(
+                            CoreEvent::MSG_ERROR,
+                            $error
+                        );
+                    }
+                } elseif ($success) {
+                    $request->getSession()->getFlashBag()->add(
+                        'success',
+                        'Product Added to Cart'
+                    );
+                }
+
                 $params = [];
                 $route = 'cart_view';
                 $url = $this->getRouter()->generate($route, $params);
