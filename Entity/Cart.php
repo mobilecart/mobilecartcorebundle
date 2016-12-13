@@ -7,17 +7,10 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Cart
  *
- * This class is mainly used for storing json, and the customer_id .
- * It is also used for storing wishlists .
- *
- * Note : some stores might only need session storage,
- *  and might not need to use this table for frontend traffic
- *
- *
  * @ORM\Table(name="cart")
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CartRepository")
  */
-class Cart
+class Cart implements CartEntityInterface
 {
     /**
      * @var integer $id
@@ -27,6 +20,13 @@ class Cart
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="created_at", type="datetime", nullable=true)
+     */
+    private $created_at;
 
     /**
      * @var Customer
@@ -46,7 +46,91 @@ class Cart
     private $cart_items;
 
     /**
-     * @var text $json
+     * @var string $currency
+     *
+     * @ORM\Column(name="currency", type="string", length=8, nullable=true)
+     */
+    private $currency;
+
+    /**
+     * @var float $total
+     *
+     * @ORM\Column(name="total", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $total;
+
+    /**
+     * @var float $item_total
+     *
+     * @ORM\Column(name="item_total", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $item_total;
+
+    /**
+     * @var float $tax_total
+     *
+     * @ORM\Column(name="tax_total", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $tax_total;
+
+    /**
+     * @var float $discount_total
+     *
+     * @ORM\Column(name="discount_total", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $discount_total;
+
+    /**
+     * @var float $shipping_total
+     *
+     * @ORM\Column(name="shipping_total", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $shipping_total;
+
+    /**
+     * @var string $base_currency
+     *
+     * @ORM\Column(name="base_currency", type="string", length=8, nullable=true)
+     */
+    private $base_currency;
+
+    /**
+     * @var float $base_total
+     *
+     * @ORM\Column(name="base_total", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $base_total;
+
+    /**
+     * @var float $base_item_total
+     *
+     * @ORM\Column(name="base_item_total", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $base_item_total;
+
+    /**
+     * @var float $base_tax_total
+     *
+     * @ORM\Column(name="base_tax_total", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $base_tax_total;
+
+    /**
+     * @var float $base_discount_total
+     *
+     * @ORM\Column(name="base_discount_total", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $base_discount_total;
+
+    /**
+     * @var float $base_shipping_total
+     *
+     * @ORM\Column(name="base_shipping_total", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $base_shipping_total;
+
+    /**
+     * @var string $json
      *
      * @ORM\Column(name="json", type="text")
      */
@@ -58,13 +142,6 @@ class Cart
      * @ORM\Column(name="is_wishlist", type="boolean", nullable=true)
      */
     private $is_wishlist;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="created_at", type="datetime", nullable=true)
-     */
-    private $created_at;
 
     public function __construct()
     {
@@ -185,9 +262,20 @@ class Cart
     {
         return [
             'id' => $this->getId(),
-            'json' => $this->getJson(),
-            'is_wishlist' => $this->getIsWishlist(),
             'created_at' => $this->getCreatedAt(),
+            'currency' => $this->getCurrency(),
+            'total' => $this->getTotal(),
+            'item_total' => $this->getItemTotal(),
+            'tax_total' => $this->getTaxTotal(),
+            'discount_total' => $this->getDiscountTotal(),
+            'shipping_total' => $this->getShippingTotal(),
+            'base_currency' => $this->getBaseCurrency(),
+            'base_total' => $this->getBaseTotal(),
+            'base_item_total' => $this->getBaseItemTotal(),
+            'base_tax_total' => $this->getBaseTaxTotal(),
+            'base_discount_total' => $this->getBaseDiscountTotal(),
+            'base_shipping_total' => $this->getBaseShippingTotal(),
+            'is_wishlist' => $this->getIsWishlist(),
         ];
     }
 
@@ -195,6 +283,7 @@ class Cart
      * Set json
      *
      * @param string $json
+     * @return $this
      */
     public function setJson($json)
     {
@@ -216,6 +305,7 @@ class Cart
      * Set is_wishlist
      *
      * @param boolean $isWishlist
+     * @return $this
      */
     public function setIsWishlist($isWishlist)
     {
@@ -291,5 +381,241 @@ class Cart
     public function getCreatedAt()
     {
         return $this->created_at;
+    }
+
+    /**
+     * @param $currency
+     * @return $this
+     */
+    public function setCurrency($currency)
+    {
+        $this->currency = $currency;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCurrency()
+    {
+        return $this->currency;
+    }
+
+    /**
+     * @param $total
+     * @return $this
+     */
+    public function setTotal($total)
+    {
+        $this->total = $total;
+        return $this;
+    }
+
+    /**
+     * Get total
+     *
+     * @return float
+     */
+    public function getTotal()
+    {
+        return $this->total;
+    }
+
+    /**
+     * @param $itemTotal
+     * @return $this
+     */
+    public function setItemTotal($itemTotal)
+    {
+        $this->item_total = $itemTotal;
+        return $this;
+    }
+
+    /**
+     * Get item_total
+     *
+     * @return float
+     */
+    public function getItemTotal()
+    {
+        return $this->item_total;
+    }
+
+    /**
+     * @param $taxTotal
+     * @return $this
+     */
+    public function setTaxTotal($taxTotal)
+    {
+        $this->tax_total = $taxTotal;
+        return $this;
+    }
+
+    /**
+     * Get tax_total
+     *
+     * @return float
+     */
+    public function getTaxTotal()
+    {
+        return $this->tax_total;
+    }
+
+    /**
+     * @param $discountTotal
+     * @return $this
+     */
+    public function setDiscountTotal($discountTotal)
+    {
+        $this->discount_total = $discountTotal;
+        return $this;
+    }
+
+    /**
+     * Get discount_total
+     *
+     * @return float
+     */
+    public function getDiscountTotal()
+    {
+        return $this->discount_total;
+    }
+
+    /**
+     * @param $shippingTotal
+     * @return $this
+     */
+    public function setShippingTotal($shippingTotal)
+    {
+        $this->shipping_total = $shippingTotal;
+        return $this;
+    }
+
+    /**
+     * Get shipping_total
+     *
+     * @return float
+     */
+    public function getShippingTotal()
+    {
+        return $this->shipping_total;
+    }
+
+    /**
+     * @param $currency
+     * @return $this
+     */
+    public function setBaseCurrency($currency)
+    {
+        $this->base_currency = $currency;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBaseCurrency()
+    {
+        return $this->base_currency;
+    }
+
+    /**
+     * @param $total
+     * @return $this
+     */
+    public function setBaseTotal($total)
+    {
+        $this->base_total = $total;
+        return $this;
+    }
+
+    /**
+     * Get total
+     *
+     * @return float
+     */
+    public function getBaseTotal()
+    {
+        return $this->base_total;
+    }
+
+    /**
+     * @param $itemTotal
+     * @return $this
+     */
+    public function setBaseItemTotal($itemTotal)
+    {
+        $this->base_item_total = $itemTotal;
+        return $this;
+    }
+
+    /**
+     * Get item_total
+     *
+     * @return float
+     */
+    public function getBaseItemTotal()
+    {
+        return $this->base_item_total;
+    }
+
+    /**
+     * @param $taxTotal
+     * @return $this
+     */
+    public function setBaseTaxTotal($taxTotal)
+    {
+        $this->base_tax_total = $taxTotal;
+        return $this;
+    }
+
+    /**
+     * Get tax_total
+     *
+     * @return float
+     */
+    public function getBaseTaxTotal()
+    {
+        return $this->base_tax_total;
+    }
+
+    /**
+     * @param $discountTotal
+     * @return $this
+     */
+    public function setBaseDiscountTotal($discountTotal)
+    {
+        $this->base_discount_total = $discountTotal;
+        return $this;
+    }
+
+    /**
+     * Get discount_total
+     *
+     * @return float
+     */
+    public function getBaseDiscountTotal()
+    {
+        return $this->base_discount_total;
+    }
+
+    /**
+     * @param $shippingTotal
+     * @return $this
+     */
+    public function setBaseShippingTotal($shippingTotal)
+    {
+        $this->base_shipping_total = $shippingTotal;
+        return $this;
+    }
+
+    /**
+     * Get shipping_total
+     *
+     * @return float
+     */
+    public function getBaseShippingTotal()
+    {
+        return $this->base_shipping_total;
     }
 }

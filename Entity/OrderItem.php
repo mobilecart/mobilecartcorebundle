@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="order_item")
  * @ORM\Entity
  */
-class OrderItem
+class OrderItem implements CartEntityInterface
 {
     /**
      * @var integer $id
@@ -161,6 +161,11 @@ class OrderItem
     public function getId()
     {
         return $this->id;
+    }
+
+    public function getObjectTypeKey()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::ORDER_ITEM;
     }
 
     /**
@@ -370,10 +375,12 @@ class OrderItem
      * Set price
      *
      * @param float $price
+     * @return $this
      */
     public function setPrice($price)
     {
         $this->price = $price;
+        return $this;
     }
 
     /**
@@ -462,10 +469,12 @@ class OrderItem
      * Set base price
      *
      * @param float $price
+     * @return $this
      */
     public function setBasePrice($price)
     {
         $this->base_price = $price;
+        return $this;
     }
 
     /**

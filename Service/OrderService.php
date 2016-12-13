@@ -945,12 +945,17 @@ class OrderService
 
             $order = $this->getEntityService()->getInstance(EntityConstants::ORDER);
 
+            $varSet = $this->getEntityService()->findOneBy(EntityConstants::ITEM_VAR_SET, [
+                'object_type' => EntityConstants::ORDER,
+            ]);
+
             $customer = $this->getEntityService()->find(EntityConstants::CUSTOMER, $cartCustomer->getId());
             if (!$customer) {
                 throw new \InvalidArgumentException("Customer account is required");
             }
 
-            $order->setCustomer($customer)
+            $order->setItemVarSet($varSet)
+                ->setCustomer($customer)
                 ->setEmail($cartCustomer->getEmail())
                 ->setBillingName($cartCustomer->getBillingName())
                 ->setBillingPhone($cartCustomer->getBillingPhone())

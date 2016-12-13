@@ -63,7 +63,7 @@ class OrderShipment
     /**
      * @var \MobileCart\CoreBundle\Entity\OrderItem
      *
-     * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\OrderItem", mappedBy="order")
+     * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\OrderItem", mappedBy="shipment")
      */
     private $items;
 

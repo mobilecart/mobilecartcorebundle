@@ -85,11 +85,98 @@ class RemoveShipment
         $this->setEvent($event);
         $returnData = $this->getReturnData();
 
+        $cartSession = $this->getCartSessionService()->initCart()->collectShippingMethods();
+        $cart = $cartSession->getCart();
+        $cartId = $cart->getId();
+
+        $customerId = $cart->getCustomer()->getId();
+        $customerEntity = false;
+
+        $cartEntity = $cartId
+            ? $this->getEntityService()->find(EntityConstants::CART, $cartId)
+            : $this->getEntityService()->getInstance(EntityConstants::CART);
+
+        if (!$cartId) {
+
+            $cartEntity->setJson($cart->toJson())
+                ->setCreatedAt(new \DateTime('now'));
+
+            if ($customerId) {
+
+                $customerEntity = $this->getEntityService()
+                    ->find(EntityConstants::CUSTOMER, $customerId);
+
+                if ($customerEntity) {
+                    $cartEntity->setCustomer($customerEntity);
+                }
+            }
+
+            $this->getEntityService()->persist($cartEntity);
+            $cartId = $cartEntity->getId();
+            $cart->setId($cartId);
+        }
+
         $cartSession = $this->getCartSessionService()
             ->removeShipments()
             ->collectTotals();
 
         $cart = $cartSession->getCart();
+
+        // update db
+        $cartEntity->setJson($cart->toJson());
+
+        $currencyService = $this->getCartSessionService()->getCurrencyService();
+        $baseCurrency = $currencyService->getBaseCurrency();
+
+        $currency = strlen($cart->getCurrency())
+            ? $cart->getCurrency()
+            : $baseCurrency;
+
+        // set totals
+        $totals = $cart->getTotals();
+        foreach($totals as $total) {
+            switch($total->getKey()) {
+                case 'items':
+                    $cartEntity->setBaseItemTotal($total->getValue());
+                    if ($baseCurrency == $currency) {
+                        $cartEntity->setItemTotal($total->getValue());
+                    } else {
+                        $cartEntity->setItemTotal($currencyService->convert($total->getValue(), $currency));
+                    }
+                    break;
+                case 'shipments':
+                    $cartEntity->setBaseShippingTotal($total->getValue());
+                    if ($baseCurrency == $currency) {
+                        $cartEntity->setShippingTotal($total->getValue());
+                    } else {
+                        $cartEntity->setShippingTotal($currencyService->convert($total->getValue(), $currency));
+                    }
+                    break;
+                case 'tax':
+                    $cartEntity->setBaseTaxTotal($total->getValue());
+                    if ($baseCurrency == $currency) {
+                        $cartEntity->setTaxTotal($total->getValue());
+                    } else {
+                        $cartEntity->setTaxTotal($currencyService->convert($total->getValue(), $currency));
+                    }
+                    break;
+                case 'discounts':
+                    $cartEntity->setBaseDiscountTotal($total->getValue());
+                    if ($baseCurrency == $currency) {
+                        $cartEntity->setDiscountTotal($total->getValue());
+                    } else {
+                        $cartEntity->setDiscountTotal($currencyService->convert($total->getValue(), $currency));
+                    }
+                    break;
+                default:
+                    // no-op
+                    break;
+            }
+        }
+
+        // update Cart in database
+        $this->getEntityService()->persist($cartEntity);
+        $event->setCartEntity($cartEntity);
 
         $returnData['cart'] = $cart;
         $returnData['success'] = 1;

@@ -12,10 +12,19 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
 
 class AddProduct
 {
+    /**
+     * @var \MobileCart\CoreBundle\Service\DoctrineEntityService
+     */
     protected $entityService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CartSessionService
+     */
     protected $cartSessionService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\ShippingService
+     */
     protected $shippingService;
 
     protected $router;
@@ -109,6 +118,8 @@ class AddProduct
         }
 
         $slug = '';
+        $currencyService = $this->getCartSessionService()->getCurrencyService();
+        $baseCurrency = $this->getCartSessionService()->getBaseCurrency();
 
         $cart = $this->getCartSessionService()
             ->initCart()
@@ -134,6 +145,13 @@ class AddProduct
         $cartId = $cart->getId();
         $customerId = $cart->getCustomer()->getId();
         $customerEntity = false;
+
+        // assuming the customer has a valid currency
+        //  since it would have to exist in order to set it using the core code
+        $customerCurrency = $this->getCartSessionService()->getCurrency();
+        if (!strlen($customerCurrency)) {
+            $customerCurrency = $baseCurrency;
+        }
 
         $cartEntity = $cartId
             ? $this->getEntityService()->find(EntityConstants::CART, $cartId)
@@ -384,15 +402,69 @@ class AddProduct
                             ->setIsQtyManaged((int) $child->getIsQtyManaged());
                     }
 
-                    $itemJson = $cartItem
-                        ? $cartItem->toJson()
-                        : json_encode($child->getData());
-
                     // insert row
                     $cartItemEntity = $this->getEntityService()
                         ->getInstance(EntityConstants::CART_ITEM);
 
+                    $productCurrency = strlen($child->getCurrency())
+                        ? $child->getCurrency()
+                        : $baseCurrency;
+
+                    if ($baseCurrency == $productCurrency) {
+                        if ($customerCurrency == $baseCurrency) {
+
+                            $cartItemEntity->setPrice($child->getPrice())
+                                //->setTax() todo
+                                //->setDiscount() todo
+                                ->setCurrency($baseCurrency)
+                                ->setBasePrice($child->getPrice())
+                                //->setBaseTax() todo
+                                //->setBaseDiscount() todo
+                                ->setBaseCurrency($baseCurrency);
+
+                        } else {
+
+                            $cartItemEntity->setPrice($currencyService->convert($child->getPrice(), $customerCurrency))
+                                //->setTax() todo
+                                //->setDiscount() todo
+                                ->setCurrency($customerCurrency)
+                                ->setBasePrice($child->getPrice())
+                                //->setBaseTax() todo
+                                //->setBaseDiscount() todo
+                                ->setBaseCurrency($baseCurrency);
+
+                        }
+                    } else {
+                        if ($productCurrency == $customerCurrency) {
+
+                            $cartItemEntity->setPrice($child->getPrice())
+                                //->setTax() todo
+                                //->setDiscount() todo
+                                ->setCurrency($customerCurrency)
+                                ->setBasePrice($currencyService->convert($child->getPrice(), $baseCurrency, $customerCurrency))
+                                //->setBaseTax() todo
+                                //->setBaseDiscount() todo
+                                ->setBaseCurrency($baseCurrency);
+
+                        } else {
+
+                            $cartItemEntity->setPrice($currencyService->convert($child->getPrice(), $customerCurrency, $productCurrency))
+                                //->setTax() todo
+                                //->setDiscount() todo
+                                ->setCurrency($customerCurrency)
+                                ->setBasePrice($currencyService->convert($child->getPrice(), $baseCurrency, $productCurrency))
+                                //->setBaseTax() todo
+                                //->setBaseDiscount() todo
+                                ->setBaseCurrency($baseCurrency);
+                        }
+                    }
+
+                    $itemJson = $cartItem
+                        ? $cartItem->toJson()
+                        : json_encode($child->getData());
+
                     $cartItemEntity->setCart($cartEntity)
+                        ->setCreatedAt(new \DateTime('now'))
                         ->setSku($child->getSku())
                         ->setQty($qty)
                         ->setJson($itemJson);
@@ -455,11 +527,65 @@ class AddProduct
                             ->setIsQtyManaged((int) $product->getIsQtyManaged());
                     }
 
+                    $productCurrency = strlen($product->getCurrency())
+                        ? $product->getCurrency()
+                        : $baseCurrency;
+
+                    if ($baseCurrency == $productCurrency) {
+                        if ($customerCurrency == $baseCurrency) {
+
+                            $cartItemEntity->setPrice($product->getPrice())
+                                //->setTax() todo
+                                //->setDiscount() todo
+                                ->setCurrency($baseCurrency)
+                                ->setBasePrice($product->getPrice())
+                                //->setBaseTax() todo
+                                //->setBaseDiscount() todo
+                                ->setBaseCurrency($baseCurrency);
+
+                        } else {
+
+                            $cartItemEntity->setPrice($currencyService->convert($product->getPrice(), $customerCurrency))
+                                //->setTax() todo
+                                //->setDiscount() todo
+                                ->setCurrency($customerCurrency)
+                                ->setBasePrice($product->getPrice())
+                                //->setBaseTax() todo
+                                //->setBaseDiscount() todo
+                                ->setBaseCurrency($baseCurrency);
+
+                        }
+                    } else {
+                        if ($productCurrency == $customerCurrency) {
+
+                            $cartItemEntity->setPrice($product->getPrice())
+                                //->setTax() todo
+                                //->setDiscount() todo
+                                ->setCurrency($customerCurrency)
+                                ->setBasePrice($currencyService->convert($product->getPrice(), $baseCurrency, $customerCurrency))
+                                //->setBaseTax() todo
+                                //->setBaseDiscount() todo
+                                ->setBaseCurrency($baseCurrency);
+
+                        } else {
+
+                            $cartItemEntity->setPrice($currencyService->convert($product->getPrice(), $customerCurrency, $productCurrency))
+                                //->setTax() todo
+                                //->setDiscount() todo
+                                ->setCurrency($customerCurrency)
+                                ->setBasePrice($currencyService->convert($product->getPrice(), $baseCurrency, $productCurrency))
+                                //->setBaseTax() todo
+                                //->setBaseDiscount() todo
+                                ->setBaseCurrency($baseCurrency);
+                        }
+                    }
+
                     $itemJson = $cartItem
                         ? $cartItem->toJson()
                         : json_encode($product->getData());
 
                     $cartItemEntity->setCart($cartEntity)
+                        ->setCreatedAt(new \DateTime('now'))
                         ->setSku($product->getSku())
                         ->setQty($qty)
                         ->setJson($itemJson);
@@ -497,9 +623,18 @@ class AddProduct
             ->collectTotals()
             ->getCart();
 
-        // update db
+        $baseCurrency = $currencyService->getBaseCurrency();
+
+        $currency = strlen($cart->getCurrency())
+            ? $cart->getCurrency()
+            : $baseCurrency;
+
+        // update cart row in db
         $cartEntity->setJson($cart->toJson())
-            ->setCreatedAt(new \DateTime('now'));
+            ->setCreatedAt(new \DateTime('now'))
+            ->setCurrency($currency)
+            ->setBaseCurrency($baseCurrency)
+        ;
 
         if ($customerId && !$cartEntity->getCustomer()) {
 
@@ -507,13 +642,57 @@ class AddProduct
 
                 $customerEntity = $this->getEntityService()
                     ->find(EntityConstants::CUSTOMER, $customerId);
-
             }
 
             $cartEntity->setCustomer($customerEntity);
         }
 
+        // set totals
+        $totals = $cart->getTotals();
+        foreach($totals as $total) {
+            switch($total->getKey()) {
+                case 'items':
+                    $cartEntity->setBaseItemTotal($total->getValue());
+                    if ($baseCurrency == $currency) {
+                        $cartEntity->setItemTotal($total->getValue());
+                    } else {
+                        $cartEntity->setItemTotal($currencyService->convert($total->getValue(), $currency));
+                    }
+                    break;
+                case 'shipments':
+                    $cartEntity->setBaseShippingTotal($total->getValue());
+                    if ($baseCurrency == $currency) {
+                        $cartEntity->setShippingTotal($total->getValue());
+                    } else {
+                        $cartEntity->setShippingTotal($currencyService->convert($total->getValue(), $currency));
+                    }
+                    break;
+                case 'tax':
+                    $cartEntity->setBaseTaxTotal($total->getValue());
+                    if ($baseCurrency == $currency) {
+                        $cartEntity->setTaxTotal($total->getValue());
+                    } else {
+                        $cartEntity->setTaxTotal($currencyService->convert($total->getValue(), $currency));
+                    }
+                    break;
+                case 'discounts':
+                    $cartEntity->setBaseDiscountTotal($total->getValue());
+                    if ($baseCurrency == $currency) {
+                        $cartEntity->setDiscountTotal($total->getValue());
+                    } else {
+                        $cartEntity->setDiscountTotal($currencyService->convert($total->getValue(), $currency));
+                    }
+                    break;
+                default:
+                    // no-op
+                    break;
+            }
+        }
+
+        $cartEntity->setJson($cart->toJson());
+        // update Cart in database
         $this->getEntityService()->persist($cartEntity);
+
         $event->setCartEntity($cartEntity)
             ->setCartItemEntity($cartItemEntity);
 

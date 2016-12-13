@@ -250,6 +250,22 @@ class CartSessionService
     }
 
     /**
+     * @return string
+     */
+    public function getBaseCurrency()
+    {
+        return $this->getCurrencyService()->getBaseCurrency();
+    }
+
+    /**
+     * @return CurrencyService
+     */
+    public function getCurrencyService()
+    {
+        return $this->getCartService()->getCartTotalService()->getCurrencyService();
+    }
+
+    /**
      * @param Item|int $item
      * @param int $qty
      * @return $this
