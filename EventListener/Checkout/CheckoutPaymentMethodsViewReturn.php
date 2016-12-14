@@ -13,7 +13,9 @@ class CheckoutPaymentMethodsViewReturn
 
     protected $paymentService;
 
-    protected $cartSession;
+    protected $checkoutSessionService;
+
+    protected $entityService;
 
     protected $layout = 'frontend';
 
@@ -81,15 +83,38 @@ class CheckoutPaymentMethodsViewReturn
         return $this->paymentService;
     }
 
-    public function setCartSession($cartSession)
+    /**
+     * @param $entityService
+     * @return $this
+     */
+    public function setEntityService($entityService)
     {
-        $this->cartSession = $cartSession;
+        $this->entityService = $entityService;
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEntityService()
+    {
+        return $this->entityService;
+    }
+
+    public function setCheckoutSessionService($checkoutSessionService)
+    {
+        $this->checkoutSessionService = $checkoutSessionService;
+        return $this;
+    }
+
+    public function getCheckoutSessionService()
+    {
+        return $this->checkoutSessionService;
     }
 
     public function getCartSession()
     {
-        return $this->cartSession;
+        return $this->getCheckoutSessionService()->getCartSessionService();
     }
 
     public function setLayout($layout)

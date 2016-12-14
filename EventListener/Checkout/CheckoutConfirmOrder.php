@@ -8,13 +8,33 @@ class CheckoutConfirmOrder
 {
     protected $themeService;
 
-    protected $cartSession;
+    protected $checkoutSessionService;
 
     protected $layout = 'frontend';
 
     protected $defaultTemplate = 'Checkout:confirm_order.html.twig';
 
     protected $event;
+
+    protected $entityService;
+
+    /**
+     * @param $entityService
+     * @return $this
+     */
+    public function setEntityService($entityService)
+    {
+        $this->entityService = $entityService;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEntityService()
+    {
+        return $this->entityService;
+    }
 
     protected function setEvent($event)
     {
@@ -63,15 +83,20 @@ class CheckoutConfirmOrder
         return $this->themeService;
     }
 
-    public function setCartSession($cartSession)
+    public function setCheckoutSessionService($checkoutSessionService)
     {
-        $this->cartSession = $cartSession;
+        $this->checkoutSessionService = $checkoutSessionService;
         return $this;
+    }
+
+    public function getCheckoutSessionService()
+    {
+        return $this->checkoutSessionService;
     }
 
     public function getCartSession()
     {
-        return $this->cartSession;
+        return $this->getCheckoutSessionService()->getCartSessionService();
     }
 
     public function setLayout($layout)

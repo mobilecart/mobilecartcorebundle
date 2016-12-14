@@ -11,6 +11,8 @@ class CheckoutUpdatePaymentMethod
 
     protected $checkoutSessionService;
 
+    protected $entityService;
+
     public function setEvent($event)
     {
         $this->event = $event;
@@ -20,6 +22,24 @@ class CheckoutUpdatePaymentMethod
     public function getEvent()
     {
         return $this->event;
+    }
+
+    /**
+     * @param $entityService
+     * @return $this
+     */
+    public function setEntityService($entityService)
+    {
+        $this->entityService = $entityService;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEntityService()
+    {
+        return $this->entityService;
     }
 
     public function setCheckoutSessionService($checkoutSessionService)

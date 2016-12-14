@@ -12,6 +12,8 @@ class CheckoutUpdateTotalsDiscounts
      */
     protected $checkoutSessionService;
 
+    protected $entityService;
+
     protected $event;
 
     protected $router;
@@ -25,6 +27,21 @@ class CheckoutUpdateTotalsDiscounts
     public function getCheckoutSessionService()
     {
         return $this->checkoutSessionService;
+    }
+
+    /**
+     * @param $entityService
+     * @return $this
+     */
+    public function setEntityService($entityService)
+    {
+        $this->entityService = $entityService;
+        return $this;
+    }
+
+    public function getEntityService()
+    {
+        return $this->entityService;
     }
 
     public function setEvent($event)

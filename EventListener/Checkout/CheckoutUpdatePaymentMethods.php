@@ -17,6 +17,26 @@ class CheckoutUpdatePaymentMethods
 
     protected $paymentService;
 
+    protected $entityService;
+
+    /**
+     * @param $entityService
+     * @return $this
+     */
+    public function setEntityService($entityService)
+    {
+        $this->entityService = $entityService;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEntityService()
+    {
+        return $this->entityService;
+    }
+
     public function setEvent($event)
     {
         $this->event = $event;
