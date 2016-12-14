@@ -683,6 +683,14 @@ class AddProduct
                         $cartEntity->setDiscountTotal($currencyService->convert($total->getValue(), $currency));
                     }
                     break;
+                case 'grand_total':
+                    $cartEntity->setBaseTotal($total->getValue());
+                    if ($baseCurrency == $currency) {
+                        $cartEntity->setTotal($total->getValue());
+                    } else {
+                        $cartEntity->setTotal($currencyService->convert($total->getValue(), $currency));
+                    }
+                    break;
                 default:
                     // no-op
                     break;
