@@ -188,6 +188,7 @@ class CustomerAddress
     public function getBaseData()
     {
         return [
+            'id'         => $this->getId(),
             'name'       => $this->getName(),
             'company'    => $this->getCompany(),
             'phone'      => $this->getPhone(),

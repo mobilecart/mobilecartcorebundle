@@ -24,25 +24,16 @@ class Product
 
     const TYPE_SIMPLE = 1;
     const TYPE_CONFIGURABLE = 2;
-    const TYPE_GROUP = 3;
-    const TYPE_BUNDLE = 4;
 
     static $types = [
         self::TYPE_SIMPLE => 'Simple',
         self::TYPE_CONFIGURABLE => 'Configurable',
-        //self::TYPE_GROUP => 'Grouped',
-        //self::TYPE_BUNDLE => 'Bundled',
     ];
 
     static function getTypes()
     {
         return self::$types;
     }
-
-    const NOT_VISIBLE_INDIVIDUALLY = 1;
-    const VISIBLE_CATALOG = 2;
-    const VISIBLE_SEARCH = 3;
-    const VISIBLE_CATALOG_SEARCH = 4;
 
     /**
      * @var integer $id
@@ -280,6 +271,50 @@ class Product
      */
     private $group_prices;
 
+    // private $tier_prices; todo
+
+    /**
+     * @var float $weight
+     *
+     * @ORM\Column(name="weight", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $weight;
+
+    /**
+     * @var string $weight_unit
+     *
+     * @ORM\Column(name="weight_unit", type="string", length=8, nullable=true)
+     */
+    private $weight_unit;
+
+    /**
+     * @var float $width
+     *
+     * @ORM\Column(name="width", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $width;
+
+    /**
+     * @var float $height
+     *
+     * @ORM\Column(name="height", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $height;
+
+    /**
+     * @var float $length
+     *
+     * @ORM\Column(name="length", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $length;
+
+    /**
+     * @var string $measure_unit
+     *
+     * @ORM\Column(name="measure_unit", type="string", length=8, nullable=true)
+     */
+    private $measure_unit;
+
     /**
      * @var boolean $is_taxable
      *
@@ -449,8 +484,15 @@ class Product
             'type' => $this->getType(),
             'sku' => $this->getSku(),
             'price' => $this->getPrice(),
+            'special_price' => $this->getSpecialPrice(),
             'qty' => $this->getQty(),
             'min_qty' => $this->getMinQty(),
+            'weight' => $this->getWeight(),
+            'weight_unit' => $this->getWeightUnit(),
+            'width' => $this->getWidth(),
+            'height' => $this->getHeight(),
+            'length' => $this->getLength(),
+            'measure_unit' => $this->getMeasureUnit(),
             'is_in_stock' => (bool) $this->getIsInStock(),
             'is_discountable' => (bool) $this->getIsDiscountable(),
             'is_taxable' => (bool) $this->getIsTaxable(),
@@ -1394,6 +1436,114 @@ class Product
     public function getGroupPrices()
     {
         return $this->group_prices;
+    }
+
+    /**
+     * @param $weight
+     * @return $this
+     */
+    public function setWeight($weight)
+    {
+        $this->weight = $weight;
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getWeight()
+    {
+        return $this->weight;
+    }
+
+    /**
+     * @param $weightUnit
+     * @return $this
+     */
+    public function setWeightUnit($weightUnit)
+    {
+        $this->weight_unit = $weightUnit;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getWeightUnit()
+    {
+        return $this->weight_unit;
+    }
+
+    /**
+     * @param $width
+     * @return $this
+     */
+    public function setWidth($width)
+    {
+        $this->width = $width;
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getWidth()
+    {
+        return $this->width;
+    }
+
+    /**
+     * @param $height
+     * @return $this
+     */
+    public function setHeight($height)
+    {
+        $this->height = $height;
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getHeight()
+    {
+        return $this->height;
+    }
+
+    /**
+     * @param $length
+     * @return $this
+     */
+    public function setLength($length)
+    {
+        $this->length = $length;
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getLength()
+    {
+        return $this->length;
+    }
+
+    /**
+     * @param $measureUnit
+     * @return $this
+     */
+    public function setMeasureUnit($measureUnit)
+    {
+        $this->measure_unit = $measureUnit;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMeasureUnit()
+    {
+        return $this->measure_unit;
     }
 
     /**

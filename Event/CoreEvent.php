@@ -74,7 +74,6 @@ class CoreEvent extends Event
      * @param string $method
      * @param array $args
      * @return $this|mixed
-     * @throws Exception
      */
     public function __call($method, $args)
     {
@@ -195,6 +194,22 @@ class CoreEvent extends Event
     {
         $this->data = $data;
         return $this;
+    }
+
+    /**
+     * Common convention in listeners. Made a method for it
+     *
+     * @return array
+     */
+    public function getReturnData()
+    {
+        if (isset($this->data['return_data'])
+            && is_array($this->data['return_data'])
+        ) {
+            return $this->data['return_data'];
+        }
+
+        return [];
     }
 
     /**
