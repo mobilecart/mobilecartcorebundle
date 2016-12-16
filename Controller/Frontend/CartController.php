@@ -23,7 +23,8 @@ class CartController extends Controller
     public function indexAction(Request $request)
     {
         $event = new CoreEvent();
-        $event->setRequest($request);
+        $event->setRequest($request)
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CART_VIEW_RETURN, $event);
@@ -56,19 +57,34 @@ class CartController extends Controller
         return $event->getResponse();
     }
 
+    public function updateMultiShippingAction(Request $request)
+    {
+        $event = new CoreEvent();
+        $event->setRequest($request)
+            ->setUser($this->getUser());
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CART_UPDATE_MULTI_SHIPMENT, $event);
+
+        return $event->getResponse();
+    }
+
     public function updateQtysAction(Request $request)
     {
         $qtys = $request->get('qty', []);
 
         $event = new CoreEvent();
-        if (is_array($qtys) && $qtys) {
+        $event->setRequest($request)
+            ->setUser($this->getUser());
 
+        if (is_array($qtys) && $qtys) {
             foreach($qtys as $productId => $qty) {
                 if ($qty < 1) {
 
                     $event = new CoreEvent();
                     $event->setRequest($request)
-                        ->setUser($this->getUser());
+                        ->setUser($this->getUser())
+                        ->setIsMassUpdate(1);
 
                     $this->get('event_dispatcher')
                         ->dispatch(CoreEvents::CART_REMOVE_PRODUCT, $event);
@@ -80,13 +96,25 @@ class CartController extends Controller
                         ->setProductId($productId)
                         ->setQty($qty)
                         ->setIsAdd(0)
-                        ->setUser($this->getUser());
+                        ->setUser($this->getUser())
+                        ->setIsMassUpdate(1);
 
                     $this->get('event_dispatcher')
                         ->dispatch(CoreEvents::CART_ADD_PRODUCT, $event);
 
                 }
             }
+        }
+
+        if ($this->getParameter('cart.shipping.multi.enabled')) {
+
+            $aEvent = new CoreEvent();
+            $aEvent->setRequest($request)
+                ->setUser($this->getUser());
+
+            $this->get('event_dispatcher')
+                ->dispatch(CoreEvents::CART_UPDATE_MULTI_SHIPMENT, $aEvent);
+
         }
 
         return $event->getResponse();

@@ -13,6 +13,8 @@ class CustomerProfileReturn
 
     protected $themeService;
 
+    protected $router;
+
     protected $event;
 
     protected function setEvent($event)
@@ -31,6 +33,17 @@ class CustomerProfileReturn
         return $this->getEvent()->getReturnData()
             ? $this->getEvent()->getReturnData()
             : [];
+    }
+
+    public function setRouter($router)
+    {
+        $this->router = $router;
+        return $this;
+    }
+
+    public function getRouter()
+    {
+        return $this->router;
     }
 
     public function setThemeService($themeService)
@@ -81,8 +94,26 @@ class CustomerProfileReturn
         switch($format) {
             case 'json':
 
+                $isValid = (int) $event->getIsValid();
+                $invalid = [];
+                if (!$isValid) {
+                    $form = $event->getForm();
+                    foreach($form->all() as $childKey => $child) {
+                        $errors = $child->getErrors();
+                        if ($errors->count()) {
+                            $invalid[$childKey] = [];
+                            foreach($errors as $error) {
+                                $invalid[$childKey][] = $error->getMessage();
+                            }
+                        }
+                    }
+                }
+
                 $returnData = [
+                    'success' => $event->getIsValid(),
                     'entity' => $customer->getData(),
+                    'redirect_url' => $this->getRouter()->generate('customer_profile', []),
+                    'invalid' => $invalid,
                 ];
 
                 $response = new JsonResponse($returnData);

@@ -7,7 +7,6 @@ use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
 class AddProduct
@@ -121,9 +120,7 @@ class AddProduct
         $currencyService = $this->getCartSessionService()->getCurrencyService();
         $baseCurrency = $this->getCartSessionService()->getBaseCurrency();
 
-        $cart = $this->getCartSessionService()
-            ->initCart()
-            ->getCart();
+        $cart = $this->getCartSessionService()->getCart();
 
         if ($idField != 'id') {
             if ($item = $cart->findItem($idField, $productId)) {
@@ -157,6 +154,7 @@ class AddProduct
             ? $this->getEntityService()->find(EntityConstants::CART, $cartId)
             : $this->getEntityService()->getInstance(EntityConstants::CART);
 
+        // save cart if we need to
         if (!$cartId) {
 
             $cartEntity->setJson($cart->toJson())
@@ -181,9 +179,17 @@ class AddProduct
             ->setSimpleProductId($simpleProductId)
             ->setQty($qty);
 
-        if ($this->getCartSessionService()->hasProductId($productId)) {
+        if ($this->getCartSessionService()->hasProductId($productId)
+            || $this->getCartSessionService()->hasProductId($simpleProductId)
+        ) {
 
-            $cartItem = $cart->findItem('product_id', $productId);
+            $cartItem = $this->getCartSessionService()->hasProductId($productId)
+                ? $cart->findItem('product_id', $productId)
+                : $cart->findItem('product_id', $simpleProductId);
+
+            if ($simpleProductId && $this->getCartSessionService()->hasProductId($simpleProductId)) {
+                $productId = $simpleProductId;
+            }
 
             // update db
             if ($cartItem) {
@@ -267,92 +273,6 @@ class AddProduct
 
             $success = 1;
 
-        } else if ($this->getCartSessionService()->hasProductId($simpleProductId)) {
-
-            $cartItem = $cart->findItem('product_id', $simpleProductId);
-
-            // update db
-            if ($cartItem) {
-
-                $slug = $cartItem->getSlug();
-
-                $minQty = (int) $cartItem->getMinQty();
-                $availQty = $cartItem->getAvailQty();
-                $isQtyManaged = $cartItem->getIsQtyManaged();
-
-                if ($event->getIsAdd()) {
-
-                    $newQty = $cartItem->getQty() + $qty;
-                    $minQtyMet = $minQty == 0 || ($minQty > 0 && $newQty >= $minQty);
-                    $maxQtyMet = !$isQtyManaged || ($isQtyManaged && $newQty < $availQty);
-
-                    if ($minQtyMet && $maxQtyMet) {
-
-                        $this->getCartSessionService()
-                            ->addProductQty($simpleProductId, $qty);
-
-                    } else {
-
-                        if (!$minQtyMet) {
-                            $errors[] = "Minimum Qty is not met : {$cartItem->getSku()}, Qty: {$cartItem->getMinQty()}";
-                        }
-
-                        if (!$maxQtyMet) {
-                            $errors[] = "Insufficient stock level : {$cartItem->getSku()}, Available: {$cartItem->getAvailQty()}";
-                        }
-                    }
-
-                } else {
-
-                    $minQtyMet = $minQty == 0 || ($minQty > 0 && $qty >= $minQty);
-                    $maxQtyMet = !$isQtyManaged || ($isQtyManaged && $qty < $availQty);
-
-                    if ($minQtyMet && $maxQtyMet) {
-
-                        $this->getCartSessionService()
-                            ->setProductQty($simpleProductId, $qty);
-
-                    } else {
-
-                        if (!$minQtyMet) {
-                            $errors[] = "Minimum Qty is not met : {$cartItem->getSku()}, Qty: {$cartItem->getMinQty()}";
-                        }
-
-                        if (!$maxQtyMet) {
-                            $errors[] = "Insufficient stock level : {$cartItem->getSku()}, Available: {$cartItem->getAvailQty()}";
-                        }
-                    }
-                }
-
-                if ($cartItem->getId()) {
-                    // update row
-
-                    $cartItemEntity = $this->getEntityService()
-                        ->find(EntityConstants::CART_ITEM, $cartItem->getId());
-
-                    $cartItemEntity->setQty($cartItem->getQty());
-
-                    $this->getEntityService()->persist($cartItemEntity);
-
-                } else {
-                    // insert row
-
-                    $cartItemEntity = $this->getEntityService()
-                        ->getInstance(EntityConstants::CART_ITEM);
-
-                    $cartItemEntity->setCart($cartEntity)
-                        ->setSku($cartItem->getSku())
-                        ->setQty($cartItem->getQty())
-                        ->setJson($cartItem->toJson());
-
-                    $this->getEntityService()->persist($cartItemEntity);
-
-                    $cartItem->setId($cartItemEntity->getId());
-                }
-            }
-
-            $success = 1;
-
         } else if ($productId) {
 
             // The Cart does not already have this product
@@ -370,258 +290,147 @@ class AddProduct
             $parentOptions = [];
             if ($simpleProductId) {
 
-                $child = $this->getEntityService()->find(EntityConstants::PRODUCT, $simpleProductId);
-                if (!$child) {
+                $parent = $product;
+                $product = $this->getEntityService()->find(EntityConstants::PRODUCT, $simpleProductId);
+                if (!$product) {
                     throw new NotFoundHttpException("Child Product not found with ID: '{$simpleProductId}''");
                 }
 
-                $minQty = (int) $child->getMinQty();
-                $minQtyMet = $minQty == 0 || ($minQty > 0 && $qty >= $child->getMinQty());
-                $maxQtyMet = !$child->getIsQtyManaged() || ($child->getIsQtyManaged() && $qty < $child->getQty());
+                $parentOptions['id'] = $parent->getId();
+                $parentOptions['sku'] = $parent->getSku();
+                $parentOptions['slug'] = $parent->getSlug();
+            }
 
-                if ($child->getIsEnabled()
-                    && $child->getIsInStock()
-                    && $minQtyMet
-                    && $maxQtyMet
-                ) {
+            $minQty = (int) $product->getMinQty();
+            $minQtyMet = $minQty == 0 || ($minQty > 0 && $qty >= $product->getMinQty());
+            $maxQtyMet = !$product->getIsQtyManaged() || ($product->getIsQtyManaged() && $qty < $product->getQty());
 
-                    $parentOptions['id'] = $product->getId();
-                    $parentOptions['sku'] = $product->getSku();
-                    $parentOptions['slug'] = $product->getSlug();
+            if ($product->getIsEnabled()
+                && $product->getIsInStock()
+                && $minQtyMet
+                && $maxQtyMet
+            ) {
 
-                    $this->getCartSessionService()
-                        ->addProduct($child, $qty, $parentOptions);
+                $this->getCartSessionService()
+                    ->addProduct($product, $qty, $parentOptions);
 
-                    $cartItem = $this->getCartSessionService()
-                        ->getCart()
-                        ->findItem('product_id', $child->getId());
+                // insert row
+                $cartItemEntity = $this->getEntityService()
+                    ->getInstance(EntityConstants::CART_ITEM);
 
-                    if ($cartItem) {
+                $cartItem = $this->getCartSessionService()
+                    ->getCart()
+                    ->findItem('product_id', $product->getId());
 
-                        $cartItem->setQtyAvail($child->getQty())
-                            ->setIsQtyManaged((int) $child->getIsQtyManaged());
-                    }
+                if ($cartItem) {
 
-                    // insert row
-                    $cartItemEntity = $this->getEntityService()
-                        ->getInstance(EntityConstants::CART_ITEM);
-
-                    $productCurrency = strlen($child->getCurrency())
-                        ? $child->getCurrency()
-                        : $baseCurrency;
-
-                    if ($baseCurrency == $productCurrency) {
-                        if ($customerCurrency == $baseCurrency) {
-
-                            $cartItemEntity->setPrice($child->getPrice())
-                                //->setTax() todo
-                                //->setDiscount() todo
-                                ->setCurrency($baseCurrency)
-                                ->setBasePrice($child->getPrice())
-                                //->setBaseTax() todo
-                                //->setBaseDiscount() todo
-                                ->setBaseCurrency($baseCurrency);
-
-                        } else {
-
-                            $cartItemEntity->setPrice($currencyService->convert($child->getPrice(), $customerCurrency))
-                                //->setTax() todo
-                                //->setDiscount() todo
-                                ->setCurrency($customerCurrency)
-                                ->setBasePrice($child->getPrice())
-                                //->setBaseTax() todo
-                                //->setBaseDiscount() todo
-                                ->setBaseCurrency($baseCurrency);
-
-                        }
-                    } else {
-                        if ($productCurrency == $customerCurrency) {
-
-                            $cartItemEntity->setPrice($child->getPrice())
-                                //->setTax() todo
-                                //->setDiscount() todo
-                                ->setCurrency($customerCurrency)
-                                ->setBasePrice($currencyService->convert($child->getPrice(), $baseCurrency, $customerCurrency))
-                                //->setBaseTax() todo
-                                //->setBaseDiscount() todo
-                                ->setBaseCurrency($baseCurrency);
-
-                        } else {
-
-                            $cartItemEntity->setPrice($currencyService->convert($child->getPrice(), $customerCurrency, $productCurrency))
-                                //->setTax() todo
-                                //->setDiscount() todo
-                                ->setCurrency($customerCurrency)
-                                ->setBasePrice($currencyService->convert($child->getPrice(), $baseCurrency, $productCurrency))
-                                //->setBaseTax() todo
-                                //->setBaseDiscount() todo
-                                ->setBaseCurrency($baseCurrency);
-                        }
-                    }
-
-                    $itemJson = $cartItem
-                        ? $cartItem->toJson()
-                        : json_encode($child->getData());
-
-                    $cartItemEntity->setCart($cartEntity)
-                        ->setCreatedAt(new \DateTime('now'))
-                        ->setSku($child->getSku())
-                        ->setQty($qty)
-                        ->setJson($itemJson);
-
-                    $this->getEntityService()->persist($cartItemEntity);
-
-                    $cart->findItem('sku', $child->getSku())
-                        ->setId($cartItemEntity->getId());
-
-                    $event->setCartItemEntity($cartItemEntity);
-
-                    $success = 1;
-
-                } else {
-                    // add errors to response
-
-                    if (!$child->getIsEnabled()) {
-                        $errors[] = "Product is not enabled : {$product->getSku()}";
-                    }
-
-                    if (!$child->getIsInStock()) {
-                        $errors[] = "Product is not in stock : {$product->getSku()}";
-                    }
-
-                    if (!$minQtyMet) {
-                        $errors[] = "Minimum Qty is not met : {$product->getSku()}, Qty: {$child->getMinQty()}";
-                    }
-
-                    if (!$maxQtyMet) {
-                        $errors[] = "Insufficient stock level : {$product->getSku()}, Available: {$child->getQty()}";
-                    }
-
+                    $cartItem->setQtyAvail($product->getQty())
+                        ->setIsQtyManaged((int) $product->getIsQtyManaged())
+                        ->setCustomerAddressId('main');
                 }
-            } else {
 
-                $minQty = (int) $product->getMinQty();
-                $minQtyMet = $minQty == 0 || ($minQty > 0 && $qty >= $product->getMinQty());
-                $maxQtyMet = !$product->getIsQtyManaged() || ($product->getIsQtyManaged() && $qty < $product->getQty());
+                $productCurrency = strlen($product->getCurrency())
+                    ? $product->getCurrency()
+                    : $baseCurrency;
 
-                if ($product->getIsEnabled()
-                    && $product->getIsInStock()
-                    && $minQtyMet
-                    && $maxQtyMet
-                ) {
+                if ($baseCurrency == $productCurrency) {
+                    if ($customerCurrency == $baseCurrency) {
 
-                    $this->getCartSessionService()
-                        ->addProduct($product, $qty, $parentOptions);
+                        $cartItemEntity->setPrice($product->getPrice())
+                            //->setTax() todo
+                            //->setDiscount() todo
+                            ->setCurrency($baseCurrency)
+                            ->setBasePrice($product->getPrice())
+                            //->setBaseTax() todo
+                            //->setBaseDiscount() todo
+                            ->setBaseCurrency($baseCurrency);
 
-                    // insert row
-                    $cartItemEntity = $this->getEntityService()
-                        ->getInstance(EntityConstants::CART_ITEM);
-
-                    $cartItem = $this->getCartSessionService()
-                        ->getCart()
-                        ->findItem('product_id', $product->getId());
-
-                    if ($cartItem) {
-
-                        $cartItem->setQtyAvail($product->getQty())
-                            ->setIsQtyManaged((int) $product->getIsQtyManaged());
-                    }
-
-                    $productCurrency = strlen($product->getCurrency())
-                        ? $product->getCurrency()
-                        : $baseCurrency;
-
-                    if ($baseCurrency == $productCurrency) {
-                        if ($customerCurrency == $baseCurrency) {
-
-                            $cartItemEntity->setPrice($product->getPrice())
-                                //->setTax() todo
-                                //->setDiscount() todo
-                                ->setCurrency($baseCurrency)
-                                ->setBasePrice($product->getPrice())
-                                //->setBaseTax() todo
-                                //->setBaseDiscount() todo
-                                ->setBaseCurrency($baseCurrency);
-
-                        } else {
-
-                            $cartItemEntity->setPrice($currencyService->convert($product->getPrice(), $customerCurrency))
-                                //->setTax() todo
-                                //->setDiscount() todo
-                                ->setCurrency($customerCurrency)
-                                ->setBasePrice($product->getPrice())
-                                //->setBaseTax() todo
-                                //->setBaseDiscount() todo
-                                ->setBaseCurrency($baseCurrency);
-
-                        }
                     } else {
-                        if ($productCurrency == $customerCurrency) {
 
-                            $cartItemEntity->setPrice($product->getPrice())
-                                //->setTax() todo
-                                //->setDiscount() todo
-                                ->setCurrency($customerCurrency)
-                                ->setBasePrice($currencyService->convert($product->getPrice(), $baseCurrency, $customerCurrency))
-                                //->setBaseTax() todo
-                                //->setBaseDiscount() todo
-                                ->setBaseCurrency($baseCurrency);
+                        $cartItemEntity->setPrice($currencyService->convert($product->getPrice(), $customerCurrency))
+                            //->setTax() todo
+                            //->setDiscount() todo
+                            ->setCurrency($customerCurrency)
+                            ->setBasePrice($product->getPrice())
+                            //->setBaseTax() todo
+                            //->setBaseDiscount() todo
+                            ->setBaseCurrency($baseCurrency);
 
-                        } else {
-
-                            $cartItemEntity->setPrice($currencyService->convert($product->getPrice(), $customerCurrency, $productCurrency))
-                                //->setTax() todo
-                                //->setDiscount() todo
-                                ->setCurrency($customerCurrency)
-                                ->setBasePrice($currencyService->convert($product->getPrice(), $baseCurrency, $productCurrency))
-                                //->setBaseTax() todo
-                                //->setBaseDiscount() todo
-                                ->setBaseCurrency($baseCurrency);
-                        }
                     }
-
-                    $itemJson = $cartItem
-                        ? $cartItem->toJson()
-                        : json_encode($product->getData());
-
-                    $cartItemEntity->setCart($cartEntity)
-                        ->setCreatedAt(new \DateTime('now'))
-                        ->setSku($product->getSku())
-                        ->setQty($qty)
-                        ->setJson($itemJson);
-
-                    $this->getEntityService()->persist($cartItemEntity);
-
-                    $cart->findItem('sku', $product->getSku())
-                        ->setId($cartItemEntity->getId());
-
-                    $success = 1;
                 } else {
-                    // add errors to response
+                    if ($productCurrency == $customerCurrency) {
 
-                    if (!$product->getIsEnabled()) {
-                        $errors[] = "Product is not enabled : {$product->getSku()}";
-                    }
+                        $cartItemEntity->setPrice($product->getPrice())
+                            //->setTax() todo
+                            //->setDiscount() todo
+                            ->setCurrency($customerCurrency)
+                            ->setBasePrice($currencyService->convert($product->getPrice(), $baseCurrency, $customerCurrency))
+                            //->setBaseTax() todo
+                            //->setBaseDiscount() todo
+                            ->setBaseCurrency($baseCurrency);
 
-                    if (!$product->getIsInStock()) {
-                        $errors[] = "Product is not in stock : {$product->getSku()}";
-                    }
+                    } else {
 
-                    if (!$minQtyMet) {
-                        $errors[] = "Minimum Qty is not met : {$product->getSku()}, Qty: {$product->getMinQty()}";
+                        $cartItemEntity->setPrice($currencyService->convert($product->getPrice(), $customerCurrency, $productCurrency))
+                            //->setTax() todo
+                            //->setDiscount() todo
+                            ->setCurrency($customerCurrency)
+                            ->setBasePrice($currencyService->convert($product->getPrice(), $baseCurrency, $productCurrency))
+                            //->setBaseTax() todo
+                            //->setBaseDiscount() todo
+                            ->setBaseCurrency($baseCurrency);
                     }
+                }
 
-                    if (!$maxQtyMet) {
-                        $errors[] = "Insufficient stock level : {$product->getSku()}, Available: {$product->getQty()}";
-                    }
+                $itemJson = $cartItem
+                    ? $cartItem->toJson()
+                    : json_encode($product->getData());
+
+                $cartItemEntity->setCart($cartEntity)
+                    ->setCreatedAt(new \DateTime('now'))
+                    ->setSku($product->getSku())
+                    ->setProductId($product->getId())
+                    ->setQty($qty)
+                    ->setWeight($product->getWeight())
+                    ->setWeightUnit($product->getWeightUnit())
+                    ->setWidth($product->getWidth())
+                    ->setHeight($product->getHeight())
+                    ->setLength($product->getLength())
+                    ->setMeasureUnit($product->getMeasureUnit())
+                    ->setJson($itemJson);
+
+                $this->getEntityService()->persist($cartItemEntity);
+
+                $cart->findItem('sku', $product->getSku())
+                    ->setId($cartItemEntity->getId());
+
+                $success = 1;
+            } else {
+                // add errors to response
+
+                if (!$product->getIsEnabled()) {
+                    $errors[] = "Product is not enabled : {$product->getSku()}";
+                }
+
+                if (!$product->getIsInStock()) {
+                    $errors[] = "Product is not in stock : {$product->getSku()}";
+                }
+
+                if (!$minQtyMet) {
+                    $errors[] = "Minimum Qty is not met : {$product->getSku()}, Qty: {$product->getMinQty()}";
+                }
+
+                if (!$maxQtyMet) {
+                    $errors[] = "Insufficient stock level : {$product->getSku()}, Available: {$product->getQty()}";
                 }
             }
+
         }
 
-        $cart = $this->getCartSessionService()
-            ->collectShippingMethods()
-            ->collectTotals()
-            ->getCart();
+        // collect totals
+        $cart = $event->getIsMassUpdate()
+            ? $this->getCartSessionService()->collectTotals()->getCart()
+            : $this->getCartSessionService()->collectShippingMethods('main')->collectTotals()->getCart();
 
         $baseCurrency = $currencyService->getBaseCurrency();
 
@@ -647,7 +456,7 @@ class AddProduct
             $cartEntity->setCustomer($customerEntity);
         }
 
-        // set totals
+        // set totals on cart entity
         $totals = $cart->getTotals();
         foreach($totals as $total) {
             switch($total->getKey()) {
@@ -698,6 +507,7 @@ class AddProduct
         }
 
         $cartEntity->setJson($cart->toJson());
+
         // update Cart in database
         $this->getEntityService()->persist($cartEntity);
 

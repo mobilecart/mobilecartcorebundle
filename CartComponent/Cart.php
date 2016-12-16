@@ -456,16 +456,21 @@ class Cart extends ArrayWrapper
     /**
      * @param $key
      * @param $value
+     * @param $addressId
      * @return int|null|string
      */
-    public function findShipmentIdx($key, $value)
+    public function findShipmentIdx($key, $value, $addressId='main')
     {
         if (!$this->hasShipments()) {
             return null;
         }
 
+        // note: the customer_address_id is either 'main' or an integer
+        //  it is not prefiex like in shipping_methods
         foreach($this->getShipments() as $idx => $shipment) {
-            if ($shipment->get($key) == $value) {
+            if ($shipment->get($key) == $value
+                && ($addressId == '' || $shipment->get('customer_address_id') == $addressId )
+            ) {
                 return $idx;
             }
         }
@@ -476,30 +481,97 @@ class Cart extends ArrayWrapper
     /**
      * @param $key
      * @param $value
+     * @param $addressId
      * @return bool|null
      */
-    public function findShipment($key, $value)
+    public function findShipment($key, $value, $addressId='main')
     {
-        $idx = $this->findShipmentIdx($key, $value);
+        $idx = $this->findShipmentIdx($key, $value, $addressId);
         return is_numeric($idx)
             ? $this->getShipment($idx)
             : null;
     }
 
     /**
+     * @param $method
+     * @param string|int $addressId
+     * @return $this
+     */
+    public function addShippingMethod($method, $addressId='main')
+    {
+        if (!isset($this->data['shipping_methods'])
+            || !is_array($this->data['shipping_methods'])
+        ) {
+            $this->data['shipping_methods'] = [];
+        }
+
+        if ($addressId != 'main' && is_numeric($addressId)) {
+            $addressId = 'address_' . $addressId; // prefixing integers
+        }
+
+        if (!isset($this->data['shipping_methods'][$addressId])
+            || !is_array($this->data['shipping_methods'][$addressId])
+        ) {
+            $this->data['shipping_methods'][$addressId] = [];
+        }
+
+        $this->data['shipping_methods'][$addressId][] = $method;
+        return $this;
+    }
+
+    /**
+     * @param string $addressId
+     * @return array
+     */
+    public function getShippingMethods($addressId='main')
+    {
+        if (!$addressId) {
+
+            if (!isset($this->data['shipping_methods'])
+                || !is_array($this->data['shipping_methods'])
+            ) {
+                return [];
+            }
+
+            return $this->data['shipping_methods'];
+        }
+
+        if ($addressId != 'main' && is_numeric($addressId)) {
+            $addressId = 'address_' . $addressId; // prefixing integers
+        }
+
+        if (!isset($this->data['shipping_methods'][$addressId])
+            || !is_array($this->data['shipping_methods'][$addressId])
+        ) {
+            return [];
+        }
+
+        return $this->data['shipping_methods'][$addressId];
+    }
+
+    /**
      * @param $key
      * @param $value
+     * @param $addressId
      * @return int|null|string
      */
-    public function findShippingMethodIdx($key, $value)
+    public function findShippingMethodIdx($key, $value, $addressId='main')
     {
         if (!$this->hasShippingMethods()) {
             return null;
         }
 
-        foreach($this->getShippingMethods() as $idx => $shipment) {
-            if ($shipment->get($key) == $value) {
-                return $idx;
+        // we prefix the integers so that we have a better string for a key
+        //  this is only in shipping_methods, not in shipments
+        if ($addressId != 'main' && is_numeric($addressId)) {
+            $addressId = 'address_' . $addressId; // prefixing integers
+        }
+
+        if ($methods = $this->getShippingMethods($addressId)) {
+            foreach($methods as $idx => $shipment) {
+                if ($shipment->get($key) == $value) {
+                    return $idx;
+                }
             }
         }
 
@@ -509,11 +581,12 @@ class Cart extends ArrayWrapper
     /**
      * @param $key
      * @param $value
+     * @param $addressId
      * @return bool|null
      */
-    public function findShippingMethod($key, $value)
+    public function findShippingMethod($key, $value, $addressId='main')
     {
-        $idx = $this->findShippingMethodIdx($key, $value);
+        $idx = $this->findShippingMethodIdx($key, $value, $addressId);
         return is_numeric($idx)
             ? $this->getShippingMethod($idx)
             : null;
@@ -851,12 +924,23 @@ class Cart extends ArrayWrapper
 
     /**
      * @param $key
+     * @param $addressId
      * @return bool
      */
-    public function getShippingMethod($key)
+    public function getShippingMethod($key, $addressId='main')
     {
-        return isset($this->data['shipping_methods'][$key])
-            ? $this->data['shipping_methods'][$key]
+        if ($addressId != 'main' && is_numeric($addressId)) {
+            $addressId = 'address_' . $addressId; // prefixing integers
+        }
+
+        if (!isset($this->data['shipping_methods'][$addressId])
+            || !is_array($this->data['shipping_methods'][$addressId])
+        ) {
+            return null;
+        }
+
+        return isset($this->data['shipping_methods'][$addressId][$key])
+            ? $this->data['shipping_methods'][$addressId][$key]
             : null;
     }
 
@@ -870,7 +954,19 @@ class Cart extends ArrayWrapper
     public function setShipment($idx, Shipment $shipment)
     {
         $this->data['shipments'][$idx] = $shipment;
+        // being tedious with json structure here
+        $this->data['shipments'] = array_values($this->data['shipments']);
         $this->reapplyDiscounts();
+        return $this;
+    }
+
+    /**
+     * @param array $shipments
+     * @return $this
+     */
+    public function setShipments(array $shipments = [])
+    {
+        $this->data['shipments'] = array_values($shipments);
         return $this;
     }
 
@@ -886,6 +982,7 @@ class Cart extends ArrayWrapper
 
             unset($this->data['shipments'][$idx]);
         }
+        $this->data['shipments'] = array_values($this->data['shipments']); // strip keys for json structure
         $this->reapplyDiscounts();
         return $this;
     }
@@ -902,6 +999,7 @@ class Cart extends ArrayWrapper
 
             unset($this->data['shipments'][$idx]);
         }
+        $this->data['shipments'] = array_values($this->data['shipments']); // strip keys for json structure
         $this->reapplyDiscounts();
         return $this;
     }
@@ -915,79 +1013,184 @@ class Cart extends ArrayWrapper
         if (isset($this->data['shipments'][$key])) {
             unset($this->data['shipments'][$key]);
         }
+        $this->data['shipments'] = array_values($this->data['shipments']); // strip keys for json structure
         $this->reapplyDiscounts();
         return $this;
     }
 
     /**
      * @param $key
+     * @param $addressId
      * @return $this
      */
-    public function unsetShippingMethod($key)
+    public function unsetShippingMethod($key, $addressId='main')
     {
-        if (isset($this->data['shipping_methods'][$key])) {
-            unset($this->data['shipping_methods'][$key]);
+        if (isset($this->data['shipping_methods'][$addressId][$key])) {
+            unset($this->data['shipping_methods'][$addressId][$key]);
         }
 
         // dont need to remove anything from discounts
+        $this->data['shipments'] = array_values($this->data['shipments']); // strip keys for json structure
 
         return $this;
     }
 
     /**
+     * @param $addressId
+     * @return bool
+     */
+    public function addressHasShipment($addressId)
+    {
+        if ($shipments = $this->getShipments()) {
+            foreach($shipments as $shipment) {
+                if ($shipment->get('customer_address_id') == $addressId) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $addressId
      * @return $this
      */
-    public function unsetShipments()
+    public function unsetShipments($addressId='')
     {
-        $this->setShipments([]);
+        if ($addressId) {
+            if ($this->hasShipments()) {
+                foreach($this->getShipments() as $idx => $shipment) {
+                    if ($shipment->get('customer_address_id') == $addressId) {
+                        unset($this->data['shipments'][$idx]);
+                    }
+                }
+
+                $this->data['shipments'] = array_values($this->data['shipments']); // strip keys for json structure
+            }
+        } else {
+            $this->setShipments([]);
+        }
+
         $this->reapplyDiscounts();
         return $this;
     }
 
     /**
+     * @param $addressId
      * @return $this
      */
-    public function unsetShippingMethods()
+    public function unsetShippingMethods($addressId='')
     {
-        $this->setShippingMethods([]);
+        if ($addressId) {
+            if ($this->hasShippingMethods()) {
+                foreach($this->getShippingMethods() as $anAddressId => $methods) {
+                    if (!$methods || $addressId != $anAddressId) {
+                        continue;
+                    }
+                    $this->data['shipping_methods'][$addressId] = [];
+                }
+            }
+        } else {
+            $this->setShippingMethods([]);
+        }
+
         $this->reapplyDiscounts();
         return $this;
     }
 
     /**
      * @param $id
+     * @param $addressId
      * @return bool
      */
-    public function hasShipmentMethodId($id)
+    public function hasShipmentMethodId($id, $addressId='main')
     {
-        return is_numeric($this->findShipmentIdx('id', $id));
+        return is_numeric($this->findShipmentIdx('id', $id, $addressId));
     }
 
     /**
+     * Find Shipment added to the cart
+     *
      * @param $code
+     * @param $addressId
      * @return bool
      */
-    public function hasShipmentMethodCode($code)
+    public function hasShipmentMethodCode($code, $addressId='main')
     {
-        return is_numeric($this->findShipmentIdx('code', $code));
+        if ($addressId != 'main' && !is_numeric($addressId)) {
+            $addressId = (int) str_replace('address_', '', $addressId);
+        }
+        return is_numeric($this->findShipmentIdx('code', $code, $addressId));
     }
 
     /**
+     * Find Shipping Method which might get added to the Cart as a Shipment
+     *
      * @param $code
+     * @param $addressId
      * @return bool
      */
-    public function hasShippingMethodCode($code)
+    public function hasShippingMethodCode($code, $addressId='main')
     {
-        return is_numeric($this->findShippingMethodIdx('code', $code));
+        return is_numeric($this->findShippingMethodIdx('code', $code, $addressId));
     }
 
     /**
      * @param $id
+     * @param $addressId
      * @return bool
      */
-    public function hasShippingMethodId($id)
+    public function hasShippingMethodId($id, $addressId='main')
     {
-        return is_numeric($this->findShippingMethodIdx('id', $id));
+        return is_numeric($this->findShippingMethodIdx('id', $id, $addressId));
+    }
+
+    /**
+     * @param string $addressId
+     * @return string
+     */
+    public function addressLabel($addressId='main')
+    {
+        if ($addressId == 'main') {
+
+            $customer = $this->getCustomer();
+            if (strlen(trim($customer->getShippingStreet())) > 3) {
+                $label = "{$customer->getShippingStreet()} {$customer->getShippingCity()}, {$customer->getShippingRegion()}";
+                return $label;
+            }
+
+            return 'Main Address';
+        } else {
+
+            if (!is_numeric($addressId)) {
+                $addressId = str_replace('address_', '', $addressId);
+            }
+
+            $addressId = (int) $addressId;
+
+            if ($addressId && $this->getCustomer()->getAddresses()) {
+                foreach($this->getCustomer()->getAddresses() as $address) {
+
+                    if ($address instanceof \stdClass) {
+                        $address = get_object_vars($address);
+                    }
+
+                    if (is_array($address)) {
+                        $address = new ArrayWrapper($address);
+                    }
+
+                    if ($addressId == $address->getId()
+                        && strlen(trim($address->getStreet())) > 3
+                    ) {
+                        $label = "{$address->getStreet()} {$address->getCity()}, {$address->getRegion()}";
+                        return $label;
+                    }
+                }
+            }
+
+            return 'Address';
+        }
     }
 
     /**

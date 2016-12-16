@@ -1098,6 +1098,8 @@ class OrderService
                 $this->getEntityService()->persist($orderItem);
 
                 $product = $this->getEntityService()->find(EntityConstants::PRODUCT, $item->getProductId());
+
+                // update inventory
                 if ($product && $product->getIsQtyManaged()) {
 
                     $newQty = $product->getQty() - $item->getQty();
@@ -1168,6 +1170,11 @@ class OrderService
                 }
 
                 $orderShipment->setCreatedAt(new \DateTime('now'));
+
+                // todo: populate more of the address info
+                if ($shipment->getCustomerAddressId()) {
+
+                }
 
                 $this->getEntityService()->persist($orderShipment);
             }

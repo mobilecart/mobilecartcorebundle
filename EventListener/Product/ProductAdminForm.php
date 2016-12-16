@@ -120,7 +120,7 @@ class ProductAdminForm
                     'can_backorder',
                     'qty',
                     'min_qty',
-                    'stock_type',
+                    //'stock_type',
                 ],
             ],
             'content' => [
@@ -137,6 +137,18 @@ class ProductAdminForm
                     'custom_template',
                 ],
             ],
+            'shipping' => [
+                'label' => 'Shipping',
+                'id' => 'shipping',
+                'fields' => [
+                    'weight',
+                    'weight_unit',
+                    'width',
+                    'height',
+                    'length',
+                    'measure_unit',
+                ],
+            ],
         ];
 
         $customFields = [];
@@ -144,6 +156,7 @@ class ProductAdminForm
         $vars = $varSet
             ? $varSet->getItemVars()
             : [];
+
         $varValues = $entity->getVarValues();
 
         if ($varSet && $vars) {

@@ -10,6 +10,8 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
 class RemoveProduct
 {
 
+    protected $entityService;
+
     protected $cartSessionService;
 
     protected $router;
@@ -32,6 +34,17 @@ class RemoveProduct
         return $this->getEvent()->getReturnData()
             ? $this->getEvent()->getReturnData()
             : [];
+    }
+
+    public function setEntityService($entityService)
+    {
+        $this->entityService = $entityService;
+        return $this;
+    }
+
+    public function getEntityService()
+    {
+        return $this->entityService;
     }
 
     public function setRouter($router)
@@ -61,7 +74,14 @@ class RemoveProduct
         $this->setEvent($event);
         $returnData = $this->getReturnData();
 
-        $cartSession = $this->getCartSessionService()->initCart()->collectShippingMethods();
+        $request = $event->getRequest();
+        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
+
+        $productId = $event->getProductId()
+            ? $event->getProductId()
+            : $request->get('product_id', '');
+
+        $cartSession = $this->getCartSessionService();
         $cart = $cartSession->getCart();
         $cartId = $cart->getId();
 
@@ -92,15 +112,19 @@ class RemoveProduct
             $cart->setId($cartId);
         }
 
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $productId = $event->getProductId()
-            ? $event->getProductId()
-            : $request->get('product_id', '');
+        $cartItemEntities = $cartEntity->getCartItems();
+        if ($cartItemEntities) {
+            foreach($cartItemEntities as $cartItemEntity) {
+                if ($cartItemEntity->getProductId() == $productId) {
+                    $this->getEntityService()->remove($cartItemEntity);
+                    break;
+                }
+            }
+        }
 
         $cart = $this->getCartSessionService()
             ->removeProductId($productId)
-            ->collectShippingMethods()
+            ->collectShippingMethods('')
             ->collectTotals()
             ->getCart();
 

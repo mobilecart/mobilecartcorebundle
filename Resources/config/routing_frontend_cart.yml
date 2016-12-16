@@ -119,10 +119,6 @@ cart_webhook:
 
 api_shipping_rates:
     path: /api/shipping/
-    defaults: { _controller: 'MobileCartCoreBundle:REST\Shipping:rates' }
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Shipping:rates' }
     methods: [GET]
 
-api_shipping_methods:
-    path: /api/shipping/methods
-    defaults: { _controller: 'MobileCartCoreBundle:REST\Shipping:methods' }
-    methods: [GET]

@@ -95,8 +95,26 @@ class CustomerProfilePostReturn
         switch($format) {
             case 'json':
 
+                $isValid = (int) $event->getIsValid();
+                $invalid = [];
+                if (!$isValid) {
+                    $form = $event->getForm();
+                    foreach($form->all() as $childKey => $child) {
+                        $errors = $child->getErrors();
+                        if ($errors->count()) {
+                            $invalid[$childKey] = [];
+                            foreach($errors as $error) {
+                                $invalid[$childKey][] = $error->getMessage();
+                            }
+                        }
+                    }
+                }
+
                 $returnData = [
+                    'success' => $event->getIsValid(),
                     'entity' => $customer->getData(),
+                    'redirect_url' => $this->getRouter()->generate('customer_profile', []),
+                    'invalid' => $invalid,
                 ];
 
                 $response = new JsonResponse($returnData);

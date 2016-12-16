@@ -2,11 +2,14 @@
 
 namespace MobileCart\CoreBundle\EventListener\Customer;
 
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\EventDispatcher\Event;
 
 class CustomerUpdate
 {
     protected $entityService;
+
+    protected $cartSessionService;
 
     protected $securityPasswordEncoder;
 
@@ -52,6 +55,17 @@ class CustomerUpdate
         return $this->entityService;
     }
 
+    public function setCartSessionService($cartSessionService)
+    {
+        $this->cartSessionService = $cartSessionService;
+        return $this;
+    }
+
+    public function getCartSessionService()
+    {
+        return $this->cartSessionService;
+    }
+
     public function onCustomerUpdate(Event $event)
     {
         $this->setEvent($event);
@@ -75,6 +89,13 @@ class CustomerUpdate
         }
 
         $this->getEntityService()->persist($entity);
+
+        if ($event->getSection() == CoreEvent::SECTION_FRONTEND) {
+            // update session info
+
+            $this->getCartSessionService()
+                ->setCustomerEntity($entity);
+        }
 
         if ($entity->getItemVarSet() && $formData) {
 

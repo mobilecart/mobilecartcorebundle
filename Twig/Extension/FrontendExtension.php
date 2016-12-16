@@ -114,6 +114,7 @@ class FrontendExtension extends \Twig_Extension
             'categoryTree' => new \Twig_Function_Method($this, 'categoryTree', array('is_safe' => array('html'))),
             'subcategoryList' => new \Twig_Function_Method($this, 'subcategoryList', array('is_safe' => array('html'))),
             'customerName' => new \Twig_Function_Method($this, 'customerName', array('is_safe' => array('html'))),
+            'addressLabel' => new \Twig_Function_Method($this, 'addressLabel', array('is_safe' => array('html'))),
         ];
     }
 
@@ -840,9 +841,7 @@ class FrontendExtension extends \Twig_Extension
      */
     public function getCart()
     {
-        return $this->getCartSessionService()
-            ->initCart()
-            ->getCart();
+        return $this->getCartSessionService()->getCart();
     }
 
     /**
@@ -850,34 +849,30 @@ class FrontendExtension extends \Twig_Extension
      */
     public function getCartJson()
     {
-        return $this->getCartSessionService()
-            ->initCart()
-            ->getCart()
+        return $this->getCartSessionService()->getCart()
             ->toJson();
     }
 
     /**
      * @param $id
+     * @param $addressId
      * @return mixed
      */
-    public function cartHasShipmentMethodId($id)
+    public function cartHasShipmentMethodId($id, $addressId='main')
     {
-        return $this->getCartSessionService()
-            ->initCart()
-            ->getCart()
-            ->hasShipmentMethodId($id);
+        return $this->getCartSessionService()->getCart()
+            ->hasShipmentMethodId($id, $addressId);
     }
 
     /**
      * @param $code
+     * @param $addressId
      * @return mixed
      */
-    public function cartHasShipmentMethodCode($code)
+    public function cartHasShipmentMethodCode($code, $addressId='main')
     {
-        return $this->getCartSessionService()
-            ->initCart()
-            ->getCart()
-            ->hasShipmentMethodCode($code);
+        return $this->getCartSessionService()->getCart()
+            ->hasShipmentMethodCode($code, $addressId);
     }
 
     /**
@@ -885,9 +880,7 @@ class FrontendExtension extends \Twig_Extension
      */
     public function cartShipments()
     {
-        return $this->getCartSessionService()
-            ->initCart()
-            ->getCart()
+        return $this->getCartSessionService()->getCart()
             ->getShipments();
     }
 
@@ -909,12 +902,6 @@ class FrontendExtension extends \Twig_Extension
      */
     public function getCartTotals()
     {
-        // todo : make this better
-
-        if ($this->totals) {
-            return $this->totals;
-        }
-
         $totals = $this->getCartSessionService()
             ->getTotals();
 
@@ -952,28 +939,12 @@ class FrontendExtension extends \Twig_Extension
     }
 
     /**
+     * @param $addressId
      * @return mixed
      */
-    public function getCartShippingMethods()
+    public function getCartShippingMethods($addressId='main')
     {
-        // todo : make this better
-
-        if ($this->shippingMethods) {
-            return $this->shippingMethods;
-        }
-
-        $methods = $this->getCartSessionService()
-            ->getShippingMethods();
-
-        if ($methods) {
-            $this->shippingMethods = $methods;
-        } else {
-            $this->shippingMethods = $this->getCartSessionService()
-                ->collectShippingMethods()
-                ->getShippingMethods();
-        }
-
-        return $this->shippingMethods;
+        return $this->getCartSessionService()->getShippingMethods($addressId);
     }
 
     /**
@@ -981,9 +952,7 @@ class FrontendExtension extends \Twig_Extension
      */
     public function getCartItems()
     {
-        return $this->getCartSessionService()
-            ->initCart()
-            ->getCart()
+        return $this->getCartSessionService()->getCart()
             ->getItems();
     }
 
@@ -992,9 +961,7 @@ class FrontendExtension extends \Twig_Extension
      */
     public function customerName()
     {
-        $cart = $this->getCartSessionService()
-            ->initCart()
-            ->getCart();
+        $cart = $this->getCartSessionService()->getCart();
 
         $customer = $cart->getCustomer();
 
@@ -1005,5 +972,13 @@ class FrontendExtension extends \Twig_Extension
         }
 
         return 'Guest';
+    }
+
+    /**
+     * @param $addressId
+     */
+    public function addressLabel($addressId)
+    {
+        return $this->getCartSessionService()->addressLabel($addressId);
     }
 }

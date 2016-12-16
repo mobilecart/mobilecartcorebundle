@@ -87,7 +87,7 @@ class AddShipment
         $this->setEvent($event);
         $returnData = $this->getReturnData();
 
-        $cartSession = $this->getCartSessionService()->initCart()->collectShippingMethods();
+        $cartSession = $this->getCartSessionService(); //->initCart()->collectShippingMethods();
         $cart = $cartSession->getCart();
         $cartId = $cart->getId();
 
@@ -118,27 +118,69 @@ class AddShipment
             $cart->setId($cartId);
         }
 
+        $success = 0;
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $code = $request->get('shipping_method', '');
-        $success = 0;
 
-        $cartSession = $this->getCartSessionService()
-            ->collectShippingMethods();
+        $code = $request->get('shipping_method', ''); // single shipping method
+        $codes = $request->get('shipping_methods', []); // array of shipping methods
 
-        $cart = $cartSession->getCart();
+        $recollect = $request->get('recollect', 0);
+        $addressId = $request->get('address_id', 'main');
 
-        if ($cart->hasShippingMethodCode($code)) {
+        if ($recollect) {
+            $cartSession->collectShippingMethods($addressId);
+            $cart = $cartSession->getCart();
+        }
 
-            $shipment = $cart->getShippingMethod($cart->findShippingMethodIdx('code', $code));
+        if (is_array($codes) && count($codes)) {
+            $cartItems = $cart->getItems();
+            foreach($codes as $anAddressId => $methodCode) {
+
+                if ($anAddressId != 'main' && !is_numeric($anAddressId)) {
+                    $anAddressId = (int) str_replace('address_', '', $anAddressId);
+                }
+
+                if ($cart->hasShippingMethodCode($methodCode, $anAddressId)) {
+
+                    $productIds = [];
+                    if ($cartItems) {
+                        foreach($cartItems as $item) {
+                            if ($item->get('customer_address_id') == $anAddressId) {
+                                $productIds[] = $item->getProductId();
+                            }
+                        }
+                    }
+
+                    $shipment = $cart->getShippingMethod($cart->findShippingMethodIdx('code', $methodCode, $anAddressId), $anAddressId);
+                    $cartSession
+                        ->removeShipments($anAddressId)
+                        ->addShipment($shipment, $anAddressId, $productIds);
+
+                    $success = 1;
+                }
+            }
+
+            if ($success) {
+                $cartSession->collectTotals();
+            }
+
+        } elseif ($cart->hasShippingMethodCode($code, $addressId)) {
+
+            $shipment = $cart->getShippingMethod($cart->findShippingMethodIdx('code', $code, $addressId));
+            $productIds = $cart->getProductIds();
 
             $cartSession
-                ->removeShipments()
-                ->addShipment($shipment)
+                ->removeShipments($addressId)
+                ->addShipment($shipment, $addressId, $productIds)
                 ->collectTotals();
 
-            $cart = $cartSession->getCart();
             $success = 1;
+        }
+
+        if ($success) {
+
+            $cart = $cartSession->getCart();
 
             // update db
             $cartEntity->setJson($cart->toJson());

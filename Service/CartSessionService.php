@@ -11,6 +11,7 @@
 
 namespace MobileCart\CoreBundle\Service;
 
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Shipping\Rate;
 use MobileCart\CoreBundle\CartComponent\Cart;
 use MobileCart\CoreBundle\CartComponent\Item;
@@ -148,6 +149,9 @@ class CartSessionService
      */
     public function getCart()
     {
+        if (!$this->session->get($this->getSessionKey(), false)) {
+            $this->setCart($this->getCartInstance());
+        }
         return $this->session->get($this->getSessionKey());
     }
 
@@ -235,7 +239,6 @@ class CartSessionService
      */
     public function setCurrency($currency)
     {
-        $this->initCart();
         $this->getCart()->setCurrency($currency);
         return $this;
     }
@@ -245,7 +248,6 @@ class CartSessionService
      */
     public function getCurrency()
     {
-        $this->initCart();
         return $this->getCart()->getCurrency();
     }
 
@@ -272,10 +274,17 @@ class CartSessionService
      */
     public function addItem($item, $qty = 1)
     {
-        $this->initCart();
         $item->setQty($qty);
         $this->getCart()->addItem($item);
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getItems()
+    {
+        return $this->getCart()->getItems();
     }
 
     /**
@@ -283,7 +292,7 @@ class CartSessionService
      */
     public function removeItems()
     {
-        $this->initCart()->getCart()->unsetItems();
+        $this->getCart()->unsetItems();
         $this->removeShipments(); // need to remove shipments if we dont have items
         return $this;
     }
@@ -293,7 +302,7 @@ class CartSessionService
      */
     public function hasItems()
     {
-        return $this->initCart()->getCart()->hasItems();
+        return $this->getCart()->hasItems();
     }
 
     /**
@@ -302,7 +311,7 @@ class CartSessionService
      */
     public function hasProductId($productId)
     {
-        return is_numeric($this->initCart()->getCart()->findItemIdx('product_id', $productId));
+        return is_numeric($this->getCart()->findItemIdx('product_id', $productId));
     }
 
     /**
@@ -311,7 +320,7 @@ class CartSessionService
      */
     public function hasSku($sku)
     {
-        return is_numeric($this->initCart()->getCart()->findItemIdx('sku', $sku));
+        return is_numeric($this->getCart()->findItemIdx('sku', $sku));
     }
 
     /**
@@ -346,7 +355,6 @@ class CartSessionService
      */
     public function getProductIds()
     {
-        $this->initCart();
         return $this->getCart()->getProductIds();
     }
 
@@ -356,7 +364,6 @@ class CartSessionService
      */
     public function removeProductId($productId)
     {
-        $this->initCart();
         $this->getCart()->removeProductId($productId);
         if (!$this->getCart()->hasItems()) {
             $this->removeShipments();
@@ -373,7 +380,6 @@ class CartSessionService
      */
     public function setProductQty($productId, $qty)
     {
-        $this->initCart();
         $this->getCart()->setProductQty($productId, $qty);
         if (!$this->getCart()->hasItems()) {
             $this->removeShipments();
@@ -390,7 +396,6 @@ class CartSessionService
      */
     public function addProductQty($productId, $qty)
     {
-        $this->initCart();
         $this->getCart()->addProductQty($productId, $qty);
         return $this;
     }
@@ -401,7 +406,6 @@ class CartSessionService
      */
     public function setCustomer(Customer $customer)
     {
-        $this->initCart();
         $this->getCart()->setCustomer($customer);
         return $this;
     }
@@ -411,8 +415,19 @@ class CartSessionService
      */
     public function getCustomer()
     {
-        $this->initCart();
         return $this->getCart()->getCustomer();
+    }
+
+    /**
+     * @return array
+     */
+    public function getCustomerAddresses()
+    {
+        if ($customer = $this->getCustomer() && is_array($this->getCustomer()->getAddresses())) {
+            return $this->getCustomer()->getAddresses();
+        }
+
+        return [];
     }
 
     /**
@@ -423,7 +438,15 @@ class CartSessionService
     {
         $customer = $this->getCustomerInstance();
         $customer->fromArray($entity->getBaseData());
-        return $this->setCustomer($customer);
+
+        if ($addresses = $entity->getAddresses()) {
+            foreach($addresses as $address) {
+                $customer->addAddress($address->getData());
+            }
+        }
+
+        $this->setCustomer($customer);
+        return $this;
     }
 
     /**
@@ -431,11 +454,19 @@ class CartSessionService
      */
     public function getCustomerId()
     {
-        $this->initCart();
         $customer = $this->getCart()->getCustomer();
         return ($customer instanceof Customer)
             ? $customer->getId()
             : 0;
+    }
+
+    /**
+     * @param string $addressId
+     * @return string
+     */
+    public function addressLabel($addressId='main')
+    {
+        return $this->getCart()->addressLabel($addressId);
     }
 
     /**
@@ -444,25 +475,51 @@ class CartSessionService
      *  and allows for multiple shipping methods to be used within the cart
      *
      * @param Shipment $shipment
+     * @param $addressId
+     * @param array $productIds
      * @return $this
      */
-    public function addShipment(Shipment $shipment)
+    public function addShipment(Shipment $shipment, $addressId='main', $productIds = [])
     {
-        $this->initCart();
+        if (!$addressId) {
+            $addressId = 'main';
+        }
+        $shipment->set('customer_address_id', $addressId);
+        $shipment->set('product_ids', $productIds);
         $this->getCart()->addShipment($shipment);
         return $this;
     }
 
     /**
+     * @return mixed
+     */
+    public function getShipments()
+    {
+        return $this->getCart()->getShipments();
+    }
+
+    /**
+     * @param $addressId
+     * @return bool
+     */
+    public function addressHasShipment($addressId)
+    {
+        return $this->getCart()->addressHasShipment($addressId);
+    }
+
+    /**
+     * @param $addressId
      * @return string
      */
-    public function getShipmentMethod()
+    public function getShipmentMethod($addressId='main')
     {
-        $this->initCart();
         $shipments = $this->getCart()->getShipments();
         if ($shipments) {
-            $shipment = $shipments[0];
-            return $shipment->getId();
+            foreach($shipments as $shipment) {
+                if ($shipment->get('customer_address_id') == $addressId) {
+                    $shipment->getId();
+                }
+            }
         }
 
         return '';
@@ -470,13 +527,14 @@ class CartSessionService
 
     /**
      * @param array $rates
+     * @param $addressId
      * @return $this
      */
-    public function addRates(array $rates = [])
+    public function addRates(array $rates = [], $addressId='main')
     {
         if ($rates) {
             foreach($rates as $code => $rate) {
-                $this->addRate($rate);
+                $this->addRate($rate, $addressId);
             }
         }
 
@@ -485,14 +543,21 @@ class CartSessionService
 
     /**
      * @param array $rates
+     * @param $addressId
      * @return $this
      */
-    public function setRates(array $rates = [])
+    public function setRates(array $rates = [], $addressId='main')
     {
-        $this->removeRates();
+        $this->removeRates($addressId);
+
+        if (!$addressId) {
+            $addressId = 'main';
+        }
+
         if ($rates) {
             foreach($rates as $code => $rate) {
-                $this->addRate($rate);
+                $rate->set('customer_address_id', $addressId);
+                $this->addRate($rate, $addressId);
             }
         }
 
@@ -500,24 +565,25 @@ class CartSessionService
     }
 
     /**
+     * @param $addressId
      * @return $this
      */
-    public function removeRates()
+    public function removeRates($addressId='main')
     {
-        $this->initCart();
-        $this->getCart()->unsetShippingMethods();
+        $this->getCart()->unsetShippingMethods($addressId);
         return $this;
     }
 
     /**
      * @param Rate $rate
+     * @param $addressId
      * @return $this
      */
-    public function addRate(Rate $rate)
+    public function addRate(Rate $rate, $addressId='main')
     {
         $shipment = $this->getShipmentInstance();
         $shipment->fromArray($rate->toArray());
-        $this->addShippingMethod($shipment);
+        $this->addShippingMethod($shipment, $addressId);
         return $this;
     }
 
@@ -528,41 +594,44 @@ class CartSessionService
      *  in order to avoid calculating possible shipping options on every page
      *
      * @param Shipment $shipment
+     * @param $addressId
      * @return $this
      */
-    public function addShippingMethod(Shipment $shipment)
+    public function addShippingMethod(Shipment $shipment, $addressId='main')
     {
-        $this->initCart();
-        $this->getCart()->addShippingMethod($shipment);
+        $this->getCart()->addShippingMethod($shipment, $addressId);
         return $this;
     }
 
     /**
+     * @param $addressId
      * @return array
      */
-    public function getShippingMethods()
+    public function getShippingMethods($addressId='main')
     {
-        $this->initCart();
-        return $this->getCart()->getShippingMethods();
+        return $this->getCart()->getShippingMethods($addressId);
     }
 
     /**
      * Empty both shipments and shipment options
      *
+     * @param $addressId
      * @return $this
      */
-    public function removeShipments()
+    public function removeShipments($addressId='main')
     {
-        $this->initCart()->getCart()->unsetShipments();
+        $this->getCart()->unsetShipments($addressId);
         return $this;
     }
 
     /**
+     *
+     * @param $addressId
      * @return $this
      */
-    public function removeShippingMethods()
+    public function removeShippingMethods($addressId='main')
     {
-        $this->initCart()->getCart()->unsetShippingMethods();
+        $this->getCart()->unsetShippingMethods($addressId);
         return $this;
     }
 
@@ -573,7 +642,7 @@ class CartSessionService
      */
     public function removeShipment($key, $isKey = true)
     {
-        $this->initCart()->getCart()->unsetShipment($key, $isKey);
+        $this->getCart()->unsetShipment($key, $isKey);
         return $this;
     }
 
@@ -582,7 +651,6 @@ class CartSessionService
      */
     public function collectTotals()
     {
-        $this->initCart();
         $totals = $this->getCartTotalService()
             ->setIsShippingEnabled($this->getShippingService()->getIsShippingEnabled())
             ->setIsTaxEnabled($this->getTaxService()->getIsTaxEnabled())
@@ -590,7 +658,7 @@ class CartSessionService
             ->collectTotals()
             ->getTotals();
 
-        $this->getCart()->setTotals($totals); // for saving state
+        $this->setTotals($totals); // for saving state
         return $this;
     }
 
@@ -600,7 +668,6 @@ class CartSessionService
      */
     public function setTotals(array $totals)
     {
-        $this->initCart();
         $this->getCart()->setTotals($totals); // for saving state
         return $this;
     }
@@ -610,56 +677,57 @@ class CartSessionService
      */
     public function getTotals()
     {
-        $this->initCart();
         return $this->getCart()->getTotals();
     }
 
     /**
+     * @param $addressId
      * @return $this
      */
-    public function collectShippingMethods()
+    public function collectShippingMethods($addressId='main')
     {
         if (!$this->getShippingService()->getIsShippingEnabled()) {
             return $this;
         }
 
-        $customer = $this->getCustomer();
+        $this->removeShipments($addressId)
+            ->removeShippingMethods($addressId);
 
-        // todo : in the future, use ConditionCompare
+        $customer = $this->getCustomer();
+        $postcode = $customer->getShippingPostcode();
+        $countryId = $customer->getShippingCountryId();
+        $region = $customer->getShippingRegion();
+
+        if (is_numeric($addressId)) {
+
+            $address = $this->get('cart.entity')->find(EntityConstants::CUSTOMER_ADDRESS, $addressId);
+            if ($address) {
+                $postcode = $address->getPostcode();
+                $countryId = $address->getCountryId();
+                $region = $address->getRegion();
+            }
+        }
 
         $request = new RateRequest();
         $request->fromArray([
             'to_array'    => 0,
             'include_all' => 0,
-            'postcode'    => $customer->getShippingPostcode(),
-            'country_id'  => $customer->getShippingCountryId(),
-            'region'      => $customer->getShippingRegion(),
+            'postcode'    => $postcode,
+            'country_id'  => $countryId,
+            'region'      => $region,
         ]);
 
         $rates = $this->getShippingService()->collectShippingRates($request);
-        $this->setRates($rates);
+        $this->setRates($rates, $addressId);
 
-        $shipments = $this->getCart()->getShipments();
-        $shipment = isset($shipments[0])
-            ? $shipments[0]
-            : false;
-
-        $code = ($shipment && $shipment->getCode())
-            ? $shipment->getCode()
-            : '';
-
-        if ($code && !$this->getCart()->hasShippingMethodCode($code)) {
-            $this->removeShipments();
-        }
-
-        if (!$this->getCart()->hasShipments()
-            && $this->getCart()->hasShippingMethods()
-            && $this->getCart()->hasItems()) {
-
-            $methods = $this->getCart()->getShippingMethods();
-            if ($methods) {
-                $this->addShipment($methods[0]);
-            }
+        if (!$this->addressHasShipment($addressId)
+            && count($rates)
+        ) {
+            $rates = array_values($rates);
+            $rate = $rates[0];
+            $shipment = new Shipment();
+            $shipment->fromArray($rate->getData());
+            $this->addShipment($shipment, $addressId, []);
         }
 
         return $this;
@@ -714,7 +782,6 @@ class CartSessionService
      */
     public function setPaymentMethodCodes(array $methodCodes)
     {
-        $this->initCart();
         $this->getCart()->setPaymentMethodCodes($methodCodes);
         return $this;
     }

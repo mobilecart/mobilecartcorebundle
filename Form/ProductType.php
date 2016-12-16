@@ -64,8 +64,28 @@ class ProductType extends AbstractType
                     new NotBlank(),
                 ],
             ])
-//            ->add('type', 'hidden')
-//            ->add('weight') // todo: add column to product model
+//            ->add('type', 'hidden') // type is handled in controller logic
+            ->add('weight', 'text', ['required' => 0])
+            ->add('weight_unit', 'choice', [
+                'required' => 0,
+                'choices' => [
+                    'lb' => 'LB',
+                    'oz' => 'Ounce',
+                    'kg' => 'Kilogram',
+                    'g' => 'Gram',
+                ]
+            ])
+            ->add('width', 'text', ['required' => 0])
+            ->add('height', 'text', ['required' => 0])
+            ->add('length', 'text', ['required' => 0])
+            ->add('measure_unit', 'choice', [
+                'required' => 0,
+                'choices' => [
+                    'in' => 'Inch',
+                    'm' => 'Meter',
+                    'mm' => 'Millimeter',
+                ]
+            ])
             ->add('qty', 'number', [
                 'required' => 1,
                 'constraints' => [
@@ -108,11 +128,12 @@ class ProductType extends AbstractType
         ;
 
         // todo : user setter/getter in this class, and pass values from a listener and service
+        /*
         $choices = \MobileCart\CoreBundle\Entity\Product::$stockTypes;
         $builder->add('stock_type', 'choice', [
             'choices'   => $choices,
             'required'  => false
-        ]);
+        ]); //*/
     }
 
     /**

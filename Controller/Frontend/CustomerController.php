@@ -307,7 +307,8 @@ class CustomerController extends Controller
             $event->setObjectType($this->objectType)
                 ->setEntity($entity)
                 ->setRequest($request)
-                ->setFormData($formData);
+                ->setFormData($formData)
+                ->setSection(CoreEvent::SECTION_FRONTEND);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CUSTOMER_UPDATE, $event);
@@ -320,7 +321,8 @@ class CustomerController extends Controller
             $event->setObjectType($this->objectType)
                 ->setReturnData(array_merge(['form' => $form->createView()], $nav->getReturnData()))
                 ->setEntity($entity)
-                ->setRequest($request);
+                ->setRequest($request)
+                ->setIsValid(1);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CUSTOMER_PROFILE_POST_RETURN, $event);
@@ -342,7 +344,9 @@ class CustomerController extends Controller
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($returnData);
+            ->setReturnData($returnData)
+            ->setIsValid(0)
+            ->setForm($form);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_PROFILE_RETURN, $event);

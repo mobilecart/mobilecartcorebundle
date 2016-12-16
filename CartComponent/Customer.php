@@ -97,4 +97,28 @@ class Customer extends ArrayWrapper
         $this->setShippingStreet($this->getBillingStreet());
         return $this;
     }
+
+    /**
+     * @param $address
+     * @return $this
+     */
+    public function addAddress($address)
+    {
+        if (!isset($this->data['addresses'])) {
+            $this->data['addresses'] = [];
+        }
+        $this->data['addresses'][] = $address;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAddresses()
+    {
+        if (!isset($this->data['addresses'])) {
+            $this->data['addresses'] = [];
+        }
+        return $this->data['addresses'];
+    }
 }

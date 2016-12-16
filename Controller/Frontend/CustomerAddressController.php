@@ -113,7 +113,8 @@ class CustomerAddressController extends Controller
             $event->setEntity($entity)
                 ->setCustomer($this->getUser())
                 ->setRequest($request)
-                ->setFormData($formData);
+                ->setFormData($formData)
+                ->setSection(CoreEvent::SECTION_FRONTEND);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CUSTOMER_ADDRESS_INSERT, $event);

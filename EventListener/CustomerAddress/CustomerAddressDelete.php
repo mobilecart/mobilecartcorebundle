@@ -2,6 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\CustomerAddress;
 
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
@@ -11,6 +12,8 @@ class CustomerAddressDelete
     protected $entityService;
 
     protected $event;
+
+    protected $cartSessionService;
 
     protected function setEvent($event)
     {
@@ -41,6 +44,17 @@ class CustomerAddressDelete
         return $this->entityService;
     }
 
+    public function setCartSessionService($cartSessionService)
+    {
+        $this->cartSessionService = $cartSessionService;
+        return $this;
+    }
+
+    public function getCartSessionService()
+    {
+        return $this->cartSessionService;
+    }
+
     public function onCustomerAddressDelete(Event $event)
     {
         $this->setEvent($event);
@@ -48,6 +62,13 @@ class CustomerAddressDelete
 
         $entity = $event->getEntity();
         $this->getEntityService()->remove($entity, EntityConstants::CUSTOMER);
+
+        if ($event->getSection() == CoreEvent::SECTION_FRONTEND) {
+            // update session info
+
+            $this->getCartSessionService()
+                ->setCustomerEntity($event->getCustomer());
+        }
 
         if ($entity && $event->getRequest()->getSession()) {
             $event->getRequest()->getSession()->getFlashBag()->add(

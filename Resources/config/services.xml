@@ -15,6 +15,7 @@
         <parameter key="cart.checkout.spa.enabled">1</parameter>
         <parameter key="cart.discount.enabled">1</parameter>
         <parameter key="cart.shipping.enabled">1</parameter>
+        <parameter key="cart.shipping.multi.enabled">1</parameter>
         <parameter key="cart.config.currency.base">USD</parameter>
         <parameter key="cart.load.currency">cart.currency</parameter>
         <parameter key="cart.load.admin">cart.search.doctrine</parameter>
@@ -141,6 +142,7 @@
         <parameter key="cart.listener.cart.remove.product.class">MobileCart\CoreBundle\EventListener\Cart\RemoveProduct</parameter>
         <parameter key="cart.listener.cart.remove.products.class">MobileCart\CoreBundle\EventListener\Cart\RemoveProducts</parameter>
         <parameter key="cart.listener.cart.add.shipment.class">MobileCart\CoreBundle\EventListener\Cart\AddShipment</parameter>
+        <parameter key="cart.listener.cart.update.multi.shipment.class">MobileCart\CoreBundle\EventListener\Cart\UpdateMultiShipment</parameter>
         <parameter key="cart.listener.cart.add.discount.class">MobileCart\CoreBundle\EventListener\Cart\AddDiscount</parameter>
         <parameter key="cart.listener.cart.total.item.class">MobileCart\CoreBundle\EventListener\Cart\ItemTotal</parameter>
         <parameter key="cart.listener.cart.total.shipping.class">MobileCart\CoreBundle\EventListener\Cart\ShipmentTotal</parameter>
@@ -633,6 +635,9 @@
         <service id="cart.shipping" lazy="true" class="%cart.shipping.class%">
             <call method="setIsShippingEnabled">
                 <argument type="string">%cart.shipping.enabled%</argument>
+            </call>
+            <call method="setIsMultiShippingEnabled">
+                <argument type="string">%cart.shipping.multi.enabled%</argument>
             </call>
             <call method="setEventDispatcher">
                 <argument type="service" id="event_dispatcher" />
@@ -1385,6 +1390,9 @@
             <call method="setCartSessionService">
                 <argument type="service" id="cart.session" />
             </call>
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
         </service>
 
         <!-- Event Listener: Remove all Products from Cart : from a User Session, not for APIs -->
@@ -1404,6 +1412,17 @@
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
+            <call method="setCartSessionService">
+                <argument type="service" id="cart.session" />
+            </call>
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Update the address IDs where each item in the cart is shipping to -->
+        <service id="cart.listener.cart.update.multi.shipment" lazy="true" class="%cart.listener.cart.update.multi.shipment.class%">
+            <tag name="kernel.event_listener" event="cart.update.multi.shipment" method="onCartUpdateMultiShipment" priority="50" />
             <call method="setCartSessionService">
                 <argument type="service" id="cart.session" />
             </call>
@@ -2012,6 +2031,9 @@
             <call method="setThemeService">
                 <argument type="service" id="cart.theme" />
             </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
         </service>
 
         <!-- Event Listener: Return data after Customer Account/Profile data is posted -->
@@ -2115,6 +2137,9 @@
             <call method="setSecurityPasswordEncoder">
                 <argument type="service" id="security.password_encoder" />
             </call>
+            <call method="setCartSessionService">
+                <argument type="service" id="cart.session" />
+            </call>
         </service>
 
         <service id="cart.listener.customer.delete" lazy="true" class="%cart.listener.customer.delete.class%">
@@ -2167,17 +2192,26 @@
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>
+            <call method="setCartSessionService">
+                <argument type="service" id="cart.session" />
+            </call>
         </service>
         <service id="cart.listener.customer_address.update" lazy="true" class="%cart.listener.customer_address.update.class%">
             <tag name="kernel.event_listener" event="customer_address.update" method="onCustomerAddressUpdate" priority="50" />
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>
+            <call method="setCartSessionService">
+                <argument type="service" id="cart.session" />
+            </call>
         </service>
         <service id="cart.listener.customer_address.delete" lazy="true" class="%cart.listener.customer_address.delete.class%">
             <tag name="kernel.event_listener" event="customer_address.delete" method="onCustomerAddressDelete" priority="50" />
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setCartSessionService">
+                <argument type="service" id="cart.session" />
             </call>
         </service>
         <service id="cart.listener.customer_address.create.return" lazy="true" class="%cart.listener.customer_address.create.return.class%">

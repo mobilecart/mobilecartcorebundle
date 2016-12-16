@@ -25,6 +25,11 @@ class ShippingService
     protected $isShippingEnabled = true;
 
     /**
+     * @var bool
+     */
+    protected $is_multi_shipping_enabled = false;
+
+    /**
      * @var mixed
      */
     protected $eventDispatcher;
@@ -56,6 +61,24 @@ class ShippingService
     public function getIsShippingEnabled()
     {
         return $this->isShippingEnabled;
+    }
+
+    /**
+     * @param $isEnabled
+     * @return $this
+     */
+    public function setIsMultiShippingEnabled($isEnabled)
+    {
+        $this->is_multi_shipping_enabled = $isEnabled;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsMultiShippingEnabled()
+    {
+        return $this->is_multi_shipping_enabled;
     }
 
     /**

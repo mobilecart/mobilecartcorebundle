@@ -143,11 +143,6 @@ class ShippingMethodController extends Controller
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::SHIPPING_METHOD_INSERT, $event);
 
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Shipping Method Successfully Created!'
-            );
-
             $returnEvent = new CoreEvent();
             $returnEvent->setMessages($event->getMessages());
             $returnEvent->setRequest($request);

@@ -6,6 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class CustomerProfileType extends AbstractType
 {
@@ -37,7 +38,12 @@ class CustomerProfileType extends AbstractType
         $builder
             ->add('first_name')
             ->add('last_name')
-            ->add('email')
+            ->add('email', 'text', [
+                'required' => 1,
+                'constraints' => [
+                    new NotBlank(),
+                ],
+            ])
             ->add('billing_name')
             ->add('billing_company')
             ->add('billing_phone')

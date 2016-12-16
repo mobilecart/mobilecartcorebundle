@@ -2,6 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\CustomerAddress;
 
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\EventDispatcher\Event;
 
 class CustomerAddressInsert
@@ -9,6 +10,8 @@ class CustomerAddressInsert
     protected $entityService;
 
     protected $event;
+
+    protected $cartSessionService;
 
     protected function setEvent($event)
     {
@@ -39,6 +42,17 @@ class CustomerAddressInsert
         return $this->entityService;
     }
 
+    public function setCartSessionService($cartSessionService)
+    {
+        $this->cartSessionService = $cartSessionService;
+        return $this;
+    }
+
+    public function getCartSessionService()
+    {
+        return $this->cartSessionService;
+    }
+
     public function onCustomerAddressInsert(Event $event)
     {
         $this->setEvent($event);
@@ -50,6 +64,13 @@ class CustomerAddressInsert
         $entity->setCustomer($event->getCustomer());
 
         $this->getEntityService()->persist($entity);
+
+        if ($event->getSection() == CoreEvent::SECTION_FRONTEND) {
+            // update session info
+
+            $this->getCartSessionService()
+                ->setCustomerEntity($event->getCustomer());
+        }
 
         if ($entity && $request->getSession()) {
             $request->getSession()->getFlashBag()->add(

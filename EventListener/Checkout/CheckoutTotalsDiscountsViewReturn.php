@@ -2,6 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Component\EventDispatcher\Event;
 
 class CheckoutTotalsDiscountsViewReturn
@@ -125,11 +126,43 @@ class CheckoutTotalsDiscountsViewReturn
             ->getShippingService()
             ->getIsShippingEnabled();
 
-        if (!$this->getCartSession()->getCartService()->getIsSpaEnabled() && !$request->get('reload', 0)) {
+        if (!$this->getCartSession()->getCartService()->getIsSpaEnabled()
+            && !$request->get('reload', 0)
+        ) {
             $this->setDefaultTemplate('Checkout:totals_discounts_full.html.twig');
             $returnData['section'] = $event->getSingleStep();
             $returnData['step_number'] = $event->getStepNumber();
         }
+
+        $addressOptions = [];
+        if ($this->getCartSession()->getCustomer()->getId()) {
+            $customer = $this->getCartSession()->getCustomer();
+
+            $addresses = $this->getEntityService()->findBy(EntityConstants::CUSTOMER_ADDRESS, [
+                'customer' => $customer->getId()
+            ]);
+
+            if ($addresses) {
+
+                if (strlen($customer->getStreet()) > 2) {
+                    $label = "{$customer->getStreet()} {$customer->getCity()}, {$customer->getRegion()}";
+                    $addressOptions[] = [
+                        'value' => 'main',
+                        'label' => $label,
+                    ];
+                }
+
+                foreach($addresses as $address) {
+                    $label = "{$address->getStreet()} {$address->getCity()}, {$address->getRegion()}";
+                    $addressOptions[] = [
+                        'value' => $address->getId(),
+                        'label' => $label,
+                    ];
+                }
+            }
+        }
+
+        $returnData['addresses'] = $addressOptions;
 
         $response = $this->getThemeService()
             ->render($this->getLayout(), $this->getTemplate(), $returnData);
