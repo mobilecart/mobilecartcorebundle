@@ -115,6 +115,7 @@ class FrontendExtension extends \Twig_Extension
             'subcategoryList' => new \Twig_Function_Method($this, 'subcategoryList', array('is_safe' => array('html'))),
             'customerName' => new \Twig_Function_Method($this, 'customerName', array('is_safe' => array('html'))),
             'addressLabel' => new \Twig_Function_Method($this, 'addressLabel', array('is_safe' => array('html'))),
+            'customerAddresses' => new \Twig_Function_Method($this, 'customerAddresses', array('is_safe' => array('html'))),
         ];
     }
 
@@ -980,5 +981,13 @@ class FrontendExtension extends \Twig_Extension
     public function addressLabel($addressId)
     {
         return $this->getCartSessionService()->addressLabel($addressId);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function customerAddresses()
+    {
+        return $this->getCartSessionService()->getCustomerAddresses();
     }
 }

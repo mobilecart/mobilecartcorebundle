@@ -1060,6 +1060,7 @@ class Customer
     {
         $this->setIsShippingSame(1);
         $this->setShippingName($this->getBillingName());
+        $this->setShippingCompany($this->getBillingCompany());
         $this->setShippingPhone($this->getBillingPhone());
         $this->setShippingStreet($this->getBillingStreet());
         $this->setShippingCity($this->getBillingCity());

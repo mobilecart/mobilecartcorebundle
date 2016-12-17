@@ -11,6 +11,7 @@
 
 namespace MobileCart\CoreBundle\Service;
 
+use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Shipping\Rate;
 use MobileCart\CoreBundle\CartComponent\Cart;
@@ -419,12 +420,51 @@ class CartSessionService
     }
 
     /**
+     * @param $includeMain
      * @return array
      */
-    public function getCustomerAddresses()
+    public function getCustomerAddresses($includeMain=true)
     {
-        if ($customer = $this->getCustomer() && is_array($this->getCustomer()->getAddresses())) {
-            return $this->getCustomer()->getAddresses();
+        $customer = $this->getCustomer();
+        if ($customer->getId() && is_array($this->getCustomer()->getAddresses())) {
+
+            $addresses = $this->getCustomer()->getAddresses();
+
+            if ($addresses) {
+                foreach($addresses as $k => $v) {
+
+                    if ($v instanceof \stdClass) {
+                        $v = get_object_vars($v);
+                    }
+
+                    if (is_object($v)) {
+                        $v = $v->getData();
+                    }
+
+                    $v['label'] = $v['street'] . ' ' . $v['city'] . ', ' . $v['region'];
+                    $addresses[$k] = new ArrayWrapper($v);
+                }
+            }
+
+            if ($includeMain) {
+
+                $mainAddress = new ArrayWrapper();
+                $mainAddress->fromArray([
+                    'id' => 'main',
+                    'label' => "{$customer->getShippingStreet()} {$customer->getShippingCity()}, {$customer->getShippingRegion()}",
+                    'name' => $customer->getShippingName(),
+                    'company' => $customer->getShippingCompany(),
+                    'street' => $customer->getShippingStreet(),
+                    'city' => $customer->getShippingCity(),
+                    'region' => $customer->getShippingRegion(),
+                    'postcode' => $customer->getShippingPostcode(),
+                    'country_id' => $customer->getShippingCountryId(),
+                    'phone' => $customer->getShippingPhone(),
+                ]);
+                $addresses[] = $mainAddress;
+            }
+
+            return $addresses;
         }
 
         return [];
@@ -437,7 +477,7 @@ class CartSessionService
     public function setCustomerEntity($entity)
     {
         $customer = $this->getCustomerInstance();
-        $customer->fromArray($entity->getBaseData());
+        $customer->fromArray($entity->getData());
 
         if ($addresses = $entity->getAddresses()) {
             foreach($addresses as $address) {
@@ -698,13 +738,23 @@ class CartSessionService
         $countryId = $customer->getShippingCountryId();
         $region = $customer->getShippingRegion();
 
-        if (is_numeric($addressId)) {
+        if (is_numeric($addressId) && $customer->getAddresses()) {
+            foreach($customer->getAddresses() as $address) {
+                if ($address->getId() == $addressId) {
+                    $postcode = $address->getPostcode();
+                    $countryId = $address->getCountryId();
+                    $region = $address->getRegion();
+                    break;
+                }
+            }
+        }
 
-            $address = $this->get('cart.entity')->find(EntityConstants::CUSTOMER_ADDRESS, $addressId);
-            if ($address) {
-                $postcode = $address->getPostcode();
-                $countryId = $address->getCountryId();
-                $region = $address->getRegion();
+        $cartItems = [];
+        if ($this->hasItems()) {
+            foreach($this->getItems() as $item) {
+                if ($item->get('customer_address_id') == $addressId) {
+                    $cartItems[] = $item;
+                }
             }
         }
 
@@ -715,6 +765,7 @@ class CartSessionService
             'postcode'    => $postcode,
             'country_id'  => $countryId,
             'region'      => $region,
+            'cart_items'  => $cartItems,
         ]);
 
         $rates = $this->getShippingService()->collectShippingRates($request);

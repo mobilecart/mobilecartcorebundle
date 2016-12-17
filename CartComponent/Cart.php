@@ -525,7 +525,7 @@ class Cart extends ArrayWrapper
      */
     public function getShippingMethods($addressId='main')
     {
-        if (!$addressId) {
+        if ($addressId == '') {
 
             if (!isset($this->data['shipping_methods'])
                 || !is_array($this->data['shipping_methods'])

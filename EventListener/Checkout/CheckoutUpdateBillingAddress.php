@@ -226,7 +226,7 @@ class CheckoutUpdateBillingAddress
 
             $cart = $this->getCheckoutSessionService()
                 ->getCartSessionService()
-                ->collectShippingMethods()
+                //->collectShippingMethods('') // avoid collecting shipping methods unless cart changes or shipping info changes
                 ->collectTotals()
                 ->getCart();
 

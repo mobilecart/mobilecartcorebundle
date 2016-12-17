@@ -203,7 +203,11 @@ class CheckoutForm
             }
             foreach($sections[$section]['fields'] as $field) {
                 if ($customerValue = $customer->get($field)) {
-                    $form->get($section)->get($field)->setData($customerValue);
+                    if ($field == 'is_shipping_same') { // must be a new "feature" in Symfony? It won't take my '1' anymore?
+                        $form->get($section)->get($field)->setData((bool) $customerValue);
+                    } else {
+                        $form->get($section)->get($field)->setData($customerValue);
+                    }
                 }
             }
         }

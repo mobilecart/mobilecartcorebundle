@@ -106,7 +106,26 @@ class CheckoutUpdateShippingAddress
 
         $requestData = $request->request->all();
 
-        // todo : check is_shipping_same, copy values
+        // check is_shipping_same, copy values
+        if (isset($requestData['is_shipping_same']) && $requestData['is_shipping_same']) {
+            foreach($requestData as $k => $v) {
+                if (substr($k, 0, 8) == 'billing_') {
+                    $sk = str_replace('billing_', 'shipping_', $k);
+                    if (array_key_exists($sk, $requestData)) {
+                        $requestData[$sk] = $v;
+                    }
+                }
+            }
+        }
+
+        $sameInfo = true;
+        foreach($cartCustomer->getData() as $k => $v) {
+            if (array_key_exists($k, $requestData) && $requestData[$k] != $v) {
+                $sameInfo = false;
+            }
+        }
+
+        $event->setIsSame($sameInfo);
 
         $form->submit($requestData);
         $isValid = $form->isValid();
@@ -141,36 +160,27 @@ class CheckoutUpdateShippingAddress
                     'is_locked',
                     'password_updated_at',
                     'is_password_expired',
+                    'email',
                 ])) {
                     continue;
                 }
 
                 $value = $formData->get($childKey);
 
-                if ($entity->getId()) {
-                    switch($childKey) {
-                        case 'email':
-                            // no-op
-                            break;
-                        default:
-                            $cartCustomer->set($childKey, $value);
-                            $customerData[$childKey] = $value;
-                            break;
-                    }
+                if ($customerEntity) {
+                    $customerEntity->set($childKey, $value);
                 } else {
                     $cartCustomer->set($childKey, $value);
-                    $customerData[$childKey] = $value;
-                    if ($customerEntity->getId()) {
-                        $customerEntity->set($childKey, $value);
-                    }
                 }
             }
 
-            if ($customerEntity->getId()) {
+            if ($customerEntity) {
                 try {
                     $this->getEntityService()->persist($customerEntity);
+                    $this->getCheckoutSessionService()->getCartSessionService()->setCustomerEntity($customerEntity);
                 } catch(\Exception $e) { }
             }
+
         } else {
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();

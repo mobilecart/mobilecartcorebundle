@@ -146,7 +146,6 @@ class CheckoutPaymentMethodsViewReturn
         $request = $event->getRequest();
 
         $cart = $this->getCartSession()
-            ->collectShippingMethods()
             ->collectTotals()
             ->getCart();
 

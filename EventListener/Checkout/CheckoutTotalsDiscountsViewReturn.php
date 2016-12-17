@@ -118,13 +118,16 @@ class CheckoutTotalsDiscountsViewReturn
         $request = $event->getRequest();
 
         $returnData['cart'] = $this->getCartSession()
-            ->collectShippingMethods()
             ->collectTotals()
             ->getCart();
 
         $returnData['is_shipping_enabled'] = $this->getCartSession()
             ->getShippingService()
             ->getIsShippingEnabled();
+
+        $returnData['is_multi_shipping_enabled'] = $this->getCartSession()
+            ->getShippingService()
+            ->getIsMultiShippingEnabled();
 
         if (!$this->getCartSession()->getCartService()->getIsSpaEnabled()
             && !$request->get('reload', 0)

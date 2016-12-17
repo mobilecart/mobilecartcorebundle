@@ -84,51 +84,6 @@ class OrderType extends AbstractType
                     new NotBlank(),
                 ],
             ])
-            ->add('is_shipping_same', 'checkbox', [
-                'required' => 0,
-            ])
-            ->add('shipping_name', 'text', [
-                'required' => 0,
-                'attr' => [
-                    'class' => 'shipping-input'
-                ],
-            ])
-            ->add('shipping_phone', 'text', [
-                'attr' => [
-                    'class' => 'shipping-input',
-                ]
-            ])
-            ->add('shipping_street', 'text', [
-                'required' => 0,
-                'attr' => [
-                    'class' => 'shipping-input'
-                ],
-            ])
-            ->add('shipping_city', 'text', [
-                'required' => 0,
-                'attr' => [
-                    'class' => 'shipping-input'
-                ],
-            ])
-            ->add('shipping_region', 'text', [
-                'required' => 0,
-                'attr' => [
-                    'class' => 'shipping-input region-input'
-                ],
-            ])
-            ->add('shipping_postcode', 'text', [
-                'required' => 0,
-                'attr' => [
-                    'class' => 'shipping-input'
-                ],
-            ])
-            ->add('shipping_country_id', 'choice', [
-                'required' => 0,
-                'choices' => $this->getCountries(),
-                'attr' => [
-                    'class' => 'shipping-input country-input',
-                ],
-            ])
         ;
     }
 

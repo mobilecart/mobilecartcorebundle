@@ -170,6 +170,11 @@ class OrderService
     protected $refund;
 
     /**
+     * @var array
+     */
+    protected $addressShipments = []; // r[address_id] = shipment->getId()
+
+    /**
      * @param $eventDispatcher
      * @return $this
      */
@@ -963,15 +968,7 @@ class OrderService
                 ->setBillingCity($cartCustomer->getBillingCity())
                 ->setBillingRegion($cartCustomer->getBillingRegion())
                 ->setBillingPostcode($cartCustomer->getBillingPostcode())
-                ->setBillingCountryId($cartCustomer->getBillingCountryId())
-                ->setShippingName($cartCustomer->getShippingName())
-                ->setShippingPhone($cartCustomer->getShippingPhone())
-                ->setShippingStreet($cartCustomer->getShippingStreet())
-                ->setShippingCity($cartCustomer->getShippingCity())
-                ->setShippingRegion($cartCustomer->getShippingRegion())
-                ->setShippingPostcode($cartCustomer->getShippingPostcode())
-                ->setShippingCountryId($cartCustomer->getShippingCountryId())
-                ;
+                ->setBillingCountryId($cartCustomer->getBillingCountryId());
         }
 
         $order->setJson($cart->toJson());
@@ -1095,6 +1092,14 @@ class OrderService
                     $orderItem->setCost($currencyService->convert($orderItem->getCost(), $currency, $baseCurrency));
                 }
 
+                if ($item->get('customer_address_id')) {
+                    $addressId = $item->get('customer_address_id');
+                    if (isset($this->addressShipments[$addressId])) {
+                        $shipment = $this->addressShipments[$addressId];
+                        $orderItem->setShipment($shipment);
+                    }
+                }
+
                 $this->getEntityService()->persist($orderItem);
 
                 $product = $this->getEntityService()->find(EntityConstants::PRODUCT, $item->getProductId());
@@ -1137,6 +1142,9 @@ class OrderService
             $currency = $baseCurrency;
         }
 
+        $customer = $this->getCart()->getCustomer();
+        $addresses = $customer->getAddresses();
+
         if ($this->getCart()->hasShipments()) {
             foreach($this->getCart()->getShipments() as $shipment) {
 
@@ -1155,6 +1163,48 @@ class OrderService
                 $orderShipment->fromArray($data);
                 $orderShipment->setOrder($this->getOrder());
 
+                $addressId = $shipment->get('customer_address_id', 'main');
+
+                if ($addressId == 'main') {
+
+                    $orderShipment->setName($customer->getShippingName())
+                        ->setCompanyName($customer->getShippingCompany())
+                        ->setStreet($customer->getShippingStreet())
+                        ->setCity($customer->getShippingCity())
+                        ->setRegion($customer->getShippingRegion())
+                        ->setPostcode($customer->getShippingPostcode())
+                        ->setCountryId($customer->getShippingCountryId())
+                        ->setPhone($customer->getShippingPhone());
+
+                } elseif ($addresses) {
+                    foreach($addresses as $address) {
+
+                        if (is_array($address)) {
+                            $address = new ArrayWrapper($address);
+                        }
+
+                        if ($address->getId() == $addressId) {
+
+                            if ($address instanceof \stdClass) {
+                                $address = get_object_vars($address);
+                            }
+
+                            if (is_array($address)) {
+                                $address = new ArrayWrapper($address);
+                            }
+
+                            $orderShipment->setName($address->getName())
+                                ->setCompanyName($address->getCompany())
+                                ->setStreet($address->getStreet())
+                                ->setCity($address->getCity())
+                                ->setRegion($address->getRegion())
+                                ->setPostcode($address->getPostcode())
+                                ->setCountryId($address->getCountryId())
+                                ->setPhone($address->getPhone());
+                        }
+                    }
+                }
+
                 $orderShipment->setBasePrice($shipment->getPrice());
                 $orderShipment->setBaseCost($shipment->getCost());
                 $orderShipment->setBaseCurrency($baseCurrency);
@@ -1171,12 +1221,12 @@ class OrderService
 
                 $orderShipment->setCreatedAt(new \DateTime('now'));
 
-                // todo: populate more of the address info
-                if ($shipment->getCustomerAddressId()) {
-
-                }
-
                 $this->getEntityService()->persist($orderShipment);
+
+                if ($shipment->getCustomerAddressId()) {
+                    $addressId = $shipment->getCustomerAddressId();
+                    $this->addressShipments[$addressId] = $orderShipment;
+                }
             }
         }
 

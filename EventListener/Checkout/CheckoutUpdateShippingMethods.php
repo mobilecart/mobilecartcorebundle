@@ -76,32 +76,13 @@ class CheckoutUpdateShippingMethods
 
         $this->setEvent($event);
         $returnData = $this->getReturnData();
-
-        //$request = $event->getRequest();
-        //$formType = $event->getForm();
-        //$entity = $event->getEntity();
-
         $checkoutSession = $this->getCheckoutSessionService();
 
-        $cartCustomer = $checkoutSession->getCartSessionService()->getCustomer();
-
-        if ($checkoutSession->getIsValidShippingAddress()) {
-
-            $rateRequest = new RateRequest();
-            $rateRequest->setRegion($cartCustomer->getShippingRegion())
-                ->setPostcode($cartCustomer->getShippingPostcode())
-                ->setCountryId($cartCustomer->getShippingCountryId());
-
-            $shippingRates = $this->getShippingService()->collectShippingRates($rateRequest);
-
-            $checkoutSession->getCartSessionService()
-                ->setRates($shippingRates);
-
-            // add rates to response
-            $returnData['shipping_rates'] = $shippingRates;
-
-            // todo: ensure a valid shipping method is set
-
+        if (!$event->getIsSame()
+            && $checkoutSession->getIsValidShippingAddress()
+        ) {
+            // only updating the main address
+            $this->getCheckoutSessionService()->getCartSessionService()->collectShippingMethods('main');
             $event->setReturnData($returnData);
         }
 

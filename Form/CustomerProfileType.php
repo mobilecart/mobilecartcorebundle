@@ -44,39 +44,79 @@ class CustomerProfileType extends AbstractType
                     new NotBlank(),
                 ],
             ])
-            ->add('billing_name')
-            ->add('billing_company')
-            ->add('billing_phone')
-            ->add('billing_street')
-            ->add('billing_city')
+            ->add('billing_name', 'text', [
+                'attr' => [
+                    'class' => 'billing-input',
+                ]
+            ])
+            ->add('billing_company', 'text', [
+                'attr' => [
+                    'class' => 'billing-input',
+                ]
+            ])
+            ->add('billing_phone', 'text', [
+                'attr' => [
+                    'class' => 'billing-input',
+                ]
+            ])
+            ->add('billing_street', 'text', [
+                'attr' => [
+                    'class' => 'billing-input',
+                ]
+            ])
+            ->add('billing_city', 'text', [
+                'attr' => [
+                    'class' => 'billing-input',
+                ]
+            ])
             ->add('billing_region', 'text', [
                 'attr' => [
-                    'class' => 'region-input',
+                    'class' => 'region-input billing-input',
                 ],
             ])
             ->add('billing_postcode')
             ->add('billing_country_id', 'choice', [
                 'choices' => $this->getCountries(),
                 'attr' => [
-                    'class' => 'country-input',
+                    'class' => 'country-input billing-input',
                 ],
             ])
             ->add('is_shipping_same')
-            ->add('shipping_name')
-            ->add('shipping_company')
-            ->add('shipping_phone')
+            ->add('shipping_name', 'text', [
+                'attr' => [
+                    'class' => 'shipping-input',
+                ]
+            ])
+            ->add('shipping_company', 'text', [
+                'attr' => [
+                    'class' => 'shipping-input',
+                ]
+            ])
+            ->add('shipping_phone', 'text', [
+                'attr' => [
+                    'class' => 'shipping-input',
+                ]
+            ])
             ->add('shipping_street')
-            ->add('shipping_city')
+            ->add('shipping_city', 'text', [
+                'attr' => [
+                    'class' => 'shipping-input',
+                ]
+            ])
             ->add('shipping_region', 'text', [
                 'attr' => [
-                    'class' => 'region-input',
+                    'class' => 'region-input shipping-input',
                 ],
             ])
-            ->add('shipping_postcode')
+            ->add('shipping_postcode', 'text', [
+                'attr' => [
+                    'class' => 'shipping-input',
+                ]
+            ])
             ->add('shipping_country_id', 'choice', [
                 'choices' => $this->getCountries(),
                 'attr' => [
-                    'class' => 'country-input',
+                    'class' => 'country-input shipping-input',
                 ],
             ])
             ->add('password', RepeatedType::class, array(

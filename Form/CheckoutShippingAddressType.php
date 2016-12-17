@@ -28,40 +28,49 @@ class CheckoutShippingAddressType extends AbstractType
         $builder
             ->add('is_shipping_same', 'checkbox', [
                 'required' => 0,
-                'label' => 'shipping.same'
+                'label' => 'shipping.same',
+                'mapped' => false,
             ])
             ->add('shipping_name', 'text', [
                 'attr' => ['class' => 'shipping-input'],
                 'label' => 'shipping.name',
+                'mapped' => false,
             ])
             ->add('shipping_company', 'text', [
                 'attr' => ['class' => 'shipping-input'],
                 'label' => 'shipping.company',
+                'mapped' => false,
             ])
             ->add('shipping_street', 'text', [
                 'attr' => ['class' => 'shipping-input'],
                 'label' => 'shipping.street',
+                'mapped' => false,
             ])
             ->add('shipping_city', 'text', [
                 'attr' => ['class' => 'shipping-input'],
                 'label' => 'shipping.city',
+                'mapped' => false,
             ])
             ->add('shipping_region', 'text', [
                 'attr' => ['class' => 'shipping-input region-input'],
                 'label' => 'shipping.region',
+                'mapped' => false,
             ])
             ->add('shipping_postcode', 'text', [
                 'attr' => ['class' => 'shipping-input'],
                 'label' => 'shipping.postcode',
+                'mapped' => false,
             ])
             ->add('shipping_country_id', 'choice', [
                 'attr' => ['class' => 'shipping-input country-input'],
                 'label' => 'shipping.country',
                 'choices' => $this->getCountries(),
+                'mapped' => false,
             ])
             ->add('shipping_phone', 'text', [
                 'attr' => ['class' => 'shipping-input'],
                 'label' => 'shipping.phone',
+                'mapped' => false,
             ])
         ;
     }

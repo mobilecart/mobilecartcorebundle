@@ -116,7 +116,6 @@ class CheckoutConfirmOrder
         $returnData = $this->getReturnData();
 
         $cart = $this->getCartSession()
-            ->collectShippingMethods()
             ->collectTotals()
             ->getCart();
 

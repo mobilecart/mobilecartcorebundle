@@ -133,7 +133,7 @@ class CheckoutViewReturn
         $returnData = $this->getReturnData();
 
         $cart = $this->getCartSession()
-            ->collectShippingMethods()
+            //->collectShippingMethods() // avoid collecting shipping methods unless the cart changes or the shipping address changes
             ->collectTotals()
             ->getCart();
 
@@ -155,6 +155,10 @@ class CheckoutViewReturn
             $returnData['is_shipping_enabled'] = $this->getCartSession()
                 ->getShippingService()
                 ->getIsShippingEnabled();
+
+            $returnData['is_multi_shipping_enabled'] = $this->getCartSession()
+                ->getShippingService()
+                ->getIsMultiShippingEnabled();
 
             $returnData['totals_discounts_url'] = $this->getRouter()
                 ->generate('cart_checkout_totals_discounts', []);
