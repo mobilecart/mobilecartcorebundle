@@ -15,7 +15,7 @@
         <parameter key="cart.checkout.spa.enabled">1</parameter>
         <parameter key="cart.discount.enabled">1</parameter>
         <parameter key="cart.shipping.enabled">1</parameter>
-        <parameter key="cart.shipping.multi.enabled">1</parameter>
+        <parameter key="cart.shipping.multi.enabled">0</parameter>
         <parameter key="cart.config.currency.base">USD</parameter>
         <parameter key="cart.load.currency">cart.currency</parameter>
         <parameter key="cart.load.admin">cart.search.doctrine</parameter>
@@ -117,7 +117,6 @@
         <parameter key="cart.listener.logout.class">MobileCart\CoreBundle\EventListener\Security\Logout</parameter>
         <parameter key="cart.listener.checkout.form.billing.address.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutBillingAddressForm</parameter>
         <parameter key="cart.listener.checkout.form.shipping.address.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutShippingAddressForm</parameter>
-        <parameter key="cart.listener.checkout.form.shipping.methods.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutShippingMethodForm</parameter>
         <parameter key="cart.listener.checkout.form.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutForm</parameter>
         <parameter key="cart.listener.checkout.form.payment_methods.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutPaymentMethods</parameter>
         <parameter key="cart.listener.checkout.payment.methods.view.return.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutPaymentMethodsViewReturn</parameter>
