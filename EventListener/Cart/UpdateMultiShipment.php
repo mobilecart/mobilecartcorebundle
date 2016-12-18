@@ -79,6 +79,18 @@ class UpdateMultiShipment
 
         if ($addressProductIds) {
 
+            // take note of previous selections, and set them as default after the new rates are ready
+            $shipments = $this->getCartSessionService()->getShipments();
+            $defaults = []; // r[address_id] = shipping_method_code
+            if ($shipments) {
+                foreach($shipments as $shipment) {
+                    if ($shipment->get('customer_address_id', '')) {
+                        $customerAddressId = $shipment->get('customer_address_id', '');
+                        $defaults[$customerAddressId] = $shipment->getCode();
+                    }
+                }
+            }
+
             $this->getCartSessionService()
                 ->removeShipments('')
                 ->removeShippingMethods('');
@@ -153,6 +165,15 @@ class UpdateMultiShipment
                 $this->getCartSessionService()->setRates($rates, $addressId);
                 if ($rates) {
                     $rate = $rates[0];
+                    if (isset($defaults[$addressId])) {
+                        $code = $defaults[$addressId];
+                        foreach($rates as $aRate) {
+                            if ($aRate->getCode() == $code) {
+                                $rate = $aRate;
+                                break;
+                            }
+                        }
+                    }
                     $shipment = new Shipment();
                     $shipment->fromArray($rate->getData());
                     if (!$this->getCartSessionService()->addressHasShipment($addressId)) {

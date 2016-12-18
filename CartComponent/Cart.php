@@ -1083,9 +1083,14 @@ class Cart extends ArrayWrapper
     public function unsetShippingMethods($addressId='')
     {
         if ($addressId) {
+
+            if ($addressId != 'main' && is_numeric($addressId)) {
+                $addressId = 'address_' . $addressId;
+            }
+
             if ($this->hasShippingMethods()) {
                 foreach($this->getShippingMethods() as $anAddressId => $methods) {
-                    if (!$methods || $addressId != $anAddressId) {
+                    if (!$methods || $addressId != $anAddressId || !isset($this->data['shipping_methods'][$addressId])) {
                         continue;
                     }
                     $this->data['shipping_methods'][$addressId] = [];
