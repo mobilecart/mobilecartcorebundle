@@ -1,0 +1,160 @@
+<?php
+
+namespace MobileCart\CoreBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use MobileCart\CoreBundle\Constants\EntityConstants;
+
+/**
+ * MobileCart\CoreBundle\Entity\ProductTierPrice
+ *
+ * @ORM\Table(name="product_tier_price")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CommonRepository")
+ */
+class ProductTierPrice
+    extends AbstractCartEntity
+    implements CartEntityInterface
+{
+    /**
+     * @var integer $id
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @var \MobileCart\CoreBundle\Entity\Product
+     *
+     * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Product", inversedBy="tier_prices")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="product_id", referencedColumnName="id", nullable=false)
+     * })
+     */
+    private $product;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="qty", type="integer")
+     */
+    private $qty;
+
+    /**
+     * @var float $price
+     *
+     * @ORM\Column(name="price", type="decimal", precision=12, scale=4)
+     */
+    private $price;
+
+    /**
+     * @var string $currency
+     *
+     * @ORM\Column(name="currency", type="string", length=8)
+     */
+    private $currency;
+
+    public function __construct()
+    {
+
+    }
+
+    public function __toString()
+    {
+        return ''. $this->price;
+    }
+
+    public function getObjectTypeKey()
+    {
+        return EntityConstants::PRODUCT_TIER_PRICE;
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getBaseData()
+    {
+        return [
+            'id' => $this->getId(),
+            'price' => $this->getPrice(),
+            'currency' => $this->getPrice(),
+        ];
+    }
+
+    /**
+     * @param Product $product
+     * @return $this
+     */
+    public function setProduct(Product $product)
+    {
+        $this->product = $product;
+        return $this;
+    }
+
+    /**
+     * @return Product
+     */
+    public function getProduct()
+    {
+        return $this->product;
+    }
+
+    /**
+     * @param $qty
+     * @return $this
+     */
+    public function setQty($qty)
+    {
+        $this->qty = $qty;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getQty()
+    {
+        return $this->qty;
+    }
+
+    /**
+     * @param $currency
+     * @return Product
+     */
+    public function setCurrency($currency)
+    {
+        $this->currency = $currency;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCurrency()
+    {
+        return $this->currency;
+    }
+
+    /**
+     * @param $price
+     * @return Product
+     */
+    public function setPrice($price)
+    {
+        $this->price = $price;
+        return $this;
+    }
+
+    /**
+     * Get price
+     *
+     * @return float
+     */
+    public function getPrice()
+    {
+        return $this->price;
+    }
+}

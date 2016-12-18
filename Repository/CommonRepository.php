@@ -44,7 +44,6 @@ class CommonRepository
     public function getFilterableFields()
     {
         return [];
-
     }
 
     /**

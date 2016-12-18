@@ -107,6 +107,7 @@ class EntityConstants
     const CUSTOMER = 'customer';
     const CUSTOMER_ADDRESS = 'customer_address';
     const CUSTOMER_GROUP = 'customer_group';
+    const CUSTOMER_GROUP_PRODUCT_PRICE = 'customer_group_product_price';
     const CUSTOMER_TOKEN = 'customer_token';
     const DISCOUNT = 'discount';
     const ORDER = 'order';
@@ -119,6 +120,7 @@ class EntityConstants
     const PRODUCT = 'product';
     const PRODUCT_IMAGE = 'product_image';
     const PRODUCT_CONFIG = 'product_config';
+    const PRODUCT_TIER_PRICE = 'product_tier_price';
     const REF_COUNTRY_REGION = 'ref_country_region';
     const SEARCH_TERM = 'search_term';
     const SHIPPING_METHOD = 'shipping_method';

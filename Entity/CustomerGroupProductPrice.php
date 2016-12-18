@@ -3,15 +3,17 @@
 namespace MobileCart\CoreBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
  * MobileCart\CoreBundle\Entity\CustomerGroupProductPrice
  *
  * @ORM\Table(name="customer_group_product_price")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CommonRepository")
  */
 class CustomerGroupProductPrice
+    extends AbstractCartEntity
+    implements CartEntityInterface
 {
     /**
      * @var integer $id
@@ -23,11 +25,18 @@ class CustomerGroupProductPrice
     private $id;
 
     /**
-     * @var string $value
+     * @var float $price
      *
-     * @ORM\Column(name="value", type="decimal", precision=2)
+     * @ORM\Column(name="price", type="decimal", precision=12, scale=4)
      */
-    private $value;
+    private $price;
+
+    /**
+     * @var string $currency
+     *
+     * @ORM\Column(name="currency", type="string", length=8)
+     */
+    private $currency;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Product
@@ -51,7 +60,21 @@ class CustomerGroupProductPrice
 
     public function __toString()
     {
-        return $this->value;
+        return ''. $this->price;
+    }
+
+    public function getBaseData()
+    {
+        return [
+            'id' => $this->getId(),
+            'price' => $this->getPrice(),
+            'currency' => $this->getPrice(),
+        ];
+    }
+
+    public function getObjectTypeKey()
+    {
+        return EntityConstants::CUSTOMER_GROUP_PRODUCT_PRICE;
     }
 
     /**
@@ -65,23 +88,41 @@ class CustomerGroupProductPrice
     }
 
     /**
-     * Set value
-     *
-     * @param string $value
+     * @param $currency
+     * @return Product
      */
-    public function setValue($value)
+    public function setCurrency($currency)
     {
-        $this->value = $value;
+        $this->currency = $currency;
+        return $this;
     }
 
     /**
-     * Get value
-     *
-     * @return string 
+     * @return string
      */
-    public function getValue()
+    public function getCurrency()
     {
-        return $this->value;
+        return $this->currency;
+    }
+
+    /**
+     * @param $price
+     * @return Product
+     */
+    public function setPrice($price)
+    {
+        $this->price = $price;
+        return $this;
+    }
+
+    /**
+     * Get price
+     *
+     * @return float
+     */
+    public function getPrice()
+    {
+        return $this->price;
     }
 
     /**

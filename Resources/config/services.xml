@@ -67,6 +67,7 @@
         <parameter key="cart.repo.content_var_value_varchar">MobileCartCoreBundle:ContentVarValueVarchar</parameter>
         <parameter key="cart.repo.customer">MobileCartCoreBundle:Customer</parameter>
         <parameter key="cart.repo.customer_address">MobileCartCoreBundle:CustomerAddress</parameter>
+        <parameter key="cart.repo.customer_group_product_price">MobileCartCoreBundle:CustomerGroupProductPrice</parameter>
         <parameter key="cart.repo.customer_token">MobileCartCoreBundle:CustomerToken</parameter>
         <parameter key="cart.repo.customer_var_value_datetime">MobileCartCoreBundle:CategoryVarValueDatetime</parameter>
         <parameter key="cart.repo.customer_var_value_decimal">MobileCartCoreBundle:CategoryVarValueDecimal</parameter>
@@ -98,6 +99,7 @@
         <parameter key="cart.repo.order_refund">MobileCartCoreBundle:OrderRefund</parameter>
         <parameter key="cart.repo.product">MobileCartCoreBundle:Product</parameter>
         <parameter key="cart.repo.product_config">MobileCartCoreBundle:ProductConfig</parameter>
+        <parameter key="cart.repo.product_tier_price">MobileCartCoreBundle:ProductTierPrice</parameter>
         <parameter key="cart.repo.product_image">MobileCartCoreBundle:ProductImage</parameter>
         <parameter key="cart.repo.product_var_value_datetime">MobileCartCoreBundle:ProductVarValueDatetime</parameter>
         <parameter key="cart.repo.product_var_value_decimal">MobileCartCoreBundle:ProductVarValueDecimal</parameter>
@@ -1163,6 +1165,10 @@
                 <argument>%cart.repo.customer_address%</argument>
             </call>
             <call method="addObjectRepository">
+                <argument>customer_group_product_price</argument>
+                <argument>%cart.repo.customer_group_product_price%</argument>
+            </call>
+            <call method="addObjectRepository">
                 <argument>customer_token</argument>
                 <argument>%cart.repo.customer_token%</argument>
             </call>
@@ -1249,6 +1255,10 @@
             <call method="addObjectRepository">
                 <argument>product_image</argument>
                 <argument>%cart.repo.product_image%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>product_tier_price</argument>
+                <argument>%cart.repo.product_tier_price%</argument>
             </call>
             <call method="addObjectRepository">
                 <argument>product_var_value_datetime</argument>

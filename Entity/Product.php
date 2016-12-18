@@ -271,7 +271,12 @@ class Product
      */
     private $group_prices;
 
-    // private $tier_prices; todo
+    /**
+     * @var \MobileCart\CoreBundle\Entity\ProductTierPrice
+     *
+     * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\ProductTierPrice", mappedBy="product")
+     */
+    private $tier_prices;
 
     /**
      * @var float $weight
@@ -402,6 +407,7 @@ class Product
     public function __construct()
     {
         $this->group_prices = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->tier_prices = new \Doctrine\Common\Collections\ArrayCollection();
         $this->product_configs = new \Doctrine\Common\Collections\ArrayCollection();
         $this->images = new \Doctrine\Common\Collections\ArrayCollection();
         $this->var_values_datetime = new \Doctrine\Common\Collections\ArrayCollection();
@@ -1776,6 +1782,24 @@ class Product
     public function getProductConfigs()
     {
         return $this->product_configs;
+    }
+
+    /**
+     * @param ProductTierPrice $tierPrice
+     * @return $this
+     */
+    public function addTierPrice(ProductTierPrice $tierPrice)
+    {
+        $this->tier_prices[] = $tierPrice;
+        return $this;
+    }
+
+    /**
+     * @return ArrayCollection|ProductTierPrice
+     */
+    public function getTierPrices()
+    {
+        return $this->tier_prices;
     }
 
     /**

@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * MobileCart\CoreBundle\Entity\ProductConfig
  *
  * @ORM\Table(name="product_config")
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CommonRepository")
  */
 class ProductConfig
 {

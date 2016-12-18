@@ -2,6 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
+use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -243,6 +244,38 @@ class AddProduct
                 }
 
                 $cartItem = $cart->findItem('product_id', $productId);
+                $priceChange = false;
+                if ($cartItem) {
+                    if ($cartItem->getTierPrices() && is_array($cartItem->getTierPrices())) {
+
+                        $meetsTier = false;
+                        $tierPrices = $cartItem->getTierPrices();
+                        if ($tierPrices) {
+                            $lastQty = 0;
+                            foreach($tierPrices as $tierPrice) {
+
+                                if ($tierPrice instanceof \stdClass) {
+                                    $tierPrice = get_object_vars($tierPrice);
+                                }
+
+                                if (is_array($tierPrice)) {
+                                    $tierPrice = new ArrayWrapper($tierPrice);
+                                }
+
+                                if ($qty > $lastQty && $qty >= $tierPrice->getQty()) {
+                                    $lastQty = $tierPrice->getQty();
+                                    $cartItem->setPrice($tierPrice->getPrice());
+                                    $meetsTier = true;
+                                }
+                            }
+                        }
+
+                        if (!$meetsTier) {
+                            $cartItem->setPrice($cartItem->getOrigPrice());
+                            $priceChange = true;
+                        }
+                    }
+                }
 
                 if ($cartItem->getId()) {
                     // update row
@@ -250,24 +283,69 @@ class AddProduct
                     $cartItemEntity = $this->getEntityService()
                         ->find(EntityConstants::CART_ITEM, $cartItem->getId());
 
-                    $cartItemEntity->setQty($cartItem->getQty());
+                    if ($cartItemEntity) {
+                        $cartItemEntity->setQty($cartItem->getQty());
 
-                    $this->getEntityService()->persist($cartItemEntity);
+                        if ($priceChange) {
 
-                } else {
-                    // insert row
+                            $productCurrency = $cartItem->getCurrency();
+                            if (!$productCurrency) {
+                                $productCurrency = $baseCurrency;
+                            }
 
-                    $cartItemEntity = $this->getEntityService()
-                        ->getInstance(EntityConstants::CART_ITEM);
+                            if ($baseCurrency == $productCurrency) {
+                                if ($customerCurrency == $baseCurrency) {
 
-                    $cartItemEntity->setCart($cartEntity)
-                        ->setSku($cartItem->getSku())
-                        ->setQty($cartItem->getQty())
-                        ->setJson($cartItem->toJson());
+                                    $cartItemEntity->setPrice($cartItem->getPrice())
+                                        //->setTax() todo
+                                        //->setDiscount() todo
+                                        ->setCurrency($baseCurrency)
+                                        ->setBasePrice($cartItem->getPrice())
+                                        //->setBaseTax() todo
+                                        //->setBaseDiscount() todo
+                                        ->setBaseCurrency($baseCurrency);
 
-                    $this->getEntityService()->persist($cartItemEntity);
+                                } else {
 
-                    $cartItem->setId($cartItemEntity->getId());
+                                    $cartItemEntity->setPrice($currencyService->convert($cartItem->getPrice(), $customerCurrency))
+                                        //->setTax() todo
+                                        //->setDiscount() todo
+                                        ->setCurrency($customerCurrency)
+                                        ->setBasePrice($cartItem->getPrice())
+                                        //->setBaseTax() todo
+                                        //->setBaseDiscount() todo
+                                        ->setBaseCurrency($baseCurrency);
+
+                                }
+                            } else {
+                                if ($productCurrency == $customerCurrency) {
+
+                                    $cartItemEntity->setPrice($cartItem->getPrice())
+                                        //->setTax() todo
+                                        //->setDiscount() todo
+                                        ->setCurrency($customerCurrency)
+                                        ->setBasePrice($currencyService->convert($cartItem->getPrice(), $baseCurrency, $customerCurrency))
+                                        //->setBaseTax() todo
+                                        //->setBaseDiscount() todo
+                                        ->setBaseCurrency($baseCurrency);
+
+                                } else {
+
+                                    $cartItemEntity->setPrice($currencyService->convert($cartItem->getPrice(), $customerCurrency, $productCurrency))
+                                        //->setTax() todo
+                                        //->setDiscount() todo
+                                        ->setCurrency($customerCurrency)
+                                        ->setBasePrice($currencyService->convert($cartItem->getPrice(), $baseCurrency, $productCurrency))
+                                        //->setBaseTax() todo
+                                        //->setBaseDiscount() todo
+                                        ->setBaseCurrency($baseCurrency);
+                                }
+                            }
+
+                        }
+
+                        $this->getEntityService()->persist($cartItemEntity);
+                    }
                 }
             }
 
@@ -301,6 +379,8 @@ class AddProduct
                 $parentOptions['slug'] = $parent->getSlug();
             }
 
+            $productWrap = new ArrayWrapper($product->getData());
+
             $minQty = (int) $product->getMinQty();
             $minQtyMet = $minQty == 0 || ($minQty > 0 && $qty >= $product->getMinQty());
             $maxQtyMet = !$product->getIsQtyManaged() || ($product->getIsQtyManaged() && $qty < $product->getQty());
@@ -311,8 +391,25 @@ class AddProduct
                 && $maxQtyMet
             ) {
 
+                $origPrice = $product->getPrice();
+
+                // todo specialPrice
+
+                $tierPrices = $product->getTierPrices();
+                if ($tierPrices) {
+                    $lastQty = 0;
+                    foreach($tierPrices as $tierPrice) {
+                        if ($qty > $lastQty && $qty >= $tierPrice->getQty()) {
+                            $lastQty = $tierPrice->getQty();
+                            $productWrap->setPrice($tierPrice->getPrice());
+                        }
+                    }
+                }
+
+                // todo groupPrices
+
                 $this->getCartSessionService()
-                    ->addProduct($product, $qty, $parentOptions);
+                    ->addProduct($productWrap, $qty, $parentOptions);
 
                 // insert row
                 $cartItemEntity = $this->getEntityService()
@@ -323,6 +420,19 @@ class AddProduct
                     ->findItem('product_id', $product->getId());
 
                 if ($cartItem) {
+
+                    if ($tierPrices) {
+                        $tierData = [];
+                        foreach($tierPrices as $tierPrice) {
+                            $tierData[] = [
+                                'qty' => $tierPrice->getQty(),
+                                'price' => $tierPrice->getPrice(),
+                            ];
+                        }
+
+                        $cartItem->setOrigPrice($origPrice)
+                            ->setTierPrices($tierData);
+                    }
 
                     $cartItem->setQtyAvail($product->getQty())
                         ->setIsQtyManaged((int) $product->getIsQtyManaged())
@@ -442,13 +552,10 @@ class AddProduct
         $cartEntity->setJson($cart->toJson())
             ->setCreatedAt(new \DateTime('now'))
             ->setCurrency($currency)
-            ->setBaseCurrency($baseCurrency)
-        ;
+            ->setBaseCurrency($baseCurrency);
 
         if ($customerId && !$cartEntity->getCustomer()) {
-
             if (!$customerEntity) {
-
                 $customerEntity = $this->getEntityService()
                     ->find(EntityConstants::CUSTOMER, $customerId);
             }
