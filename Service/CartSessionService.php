@@ -517,9 +517,15 @@ class CartSessionService
     public function getCustomerAddress($addressId='main')
     {
         $addresses = $this->getCustomerAddresses();
-        return isset($addresses[$addressId])
-            ? $addresses[$addressId]
-            : null;
+        if ($addresses) {
+            foreach($addresses as $address) {
+                if ($address->get('customer_address_id') == $addressId) {
+                    return $address;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
