@@ -86,6 +86,14 @@ class CartSessionService
     }
 
     /**
+     * @return DoctrineEntityService
+     */
+    public function getEntityService()
+    {
+        return $this->getShippingService()->getEntityService();
+    }
+
+    /**
      * @return CartTotalService
      */
     public function getCartTotalService()
@@ -420,54 +428,28 @@ class CartSessionService
     }
 
     /**
-     * @param $includeMain
      * @return array
      */
-    public function getCustomerAddresses($includeMain=true)
+    public function getCustomerAddresses()
     {
-        $customer = $this->getCustomer();
-        if ($customer->getId() && is_array($this->getCustomer()->getAddresses())) {
+        $addresses = $this->getCustomer()->getAddresses();
+        if ($addresses) {
+            foreach($addresses as $k => $v) {
 
-            $addresses = $this->getCustomer()->getAddresses();
-
-            if ($addresses) {
-                foreach($addresses as $k => $v) {
-
-                    if ($v instanceof \stdClass) {
-                        $v = get_object_vars($v);
-                    }
-
-                    if (is_object($v)) {
-                        $v = $v->getData();
-                    }
-
-                    $v['label'] = $v['street'] . ' ' . $v['city'] . ', ' . $v['region'];
-                    $addresses[$k] = new ArrayWrapper($v);
+                if ($v instanceof \stdClass) {
+                    $v = get_object_vars($v);
                 }
+
+                if (is_object($v)) {
+                    $v = $v->getData();
+                }
+
+                $v['label'] = $v['street'] . ' ' . $v['city'] . ', ' . $v['region'];
+                $addresses[$k] = new ArrayWrapper($v);
             }
-
-            if ($includeMain) {
-
-                $mainAddress = new ArrayWrapper();
-                $mainAddress->fromArray([
-                    'id' => 'main',
-                    'label' => "{$customer->getShippingStreet()} {$customer->getShippingCity()}, {$customer->getShippingRegion()}",
-                    'name' => $customer->getShippingName(),
-                    'company' => $customer->getShippingCompany(),
-                    'street' => $customer->getShippingStreet(),
-                    'city' => $customer->getShippingCity(),
-                    'region' => $customer->getShippingRegion(),
-                    'postcode' => $customer->getShippingPostcode(),
-                    'country_id' => $customer->getShippingCountryId(),
-                    'phone' => $customer->getShippingPhone(),
-                ]);
-                $addresses['main'] = $mainAddress;
-            }
-
-            return $addresses;
         }
 
-        return [];
+        return $addresses;
     }
 
     /**
@@ -478,13 +460,32 @@ class CartSessionService
     {
         $customer = $this->getCustomerInstance();
         $customer->fromArray($entity->getData());
+        $customer->setId($entity->getId());
+        $addresses = [];
+        $addressEntities = $entity->getAddresses();
 
-        if ($addresses = $entity->getAddresses()) {
-            foreach($addresses as $address) {
-                $customer->addAddress($address->getData());
+        $addresses[] = [
+            'id' => 'main',
+            'label' => "{$entity->getShippingStreet()} {$entity->getShippingCity()}, {$entity->getShippingRegion()}",
+            'name' => $entity->getShippingName(),
+            'company' => $entity->getShippingCompany(),
+            'street' => $entity->getShippingStreet(),
+            'city' => $entity->getShippingCity(),
+            'region' => $entity->getShippingRegion(),
+            'postcode' => $entity->getShippingPostcode(),
+            'country_id' => $entity->getShippingCountryId(),
+            'phone' => $entity->getShippingPhone(),
+        ];
+
+        if ($addressEntities) {
+            foreach($addressEntities as $addressEntity) {
+                $address = $addressEntity->getData();
+                $address['label'] = $address['street'] . ' ' . $address['city'] . ', ' . $address['region'];
+                $addresses[] = $address;
             }
         }
 
+        $customer->setAddresses($addresses);
         $this->setCustomer($customer);
         return $this;
     }

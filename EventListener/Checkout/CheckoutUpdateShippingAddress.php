@@ -161,11 +161,15 @@ class CheckoutUpdateShippingAddress
                     'password_updated_at',
                     'is_password_expired',
                     'email',
+                    'password',
                 ])) {
                     continue;
                 }
 
                 $value = $formData->get($childKey);
+                if (is_null($value)) {
+                    continue;
+                }
 
                 if ($customerEntity) {
                     $customerEntity->set($childKey, $value);
@@ -195,9 +199,7 @@ class CheckoutUpdateShippingAddress
 
         $this->getCheckoutSessionService()->setIsValidShippingAddress($isValid);
 
-        if (!$event->getIsSame()
-            && $isValid
-        ) {
+        if (!$event->getIsSame() && $isValid) {
             // only updating the main address
             $this->getCheckoutSessionService()->getCartSessionService()->collectShippingMethods('main');
         }

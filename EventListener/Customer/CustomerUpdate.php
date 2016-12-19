@@ -81,7 +81,7 @@ class CustomerUpdate
         }
 
         // encode password, handle hash
-        if (isset($formData['password']['first']) && $formData['password']['first']) {
+        if (isset($formData['password']['first']) && strlen($formData['password']['first']) > 6) {
             $encoder = $this->getSecurityPasswordEncoder();
             $encoded = $encoder->encodePassword($entity, $formData['password']['first']);
             $entity->setHash($encoded);
@@ -90,19 +90,19 @@ class CustomerUpdate
 
         $this->getEntityService()->persist($entity);
 
-        if ($event->getSection() == CoreEvent::SECTION_FRONTEND) {
-            // update session info
-
-            $this->getCartSessionService()
-                ->setCustomerEntity($entity);
-        }
-
         if ($entity->getItemVarSet() && $formData) {
 
             // update var values
             $this->getEntityService()
                 ->persistVariants($entity, $formData);
 
+        }
+
+        if ($event->getSection() == CoreEvent::SECTION_FRONTEND) {
+            // update session info
+
+            $this->getCartSessionService()
+                ->setCustomerEntity($entity);
         }
 
         if ($entity && $request->getSession()) {

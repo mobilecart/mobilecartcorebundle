@@ -152,17 +152,22 @@ class CheckoutUpdateBillingAddress
                     continue;
                 }
 
-                $value = null;
+                $value = $formData->get($childKey);
+                if (is_null($value)) {
+                    continue;
+                }
+
                 switch($childKey) {
                     case 'password':
                         if (!$customerEntity->getId()) {
                             $encoder = $this->getSecurityPasswordEncoder();
-                            $encoded = $encoder->encodePassword($customerEntity, $formData->get($childKey));
-                            $customerEntity->setHash($encoded);
+                            if ($value && strlen($value) >= 6) {
+                                $encoded = $encoder->encodePassword($customerEntity, $value);
+                                $customerEntity->setHash($encoded);
+                            }
                         }
                         break;
                     case 'billing_name':
-                        $value = $formData->get($childKey);
                         $parts = explode(' ', $value);
                         $count = count($parts);
                         $firstName = $parts[0];
@@ -178,16 +183,19 @@ class CheckoutUpdateBillingAddress
                         $customerEntity->set('last_name', $lastName);
                         break;
                     default:
-                        $value = $formData->get($childKey);
                         $customerEntity->set($childKey, $value);
                         break;
                 }
             }
 
-            try {
-                $this->getEntityService()->persist($customerEntity);
-                $this->getCheckoutSessionService()->getCartSessionService()->setCustomerEntity($customerEntity);
-            } catch(\Exception $e) { }
+            if (strlen($customerEntity->getEmail()) > 5) {
+                try {
+                    $this->getEntityService()->persist($customerEntity);
+                    if ($customerEntity->getId()) {
+                        $this->getCheckoutSessionService()->getCartSessionService()->setCustomerEntity($customerEntity);
+                    }
+                } catch(\Exception $e) { }
+            }
 
             // todo: if tax is enabled and shipping is disabled, then apply tax to billing
 
