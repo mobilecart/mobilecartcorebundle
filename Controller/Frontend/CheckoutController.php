@@ -84,7 +84,11 @@ class CheckoutController extends Controller
                 }
                 foreach($sections[$section]['fields'] as $field) {
                     if ($customerValue = $customer->get($field)) {
-                        $form->get($field)->setData($customerValue);
+                        if ($field == 'is_shipping_same') { // symfony Form requires a boolean now, wont take a '1'
+                            $form->get($field)->setData((bool) $customerValue);
+                        } else {
+                            $form->get($field)->setData($customerValue);
+                        }
                     }
                 }
             }
