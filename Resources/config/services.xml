@@ -15,7 +15,7 @@
         <parameter key="cart.checkout.spa.enabled">1</parameter>
         <parameter key="cart.discount.enabled">1</parameter>
         <parameter key="cart.shipping.enabled">1</parameter>
-        <parameter key="cart.shipping.multi.enabled">0</parameter>
+        <parameter key="cart.shipping.multi.enabled">1</parameter>
         <parameter key="cart.config.currency.base">USD</parameter>
         <parameter key="cart.load.currency">cart.currency</parameter>
         <parameter key="cart.load.admin">cart.search.doctrine</parameter>
@@ -128,7 +128,6 @@
         <parameter key="cart.listener.checkout.confirm.order.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutConfirmOrder</parameter>
         <parameter key="cart.listener.checkout.update.payment.methods.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdatePaymentMethods</parameter>
         <parameter key="cart.listener.checkout.update.shipping.address.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdateShippingAddress</parameter>
-        <parameter key="cart.listener.checkout.update.shipping.methods.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdateShippingMethods</parameter>
         <parameter key="cart.listener.checkout.update.shipping.method.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdateShippingMethod</parameter>
         <parameter key="cart.listener.checkout.update.totals.discounts.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdateTotalsDiscounts</parameter>
         <parameter key="cart.listener.checkout.update.payment.method.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdatePaymentMethod</parameter>
@@ -835,17 +834,6 @@
             </call>
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
-            </call>
-        </service>
-
-        <!-- Event Listener: after shipping address is updated, collect shipping methods, set to session, set to form -->
-        <service id="cart.listener.checkout.update.shipping.methods" lazy="true" class="%cart.listener.checkout.update.shipping.methods.class%">
-            <tag name="kernel.event_listener" event="checkout.update.shipping.address" method="onCheckoutUpdateShippingAddress" priority="40" />
-            <call method="setCheckoutSessionService">
-                <argument type="service" id="cart.checkout.session" />
-            </call>
-            <call method="setShippingService">
-                <argument type="service" id="cart.shipping" />
             </call>
         </service>
 

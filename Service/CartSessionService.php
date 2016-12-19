@@ -461,7 +461,7 @@ class CartSessionService
                     'country_id' => $customer->getShippingCountryId(),
                     'phone' => $customer->getShippingPhone(),
                 ]);
-                $addresses[] = $mainAddress;
+                $addresses['main'] = $mainAddress;
             }
 
             return $addresses;
@@ -507,6 +507,18 @@ class CartSessionService
     public function addressLabel($addressId='main')
     {
         return $this->getCart()->addressLabel($addressId);
+    }
+
+    /**
+     * @param string $addressId
+     * @return null
+     */
+    public function getCustomerAddress($addressId='main')
+    {
+        $addresses = $this->getCustomerAddresses();
+        return isset($addresses[$addressId])
+            ? $addresses[$addressId]
+            : null;
     }
 
     /**

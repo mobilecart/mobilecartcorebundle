@@ -195,6 +195,13 @@ class CheckoutUpdateShippingAddress
 
         $this->getCheckoutSessionService()->setIsValidShippingAddress($isValid);
 
+        if (!$event->getIsSame()
+            && $isValid
+        ) {
+            // only updating the main address
+            $this->getCheckoutSessionService()->getCartSessionService()->collectShippingMethods('main');
+        }
+
         $returnData['success'] = $isValid;
         $returnData['messages'] = $messages;
         $returnData['invalid'] = $invalid;

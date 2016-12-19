@@ -128,8 +128,6 @@ class CheckoutUpdateBillingAddress
                 ? $this->getEntityService()->find(EntityConstants::CUSTOMER, $cartCustomer->getId())
                 : $this->getEntityService()->getInstance(EntityConstants::CUSTOMER);
 
-            //update customer data in cart session
-            $customerData = [];
             $formData = $form->getData();
             foreach($form->all() as $childKey => $child) {
 
@@ -161,7 +159,6 @@ class CheckoutUpdateBillingAddress
                             $encoder = $this->getSecurityPasswordEncoder();
                             $encoded = $encoder->encodePassword($customerEntity, $formData->get($childKey));
                             $customerEntity->setHash($encoded);
-                            $customerData['hash'] = $encoded;
                         }
                         break;
                     case 'billing_name':
@@ -176,49 +173,21 @@ class CheckoutUpdateBillingAddress
                             unset($parts[0]);
                             $lastName = implode(' ', $parts);
                         }
-                        $customerData['first_name'] = $firstName;
-                        $customerData['last_name'] = $lastName;
-                        $cartCustomer->set('first_name', $firstName);
-                        $cartCustomer->set('last_name', $lastName);
+
+                        $customerEntity->set('first_name', $firstName);
+                        $customerEntity->set('last_name', $lastName);
                         break;
                     default:
                         $value = $formData->get($childKey);
+                        $customerEntity->set($childKey, $value);
                         break;
                 }
-
-                if (is_null($value)) {
-                    continue;
-                }
-
-                if ($customerEntity->getId()) {
-                    switch($childKey) {
-                        case 'email':
-                            // no-op
-                            break;
-                        default:
-                            $cartCustomer->set($childKey, $value);
-                            $customerData[$childKey] = $value;
-                            break;
-                    }
-                } else {
-                    $cartCustomer->set($childKey, $formData->get($childKey));
-                    $customerData[$childKey] = $value;
-                }
             }
 
-            if ($customerEntity->getId()) {
-                try {
-                    $this->getEntityService()->persist($customerEntity);
-                } catch(\Exception $e) { }
-            } else {
-                $customerEntity->fromArray($customerData);
-                try {
-                    $this->getEntityService()->persist($customerEntity);
-                    if ($customerEntity->getId()) {
-                        $cartCustomer->setId($customerEntity->getId());
-                    }
-                } catch(\Exception $e) { }
-            }
+            try {
+                $this->getEntityService()->persist($customerEntity);
+                $this->getCheckoutSessionService()->getCartSessionService()->setCustomerEntity($customerEntity);
+            } catch(\Exception $e) { }
 
             // todo: if tax is enabled and shipping is disabled, then apply tax to billing
 
@@ -226,7 +195,7 @@ class CheckoutUpdateBillingAddress
 
             $cart = $this->getCheckoutSessionService()
                 ->getCartSessionService()
-                //->collectShippingMethods('') // avoid collecting shipping methods unless cart changes or shipping info changes
+                //->collectShippingMethods('main') // avoid collecting shipping methods unless cart changes or shipping info changes
                 ->collectTotals()
                 ->getCart();
 
