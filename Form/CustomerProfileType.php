@@ -74,7 +74,11 @@ class CustomerProfileType extends AbstractType
                     'class' => 'region-input billing-input',
                 ],
             ])
-            ->add('billing_postcode')
+            ->add('billing_postcode', 'text', [
+                'attr' => [
+                    'class' => 'billing-input',
+                ]
+            ])
             ->add('billing_country_id', 'choice', [
                 'choices' => $this->getCountries(),
                 'attr' => [
