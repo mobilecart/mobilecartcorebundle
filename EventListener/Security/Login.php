@@ -118,9 +118,6 @@ class Login implements AuthenticationSuccessHandlerInterface
                 $this->getCartSessionService()->getSession()->set('_locale', $user->getDefaultLocale());
             }
 
-            $this->getCartSessionService()
-                ->setCustomerEntity($user);
-
             $aCart = $this->getCartSessionService()->getCart();
             if (!$aCart->hasItems()) {
 
@@ -132,9 +129,6 @@ class Login implements AuthenticationSuccessHandlerInterface
 
                     $aCart = new Cart();
                     $aCart->importJson($currentCart->getJson());
-                    $aCart->getCustomer()
-                        ->setEmail($user->getEmail())
-                        ->setId($user->getId());
 
                     $this->getCartSessionService()
                         ->setCart($aCart);
@@ -163,6 +157,9 @@ class Login implements AuthenticationSuccessHandlerInterface
         if (!$user->getApiKey()) {
             $user->setApiKey(sha1(microtime()));
         }
+
+        $this->getCartSessionService()
+            ->setCustomerEntity($user);
 
         $this->getEntityService()->persist($user);
 
