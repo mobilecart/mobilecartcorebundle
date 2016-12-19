@@ -519,7 +519,7 @@ class CartSessionService
         $addresses = $this->getCustomerAddresses();
         if ($addresses) {
             foreach($addresses as $address) {
-                if ($address->get('customer_address_id') == $addressId) {
+                if ($address->getId() == $addressId) {
                     return $address;
                 }
             }
