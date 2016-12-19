@@ -978,7 +978,7 @@ class FrontendExtension extends \Twig_Extension
 
     public function customerAddress($addressId)
     {
-        return $this->getCartSessionService()->customerAddress($addressId);
+        return $this->getCartSessionService()->getCustomerAddress($addressId);
     }
 
     /**
