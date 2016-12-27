@@ -123,11 +123,13 @@ class FrontendExtension extends \Twig_Extension
             'addressLabel' => new \Twig_Function_Method($this, 'addressLabel', array('is_safe' => array('html'))),
             'customerAddress' => new \Twig_Function_Method($this, 'customerAddress', array('is_safe' => array('html'))),
             'shippingStreet' => new \Twig_Function_Method($this, 'shippingStreet', array('is_safe' => array('html'))),
+            'shippingName' => new \Twig_Function_Method($this, 'shippingName', array('is_safe' => array('html'))),
             'shippingCity' => new \Twig_Function_Method($this, 'shippingCity', array('is_safe' => array('html'))),
             'shippingRegion' => new \Twig_Function_Method($this, 'shippingRegion', array('is_safe' => array('html'))),
             'shippingPostcode' => new \Twig_Function_Method($this, 'shippingPostcode', array('is_safe' => array('html'))),
             'shippingCountryId' => new \Twig_Function_Method($this, 'shippingCountryId', array('is_safe' => array('html'))),
             'customerAddresses' => new \Twig_Function_Method($this, 'customerAddresses', array('is_safe' => array('html'))),
+            'billingName' => new \Twig_Function_Method($this, 'billingName', array('is_safe' => array('html'))),
             'billingStreet' => new \Twig_Function_Method($this, 'billingStreet', array('is_safe' => array('html'))),
             'billingCity' => new \Twig_Function_Method($this, 'billingCity', array('is_safe' => array('html'))),
             'billingRegion' => new \Twig_Function_Method($this, 'billingRegion', array('is_safe' => array('html'))),
@@ -1050,6 +1052,15 @@ class FrontendExtension extends \Twig_Extension
      * @param string $addressId
      * @return mixed
      */
+    public function shippingName($addressId='main')
+    {
+        return $this->customerAddress($addressId)->getName();
+    }
+
+    /**
+     * @param string $addressId
+     * @return mixed
+     */
     public function shippingStreet($addressId='main')
     {
         return $this->customerAddress($addressId)->getStreet();
@@ -1105,6 +1116,14 @@ class FrontendExtension extends \Twig_Extension
     public function customerAddresses()
     {
         return $this->getCartSessionService()->getCustomerAddresses();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function billingName()
+    {
+        return $this->getCustomer()->getBillingName();
     }
 
     /**
