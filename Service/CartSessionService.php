@@ -517,7 +517,7 @@ class CartSessionService
     public function getCustomerAddress($addressId='main')
     {
         $addresses = $this->getCustomerAddresses();
-        
+
         if ($addressId != 'main' && !is_numeric($addressId)) {
             $addressId = (int) str_replace('address_', '', $addressId);
         }

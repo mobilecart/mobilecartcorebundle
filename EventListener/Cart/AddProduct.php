@@ -408,10 +408,11 @@ class AddProduct
 
                 // todo groupPrices
 
+                // add product to cart in session
                 $this->getCartSessionService()
                     ->addProduct($productWrap, $qty, $parentOptions);
 
-                // insert row
+                // insert row for cart item
                 $cartItemEntity = $this->getEntityService()
                     ->getInstance(EntityConstants::CART_ITEM);
 
