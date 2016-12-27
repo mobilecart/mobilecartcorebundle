@@ -963,7 +963,7 @@ class FrontendExtension extends \Twig_Extension
      */
     public function itemTotal()
     {
-        return $this->decorate($this->getCartTotal('items'));
+        return $this->decorate($this->getCartTotal('items')->getValue());
     }
 
     /**
@@ -971,7 +971,7 @@ class FrontendExtension extends \Twig_Extension
      */
     public function shipmentTotal()
     {
-        return $this->decorate($this->getCartTotal('shipments'));
+        return $this->decorate($this->getCartTotal('shipments')->getValue());
     }
 
     /**
@@ -979,7 +979,7 @@ class FrontendExtension extends \Twig_Extension
      */
     public function discountTotal()
     {
-        return $this->decorate($this->getCartTotal('discounts'));
+        return $this->decorate($this->getCartTotal('discounts')->getValue());
     }
 
     /**
@@ -987,7 +987,7 @@ class FrontendExtension extends \Twig_Extension
      */
     public function taxTotal()
     {
-        return $this->decorate($this->getCartTotal('tax'));
+        return $this->decorate($this->getCartTotal('tax')->getValue());
     }
 
     /**
@@ -995,7 +995,7 @@ class FrontendExtension extends \Twig_Extension
      */
     public function grandTotal()
     {
-        return $this->decorate($this->getCartTotal('grand_total'));
+        return $this->decorate($this->getCartTotal('grand_total')->getValue());
     }
 
     /**
