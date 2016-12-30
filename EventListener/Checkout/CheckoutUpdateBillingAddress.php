@@ -255,8 +255,6 @@ class CheckoutUpdateBillingAddress
                 ->collectTotals()
                 ->getCart();
 
-            $cart->setCustomer($cartCustomer);
-
             $returnData['cart'] = $cart;
 
         } else {

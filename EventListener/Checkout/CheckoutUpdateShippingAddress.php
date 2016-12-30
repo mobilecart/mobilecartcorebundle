@@ -225,7 +225,9 @@ class CheckoutUpdateShippingAddress
 
                 try {
                     $this->getEntityService()->persist($customerEntity);
-                    $this->getCheckoutSessionService()->getCartSessionService()->setCustomerEntity($customerEntity);
+                    if ($customerEntity->getId()) {
+                        $this->getCheckoutSessionService()->getCartSessionService()->setCustomerEntity($customerEntity);
+                    }
                 } catch(\Exception $e) { }
             }
 
