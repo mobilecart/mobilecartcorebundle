@@ -1270,6 +1270,10 @@ class OrderService
             $orderPayment->setServiceAccountId($this->getCustomerToken()->getServiceAccountId());
         }
 
+        // set payment status
+        $action = $this->getPaymentMethodService()->getAction();
+        $orderPayment->setStatus($action);
+
         $orderPayment->setCreatedAt(new \DateTime('now'));
 
         $this->getEntityService()->persist($orderPayment);

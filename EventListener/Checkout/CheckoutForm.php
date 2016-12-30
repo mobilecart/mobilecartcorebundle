@@ -202,13 +202,28 @@ class CheckoutForm
                 continue;
             }
             foreach($sections[$section]['fields'] as $field) {
-                if ($customerValue = $customer->get($field)) {
-                    if ($field == 'is_shipping_same') { // must be a new "feature" in Symfony? It won't take my '1' anymore?
+
+                $customerValue = $customer->get($field);
+
+                switch($field) {
+                    case 'is_shipping_same':
+                        // must be a new "feature" in Symfony? It won't take a '1' anymore?
                         $form->get($section)->get($field)->setData((bool) $customerValue);
-                    } else {
-                        $form->get($section)->get($field)->setData($customerValue);
-                    }
+                        break;
+                    case 'billing_name':
+                        if ($customer->getFirstName() && !$customer->getBillingName()) {
+                            $form->get($section)->get($field)->setData("{$customer->getFirstName()} {$customer->getLastName()}");
+                        } else {
+                            $form->get($section)->get($field)->setData($customerValue);
+                        }
+                        break;
+                    default:
+                        if (!is_null($customerValue)) {
+                            $form->get($section)->get($field)->setData($customerValue);
+                        }
+                        break;
                 }
+
             }
         }
 

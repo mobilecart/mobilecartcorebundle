@@ -64,6 +64,14 @@ EOF
             ->setHash($encoded)
             ->setIsEnabled(1);
 
+        $variantSet = $entityService->findOneBy(EntityConstants::ITEM_VAR_SET, [
+            'object_type' => EntityConstants::PRODUCT,
+        ]);
+
+        if ($variantSet) {
+            $customer->setItemVarSet($variantSet);
+        }
+
         $entityService->persist($customer);
 
         $message = "Created Customer ({$customer->getId()}): {$email} / {$password} : {$encoded}";

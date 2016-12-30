@@ -52,10 +52,6 @@ class CheckoutType extends AbstractType
             ->add('billing_address', $this->getBillingAddressForm())
             ->add('shipping_address', $this->getShippingAddressForm())
         ;
-
-        if ($this->getShippingMethodForm()) {
-            $builder->add('shipping_method', $this->getShippingMethodForm());
-        }
     }
 
     public function getName()

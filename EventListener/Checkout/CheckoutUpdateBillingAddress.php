@@ -119,6 +119,17 @@ class CheckoutUpdateBillingAddress
         $form->submit($requestData);
         $isValid = $form->isValid();
 
+        if (isset($requestData['email']) && !$cartCustomer->getId()) {
+            $customerEntity = $this->getEntityService()->findOneBy(EntityConstants::CUSTOMER, [
+                'email' => $requestData['email'],
+            ]);
+
+            if ($customerEntity) {
+                $isValid = false;
+                $invalid['email'] = ['Email exists. Please login before checkout'];
+            }
+        }
+
         $messages = [];
         $invalid = [];
 
@@ -131,7 +142,10 @@ class CheckoutUpdateBillingAddress
             $formData = $form->getData();
             foreach($form->all() as $childKey => $child) {
 
-                // blacklist
+                // security concerns
+                //  blacklist security-related fields
+                //  and other fields which should not be updated here
+
                 if (in_array($childKey, [
                     'id',
                     'item_var_set_id',
@@ -153,21 +167,24 @@ class CheckoutUpdateBillingAddress
                 }
 
                 $value = $formData->get($childKey);
-                if (is_null($value)) {
-                    continue;
-                }
-
                 switch($childKey) {
                     case 'password':
-                        if (!$customerEntity->getId()) {
+                        if (!$customerEntity->getId()
+                            && $value
+                            && strlen($value) >= 6
+                        ) {
                             $encoder = $this->getSecurityPasswordEncoder();
-                            if ($value && strlen($value) >= 6) {
-                                $encoded = $encoder->encodePassword($customerEntity, $value);
-                                $customerEntity->setHash($encoded);
-                            }
+                            $encoded = $encoder->encodePassword($customerEntity, $value);
+                            $customerEntity->setHash($encoded);
+                            // hash should never be stored in session
                         }
                         break;
                     case 'billing_name':
+
+                        if (is_null($value)) {
+                            continue;
+                        }
+
                         $parts = explode(' ', $value);
                         $count = count($parts);
                         $firstName = $parts[0];
@@ -179,15 +196,46 @@ class CheckoutUpdateBillingAddress
                             $lastName = implode(' ', $parts);
                         }
 
-                        $customerEntity->set('first_name', $firstName);
-                        $customerEntity->set('last_name', $lastName);
+                        if (!$customerEntity->getFirstName() && $firstName) {
+                            $customerEntity->set('first_name', $firstName);
+                        }
+
+                        if (!$customerEntity->getLastName() && $lastName) {
+                            $customerEntity->set('last_name', $lastName);
+                        }
+
+                        if ($value != $customerEntity->getBillingName()) {
+                            $customerEntity->set('billing_name', $value);
+                        }
+
+                        $cartCustomer->set('first_name', $firstName);
+                        $cartCustomer->set('last_name', $lastName);
+                        $cartCustomer->set('billing_name', $value);
+
+                        break;
+                    case 'email':
+                        // this field will only be here when guest checkout is enabled
+                        if (!$customerEntity->getId()
+                            && strlen($value) > 5
+                        ) {
+                            $customerEntity->set('email', $value);
+                            $cartCustomer->set('email', $value);
+                        }
                         break;
                     default:
+
+                        if (is_null($value)) {
+                            continue;
+                        }
+
                         $customerEntity->set($childKey, $value);
+                        $cartCustomer->set($childKey, $value);
                         break;
                 }
             }
 
+            // we do not check for ID here, only email address
+            //  because it could be a new customer being created
             if (strlen($customerEntity->getEmail()) > 5) {
                 try {
                     $this->getEntityService()->persist($customerEntity);
@@ -216,7 +264,9 @@ class CheckoutUpdateBillingAddress
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {
-                    $invalid[$childKey] = [];
+                    if (!isset($invalid[$childKey])) {
+                        $invalid[$childKey] = [];
+                    }
                     foreach($errors as $error) {
                         $invalid[$childKey][] = $error->getMessage();
                     }

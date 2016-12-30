@@ -91,17 +91,22 @@ class CheckoutUpdateShippingAddress
 
         $request = $event->getRequest();
         $formType = $event->getForm();
-        $entity = $event->getEntity();
+        $entity = $event->getUser(); // we should always have a user here
+            //? $event->getUser()
+            //: $event->getEntity();
 
         $cartCustomer = $this->getCheckoutSessionService()
             ->getCartSessionService()
             ->getCustomer();
 
+        $customerEntity = $cartCustomer->getId()
+            ? $this->getEntityService()->find(EntityConstants::CUSTOMER, $cartCustomer->getId())
+            : null;
+
         $form = $this->getFormFactory()->create($formType, $entity, [
             'action' => $event->getAction(),
             'method' => $event->getMethod(),
-            'translation_domain' => 'checkout',
-            'validation_groups' => 'shipping_address',
+            'translation_domain' => 'customer',
         ]);
 
         $requestData = $request->request->all();
@@ -133,11 +138,14 @@ class CheckoutUpdateShippingAddress
         $messages = [];
         $invalid = [];
 
-        if ($isValid) {
+        if (!$cartCustomer->getId()) {
+            $isValid = false;
+            $messages[] = 'You must update your billing information first.';
+        }
 
-            $customerEntity = $cartCustomer->getId()
-                ? $this->getEntityService()->find(EntityConstants::CUSTOMER, $cartCustomer->getId())
-                : null;
+        $isShippingSame = false;
+
+        if ($isValid) {
 
             //update customer data in cart session
             $formData = $form->getData();
@@ -167,18 +175,54 @@ class CheckoutUpdateShippingAddress
                 }
 
                 $value = $formData->get($childKey);
-                if (is_null($value)) {
-                    continue;
-                }
 
-                if ($customerEntity) {
-                    $customerEntity->set($childKey, $value);
-                } else {
-                    $cartCustomer->set($childKey, $value);
+                switch($childKey) {
+                    case 'is_shipping_same':
+                        if ($value) {
+                            if ($customerEntity) {
+                                $cartCustomer->set($childKey, $value);
+                                $customerEntity->set($childKey, true);
+                            } else {
+                                $cartCustomer->set($childKey, $value);
+                            }
+
+                            $isShippingSame = true;
+                        } else {
+                            if ($customerEntity) {
+                                $cartCustomer->set($childKey, $value);
+                                $customerEntity->set($childKey, false);
+                            } else {
+                                $cartCustomer->set($childKey, $value);
+                            }
+
+                            $isShippingSame = false;
+                        }
+
+                        break;
+                    default:
+
+                        if (is_null($value)) {
+                            continue;
+                        }
+
+                        if ($customerEntity) {
+                            $cartCustomer->set($childKey, $value);
+                            $customerEntity->set($childKey, $value);
+                        } else {
+                            $cartCustomer->set($childKey, $value);
+                        }
+
+                        break;
                 }
             }
 
+            // we should have a entity by this point
             if ($customerEntity) {
+
+                if ($isShippingSame) {
+                    $customerEntity->copyBillingToShipping();
+                }
+
                 try {
                     $this->getEntityService()->persist($customerEntity);
                     $this->getCheckoutSessionService()->getCartSessionService()->setCustomerEntity($customerEntity);

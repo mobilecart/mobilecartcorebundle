@@ -314,7 +314,8 @@ class CheckoutController extends Controller
         $formEvent->setRequest($request)
             ->setAction($this->generateUrl('cart_checkout_submit_order'))
             ->setMethod('POST')
-            ->setSingleStep(CheckoutConstants::STEP_BILLING_ADDRESS);
+            ->setSingleStep(CheckoutConstants::STEP_BILLING_ADDRESS)
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_FORM, $formEvent);
@@ -328,7 +329,8 @@ class CheckoutController extends Controller
             ->setForm($form)
             ->setAction($this->generateUrl('cart_checkout_update_billing_address'))
             ->setMethod('POST')
-            ->setEntity($entity);
+            ->setEntity($entity)
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_UPDATE_BILLING_ADDRESS, $event);
@@ -360,7 +362,8 @@ class CheckoutController extends Controller
         $formEvent->setRequest($request)
             ->setAction($this->generateUrl('cart_checkout_submit_order'))
             ->setMethod('POST')
-            ->setSingleStep(CheckoutConstants::STEP_SHIPPING_ADDRESS);
+            ->setSingleStep(CheckoutConstants::STEP_SHIPPING_ADDRESS)
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_FORM, $formEvent);
@@ -374,7 +377,8 @@ class CheckoutController extends Controller
             ->setForm($form)
             ->setAction($this->generateUrl('cart_checkout_update_shipping_address'))
             ->setMethod('POST')
-            ->setEntity($entity);
+            ->setEntity($entity)
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_UPDATE_SHIPPING_ADDRESS, $event);
@@ -401,7 +405,8 @@ class CheckoutController extends Controller
         $formEvent->setRequest($request)
             ->setAction($this->generateUrl('cart_checkout_submit_order'))
             ->setMethod('POST')
-            ->setSingleStep(CheckoutConstants::STEP_SHIPPING_METHOD);
+            ->setSingleStep(CheckoutConstants::STEP_SHIPPING_METHOD)
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_FORM, $formEvent);
@@ -412,7 +417,8 @@ class CheckoutController extends Controller
         $event->setRequest($request)
             ->setForm($form)
             ->setAction($this->generateUrl('cart_checkout_update_shipping_method', []))
-            ->setMethod('POST');
+            ->setMethod('POST')
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_UPDATE_SHIPPING_METHOD, $event);
@@ -423,7 +429,8 @@ class CheckoutController extends Controller
     public function updateTotalsDiscountsAction(Request $request)
     {
         $event = new CoreEvent();
-        $event->setRequest($request);
+        $event->setRequest($request)
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_UPDATE_TOTALS_DISCOUNTS, $event);
@@ -449,7 +456,8 @@ class CheckoutController extends Controller
         $formEvent->setRequest($request)
             ->setAction($this->generateUrl('cart_checkout_submit_order'))
             ->setMethod('POST')
-            ->setSingleStep(CheckoutConstants::STEP_TOTALS_DISCOUNTS);
+            ->setSingleStep(CheckoutConstants::STEP_TOTALS_DISCOUNTS)
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_FORM, $formEvent);
@@ -458,7 +466,8 @@ class CheckoutController extends Controller
 
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setForm($form);
+            ->setForm($form)
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_UPDATE_TOTALS_DISCOUNTS, $event);
@@ -481,7 +490,8 @@ class CheckoutController extends Controller
         }
 
         $event = new CoreEvent();
-        $event->setRequest($request);
+        $event->setRequest($request)
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_UPDATE_PAYMENT_METHOD, $event);

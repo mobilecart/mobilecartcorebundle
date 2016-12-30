@@ -37,6 +37,20 @@ class OrderPayment
     private $code;
 
     /**
+     * @var string $reference_nbr
+     *
+     * @ORM\Column(name="reference_nbr", type="string", length=255, nullable=true)
+     */
+    private $reference_nbr;
+
+    /**
+     * @var string $status
+     *
+     * @ORM\Column(name="status", type="string", length=32, nullable=true)
+     */
+    private $status;
+
+    /**
      * @var string $service_account_id
      *
      * @ORM\Column(name="service_account_id", type="string", length=255, nullable=true)
@@ -239,6 +253,8 @@ class OrderPayment
             'id' => $this->getId(),
             'created_at' => $this->getCreatedAt(),
             'code' => $this->getCode(),
+            'reference_nbr' => $this->getReferenceNbr(),
+            'status' => $this->getStatus(),
             'service_account_id' => $this->getServiceAccountId(),
             'token' => $this->getToken(),
             'label' => $this->getLabel(),
@@ -291,6 +307,42 @@ class OrderPayment
     public function getCode()
     {
         return $this->code;
+    }
+
+    /**
+     * @param $referenceNbr
+     * @return $this
+     */
+    public function setReferenceNbr($referenceNbr)
+    {
+        $this->reference_nbr = $referenceNbr;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getReferenceNbr()
+    {
+        return $this->reference_nbr;
+    }
+
+    /**
+     * @param $status
+     * @return $this
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->status;
     }
 
     /**

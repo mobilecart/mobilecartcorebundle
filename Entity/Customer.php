@@ -640,6 +640,9 @@ class Customer
      */
     public function getBaseData()
     {
+        // security concerns:
+        //  prevent the hash from being communicated in api responses
+
         return [
             'id'                  => $this->getId(),
             'default_locale'      => $this->getDefaultLocale(),
@@ -671,7 +674,7 @@ class Customer
             'failed_logins'       => $this->getFailedLogins(),
             'locked_at'           => $this->getLockedAt(),
             'last_login_at'       => $this->getLastLoginAt(),
-            'api_key'             => $this->getApiKey(),
+            'api_key'             => $this->getApiKey(), // needed for authenticated REST communication
             'is_enabled'          => $this->getIsEnabled(),
             'is_expired'          => $this->getIsExpired(),
             'is_locked'           => $this->getIsLocked(),
