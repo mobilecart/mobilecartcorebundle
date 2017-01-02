@@ -169,7 +169,7 @@ class AddDiscount
 
             $cart = $this->getCartSessionService()
                 ->setCart($cart)
-                ->collectShippingMethods()
+                //->collectShippingMethods() // shouldnt have to re-collect shipping methods
                 ->collectTotals()
                 ->getCart();
 

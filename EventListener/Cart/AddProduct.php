@@ -535,13 +535,13 @@ class AddProduct
                     $errors[] = "Insufficient stock level : {$product->getSku()}, Available: {$product->getQty()}";
                 }
             }
-
         }
 
-        // collect totals
-        $cart = $event->getIsMassUpdate()
-            ? $this->getCartSessionService()->collectTotals()->getCart()
-            : $this->getCartSessionService()->collectShippingMethods('main')->collectTotals()->getCart();
+        // collect shipping methods and totals
+        $cart = $this->getCartSessionService()
+            ->collectShippingMethods('main')
+            ->collectTotals()
+            ->getCart();
 
         $baseCurrency = $currencyService->getBaseCurrency();
 

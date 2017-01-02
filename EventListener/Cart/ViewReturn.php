@@ -61,9 +61,7 @@ class ViewReturn
 
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $cart = $this->getCartSessionService()
-            ->initCart()
-            ->getCart();
+        $cart = $this->getCartSessionService()->getCart();
 
         $returnData['cart'] = $cart;
         $returnData['is_shipping_enabled'] = $this->getCartSessionService()

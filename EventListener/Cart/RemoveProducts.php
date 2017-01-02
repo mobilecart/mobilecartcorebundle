@@ -96,7 +96,7 @@ class RemoveProducts
 
         $cart = $this->getCartSessionService()
             ->removeItems()
-            ->collectShippingMethods()
+            ->collectShippingMethods('')
             ->collectTotals()
             ->getCart();
 
