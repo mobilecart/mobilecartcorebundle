@@ -14,15 +14,16 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class DB extends Rate
 {
+    protected $entityService;
+
+    protected $event;
+
+    protected $isEnabled = 1;
+
     public function __construct()
     {
         parent::__construct();
     }
-
-
-    protected $entityService;
-
-    protected $event;
 
     protected function setEvent($event)
     {
@@ -40,6 +41,17 @@ class DB extends Rate
         return $this->getEvent()->getReturnData()
             ? $this->getEvent()->getReturnData()
             : [];
+    }
+
+    public function setIsEnabled($yesNo = 1)
+    {
+        $this->isEnabled = $yesNo;
+        return $this;
+    }
+
+    public function getIsEnabled()
+    {
+        return $this->isEnabled;
     }
 
     /**
@@ -70,19 +82,18 @@ class DB extends Rate
         $this->setEvent($event);
         $returnData = $this->getReturnData();
 
-        // todo : check criteria ; load from db
+        // check criteria , load from db
 
         $methods = $this->getEntityService()
             ->findAll('shipping_method');
 
-        if ($methods) {
+        if ($this->getIsEnabled()
+            && $methods
+        ) {
             foreach($methods as $method) {
 
                 $rate = new Rate();
                 $rate->addData($method->getData());
-
-                // todo : cost, handling_cost
-
                 $event->addRate($rate);
             }
         }

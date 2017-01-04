@@ -134,7 +134,9 @@
         <parameter key="cart.listener.checkout.submit.order.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutSubmitOrder</parameter>
         <parameter key="cart.listener.checkout.success.return.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutSuccessReturn</parameter>
         <parameter key="cart.listener.shipping_rate.flatrate.class">MobileCart\CoreBundle\Shipping\FlatRate</parameter>
+        <parameter key="cart.listener.shipping_rate.flatrate.enabled">1</parameter>
         <parameter key="cart.listener.shipping_rate.db.class">MobileCart\CoreBundle\Shipping\DB</parameter>
+        <parameter key="cart.listener.shipping_rate.db.enabled">1</parameter>
         <parameter key="cart.listener.payment.method.handler.class">MobileCart\CoreBundle\EventListener\Payment\PaymentMethodHandler</parameter>
         <parameter key="cart.listener.cart.view.return.class">MobileCart\CoreBundle\EventListener\Cart\ViewReturn</parameter>
         <parameter key="cart.listener.cart.add.product.class">MobileCart\CoreBundle\EventListener\Cart\AddProduct</parameter>
@@ -904,6 +906,9 @@
         <!-- Event Listener: Shipping Method : Flat Rate -->
         <service id="cart.listener.shipping_rate.flatrate" lazy="true" class="%cart.listener.shipping_rate.flatrate.class%">
             <tag name="kernel.event_listener" event="shipping_rate.collect" method="onShippingRateCollect" priority="50" />
+            <call method="setIsEnabled">
+                <argument type="string">%cart.listener.shipping_rate.flatrate.enabled%</argument>
+            </call>
             <call method="set">
                 <argument type="string">id</argument>
                 <argument type="string">Standard_Method</argument><!-- avoid numerical values here -->
@@ -925,6 +930,9 @@
         <!-- Event Listener: Shipping Methods from Database (example: Flat Rate can be imported and have conditions saved/edited) in admin -->
         <service id="cart.listener.shipping_rate.db" lazy="true" class="%cart.listener.shipping_rate.db.class%">
             <tag name="kernel.event_listener" event="shipping_rate.collect" method="onShippingRateCollect" priority="60" />
+            <call method="setIsEnabled">
+                <argument type="string">%cart.listener.shipping_rate.db.enabled%</argument>
+            </call>
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>
