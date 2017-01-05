@@ -40,6 +40,8 @@ class Login implements AuthenticationSuccessHandlerInterface
      */
     protected $entityService;
 
+    protected $reloadCart = true;
+
     /**
      * Constructor.
      *
@@ -81,6 +83,17 @@ class Login implements AuthenticationSuccessHandlerInterface
         return $this->entityService;
     }
 
+    public function setReloadCart($reloadCart)
+    {
+        $this->reloadCart = $reloadCart;
+        return $this;
+    }
+
+    public function getReloadCart()
+    {
+        return $this->reloadCart;
+    }
+
     /**
      * @param $eventDispatcher
      * @return $this
@@ -119,7 +132,9 @@ class Login implements AuthenticationSuccessHandlerInterface
             }
 
             $aCart = $this->getCartSessionService()->getCart();
-            if (!$aCart->hasItems()) {
+            if ($this->getReloadCart()
+                && !$aCart->hasItems()
+            ) {
 
                 $currentCart = $this->getEntityService()->findOneBy(EntityConstants::CART, [
                     'customer' => $user->getId(),
