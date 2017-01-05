@@ -42,6 +42,9 @@
         <parameter key="cart.discount.class">MobileCart\CoreBundle\Service\DiscountService</parameter>
         <parameter key="cart.geography.class">MobileCart\CoreBundle\Service\GeographyService</parameter>
         <parameter key="cart.payment.class">MobileCart\CoreBundle\Service\PaymentService</parameter>
+        <parameter key="cart.recaptcha.class">MobileCart\CoreBundle\Service\RecaptchaV2Service</parameter>
+        <parameter key="recaptcha.key.site"> </parameter>
+        <parameter key="recaptcha.key.secret"> </parameter>
         <parameter key="cart.shipping.class">MobileCart\CoreBundle\Service\ShippingService</parameter>
         <parameter key="cart.tax.class">MobileCart\CoreBundle\Service\TaxService</parameter>
         <parameter key="cart.theme.class">MobileCart\CoreBundle\Service\ThemeService</parameter>
@@ -322,6 +325,16 @@
     </parameters>
 
     <services>
+
+        <!-- ReCaptcha Verification Service -->
+        <service id="cart.recaptcha" lazy="true" class="%cart.recaptcha.class%">
+            <call method="setPrivateKey">
+                <argument type="string">%recaptcha.key.secret%</argument>
+            </call>
+            <call method="setPublicKey">
+                <argument type="string">%recaptcha.key.site%</argument>
+            </call>
+        </service>
 
         <!-- Homepage Listener -->
         <service id="cart.listener.home.view.return" lazy="true" class="%cart.listener.home.view.return.class%">
