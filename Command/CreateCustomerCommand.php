@@ -65,7 +65,7 @@ EOF
             ->setIsEnabled(1);
 
         $variantSet = $entityService->findOneBy(EntityConstants::ITEM_VAR_SET, [
-            'object_type' => EntityConstants::PRODUCT,
+            'object_type' => EntityConstants::CUSTOMER,
         ]);
 
         if ($variantSet) {
