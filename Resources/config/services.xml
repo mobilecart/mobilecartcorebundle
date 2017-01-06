@@ -2007,6 +2007,12 @@
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>
+            <call method="setMailer">
+                <argument type="service" id="mailer" />
+            </call>
+            <call method="setFromEmail">
+                <argument type="string">%cart.email.from.main%</argument>
+            </call>
         </service>
         <service id="cart.listener.customer.register.confirm.return" lazy="true" class="%cart.listener.customer.register.confirm.return.class%">
             <tag name="kernel.event_listener" event="customer.register.confirm.return" method="onCustomerRegisterConfirmReturn" priority="50" />

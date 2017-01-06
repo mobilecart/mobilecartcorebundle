@@ -10,6 +10,10 @@ class CustomerRegisterConfirm
 
     protected $event;
 
+    protected $mailer;
+
+    protected $fromEmail;
+
     protected function setEvent($event)
     {
         $this->event = $event;
@@ -37,6 +41,28 @@ class CustomerRegisterConfirm
     public function getEntityService()
     {
         return $this->entityService;
+    }
+
+    public function setMailer($mailer)
+    {
+        $this->mailer = $mailer;
+        return $this;
+    }
+
+    public function getMailer()
+    {
+        return $this->mailer;
+    }
+
+    public function setFromEmail($fromEmail)
+    {
+        $this->fromEmail = $fromEmail;
+        return $this;
+    }
+
+    public function getFromEmail()
+    {
+        return $this->fromEmail;
     }
 
     public function onCustomerRegisterConfirm(Event $event)
@@ -71,6 +97,35 @@ class CustomerRegisterConfirm
             $this->getEntityService()->persist($entity);
             $event->setSuccess(1);
             $event->setEntity($entity);
+
+            $recipient = $event->getRecipient()
+                ? $event->getRecipient()
+                : $entity->getEmail();
+
+            $subject = $event->getSubject()
+                ? $event->getSubject()
+                : 'Account Confirmed';
+
+            $tplData = $entity->getData();
+
+            $tpl = 'Email:register_confirmed.html.twig';
+
+            $body = $this->getThemeService()->renderView('email', $tpl, $tplData);
+
+            try {
+
+                $message = \Swift_Message::newInstance()
+                    ->setSubject($subject)
+                    ->setFrom($this->getFromEmail())
+                    ->setTo($recipient)
+                    ->setBody($body, 'text/html');
+
+                $this->getMailer()->send($message);
+
+            } catch(\Exception $e) {
+                // todo : handle error
+            }
+
         } else {
 
             if ($entity) {
