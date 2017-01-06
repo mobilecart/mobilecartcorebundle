@@ -19,6 +19,7 @@
     "require": {
         "php": ">=5.5.24",
         "symfony/framework-bundle": "~2.8",
-        "omnipay/common": "2.x"
+        "omnipay/common": "2.x",
+        "twig/twig": "1.*"
     }
 }
