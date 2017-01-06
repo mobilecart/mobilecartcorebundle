@@ -135,38 +135,47 @@ class CustomerRegister
         $this->getEntityService()->persist($entity);
 
         if ($entity->getId()) {
+
+            $recipient = $event->getRecipient()
+                ? $event->getRecipient()
+                : $entity->getEmail();
+
+            $subject = $event->getSubject()
+                ? $event->getSubject()
+                : 'Account Registration';
+
             $event->addSuccessMessage("You are Registered");
-        }
 
-        $route = 'customer_register_confirm';
+            $route = 'customer_register_confirm';
 
-        $urlData = [
-            'id' => $entity->getId(),
-            'hash' => $confirmHash,
-        ];
+            $urlData = [
+                'id' => $entity->getId(),
+                'hash' => $confirmHash,
+            ];
 
-        $url = $this->getRouter()->generate($route, $urlData);
+            $url = $this->getRouter()->generate($route, $urlData);
 
-        $tplData = array_merge($entity->getData(), [
-            'url' => $url,
-        ]);
+            $tplData = array_merge($entity->getData(), [
+                'url' => $url,
+            ]);
 
-        $tpl = 'Email:register_confirm.html.twig';
+            $tpl = 'Email:register_confirm.html.twig';
 
-        $body = $this->getThemeService()->renderView('email', $tpl, $tplData);
+            $body = $this->getThemeService()->renderView('email', $tpl, $tplData);
 
-        try {
+            try {
 
-            $message = \Swift_Message::newInstance()
-                ->setSubject('Account Registration')
-                ->setFrom($this->getFromEmail())
-                ->setTo($entity->getEmail())
-                ->setBody($body, 'text/html');
+                $message = \Swift_Message::newInstance()
+                    ->setSubject($subject)
+                    ->setFrom($this->getFromEmail())
+                    ->setTo($recipient)
+                    ->setBody($body, 'text/html');
 
-            $this->getMailer()->send($message);
+                $this->getMailer()->send($message);
 
-        } catch(\Exception $e) {
-            // todo : handle error
+            } catch(\Exception $e) {
+                // todo : handle error
+            }
         }
 
         $event->setReturnData($returnData);

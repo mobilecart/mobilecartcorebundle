@@ -43,7 +43,6 @@ class RecaptchaV2Service
 
         $url = 'https://www.google.com/recaptcha/api/siteverify';
 
-        //url-ify the data for the POST
         $postStr = '';
         foreach($params as $key=>$value) { $postStr .= $key . '=' . $value . '&'; }
         rtrim($postStr, '&');
@@ -51,7 +50,7 @@ class RecaptchaV2Service
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, true);// count($params));
+        curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $postStr);
         $json = curl_exec($ch);
         curl_close($ch);
