@@ -26,7 +26,6 @@ class Customer extends ArrayWrapper
     {
         return [
             'id'                  => '',
-            'group'               => '',
             'email'               => '',
             'first_name'          => '',
             'last_name'           => '',
@@ -45,6 +44,7 @@ class Customer extends ArrayWrapper
             'shipping_region'     => '',
             'shipping_postcode'   => '',
             'shipping_country_id' => '',
+            'groups'              => [],
         ];
     }
 

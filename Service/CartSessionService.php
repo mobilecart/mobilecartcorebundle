@@ -484,10 +484,32 @@ class CartSessionService
                 $addresses[] = $address;
             }
         }
-
         $customer->setAddresses($addresses);
+
+        $groups = $entity->getGroups();
+        $groupNames = [];
+        if ($groups) {
+            foreach($groups as $group) {
+                $groupNames[] = $group->getName();
+            }
+        }
+        $customer->setGroups($groupNames);
+
         $this->setCustomer($customer);
         return $this;
+    }
+
+    /**
+     * @param $groupName
+     * @return bool
+     */
+    public function customerHasGroup($groupName)
+    {
+        $groups = $this->getCustomer()->getGroups();
+        if (!is_array($groups)) {
+            $groups = [];
+        }
+        return in_array($groupName, $groups);
     }
 
     /**

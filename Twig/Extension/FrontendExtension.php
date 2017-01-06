@@ -119,6 +119,7 @@ class FrontendExtension extends \Twig_Extension
             'categoryTree' => new \Twig_Function_Method($this, 'categoryTree', array('is_safe' => array('html'))),
             'subcategoryList' => new \Twig_Function_Method($this, 'subcategoryList', array('is_safe' => array('html'))),
             'customerName' => new \Twig_Function_Method($this, 'customerName', array('is_safe' => array('html'))),
+            'customerHasGroup' => new \Twig_Function_Method($this, 'customerHasGroup', array('is_safe' => array('html'))),
             'customer' => new \Twig_Function_Method($this, 'getCustomer', array('is_safe' => array('html'))),
             'addressLabel' => new \Twig_Function_Method($this, 'addressLabel', array('is_safe' => array('html'))),
             'customerAddress' => new \Twig_Function_Method($this, 'customerAddress', array('is_safe' => array('html'))),
@@ -1037,6 +1038,15 @@ class FrontendExtension extends \Twig_Extension
         }
 
         return 'Guest';
+    }
+
+    /**
+     * @param $group
+     * @return bool
+     */
+    public function customerHasGroup($group)
+    {
+        return $this->getCartSessionService()->customerHasGroup($group);
     }
 
     /**
