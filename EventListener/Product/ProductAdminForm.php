@@ -119,6 +119,7 @@ class ProductAdminForm
                     'is_qty_managed',
                     'can_backorder',
                     'qty',
+                    'qty_unit',
                     'min_qty',
                     //'stock_type',
                 ],

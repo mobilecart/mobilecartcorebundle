@@ -92,6 +92,14 @@ class ProductType extends AbstractType
                     new NotBlank(),
                 ],
             ])
+            ->add('qty_unit', 'choice', [
+                'required' => 0,
+                'choices' => [
+                    'EA' => 'Each',
+                    'CASE' => 'Case',
+                    '10-Pack' => '10 Pack',
+                ]
+            ])
             ->add('min_qty', 'number', ['required' => 0])
             ->add('is_enabled', 'checkbox', ['required' => 0])
             ->add('is_public', 'checkbox', ['required' => 0])

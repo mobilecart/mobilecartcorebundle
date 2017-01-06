@@ -370,6 +370,13 @@ class Product
     private $qty;
 
     /**
+     * @var string $qty_unit
+     *
+     * @ORM\Column(name="qty_unit", type="string", length=32, nullable=true)
+     */
+    private $qty_unit;
+
+    /**
      * @var integer $min_qty
      *
      * @ORM\Column(name="min_qty", type="integer", nullable=true)
@@ -492,6 +499,7 @@ class Product
             'price' => $this->getPrice(),
             'special_price' => $this->getSpecialPrice(),
             'qty' => $this->getQty(),
+            'qty_unit' => $this->getQtyUnit(),
             'min_qty' => $this->getMinQty(),
             'weight' => $this->getWeight(),
             'weight_unit' => $this->getWeightUnit(),
@@ -1670,6 +1678,26 @@ class Product
     public function getQty()
     {
         return $this->qty;
+    }
+
+    /**
+     * @param $qtyUnit
+     * @return Product
+     */
+    public function setQtyUnit($qtyUnit)
+    {
+        $this->qty_unit = $qtyUnit;
+        return $this;
+    }
+
+    /**
+     * Get qty
+     *
+     * @return integer
+     */
+    public function getQtyUnit()
+    {
+        return $this->qty_unit;
     }
 
     /**
