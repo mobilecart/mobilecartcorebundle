@@ -42,6 +42,12 @@ class CartController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CART_ADD_PRODUCT, $event);
 
+        $updateEvent = new CoreEvent();
+        $updateEvent->setRequest($request);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CART_UPDATE_TOTALS_SHIPPING, $event);
+
         return $event->getResponse();
     }
 
@@ -105,6 +111,12 @@ class CartController extends Controller
                 }
             }
         }
+
+        $updateEvent = new CoreEvent();
+        $updateEvent->setRequest($request);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CART_UPDATE_TOTALS_SHIPPING, $event);
 
         if ($this->getParameter('cart.shipping.multi.enabled')) {
 

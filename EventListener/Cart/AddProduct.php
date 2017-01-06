@@ -22,11 +22,6 @@ class AddProduct
      */
     protected $cartSessionService;
 
-    /**
-     * @var \MobileCart\CoreBundle\Service\ShippingService
-     */
-    protected $shippingService;
-
     protected $router;
 
     protected $event;
@@ -80,17 +75,6 @@ class AddProduct
     public function getCartSessionService()
     {
         return $this->cartSessionService;
-    }
-
-    public function setShippingService($shippingService)
-    {
-        $this->shippingService = $shippingService;
-        return $this;
-    }
-
-    public function getShippingService()
-    {
-        return $this->shippingService;
     }
 
     public function onCartAddProduct(Event $event)
@@ -537,93 +521,7 @@ class AddProduct
             }
         }
 
-        // collect shipping methods and totals
-        $cart = $this->getCartSessionService()
-            ->collectShippingMethods('main')
-            ->collectTotals()
-            ->getCart();
-
-        $baseCurrency = $currencyService->getBaseCurrency();
-
-        $currency = strlen($cart->getCurrency())
-            ? $cart->getCurrency()
-            : $baseCurrency;
-
-        // update cart row in db
-        $cartEntity->setJson($cart->toJson())
-            ->setCreatedAt(new \DateTime('now'))
-            ->setCurrency($currency)
-            ->setBaseCurrency($baseCurrency);
-
-        if ($customerId && !$cartEntity->getCustomer()) {
-            if (!$customerEntity) {
-                $customerEntity = $this->getEntityService()
-                    ->find(EntityConstants::CUSTOMER, $customerId);
-            }
-
-            $cartEntity->setCustomer($customerEntity);
-        }
-
-        // set totals on cart entity
-        $totals = $cart->getTotals();
-        foreach($totals as $total) {
-            switch($total->getKey()) {
-                case 'items':
-                    $cartEntity->setBaseItemTotal($total->getValue());
-                    if ($baseCurrency == $currency) {
-                        $cartEntity->setItemTotal($total->getValue());
-                    } else {
-                        $cartEntity->setItemTotal($currencyService->convert($total->getValue(), $currency));
-                    }
-                    break;
-                case 'shipments':
-                    $cartEntity->setBaseShippingTotal($total->getValue());
-                    if ($baseCurrency == $currency) {
-                        $cartEntity->setShippingTotal($total->getValue());
-                    } else {
-                        $cartEntity->setShippingTotal($currencyService->convert($total->getValue(), $currency));
-                    }
-                    break;
-                case 'tax':
-                    $cartEntity->setBaseTaxTotal($total->getValue());
-                    if ($baseCurrency == $currency) {
-                        $cartEntity->setTaxTotal($total->getValue());
-                    } else {
-                        $cartEntity->setTaxTotal($currencyService->convert($total->getValue(), $currency));
-                    }
-                    break;
-                case 'discounts':
-                    $cartEntity->setBaseDiscountTotal($total->getValue());
-                    if ($baseCurrency == $currency) {
-                        $cartEntity->setDiscountTotal($total->getValue());
-                    } else {
-                        $cartEntity->setDiscountTotal($currencyService->convert($total->getValue(), $currency));
-                    }
-                    break;
-                case 'grand_total':
-                    $cartEntity->setBaseTotal($total->getValue());
-                    if ($baseCurrency == $currency) {
-                        $cartEntity->setTotal($total->getValue());
-                    } else {
-                        $cartEntity->setTotal($currencyService->convert($total->getValue(), $currency));
-                    }
-                    break;
-                default:
-                    // no-op
-                    break;
-            }
-        }
-
-        $cartEntity->setJson($cart->toJson());
-
-        // update Cart in database
-        $this->getEntityService()->persist($cartEntity);
-
-        $event->setCartEntity($cartEntity)
-            ->setCartItemEntity($cartItemEntity);
-
-        $cartId = $cartEntity->getId();
-        $cart->setId($cartId);
+        $event->setCartItemEntity($cartItemEntity);
 
         $returnData['cart'] = $cart;
         $returnData['success'] = $success;

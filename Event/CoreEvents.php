@@ -22,6 +22,7 @@ final class CoreEvents
     const LOGOUT_SUCCESS = 'logout.success';
 
     const CART_ADD_PRODUCT = 'cart.add.product';
+    const CART_UPDATE_TOTALS_SHIPPING = 'cart.update.totals.shipping';
     const CART_ADD_SHIPMENT = 'cart.add.shipment';
     const CART_UPDATE_MULTI_SHIPMENT = 'cart.update.multi.shipment';
     const CART_ADD_DISCOUNT = 'cart.add.discount';

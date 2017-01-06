@@ -139,6 +139,7 @@
         <parameter key="cart.listener.payment.method.handler.class">MobileCart\CoreBundle\EventListener\Payment\PaymentMethodHandler</parameter>
         <parameter key="cart.listener.cart.view.return.class">MobileCart\CoreBundle\EventListener\Cart\ViewReturn</parameter>
         <parameter key="cart.listener.cart.add.product.class">MobileCart\CoreBundle\EventListener\Cart\AddProduct</parameter>
+        <parameter key="cart.listener.cart.update.totals.shipping.class">MobileCart\CoreBundle\EventListener\Cart\UpdateTotalsShipping</parameter>
         <parameter key="cart.listener.cart.addtocart.product.form.class">MobileCart\CoreBundle\EventListener\Cart\ProductAddToCartForm</parameter>
         <parameter key="cart.listener.cart.remove.product.class">MobileCart\CoreBundle\EventListener\Cart\RemoveProduct</parameter>
         <parameter key="cart.listener.cart.remove.products.class">MobileCart\CoreBundle\EventListener\Cart\RemoveProducts</parameter>
@@ -1384,6 +1385,20 @@
         <!-- Event Listener: Add Product to Cart : from a User Session, not for APIs -->
         <service id="cart.listener.cart.add.product" lazy="true" class="%cart.listener.cart.add.product.class%">
             <tag name="kernel.event_listener" event="cart.add.product" method="onCartAddProduct" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+            <call method="setCartSessionService">
+                <argument type="service" id="cart.session" />
+            </call>
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Update Totals and Shipping -->
+        <service id="cart.listener.cart.update.totals.shipping" lazy="true" class="%cart.listener.cart.update.totals.shipping.class%">
+            <tag name="kernel.event_listener" event="cart.add.product" method="onUpdateTotalsShipping" priority="50" />
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
