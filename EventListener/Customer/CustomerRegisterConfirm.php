@@ -14,6 +14,8 @@ class CustomerRegisterConfirm
 
     protected $fromEmail;
 
+    protected $themeService;
+
     protected function setEvent($event)
     {
         $this->event = $event;
@@ -63,6 +65,17 @@ class CustomerRegisterConfirm
     public function getFromEmail()
     {
         return $this->fromEmail;
+    }
+
+    public function setThemeService($themeService)
+    {
+        $this->themeService = $themeService;
+        return $this;
+    }
+
+    public function getThemeService()
+    {
+        return $this->themeService;
     }
 
     public function onCustomerRegisterConfirm(Event $event)

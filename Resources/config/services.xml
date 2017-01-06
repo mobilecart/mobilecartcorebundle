@@ -2013,6 +2013,9 @@
             <call method="setFromEmail">
                 <argument type="string">%cart.email.from.main%</argument>
             </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
         </service>
         <service id="cart.listener.customer.register.confirm.return" lazy="true" class="%cart.listener.customer.register.confirm.return.class%">
             <tag name="kernel.event_listener" event="customer.register.confirm.return" method="onCustomerRegisterConfirmReturn" priority="50" />
