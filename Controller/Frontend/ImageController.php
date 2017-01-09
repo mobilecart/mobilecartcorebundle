@@ -28,7 +28,7 @@ class ImageController extends Controller
             return new RedirectResponse($this->generateUrl('cart_view', []));
         }
 
-        return $this->get('cart.theme')->render('frontend', 'Image:upload_tmp.html.twig', []);
+        return $this->get('cart.theme')->render('frontend', 'Image:upload.html.twig', []);
     }
 
     public function uploadAction(Request $request)
