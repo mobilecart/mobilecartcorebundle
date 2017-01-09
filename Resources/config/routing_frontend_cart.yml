@@ -122,3 +122,17 @@ api_shipping_rates:
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Shipping:rates' }
     methods: [GET]
 
+cart_image_index:
+    path: /image
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Image:index' }
+    methods: [GET]
+
+cart_image_upload:
+    path: /image/upload
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Image:upload' }
+    methods: [PUT]
+
+cart_image_upload_base64:
+    path: /image/upload/base64
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Image:uploadBase64' }
+    methods: [POST]

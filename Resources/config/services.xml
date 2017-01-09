@@ -30,6 +30,7 @@
         <parameter key="cart.entity.class">MobileCart\CoreBundle\Service\DoctrineEntityService</parameter>
         <parameter key="cart.entity.pdo.class">MobileCart\CoreBundle\Service\PdoEntityService</parameter>
         <parameter key="cart.image.class">MobileCart\CoreBundle\Service\ImageService</parameter>
+        <parameter key="cart.image.upload.frontend.enabled">0</parameter>
         <parameter key="cart.order.class">MobileCart\CoreBundle\Service\OrderService</parameter>
         <parameter key="cart.twig.frontend.class">MobileCart\CoreBundle\Twig\Extension\FrontendExtension</parameter>
         <parameter key="cart.class">MobileCart\CoreBundle\Service\CartService</parameter>
@@ -969,6 +970,10 @@
             <call method="addImageUploadPath">
                 <argument>content</argument>
                 <argument>./bundles/mobilecartcore/uploads/content/</argument>
+            </call>
+            <call method="addImageUploadPath">
+                <argument>cart_item</argument>
+                <argument>./bundles/mobilecartcore/uploads/cart_item/</argument>
             </call>
             <call method="addImageConfig">
                 <argument>product</argument>
