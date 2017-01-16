@@ -340,6 +340,18 @@ class CartSessionService
      */
     public function addProduct($product, $qty = 1, $parentOptions = [])
     {
+        $item = $this->createCartItem($product, $parentOptions);
+        $this->addItem($item, $qty);
+        return $this;
+    }
+
+    /**
+     * @param $product
+     * @param array $parentOptions
+     * @return Item
+     */
+    public function createCartItem($product, $parentOptions = [])
+    {
         $item = $this->getItemInstance();
         $data = $product->getData();
         $data['product_id'] = $data['id'];
@@ -355,8 +367,19 @@ class CartSessionService
             }
             $item->setImages($images);
         }
-        $this->addItem($item, $qty);
-        return $this;
+        if ($tierPrices = $product->getTierPrices()) {
+            $tierData = [];
+            foreach($tierPrices as $tierPrice) {
+                $tierData[] = [
+                    'qty' => $tierPrice->getQty(),
+                    'price' => $tierPrice->getPrice(),
+                ];
+            }
+
+            $item->setTierPrices($tierData)
+                ->setOrigPrice($product->getPrice());
+        }
+        return $item;
     }
 
     /**
