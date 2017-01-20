@@ -92,7 +92,10 @@ class UpdateTotalsShipping
         $cartEntity = $this->getEntityService()->find(EntityConstants::CART, $cart->getId());
         $customerId = $cart->getCustomer()->getId();
         $customerEntity = $this->getEntityService()->find(EntityConstants::CUSTOMER, $customerId);
-        $cartEntity->setCustomer($customerEntity);
+
+        if ($customerEntity) {
+            $cartEntity->setCustomer($customerEntity);
+        }
 
         // update cart row in db
         $cartEntity->setJson($cart->toJson())
