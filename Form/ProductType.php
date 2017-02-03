@@ -82,8 +82,9 @@ class ProductType extends AbstractType
                 'required' => 0,
                 'choices' => [
                     'in' => 'Inch',
+                    'ft' => 'Foot',
+                    'cm' => 'Centimeter',
                     'm' => 'Meter',
-                    'mm' => 'Millimeter',
                 ]
             ])
             ->add('qty', 'number', [

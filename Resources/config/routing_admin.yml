@@ -213,6 +213,11 @@ cart_admin_image_upload:
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Image:upload' }
     methods: [PUT]
 
+cart_admin_image_upload_base64:
+    path: /admin/image/upload/base64
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Image:uploadBase64' }
+    methods: [PUT,POST]
+
 cart_admin_image_upload_slot:
     path: /admin/image/upload_slot
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Image:uploadSlot' }

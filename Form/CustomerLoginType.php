@@ -14,10 +14,12 @@ class CustomerLoginType extends AbstractType
             ->add('email', 'text', array(
                 'attr' => array(
                     'class' => 'form-control',
+                    'placeholder' => 'Email',
                 )))
             ->add('password', 'password', array(
                 'attr' => array(
                     'class' => 'form-control',
+                    'placeholder' => 'Password'
                 )));
 
         return $builder;

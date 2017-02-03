@@ -18,6 +18,9 @@ class CustomerForgotPasswordType extends AbstractType
                 'constraints' => [
                     new NotBlank(),
                 ],
+                'attr' => [
+                    'placeholder' => 'Email',
+                ]
             ])
         ;
     }

@@ -110,6 +110,21 @@ class ProductList
             ],
         ];
 
+        if (isset($returnData['search'])) {
+            $search = $returnData['search'];
+            $sortBy = $search->getSortBy();
+            $sortDir = $search->getSortDir();
+            if ($sortBy) {
+                foreach($returnData['columns'] as $k => $colData) {
+                    if ($colData['key'] == $sortBy) {
+                        $returnData['columns'][$k]['isActive'] = 1;
+                        $returnData['columns'][$k]['direction'] = $sortDir;
+                        break;
+                    }
+                }
+            }
+        }
+
         switch($event->getSection()) {
             case ($format == 'json'):
             case CoreEvent::SECTION_API:

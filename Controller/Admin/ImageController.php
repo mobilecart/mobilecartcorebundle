@@ -16,25 +16,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Form\Form;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
-use MobileCart\CoreBundle\Entity\Item;
-use MobileCart\CoreBundle\Entity\ItemImage;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
- * Image controller.
- *
- * @Route("/admin/image")
+ * Class ImageController
+ * @package MobileCart\CoreBundle\Controller\Admin
  */
 class ImageController extends Controller
 {
-    /**
-     * @Route("/", name="cart_admin_image")
-     * @Method("GET")
-     */
+
     public function indexAction(Request $request)
     {
         $imageUrl = $request->get('url', '');
@@ -72,10 +63,6 @@ class ImageController extends Controller
         die();
     }
 
-    /**
-     * @Route("/upload", name="cart_admin_image_upload")
-     * @Method("PUT")
-     */
     public function uploadAction(Request $request)
     {
         $itemId = $request->get('item_id', '');
@@ -207,10 +194,153 @@ class ImageController extends Controller
         ]);
     }
 
-    /**
-     * @Route("/upload_slot", name="cart_admin_image_upload_slot")
-     * @Method("PUT")
-     */
+    public function uploadBase64Action(Request $request)
+    {
+        $base64 = $request->get('base64', '');
+        $itemId = $request->get('item_id', '');
+        $hasError = false;
+
+        if ($base64) {
+            $parts = explode(',', $base64);
+            if (isset($parts[1])) {
+                $base64 = $parts[1];
+            } else {
+                $hasError = true;
+            }
+        } else {
+            $hasError = true;
+        }
+
+        // block if invalid
+        if ($hasError) {
+            return new JsonResponse([
+                'success' => 0,
+                'message' => 'Invalid File Type Uploaded',
+            ], 400);
+        }
+
+        $objectType = $request->get('object_type', '');
+        if (!$objectType) {
+
+            return new JsonResponse([
+                'success' => 0,
+                'message' => 'Please Select Object Type',
+            ], 400);
+        }
+
+        $imageService = $this->get('cart.image');
+        $uploadPath = $imageService->getImageUploadPath($objectType);
+        if (!$uploadPath) {
+
+            return new JsonResponse([
+                'success' => 0,
+                'message' => 'Error with Object Type',
+            ], 400);
+        }
+
+        $savePath = realpath($uploadPath);
+        if (!$savePath) {
+
+            return new JsonResponse([
+                'success' => 0,
+                'message' => 'Error with Upload Path : ' . $uploadPath,
+            ], 400);
+        }
+
+        $imageCode = $request->get('image_code', '');
+        if (!$imageCode) {
+
+            return new JsonResponse([
+                'success' => 0,
+                'message' => 'Please Select Image Size',
+            ], 400);
+        }
+
+        $dimensions = $imageService->getImageConfig($objectType, $imageCode);
+        if (!$dimensions || !isset($dimensions['width']) || !isset($dimensions['height'])) {
+
+            return new JsonResponse([
+                'success' => 0,
+                'message' => 'Error with Image Size Configuration : width, height',
+            ], 400);
+        }
+
+        $path = $this->container->getParameter('cart.upload.temp');
+        $filename = time() . '_' . substr('' . microtime(), 0, 5) . '.tmp';
+        $absPath = realpath($path) . '/' . $filename;
+
+        @file_put_contents($absPath, base64_decode($base64));
+
+        $mimeType = mime_content_type($absPath);
+        $mimeTypeParts = explode('/', $mimeType);
+        if ($mimeTypeParts[0] != 'image') {
+
+            // delete file
+            unlink($absPath);
+
+            return new JsonResponse([
+                'success' => 0,
+                'message' => 'Invalid File Type Uploaded',
+            ], 400);
+        }
+
+        $size = filesize($absPath);
+
+        $ext = $mimeTypeParts[1] == 'jpeg'
+            ? 'jpg'
+            : $mimeTypeParts[1]; // png, gif
+
+        // move file
+        $filename = str_replace('.tmp', '.' . $ext, $filename);
+
+        $newPath = $savePath . '/' . $filename;
+        rename($absPath, $newPath);
+
+        $entityService = $this->get('cart.entity');
+
+        $thumb = new \Imagick($newPath);
+        $thumb->resizeImage($dimensions['width'], $dimensions['height'], \Imagick::FILTER_LANCZOS, 1);
+        $thumb->writeImage($newPath);
+        $thumb->destroy();
+
+        $relPath = $uploadPath . $filename;
+        $relPath = substr($relPath, 2); // remove leading "./"
+
+        $imageObjectType = $objectType . '_image'; // naming scheme
+        $itemImage = $entityService->getInstance($imageObjectType);
+        $itemImage
+            ->setCode($imageCode)
+            ->setSize($size)
+            ->setWidth($dimensions['width'])
+            ->setHeight($dimensions['height'])
+            ->setPath($relPath)
+            ->setSortOrder(1)
+            ->setAltText('');
+
+        if ($itemId) {
+            $item = $entityService->find($objectType, $itemId);
+            if ($item) {
+                $itemImage->setParent($item);
+            }
+        }
+
+        $entityService->persist($itemImage);
+
+        $id = $itemImage->getId();
+
+        return new JsonResponse([
+            'success'       => 1,
+            'message'       => 'Image was Uploaded',
+            'id'            => $id,
+            'item_id'       => $itemId,
+            'width'         => $dimensions['width'],
+            'height'        => $dimensions['height'],
+            'code'          => $imageCode,
+            'bytes'         => $size,
+            'relative_path' => $relPath,
+        ]);
+    }
+
     public function uploadSlotAction(Request $request)
     {
         $itemId = $request->get('item_id', '');

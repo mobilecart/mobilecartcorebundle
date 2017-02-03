@@ -107,6 +107,21 @@ class CustomerList
             ],
         ];
 
+        if (isset($returnData['search'])) {
+            $search = $returnData['search'];
+            $sortBy = $search->getSortBy();
+            $sortDir = $search->getSortDir();
+            if ($sortBy) {
+                foreach($returnData['columns'] as $k => $colData) {
+                    if ($colData['key'] == $sortBy) {
+                        $returnData['columns'][$k]['isActive'] = 1;
+                        $returnData['columns'][$k]['direction'] = $sortDir;
+                        break;
+                    }
+                }
+            }
+        }
+
         switch($format) {
             case 'json':
                 $response = new JsonResponse($returnData);

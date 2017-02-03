@@ -80,6 +80,7 @@ class FrontendExtension extends \Twig_Extension
             'sortable' => new \Twig_Function_Method($this, 'sortable', ['is_safe' => ['html']]),
             'sortDir' => new \Twig_Function_Method($this, 'sortDir', ['is_safe' => ['html']]),
             'sortBy' => new \Twig_Function_Method($this, 'sortBy', ['is_safe' => ['html']]),
+            'configDecode' => new \Twig_Function_Method($this, 'configDecode', ['is_safe' => ['html']]),
             'theme' => new \Twig_Function_Method($this, 'theme', array('is_safe' => array('html'))),
             'layout' => new \Twig_Function_Method($this, 'layout', array('is_safe' => array('html'))),
             'frontend' => new \Twig_Function_Method($this, 'frontend', array('is_safe' => array('html'))),
@@ -270,6 +271,15 @@ class FrontendExtension extends \Twig_Extension
     public function templatePath($tpl, $theme = 'frontend')
     {
         return $this->getThemeConfig()->getTemplatePath($theme) . $tpl;
+    }
+
+    /**
+     * @param $json
+     * @return array
+     */
+    public function configDecode($json)
+    {
+        return @ (array) json_decode($json);
     }
 
     /**

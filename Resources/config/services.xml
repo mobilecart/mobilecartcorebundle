@@ -295,6 +295,7 @@
         <parameter key="cart.listener.order.update.return.class">MobileCart\CoreBundle\EventListener\Order\OrderUpdateReturn</parameter>
         <parameter key="cart.listener.order.delete.class">MobileCart\CoreBundle\EventListener\Order\OrderDelete</parameter>
         <parameter key="cart.listener.order.update.shipping.class">MobileCart\CoreBundle\EventListener\Order\OrderUpdateShipping</parameter>
+        <parameter key="cart.listener.order.update.items.class">MobileCart\CoreBundle\EventListener\Order\OrderUpdateItems</parameter>
         <parameter key="cart.listener.order.update.customer.class">MobileCart\CoreBundle\EventListener\Order\OrderUpdateCustomer</parameter>
         <parameter key="cart.listener.order.add.item.class">MobileCart\CoreBundle\EventListener\Order\OrderAddItem</parameter>
         <parameter key="cart.listener.order.remove.item.class">MobileCart\CoreBundle\EventListener\Order\OrderRemoveItem</parameter>
@@ -978,37 +979,9 @@
             <call method="addImageConfig">
                 <argument>product</argument>
                 <argument>list_grid</argument>
-                <argument>320</argument>
-                <argument>150</argument>
-                <argument>bundles/mobilecartfrontend/images/800x300.gif</argument>
-            </call>
-            <call method="addImageConfig">
-                <argument>product</argument>
-                <argument>list_row</argument>
-                <argument>320</argument>
-                <argument>150</argument>
-                <argument>bundles/mobilecartfrontend/images/320x150.gif</argument>
-            </call>
-            <call method="addImageConfig">
-                <argument>product</argument>
-                <argument>view_jumbo</argument>
-                <argument>800</argument>
-                <argument>300</argument>
-                <argument>bundles/mobilecartfrontend/images/800x300.gif</argument>
-            </call>
-            <call method="addImageConfig">
-                <argument>product</argument>
-                <argument>cart_row</argument>
-                <argument>320</argument>
-                <argument>150</argument>
-                <argument>bundles/mobilecartfrontend/images/320x150.gif</argument>
-            </call>
-            <call method="addImageConfig">
-                <argument>product</argument>
-                <argument>cart_mini</argument>
-                <argument>320</argument>
-                <argument>150</argument>
-                <argument>bundles/mobilecartfrontend/images/320x150.gif</argument>
+                <argument>500</argument>
+                <argument>500</argument>
+                <argument>bundles/mobilecartfrontend/images/500x500.png</argument>
             </call>
             <call method="addImageConfig">
                 <argument>category</argument>
@@ -2792,6 +2765,18 @@
             <tag name="kernel.event_listener" event="order.delete" method="onOrderDelete" priority="50" />
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.order.update.items" lazy="true" class="%cart.listener.order.update.items.class%">
+            <tag name="kernel.event_listener" event="order.update.items" method="onOrderUpdateItems" priority="50" />
+            <call method="setCartSession">
+                <argument type="service" id="cart.session" />
+            </call>
+            <call method="setCartTotalService">
+                <argument type="service" id="cart.total" />
+            </call>
+            <call method="setDiscountService">
+                <argument type="service" id="cart.discount" />
             </call>
         </service>
         <service id="cart.listener.order.update.shipping" lazy="true" class="%cart.listener.order.update.shipping.class%">

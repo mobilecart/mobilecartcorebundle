@@ -3,9 +3,8 @@
 namespace MobileCart\CoreBundle\EventListener\Order;
 
 use Symfony\Component\EventDispatcher\Event;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class OrderAddItem
+class OrderUpdateItems
 {
 
     protected $cartSession;
@@ -74,7 +73,7 @@ class OrderAddItem
         return $this->discountService;
     }
 
-    public function onOrderAddItem(Event $event)
+    public function onOrderUpdateItems(Event $event)
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
@@ -83,29 +82,19 @@ class OrderAddItem
 
         // set shipment method on cart
         $cartJson = $request->get('cart', '{}');
-        $this->getCartSession()->initCartJson($cartJson);
-        $itemJson = $request->get('item', '{}');
+        $qtys = $request->get('qtys', []);
 
-        $item = $this->getCartSession()->getItemInstance();
-        $item->fromJson($itemJson);
-        $productId = $item->getProductId();
-        $qty = $item->getQty();
-
-        if ($this->getCartSession()->hasProductId($productId)) {
-
-            $this->getCartSession()
-                ->setProductQty($productId, $qty);
-
-        } else if ($productId) {
-
-            $this->getCartSession()->addItem($item);
+        if ($qtys) {
+            foreach($qtys as $productId => $qty) {
+                $this->getCartSession()->setProductQty($productId, $qty);
+            }
         }
 
-        $cart = $this->getCartSession()
-            ->collectShippingMethods()
+        $totals = $this->getCartSession()
             ->collectTotals()
-            ->getCart();
+            ->getTotals();
 
+        $cart = $this->getCartSession()->getCart();
         $returnData['cart'] = $cart;
 
         $excludeDiscountIds = [];
