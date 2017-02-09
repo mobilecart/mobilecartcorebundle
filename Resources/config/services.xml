@@ -4,26 +4,51 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
-    <!-- HOWTO Customize:
-        Copy parameters to your custom bundle and change the values
-        Also, ensure that your custom bundle loads after this bundle in app/AppKernel.php
+    <!--
+
+    HOWTO Customize:
+
+        Copy parameters to your custom bundle's services.xml and change the values
+        Also, ensure that your custom bundle loads after this bundle in app/AppKernel.php so the values are over-written
+
     -->
 
     <parameters>
+        <!-- Basic config settings -->
         <parameter key="cart.is_production">0</parameter>
-        <parameter key="cart.email.from.main">test@test.com</parameter>
-        <parameter key="cart.checkout.spa.enabled">1</parameter>
-        <parameter key="cart.discount.enabled">1</parameter>
-        <parameter key="cart.shipping.enabled">1</parameter>
-        <parameter key="cart.shipping.multi.enabled">0</parameter>
         <parameter key="cart.config.currency.base">USD</parameter>
-        <parameter key="cart.load.currency">cart.currency</parameter>
-        <parameter key="cart.load.admin">cart.search.doctrine</parameter>
-        <parameter key="cart.load.frontend">cart.entity</parameter>
-        <parameter key="cart.search.frontend">cart.search.doctrine</parameter>
+        <parameter key="cart.email.from.main">test@test.com</parameter>
+        <parameter key="cart.discount.enabled">1</parameter><!-- enable discounts -->
+        <parameter key="cart.total.discount.auto">1</parameter><!-- automatically load, validate, and apply discounts from the database -->
+        <parameter key="cart.shipping.enabled">1</parameter><!-- enable shipping, shipping totals, and shipping section in checkout -->
+        <parameter key="cart.shipping.multi.enabled">0</parameter><!-- enable multiple shipping destinations and/or shipping source addresses -->
+        <parameter key="cart.tax.enabled">1</parameter><!-- enable tax, tax totals -->
+        <parameter key="cart.allow.guest.checkout">0</parameter><!-- enable guest checkout -->
+        <parameter key="cart.allowed.country.ids">US,GB</parameter><!-- allowed country codes, in CSV -->
+        <parameter key="cart.listener.customer.login.reload.cart">1</parameter>
+        <parameter key="cart.listener.shipping_rate.flatrate.enabled">1</parameter>
+        <parameter key="cart.listener.shipping_rate.db.enabled">1</parameter>
+        <!-- ReCaptcha Settings -->
+        <parameter key="recaptcha.key.site"> </parameter>
+        <parameter key="recaptcha.key.secret"> </parameter>
+        <!-- Default Ship-From Address -->
+        <parameter key="cart.shipping.src.key">main</parameter>
+        <parameter key="cart.shipping.src.label">Main</parameter>
+        <parameter key="cart.shipping.src.street"> </parameter>
+        <parameter key="cart.shipping.src.city">Kansas City</parameter>
+        <parameter key="cart.shipping.src.province">MO</parameter>
+        <parameter key="cart.shipping.src.postcode">64138</parameter>
+        <parameter key="cart.shipping.src.country">US</parameter>
+        <!-- End Ship-From Address -->
+        <parameter key="cart.load.currency">cart.currency</parameter><!-- service id of currency service -->
+        <parameter key="cart.load.admin">cart.search.doctrine</parameter><!-- service id of admin search service -->
+        <parameter key="cart.load.frontend">cart.entity</parameter><!-- service id of frontend entity loading service -->
+        <parameter key="cart.search.frontend">cart.search.doctrine</parameter><!-- service id of frontend search service -->
+        <parameter key="cart.checkout.spa.enabled">1</parameter><!-- Enable Single-Page Checkout, or use Multi-Page -->
         <parameter key="cart.upload.temp">/tmp</parameter>
         <parameter key="cart.auth.token.class">MobileCart\CoreBundle\Service\GuardTokenAuthService</parameter>
         <parameter key="cart.auth.token.allow.admin">0</parameter>
+        <!-- DI Class Names -->
         <parameter key="cart.search.class">MobileCart\CoreBundle\Service\DoctrineSearchServiceV2</parameter>
         <parameter key="cart.search.doctrine.class">MobileCart\CoreBundle\Service\DoctrineSearchServiceV2</parameter>
         <parameter key="cart.currency.class">MobileCart\CoreBundle\Service\CurrencyService</parameter>
@@ -34,8 +59,6 @@
         <parameter key="cart.order.class">MobileCart\CoreBundle\Service\OrderService</parameter>
         <parameter key="cart.twig.frontend.class">MobileCart\CoreBundle\Twig\Extension\FrontendExtension</parameter>
         <parameter key="cart.class">MobileCart\CoreBundle\Service\CartService</parameter>
-        <parameter key="cart.allow.guest.checkout">0</parameter>
-        <parameter key="cart.allowed.country.ids">US,GB</parameter>
         <parameter key="cart.session.class">MobileCart\CoreBundle\Service\CartSessionService</parameter>
         <parameter key="cart.total.class">MobileCart\CoreBundle\Service\CartTotalService</parameter>
         <parameter key="cart.locale.class">MobileCart\CoreBundle\Service\LocaleService</parameter>
@@ -44,8 +67,6 @@
         <parameter key="cart.geography.class">MobileCart\CoreBundle\Service\GeographyService</parameter>
         <parameter key="cart.payment.class">MobileCart\CoreBundle\Service\PaymentService</parameter>
         <parameter key="cart.recaptcha.class">MobileCart\CoreBundle\Service\RecaptchaV2Service</parameter>
-        <parameter key="recaptcha.key.site"> </parameter>
-        <parameter key="recaptcha.key.secret"> </parameter>
         <parameter key="cart.shipping.class">MobileCart\CoreBundle\Service\ShippingService</parameter>
         <parameter key="cart.tax.class">MobileCart\CoreBundle\Service\TaxService</parameter>
         <parameter key="cart.theme.class">MobileCart\CoreBundle\Service\ThemeService</parameter>
@@ -151,7 +172,6 @@
         <parameter key="cart.listener.cart.total.shipping.class">MobileCart\CoreBundle\EventListener\Cart\ShipmentTotal</parameter>
         <parameter key="cart.listener.cart.total.tax.class">MobileCart\CoreBundle\EventListener\Cart\TaxTotal</parameter>
         <parameter key="cart.listener.cart.total.discount.class">MobileCart\CoreBundle\EventListener\Cart\DiscountTotal</parameter>
-        <parameter key="cart.total.discount.auto">1</parameter>
         <parameter key="cart.listener.cart.total.grand.class">MobileCart\CoreBundle\EventListener\Cart\GrandTotal</parameter>
         <parameter key="cart.listener.product.search.class">MobileCart\CoreBundle\EventListener\Product\ProductSearch</parameter>
         <parameter key="cart.listener.product.list.class">MobileCart\CoreBundle\EventListener\Product\ProductList</parameter>
@@ -195,7 +215,6 @@
         <parameter key="cart.listener.content_slot.insert.class">MobileCart\CoreBundle\EventListener\ContentSlot\ContentSlotInsert</parameter>
         <parameter key="cart.listener.content_slot.delete.class">MobileCart\CoreBundle\EventListener\ContentSlot\ContentSlotDelete</parameter>
         <parameter key="cart.listener.content_slot.admin.form.class">MobileCart\CoreBundle\EventListener\ContentSlot\ContentSlotAdminForm</parameter>
-        <parameter key="cart.listener.customer.login.reload.cart">1</parameter>
         <parameter key="cart.listener.customer.search.class">MobileCart\CoreBundle\EventListener\Customer\CustomerSearch</parameter>
         <parameter key="cart.listener.customer.list.class">MobileCart\CoreBundle\EventListener\Customer\CustomerList</parameter>
         <parameter key="cart.listener.customer.navigation.class">MobileCart\CoreBundle\EventListener\Customer\CustomerNavigation</parameter>
@@ -311,9 +330,7 @@
         <parameter key="cart.listener.shipping_method.update.return.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodUpdateReturn</parameter>
         <parameter key="cart.listener.shipping_method.delete.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodDelete</parameter>
         <parameter key="cart.listener.shipping_rate.flatrate.class">MobileCart\CoreBundle\Shipping\FlatRate</parameter>
-        <parameter key="cart.listener.shipping_rate.flatrate.enabled">1</parameter>
         <parameter key="cart.listener.shipping_rate.db.class">MobileCart\CoreBundle\Shipping\DB</parameter>
-        <parameter key="cart.listener.shipping_rate.db.enabled">1</parameter>
         <parameter key="cart.listener.url_rewrite.search.class">MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteSearch</parameter>
         <parameter key="cart.listener.url_rewrite.list.class">MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteList</parameter>
         <parameter key="cart.listener.url_rewrite.edit.return.class">MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteEditReturn</parameter>
@@ -452,25 +469,6 @@
 
         <!-- Theme Config : (de-coupled from cart.theme to avoid circular references) -->
         <service id="cart.theme.config" lazy="true" class="%cart.theme.config.class%">
-            <call method="setTheme">
-                <argument type="string">frontend</argument>
-                <argument type="string">MobileCartFrontendBundle::frontend-layout.html.twig</argument>
-                <argument type="string">MobileCartFrontendBundle:</argument>
-                <argument type="string">bundles/mobilecartfrontend</argument>
-                <argument type="string">0</argument>
-            </call>
-            <call method="setTheme">
-                <argument type="string">email</argument>
-                <argument type="string">MobileCartFrontendBundle::email-layout.html.twig</argument>
-                <argument type="string">MobileCartFrontendBundle:</argument>
-                <argument type="string">bundles/mobilecartfrontend</argument>
-            </call>
-            <call method="setTheme">
-                <argument type="string">admin</argument>
-                <argument type="string">MobileCartAdminBundle::admin-layout.html.twig</argument>
-                <argument type="string">MobileCartAdminBundle:</argument>
-                <argument type="string">bundles/mobilecartadmin</argument>
-            </call>
             <call method="addAdminEditRoute">
                 <argument type="string">category</argument>
                 <argument type="string">cart_admin_category_edit</argument>
@@ -548,7 +546,7 @@
                 <argument type="service" id="session" />
             </call>
             <call method="setIsProduction">
-                <argument type="string">%cart.is_production%</argument>
+                <argument type="string">%cart.is_production%</argument><!-- Use this for Google Analytics, etc -->
             </call>
             <call method="setCurrencyService">
                 <argument type="service" id="cart.currency" />
@@ -588,7 +586,7 @@
                 <argument type="string">1</argument>
             </call>
             <call method="setEnableCreateShipment">
-                <argument type="string">1</argument>
+                <argument type="string">%cart.shipping.enabled%</argument>
             </call>
         </service>
 
@@ -643,13 +641,7 @@
         <!-- Tax Service -->
         <service id="cart.tax" lazy="true" class="%cart.tax.class%">
             <call method="setIsTaxEnabled">
-                <argument type="string">1</argument>
-            </call>
-            <call method="addRate">
-                <argument type="string">USD</argument>
-                <argument type="string">US</argument>
-                <argument type="string">GA</argument>
-                <argument type="string">.06</argument>
+                <argument type="string">%cart.tax.enabled%</argument>
             </call>
         </service>
 
@@ -666,6 +658,15 @@
             </call>
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setSourceAddress">
+                <argument type="string">%cart.shipping.src.key%</argument>
+                <argument type="string">%cart.shipping.src.label%</argument>
+                <argument type="string">%cart.shipping.src.street%</argument>
+                <argument type="string">%cart.shipping.src.city%</argument>
+                <argument type="string">%cart.shipping.src.province%</argument>
+                <argument type="string">%cart.shipping.src.postcode%</argument>
+                <argument type="string">%cart.shipping.src.country%</argument>
             </call>
         </service>
 
@@ -1294,6 +1295,7 @@
             </call>
         </service>
 
+        <!-- PDO-based Entity Service -->
         <service id="cart.entity.pdo" lazy="true" class="%cart.entity.pdo.class%">
 
         </service>

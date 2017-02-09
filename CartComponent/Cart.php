@@ -340,6 +340,10 @@ class Cart extends ArrayWrapper
 
                 if ($v instanceof \stdClass) {
                     $cart[$k] = new ArrayWrapper(get_object_vars($v));
+                } elseif (is_array($v)) {
+                    $cart[$k] = new ArrayWrapper($v);
+                } elseif (is_scalar($v)) {
+                    $cart[$k] = $v;
                 }
             }
         }

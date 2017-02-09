@@ -14,6 +14,7 @@ namespace MobileCart\CoreBundle\Service;
 use MobileCart\CoreBundle\Event\CoreEvents;
 use MobileCart\CoreBundle\Event\Shipping\FilterShippingRateEvent;
 use MobileCart\CoreBundle\Shipping\RateRequest;
+use MobileCart\CoreBundle\Shipping\SourceAddress;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Entity\ShippingMethod;
 
@@ -27,7 +28,7 @@ class ShippingService
     /**
      * @var bool
      */
-    protected $is_multi_shipping_enabled = false;
+    protected $isMultiShippingEnabled = false;
 
     /**
      * @var mixed
@@ -38,6 +39,11 @@ class ShippingService
      * @var
      */
     protected $entityService;
+
+    /**
+     * @var array
+     */
+    protected $sourceAddresses = []; // r[key] = ArrayWrapper
 
     public function __construct()
     {
@@ -69,7 +75,7 @@ class ShippingService
      */
     public function setIsMultiShippingEnabled($isEnabled)
     {
-        $this->is_multi_shipping_enabled = $isEnabled;
+        $this->isMultiShippingEnabled = $isEnabled;
         return $this;
     }
 
@@ -78,7 +84,7 @@ class ShippingService
      */
     public function getIsMultiShippingEnabled()
     {
-        return $this->is_multi_shipping_enabled;
+        return $this->isMultiShippingEnabled;
     }
 
     /**
@@ -132,6 +138,80 @@ class ShippingService
     }
 
     /**
+     * @param SourceAddress $sourceAddress
+     * @return $this
+     */
+    public function addSourceAddress(SourceAddress $sourceAddress)
+    {
+        $this->sourceAddresses[$sourceAddress->getKey()] = $sourceAddress;
+        return $this;
+    }
+
+    /**
+     * Setter method
+     *
+     * @param $key
+     * @param $label
+     * @param $street
+     * @param $city
+     * @param $province
+     * @param $postcode
+     * @param $country
+     * @return $this
+     */
+    public function setSourceAddress($key, $label, $street, $city, $province, $postcode, $country)
+    {
+        $sourceAddress = new SourceAddress();
+        $sourceAddress->fromArray([
+            'key' => $key,
+            'label' => $label,
+            'street' => $street,
+            'city' => $city,
+            'province' => $province,
+            'postcode' => $postcode,
+            'country' => $country,
+        ]);
+        $this->sourceAddresses[$key] = $sourceAddress;
+        return $this;
+    }
+
+    /**
+     * @param $key
+     * @return null
+     */
+    public function getSourceAddress($key)
+    {
+        return isset($this->sourceAddresses[$key])
+            ? $this->sourceAddresses[$key]
+            : null;
+    }
+
+    /**
+     * @param $key
+     * @param array $cartItems
+     * @return RateRequest|null
+     */
+    public function createRateRequest($key, array $cartItems)
+    {
+        if ($sourceAddress = $this->getSourceAddress($key)) {
+
+            $request = new RateRequest();
+            $request->fromArray([
+                'to_array'    => 0,
+                'include_all' => 0,
+                'postcode'    => $sourceAddress->getPostcode(),
+                'country_id'  => $sourceAddress->getCountry(),
+                'region'      => $sourceAddress->getProvince(),
+                'cart_items'  => $cartItems,
+            ]);
+
+            return $request;
+        }
+
+        return null;
+    }
+
+    /**
      * Load a ShippingMethod from a Rate
      * this is mostly used in the admin
      *
@@ -171,6 +251,8 @@ class ShippingService
     }
 
     /**
+     * Locate a flat rate in the database
+     *
      * @param $id
      * @return mixed
      */
@@ -181,6 +263,8 @@ class ShippingService
     }
 
     /**
+     * Locate a flat rate in the database
+     *
      * @param $company
      * @param $method
      */
