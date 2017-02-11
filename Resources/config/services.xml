@@ -26,8 +26,8 @@
         <parameter key="cart.allow.guest.checkout">0</parameter><!-- enable guest checkout -->
         <parameter key="cart.allowed.country.ids">US,GB</parameter><!-- allowed country codes, in CSV -->
         <parameter key="cart.listener.customer.login.reload.cart">1</parameter>
-        <parameter key="cart.listener.shipping_rate.flatrate.enabled">1</parameter>
-        <parameter key="cart.listener.shipping_rate.db.enabled">1</parameter>
+        <parameter key="cart.shipping.flatrate.enabled">1</parameter>
+        <parameter key="cart.shipping.flatrate.db.enabled">1</parameter>
         <!-- ReCaptcha Settings -->
         <parameter key="recaptcha.key.site"> </parameter>
         <parameter key="recaptcha.key.secret"> </parameter>
@@ -928,7 +928,7 @@
         <service id="cart.listener.shipping_rate.flatrate" lazy="true" class="%cart.listener.shipping_rate.flatrate.class%">
             <tag name="kernel.event_listener" event="shipping_rate.collect" method="onShippingRateCollect" priority="50" />
             <call method="setIsEnabled">
-                <argument type="string">%cart.listener.shipping_rate.flatrate.enabled%</argument>
+                <argument type="string">%cart.shipping.flatrate.enabled%</argument>
             </call>
             <call method="set">
                 <argument type="string">id</argument>
@@ -952,7 +952,7 @@
         <service id="cart.listener.shipping_rate.db" lazy="true" class="%cart.listener.shipping_rate.db.class%">
             <tag name="kernel.event_listener" event="shipping_rate.collect" method="onShippingRateCollect" priority="60" />
             <call method="setIsEnabled">
-                <argument type="string">%cart.listener.shipping_rate.db.enabled%</argument>
+                <argument type="string">%cart.shipping.flatrate.db.enabled%</argument>
             </call>
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
@@ -1378,7 +1378,11 @@
 
         <!-- Event Listener: Update Totals and Shipping -->
         <service id="cart.listener.cart.update.totals.shipping" lazy="true" class="%cart.listener.cart.update.totals.shipping.class%">
-            <tag name="kernel.event_listener" event="cart.add.product" method="onUpdateTotalsShipping" priority="50" />
+            <tag name="kernel.event_listener" event="cart.add.product" method="onUpdateTotalsShipping" priority="10" />
+            <tag name="kernel.event_listener" event="cart.remove.product" method="onUpdateTotalsShipping" priority="10" />
+            <tag name="kernel.event_listener" event="cart.remove.products" method="onUpdateTotalsShipping" priority="10" />
+            <tag name="kernel.event_listener" event="cart.add.shipment" method="onUpdateTotalsShipping" priority="10" />
+            <tag name="kernel.event_listener" event="cart.add.discount" method="onUpdateTotalsShipping" priority="10" />
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
@@ -1421,6 +1425,9 @@
             <call method="setCartSessionService">
                 <argument type="service" id="cart.session" />
             </call>
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
         </service>
 
         <!-- Event Listener: Add Shipment to Cart : from a User Session, not for APIs -->
@@ -1435,16 +1442,8 @@
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>
-        </service>
-
-        <!-- Event Listener: Update the address IDs where each item in the cart is shipping to -->
-        <service id="cart.listener.cart.update.multi.shipment" lazy="true" class="%cart.listener.cart.update.multi.shipment.class%">
-            <tag name="kernel.event_listener" event="cart.update.multi.shipment" method="onCartUpdateMultiShipment" priority="50" />
-            <call method="setCartSessionService">
-                <argument type="service" id="cart.session" />
-            </call>
-            <call method="setEntityService">
-                <argument type="service" id="cart.entity" />
+            <call method="setShippingService">
+                <argument type="service" id="cart.shipping" />
             </call>
         </service>
 

@@ -30,17 +30,17 @@ class FrontendExtension extends \Twig_Extension
     protected $isProduction = false;
 
     /**
-     * @var
+     * @var \MobileCart\CoreBundle\Service\CartSessionService
      */
     protected $cartSessionService;
 
     /**
-     * @var
+     * @var \MobileCart\CoreBundle\Service\CartTotalService
      */
     protected $cartTotalService;
 
     /**
-     * @var
+     * @var \MobileCart\CoreBundle\Service\ImageService
      */
     protected $imageService;
 
@@ -60,7 +60,7 @@ class FrontendExtension extends \Twig_Extension
     protected $router;
 
     /**
-     * @var
+     * @var \MobileCart\CoreBundle\Service\CurrencyService
      */
     protected $currencyService;
 
@@ -422,7 +422,7 @@ class FrontendExtension extends \Twig_Extension
     }
 
     /**
-     * @return mixed
+     * @return \MobileCart\CoreBundle\Service\CartSessionService
      */
     public function getCartSessionService()
     {
@@ -887,23 +887,25 @@ class FrontendExtension extends \Twig_Extension
     /**
      * @param $id
      * @param $addressId
+     * @param $srcAddressKey
      * @return mixed
      */
-    public function cartHasShipmentMethodId($id, $addressId='main')
+    public function cartHasShipmentMethodId($id, $addressId='main', $srcAddressKey='main')
     {
         return $this->getCartSessionService()->getCart()
-            ->hasShipmentMethodId($id, $addressId);
+            ->hasShipmentMethodId($id, $addressId, $srcAddressKey);
     }
 
     /**
      * @param $code
      * @param $addressId
+     * @param $srcAddressKey
      * @return mixed
      */
-    public function cartHasShipmentMethodCode($code, $addressId='main')
+    public function cartHasShipmentMethodCode($code, $addressId='main', $srcAddressKey='main')
     {
         return $this->getCartSessionService()->getCart()
-            ->hasShipmentMethodCode($code, $addressId);
+            ->hasShipmentMethodCode($code, $addressId, $srcAddressKey);
     }
 
     /**
@@ -911,8 +913,7 @@ class FrontendExtension extends \Twig_Extension
      */
     public function cartShipments()
     {
-        return $this->getCartSessionService()->getCart()
-            ->getShipments();
+        return $this->getCartSessionService()->getCart()->getShipments();
     }
 
     /**
@@ -1011,11 +1012,12 @@ class FrontendExtension extends \Twig_Extension
 
     /**
      * @param $addressId
+     * @param $srcAddressKey
      * @return mixed
      */
-    public function getCartShippingMethods($addressId='main')
+    public function getCartShippingMethods($addressId='main', $srcAddressKey='main')
     {
-        return $this->getCartSessionService()->getShippingMethods($addressId);
+        return $this->getCartSessionService()->getShippingMethods($addressId, $srcAddressKey);
     }
 
     /**
@@ -1124,6 +1126,7 @@ class FrontendExtension extends \Twig_Extension
 
     /**
      * @param $addressId
+     * @return string
      */
     public function addressLabel($addressId)
     {

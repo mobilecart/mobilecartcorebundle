@@ -68,7 +68,7 @@ class CustomerAddressUpdate
             // update session info
 
             $this->getCartSessionService()
-                ->setCustomerEntity($event->getCustomer());
+                ->setCustomerEntity($entity->getCustomer());
         }
 
         if ($entity && $request->getSession()) {

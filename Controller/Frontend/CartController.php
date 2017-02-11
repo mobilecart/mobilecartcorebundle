@@ -24,7 +24,9 @@ class CartController extends Controller
     {
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setUser($this->getUser());
+            ->setUser($this->getUser())
+            ->setIsMultiShippingEnabled($this->getParameter('cart.shipping.multi.enabled'))
+        ;
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CART_VIEW_RETURN, $event);
@@ -37,16 +39,12 @@ class CartController extends Controller
         $event = new CoreEvent();
         $event->setRequest($request)
             ->setIsAdd(1)
-            ->setUser($this->getUser());
+            ->setUser($this->getUser())
+            ->setIsMultiShippingEnabled($this->getParameter('cart.shipping.multi.enabled'))
+        ;
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CART_ADD_PRODUCT, $event);
-
-        $updateEvent = new CoreEvent();
-        $updateEvent->setRequest($request);
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CART_UPDATE_TOTALS_SHIPPING, $event);
 
         return $event->getResponse();
     }
@@ -55,22 +53,12 @@ class CartController extends Controller
     {
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setUser($this->getUser());
+            ->setUser($this->getUser())
+            ->setIsMultiShippingEnabled($this->getParameter('cart.shipping.multi.enabled'))
+        ;
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CART_ADD_SHIPMENT, $event);
-
-        return $event->getResponse();
-    }
-
-    public function updateMultiShippingAction(Request $request)
-    {
-        $event = new CoreEvent();
-        $event->setRequest($request)
-            ->setUser($this->getUser());
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CART_UPDATE_MULTI_SHIPMENT, $event);
 
         return $event->getResponse();
     }
@@ -90,7 +78,10 @@ class CartController extends Controller
                     $event = new CoreEvent();
                     $event->setRequest($request)
                         ->setUser($this->getUser())
-                        ->setIsMassUpdate(1);
+                        ->setProductId($productId)
+                        ->setIsMassUpdate(1)
+                        ->setIsMultiShippingEnabled($this->getParameter('cart.shipping.multi.enabled'))
+                    ;
 
                     $this->get('event_dispatcher')
                         ->dispatch(CoreEvents::CART_REMOVE_PRODUCT, $event);
@@ -103,30 +94,15 @@ class CartController extends Controller
                         ->setQty($qty)
                         ->setIsAdd(0)
                         ->setUser($this->getUser())
-                        ->setIsMassUpdate(1);
+                        ->setIsMassUpdate(1)
+                        ->setIsMultiShippingEnabled($this->getParameter('cart.shipping.multi.enabled'))
+                    ;
 
                     $this->get('event_dispatcher')
                         ->dispatch(CoreEvents::CART_ADD_PRODUCT, $event);
 
                 }
             }
-        }
-
-        $updateEvent = new CoreEvent();
-        $updateEvent->setRequest($request);
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CART_UPDATE_TOTALS_SHIPPING, $event);
-
-        if ($this->getParameter('cart.shipping.multi.enabled')) {
-
-            $aEvent = new CoreEvent();
-            $aEvent->setRequest($request)
-                ->setUser($this->getUser());
-
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CART_UPDATE_MULTI_SHIPMENT, $aEvent);
-
         }
 
         return $event->getResponse();

@@ -172,6 +172,20 @@ class CartItem implements CartEntityInterface
     private $customer_address_id;
 
     /**
+     * Key of the Source Address, which is stored elsewhere
+     *
+     * @var string
+     *
+     * @ORM\Column(name="source_address_key", type="string", length=255)
+     */
+    private $source_address_key;
+
+    public function __construct()
+    {
+        $this->source_address_key = 'main';
+    }
+
+    /**
      * Get id
      *
      * @return int
@@ -286,6 +300,7 @@ class CartItem implements CartEntityInterface
             'height' => $this->getHeight(),
             'length' => $this->getLength(),
             'measure_unit' => $this->getMeasureUnit(),
+            'source_address_key' => $this->getSourceAddressKey(),
         ];
     }
 
@@ -696,5 +711,23 @@ class CartItem implements CartEntityInterface
     public function getCustomerAddressId()
     {
         return $this->customer_address_id;
+    }
+
+    /**
+     * @param $srcAddressKey
+     * @return $this
+     */
+    public function setSourceAddressKey($srcAddressKey)
+    {
+        $this->source_address_key = $srcAddressKey;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSourceAddressKey()
+    {
+        return $this->source_address_key;
     }
 }

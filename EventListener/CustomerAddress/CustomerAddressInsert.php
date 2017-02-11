@@ -7,10 +7,16 @@ use Symfony\Component\EventDispatcher\Event;
 
 class CustomerAddressInsert
 {
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
     protected $event;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CartSessionService
+     */
     protected $cartSessionService;
 
     protected function setEvent($event)

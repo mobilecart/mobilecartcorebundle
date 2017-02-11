@@ -356,6 +356,20 @@ class Product
     private $stock_type;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="source_address_key", type="string", length=255, nullable=true)
+     */
+    private $source_address_key;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="upc", type="string", length=255, nullable=true)
+     */
+    private $upc;
+
+    /**
      * @var boolean $can_backorder
      *
      * @ORM\Column(name="can_backorder", type="boolean", nullable=true)
@@ -413,6 +427,7 @@ class Product
 
     public function __construct()
     {
+        $this->source_address_key = 'main'; // recommended key for main source address
         $this->group_prices = new \Doctrine\Common\Collections\ArrayCollection();
         $this->tier_prices = new \Doctrine\Common\Collections\ArrayCollection();
         $this->product_configs = new \Doctrine\Common\Collections\ArrayCollection();
@@ -498,6 +513,8 @@ class Product
             'sku' => $this->getSku(),
             'price' => $this->getPrice(),
             'special_price' => $this->getSpecialPrice(),
+            'stock_type' => $this->getStockType(),
+            'source_address_key' => $this->getSourceAddressKey(),
             'qty' => $this->getQty(),
             'qty_unit' => $this->getQtyUnit(),
             'min_qty' => $this->getMinQty(),
@@ -1315,8 +1332,23 @@ class Product
         return $this->sku;
     }
 
-    // public function setBarcode
-    // public function getBarcode
+    /**
+     * @param $upc
+     * @return $this
+     */
+    public function setUpc($upc)
+    {
+        $this->upc = $upc;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUpc()
+    {
+        return $this->upc;
+    }
 
     /**
      * @param $desc
@@ -1638,6 +1670,24 @@ class Product
     public function getStockType()
     {
         return $this->stock_type;
+    }
+
+    /**
+     * @param $srcAddressKey
+     * @return $this
+     */
+    public function setSourceAddressKey($srcAddressKey)
+    {
+        $this->source_address_key = $srcAddressKey;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSourceAddressKey()
+    {
+        return $this->source_address_key;
     }
 
     /**

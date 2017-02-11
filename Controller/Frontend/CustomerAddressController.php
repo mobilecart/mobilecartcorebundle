@@ -172,12 +172,8 @@ class CustomerAddressController extends Controller
         $user = $this->getUser();
         $addressId = $request->get('id', 0);
 
-        $entity = $entityService->findOneBy($this->objectType, [
-            'id' => $addressId,
-            'customer' => $user,
-        ]);
-
-        if (!$entity) {
+        $entity = $entityService->find($this->objectType, $addressId);
+        if (!$entity || $entity->getCustomer()->getId() != $user->getId()) {
             throw $this->createNotFoundException('Unable to find Address');
         }
 
@@ -249,7 +245,8 @@ class CustomerAddressController extends Controller
             $event->setObjectType($this->objectType)
                 ->setEntity($entity)
                 ->setRequest($request)
-                ->setFormData($formData);
+                ->setFormData($formData)
+                ->setSection(CoreEvent::SECTION_FRONTEND);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CUSTOMER_ADDRESS_UPDATE, $event);

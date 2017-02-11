@@ -2,6 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
+use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -9,9 +10,14 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
 
 class RemoveProduct
 {
-
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CartSessionService
+     */
     protected $cartSessionService;
 
     protected $router;
@@ -73,7 +79,8 @@ class RemoveProduct
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
-
+        $recollectShipping = [];
+        $success = 0;
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
@@ -112,88 +119,61 @@ class RemoveProduct
             $cart->setId($cartId);
         }
 
-        $cartItemEntities = $cartEntity->getCartItems();
-        if ($cartItemEntities) {
-            foreach($cartItemEntities as $cartItemEntity) {
-                if ($cartItemEntity->getProductId() == $productId) {
-                    $this->getEntityService()->remove($cartItemEntity);
-                    break;
+        $cartItem = $cartSession->getCart()->findItem('product_id', $productId);
+
+        if ($cartItem) {
+
+            $customerAddressId = $cartItem->get('customer_address_id', 'main');
+            $srcAddressKey = $cartItem->get('source_address_key', 'main');
+
+            $recollectShipping[] = new ArrayWrapper([
+                'customer_address_id' => $customerAddressId,
+                'source_address_key' => $srcAddressKey
+            ]);
+
+            $event->setRecollectShipping($recollectShipping);
+
+            $cartItemEntities = $cartEntity->getCartItems();
+            if ($cartItemEntities) {
+                foreach($cartItemEntities as $cartItemEntity) {
+                    if ($cartItemEntity->getProductId() == $productId) {
+                        $this->getEntityService()->remove($cartItemEntity);
+                        break;
+                    }
                 }
             }
-        }
 
-        $cart = $this->getCartSessionService()
-            ->removeProductId($productId)
-            ->collectShippingMethods('')
-            ->collectTotals()
-            ->getCart();
-
-        // update db
-        $cartEntity->setJson($cart->toJson());
-
-        $currencyService = $this->getCartSessionService()->getCurrencyService();
-        $baseCurrency = $currencyService->getBaseCurrency();
-
-        $currency = strlen($cart->getCurrency())
-            ? $cart->getCurrency()
-            : $baseCurrency;
-
-        // set totals
-        $totals = $cart->getTotals();
-        foreach($totals as $total) {
-            switch($total->getKey()) {
-                case 'items':
-                    $cartEntity->setBaseItemTotal($total->getValue());
-                    if ($baseCurrency == $currency) {
-                        $cartEntity->setItemTotal($total->getValue());
-                    } else {
-                        $cartEntity->setItemTotal($currencyService->convert($total->getValue(), $currency));
+            $this->getCartSessionService()->removeProductId($productId);
+            $cartItems = $cartSession->getCart()->getItems();
+            // check if items still need a shipment for this address
+            $hasItems = false;
+            if ($cartItems) {
+                foreach($cartItems as $cartItem) {
+                    if ($cartItem->get('customer_address_id', 'main') == $customerAddressId
+                        && $cartItem->get('source_address_key', 'main') == $srcAddressKey
+                    ) {
+                        $hasItems = true;
                     }
-                    break;
-                case 'shipments':
-                    $cartEntity->setBaseShippingTotal($total->getValue());
-                    if ($baseCurrency == $currency) {
-                        $cartEntity->setShippingTotal($total->getValue());
-                    } else {
-                        $cartEntity->setShippingTotal($currencyService->convert($total->getValue(), $currency));
-                    }
-                    break;
-                case 'tax':
-                    $cartEntity->setBaseTaxTotal($total->getValue());
-                    if ($baseCurrency == $currency) {
-                        $cartEntity->setTaxTotal($total->getValue());
-                    } else {
-                        $cartEntity->setTaxTotal($currencyService->convert($total->getValue(), $currency));
-                    }
-                    break;
-                case 'discounts':
-                    $cartEntity->setBaseDiscountTotal($total->getValue());
-                    if ($baseCurrency == $currency) {
-                        $cartEntity->setDiscountTotal($total->getValue());
-                    } else {
-                        $cartEntity->setDiscountTotal($currencyService->convert($total->getValue(), $currency));
-                    }
-                    break;
-                case 'grand_total':
-                    $cartEntity->setBaseTotal($total->getValue());
-                    if ($baseCurrency == $currency) {
-                        $cartEntity->setTotal($total->getValue());
-                    } else {
-                        $cartEntity->setTotal($currencyService->convert($total->getValue(), $currency));
-                    }
-                    break;
-                default:
-                    // no-op
-                    break;
+                }
             }
-        }
 
-        // update Cart in database
-        $this->getEntityService()->persist($cartEntity);
-        $event->setCartEntity($cartEntity);
+            // remove shipments and shipping methods
+            if (!$hasItems) {
+                $this->getCartSessionService()->removeShipments($customerAddressId, $srcAddressKey);
+                $this->getCartSessionService()->removeShippingMethods($customerAddressId, $srcAddressKey);
+            }
+
+            $success = 1;
+            $this->getCartSessionService()->collectTotals();
+
+        } else {
+
+            // display error message
+
+        }
 
         $returnData['cart'] = $cart;
-        $returnData['success'] = 1;
+        $returnData['success'] = $success;
 
         $response = '';
         switch($format) {

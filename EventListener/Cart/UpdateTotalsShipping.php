@@ -77,9 +77,40 @@ class UpdateTotalsShipping
     {
         $currencyService = $this->getCartSessionService()->getCurrencyService();
 
-        // collect shipping methods and totals
+        $cartItems = $this->getCartSessionService()->getCart()->getItems();
+
+        // re-collect shipping methods , if necessary
+        if ($recollectAddresses = $event->getRecollectShipping()) {
+            foreach($recollectAddresses as $recollectAddress) {
+
+                $customerAddressId = $recollectAddress->get('customer_address_id', 'main');
+                $srcAddressKey = $recollectAddress->get('source_address_key', 'main');
+                $hasItems = false;
+                if ($cartItems) {
+                    foreach($cartItems as $cartItem) {
+                        if ($cartItem->get('customer_address_id', 'main') == $customerAddressId
+                            && $cartItem->get('source_address_key', 'main') == $srcAddressKey
+                        ) {
+                            $hasItems = true;
+                        }
+                    }
+                }
+
+                // remove shipments and shipping methods
+                if (!$hasItems) {
+                    $this->getCartSessionService()->removeShipments($customerAddressId, $srcAddressKey);
+                    $this->getCartSessionService()->removeShippingMethods($customerAddressId, $srcAddressKey);
+                    continue;
+                }
+
+                // shipment quotes are stored in the cart json . they don't have their own table, so we dont need to persist
+                $this->getCartSessionService()
+                    ->collectShippingMethods($customerAddressId, $srcAddressKey);
+            }
+        }
+
+        // collect totals
         $cart = $this->getCartSessionService()
-            ->collectShippingMethods('main')
             ->collectTotals()
             ->getCart();
 
@@ -154,6 +185,8 @@ class UpdateTotalsShipping
         }
 
         $cartEntity->setJson($cart->toJson());
+
+        // todo : update tax, discount values in cart items
 
         // update Cart in database
         $this->getEntityService()->persist($cartEntity);

@@ -356,6 +356,18 @@ class AddProductV2
     {
         $cartItem = $this->getCartItem();
 
+        $customerAddressId = $cartItem->get('customer_address_id', 'main');
+        if (is_numeric($customerAddressId)) {
+            $customerAddressId = (int) $customerAddressId;
+        } else if (is_int(strpos($customerAddressId, '_'))) {
+            $addressParts = explode('_', $cartItem->getCustomerAddressId()); // eg 'address_3'
+            $customerAddressId = count($addressParts) == 2
+                ? $addressParts[1]
+                : null;
+        } elseif ($customerAddressId == 'main') {
+            $customerAddressId = null;
+        }
+
         $currencyService = $this->getCartSessionService()->getCurrencyService();
         $baseCurrency = $this->getCartSessionService()->getBaseCurrency();
         $customerCurrency = $this->getCartSessionService()->getCurrency();
@@ -373,10 +385,15 @@ class AddProductV2
             $cartItemEntity = $this->getEntityService()
                 ->find(EntityConstants::CART_ITEM, $cartItem->getId());
 
-            // todo : throw Exception
             if (!$cartItemEntity) {
-
+                throw new \Exception("Something terrible happened.");
             }
+
+            // update customer_address_id , if necessary
+            if ($cartItemEntity->getCustomerAddressId() != $customerAddressId) {
+                $cartItemEntity->setCustomerAddressId($customerAddressId);
+            }
+
         } else {
 
             $itemJson = $cartItem
@@ -395,6 +412,8 @@ class AddProductV2
                 ->setHeight($cartItem->getHeight())
                 ->setLength($cartItem->getLength())
                 ->setMeasureUnit($cartItem->getMeasureUnit())
+                ->setCustomerAddressId($customerAddressId)
+                ->setSourceAddressKey($cartItem->getSourceAddressKey())
                 ->setJson($itemJson);
         }
 
@@ -417,8 +436,8 @@ class AddProductV2
                     if ($customerCurrency == $baseCurrency) {
 
                         $cartItemEntity->setPrice($cartItem->getPrice())
-                            //->setTax() todo
-                            //->setDiscount() todo
+                            //->setTax() todo : update this during total collection, tax collector, create a tax grid function
+                            //->setDiscount() todo : update this during total collection, retrieve from the discount grid function
                             ->setCurrency($baseCurrency)
                             ->setBasePrice($cartItem->getPrice())
                             //->setBaseTax() todo
@@ -461,12 +480,76 @@ class AddProductV2
                             ->setBaseCurrency($baseCurrency);
                     }
                 }
-
             }
 
             $this->getEntityService()->persist($cartItemEntity);
             $cartItem->setId($cartItemEntity->getId());
             $this->setCartItemEntity($cartItemEntity);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param $cartItem
+     * @param array $recollectShipping
+     * @return $this
+     */
+    public function collectAddresses(&$cartItem, array &$recollectShipping)
+    {
+        $event = $this->getEvent();
+        $productId = $cartItem->getProductId();
+        $request = $event->getRequest();
+        $productAddresses = $request->get('product_address', []);
+
+        // update shipping address
+        if ($event->getIsMultiShippingEnabled()) {
+
+            // get customer_address_id from request
+            if (isset($productAddresses[$productId])) {
+
+                $customerAddressId = $productAddresses[$productId];
+                if ($customerAddressId != 'main' && is_numeric($customerAddressId)) {
+                    $customerAddressId = 'address_' . $customerAddressId;
+                }
+
+                if ($cartItem->get('customer_address_id', 'main') != $customerAddressId) {
+
+                    // recollect the original shipping address, since the items have changed for that address
+                    $recollectShipping[] = new ArrayWrapper([
+                        'customer_address_id' => $cartItem->get('customer_address_id', 'main'),
+                        'source_address_key' => $cartItem->get('source_address_key', 'main')
+                    ]);
+
+                    // update cart item
+                    $cartItem->set('customer_address_id', $customerAddressId);
+                }
+
+                // recollect new shipping address
+                $recollectShipping[] = new ArrayWrapper([
+                    'customer_address_id' => $cartItem->get('customer_address_id', $customerAddressId),
+                    'source_address_key' => $cartItem->get('source_address_key', 'main')
+                ]);
+
+            } else {
+
+                // we can assume the address for the cart item is not changing
+                //  but we need to recollect in case qty or weight changed
+
+                $recollectShipping[] = new ArrayWrapper([
+                    'customer_address_id' => $cartItem->get('customer_address_id', 'main'),
+                    'source_address_key' => $cartItem->get('source_address_key', 'main')
+                ]);
+            }
+
+        } else {
+
+            // always recollect main address when multi shipping is disabled
+
+            $recollectShipping[] = new ArrayWrapper([
+                'customer_address_id' => $cartItem->get('customer_address_id', 'main'),
+                'source_address_key' => $cartItem->get('source_address_key', 'main')
+            ]);
         }
 
         return $this;
@@ -478,6 +561,8 @@ class AddProductV2
         $returnData = $this->getReturnData();
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
+        $recollectShipping = []; // r = [object, object] , object:{'customer_address_id':'','source_address_key':''}
+
         $success = 0;
         $errors = [];
         $cartItemEntity = null;
@@ -494,7 +579,7 @@ class AddProductV2
         $keyFields = ['id', 'sku']; // possibly allow more in the future
         $productId = 0; // dont set productId until we know the valid value
 
-        $parentProductId = 0;
+        $parentProductId = $request->get('id', ''); // always the case: integer , parent product_id
         $parentOptions = [];
 
         // check if parameters passed via Event
@@ -529,10 +614,10 @@ class AddProductV2
                 $this->setProduct($product);
             }
 
+            // don't execute a query unless we have simpleProductId, and a product
             if ($simpleProductId && $product) {
-                $parentProductId = $request->get('id', '');
-                $parent = $this->loadProduct($parentProductId);
-                if ($parent) {
+                // load product from entity service
+                if ($parent = $this->loadProduct($parentProductId)) {
                     $parentOptions['id'] = $parent->getId();
                     $parentOptions['sku'] = $parent->getSku();
                     $parentOptions['slug'] = $parent->getSlug();
@@ -565,13 +650,16 @@ class AddProductV2
 
         1. look for simple product ID . we may already have an item in the cart with the same parent ID, but different simple product ID
         2. look for product ID
-        3.
+        3. update shipping addresses
+        4.
 
         //*/
 
         if ($simpleProductId) {
+            // we have a simple product, and its already in the cart
             if ($this->getCartSessionService()->hasProductId($simpleProductId)) {
 
+                // todo : find by item id
                 $cartItem = $cart->findItem('product_id', $simpleProductId);
                 if ($event->getIsAdd()) {
                     $this->setTotalQty($qty + $cartItem->getQty());
@@ -591,11 +679,16 @@ class AddProductV2
                     // update tier price
                     $this->updateTierPrice($cartItem);
 
+                    // update shipping address
+                    $this->collectAddresses($cartItem, $recollectShipping);
+
                     // update cart item and totals
                     $this->setCartItem($cartItem)->saveCartItem();
                 }
 
             } else {
+
+                // we have a simple product, but it's not in the cart yet
 
                 // create cart item with loaded product
                 $cartItem = $this->getCartSessionService()
@@ -615,6 +708,9 @@ class AddProductV2
                     // add to cart
                     $this->getCartSessionService()->addItem($cartItem, $qty);
 
+                    // update shipping address
+                    $this->collectAddresses($cartItem, $recollectShipping);
+
                     // update cart totals
                     $this->setCartItem($cartItem)->saveCartItem();
                 }
@@ -622,6 +718,7 @@ class AddProductV2
         } else {
             if ($this->getCartSessionService()->hasProductId($productId)) {
 
+                // todo : find by item id
                 $cartItem = $cart->findItem('product_id', $productId);
                 if ($event->getIsAdd()) {
                     $this->setTotalQty($qty + $cartItem->getQty());
@@ -641,6 +738,9 @@ class AddProductV2
                     // update tier price
                     $this->updateTierPrice($cartItem);
 
+                    // update shipping address
+                    $this->collectAddresses($cartItem, $recollectShipping);
+
                     // update cart item and totals
                     $this->setCartItem($cartItem)->saveCartItem();
                 }
@@ -659,11 +759,15 @@ class AddProductV2
 
                 // check criteria
                 if ($this->meetsCriteria($cartItem)) {
+
                     // update tier price
                     $this->updateTierPrice($cartItem);
 
                     // add to cart
                     $this->getCartSessionService()->addItem($cartItem, $qty);
+
+                    // update shipping address
+                    $this->collectAddresses($cartItem, $recollectShipping);
 
                     // update cart totals
                     $this->setCartItem($cartItem)->saveCartItem();
@@ -671,6 +775,7 @@ class AddProductV2
             }
         }
 
+        $event->setRecollectShipping($recollectShipping);
         $event->setCartItemEntity($this->getCartItemEntity());
         $returnData['cart'] = $this->getCartSessionService()->getCart();
         $returnData['success'] = $this->getSuccess();
@@ -696,10 +801,10 @@ class AddProductV2
 
                     if ($slug && $event->getIsAdd()) {
                         $route = 'cart_product_view';
-                        //$params = ['slug' => $slug];
                         $params = ['slug' => $this->getCartItem()->getSlug()];
                     }
                 } elseif ($success && $event->getIsAdd()) {
+
                     $request->getSession()->getFlashBag()->add(
                         'success',
                         'Product Added to Cart'
