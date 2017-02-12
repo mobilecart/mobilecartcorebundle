@@ -47,6 +47,18 @@ class CategoryDelete
         $returnData = $this->getReturnData();
 
         $entity = $event->getEntity();
+
+        // remove category_product
+        $categoryProducts = $this->getEntityService()->findBy(EntityConstants::CATEGORY_PRODUCT, [
+            'category' => $entity->getId(),
+        ]);
+
+        if ($categoryProducts) {
+            foreach($categoryProducts as $categoryProduct) {
+                $this->getEntityService()->remove($categoryProduct, EntityConstants::CATEGORY_PRODUCT);
+            }
+        }
+
         $this->getEntityService()->remove($entity, EntityConstants::CATEGORY);
 
         if ($entity && $event->getRequest()->getSession()) {
