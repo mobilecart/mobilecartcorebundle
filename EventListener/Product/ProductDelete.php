@@ -48,6 +48,17 @@ class ProductDelete
 
         $entity = $event->getEntity();
 
+        // remove tier prices
+        $tierPrices = $this->getEntityService()->findBy(EntityConstants::PRODUCT_TIER_PRICE, [
+            'product' => $entity->getId(),
+        ]);
+
+        if ($tierPrices) {
+            foreach($tierPrices as $tierPrice) {
+                $this->getEntityService()->remove($tierPrice, EntityConstants::PRODUCT_TIER_PRICE);
+            }
+        }
+
         // remove category_product
         $categoryProducts = $this->getEntityService()->findBy(EntityConstants::CATEGORY_PRODUCT, [
             'product' => $entity->getId(),
