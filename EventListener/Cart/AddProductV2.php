@@ -111,27 +111,28 @@ class AddProductV2
             ? $this->getEntityService()->find(EntityConstants::CART, $cartId)
             : $this->getEntityService()->getInstance(EntityConstants::CART);
 
-        // save cart if we need to
         if (!$cartId) {
 
             $cartEntity->setJson($cart->toJson())
                 ->setCreatedAt(new \DateTime('now'));
 
-            if ($customerId) {
-
-                $customerEntity = $this->getEntityService()
-                    ->find(EntityConstants::CUSTOMER, $customerId);
-
-                if ($customerEntity) {
-                    $cartEntity->setCustomer($customerEntity);
-
-                }
-            }
-
-            $this->getEntityService()->persist($cartEntity);
-            $cartId = $cartEntity->getId();
-            $cart->setId($cartId);
         }
+
+        if ($customerId) {
+
+            $customerEntity = $this->getEntityService()
+                ->find(EntityConstants::CUSTOMER, $customerId);
+
+            if ($customerEntity) {
+                $cartEntity->setCustomer($customerEntity);
+
+            }
+        }
+
+        // always save the cart
+        $this->getEntityService()->persist($cartEntity);
+        $cartId = $cartEntity->getId();
+        $cart->setId($cartId);
 
         $this->setCartEntity($cartEntity);
         return $this;
