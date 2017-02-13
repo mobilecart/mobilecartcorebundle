@@ -49,13 +49,13 @@ class CustomerNavigation
                 'label' => 'Customer Account',
                 'url'   => $this->getRouter()->generate('customer_profile', []),
             ],
+            'customer_addresses' => [
+                'label' => 'Shipping Addresses',
+                'url'   => $this->getRouter()->generate('customer_addresses', []),
+            ],
             'customer_orders' => [
                 'label' => 'Orders',
                 'url'   => $this->getRouter()->generate('customer_orders', []),
-            ],
-            'customer_addresses' => [
-                'label' => 'Addresses',
-                'url'   => $this->getRouter()->generate('customer_addresses', []),
             ],
         ];
 
