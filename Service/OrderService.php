@@ -720,7 +720,8 @@ class OrderService
     public function processPayment()
     {
         $cart = $this->getCart();
-        $email = $cart->getCustomer()->getEmail();
+        $customer = $cart->getCustomer();
+        $email = $customer->getEmail();
 
         $currencyService = $this->getCurrencyService();
 
@@ -745,6 +746,15 @@ class OrderService
                 'base_total' => $baseGrandTotal,
                 'base_currency' => $baseCurrency,
                 'email' => $email, // some gateways need the email address
+                'first_name' => $customer->getFirstName(),
+                'last_name' => $customer->getLastName(),
+                'billing_company' => $customer->getBillingCompany(),
+                'billing_street' => $customer->getBillingStreet(),
+                'billing_city' => $customer->getBillingCity(),
+                'billing_region' => $customer->getBillingProvince(),
+                'billing_postcode' => $customer->getBillingPostcode(),
+                'billing_country_id' => $customer->getBillingCountryId(),
+                'billing_phone' => $customer->getBillingPhone(),
             ]);
 
         switch($paymentMethodService->getAction()) {
