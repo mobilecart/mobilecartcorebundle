@@ -162,6 +162,10 @@ class AddProductV2
 
     public function loadProduct($value, $idField = 'id')
     {
+        if ($idField == 'id') {
+            return $this->getEntityService()->find(EntityConstants::PRODUCT, $value);
+        }
+
         return $this->getEntityService()->findOneBy(EntityConstants::PRODUCT, [
             $idField => $value,
         ]);
