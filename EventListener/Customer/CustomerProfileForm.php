@@ -105,7 +105,7 @@ class CustomerProfileForm
 
         $formSections = [
             'general' => [
-                'label' => 'General',
+                'label' => 'Billing',
                 'id' => 'general',
                 'fields' => [
                     'first_name',
@@ -122,7 +122,7 @@ class CustomerProfileForm
                 ],
             ],
             'shipping' => [
-                'label' => 'Shipping',
+                'label' => 'Shipping Address',
                 'id' => 'shipping',
                 'fields' => [
                     'is_shipping_same',
