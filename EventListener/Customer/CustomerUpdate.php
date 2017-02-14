@@ -76,7 +76,7 @@ class CustomerUpdate
         $request = $event->getRequest();
 
         if (isset($formData['is_shipping_same']) && $formData['is_shipping_same']) {
-            $entity->setIsShippingSame(1);
+            $entity->setIsShippingSame(true);
             $entity->copyBillingToShipping();
         }
 

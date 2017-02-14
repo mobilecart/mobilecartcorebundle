@@ -1042,7 +1042,7 @@ class Customer
      */
     public function setIsShippingSame($isShippingSame)
     {
-        $this->is_shipping_same = $isShippingSame;
+        $this->is_shipping_same = (bool) $isShippingSame;
         return $this;
     }
 

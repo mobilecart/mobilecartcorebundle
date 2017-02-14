@@ -63,10 +63,10 @@ class CustomerInsert
         // Customer shipping info
         $isShippingSame = isset($formData['is_shipping_same'])
             ? $formData['is_shipping_same']
-            : '';
+            : false;
 
         if ($isShippingSame) {
-            $entity->setIsShippingSame(1);
+            $entity->setIsShippingSame(true);
             $entity->copyBillingToShipping();
         }
 
