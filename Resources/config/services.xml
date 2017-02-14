@@ -29,6 +29,7 @@
         <parameter key="cart.listener.customer.login.reload.cart">1</parameter>
         <parameter key="cart.shipping.flatrate.enabled">1</parameter>
         <parameter key="cart.shipping.flatrate.db.enabled">1</parameter>
+        <parameter key="cart.add.product.disable.qty.check">0</parameter>
         <!-- ReCaptcha Settings -->
         <parameter key="recaptcha.key.site"> </parameter>
         <parameter key="recaptcha.key.secret"> </parameter>
@@ -1377,6 +1378,9 @@
             </call>
             <call method="setRedirectToCart">
                 <argument type="string">%cart.add.product.redirect.cart%</argument>
+            </call>
+            <call method="setDisableQtyCheck">
+                <argument type="string">%cart.add.product.disable.qty.check%</argument>
             </call>
         </service>
 

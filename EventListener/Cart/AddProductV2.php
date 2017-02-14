@@ -47,6 +47,8 @@ class AddProductV2
 
     protected $hasTierPriceChange = false;
 
+    protected $disableQtyCheck = false;
+
     protected $qty = 1;
 
     protected $totalQty = 1;
@@ -304,6 +306,17 @@ class AddProductV2
         return $this->success;
     }
 
+    public function setDisableQtyCheck($yesNo)
+    {
+        $this->disableQtyCheck = $yesNo;
+        return $this;
+    }
+
+    public function getDisableQtyCheck()
+    {
+        return $this->disableQtyCheck;
+    }
+
     public function meetsCriteria($cartItem)
     {
         $qty = $this->getQty();
@@ -324,12 +337,15 @@ class AddProductV2
             $errors[] = "Product is not in stock : {$cartItem->getSku()}";
         }
 
-        if (!$minQtyMet) {
-            $errors[] = "Minimum Qty is not met : {$cartItem->getSku()}, Qty: {$cartItem->getMinQty()}";
-        }
+        if (!$this->getDisableQtyCheck()) {
 
-        if (!$maxQtyMet) {
-            $errors[] = "Insufficient stock level : {$cartItem->getSku()}, Available: {$cartItem->getAvailQty()}";
+            if (!$minQtyMet) {
+                $errors[] = "Minimum Qty is not met : {$cartItem->getSku()}, Qty: {$cartItem->getMinQty()}";
+            }
+
+            if (!$maxQtyMet) {
+                $errors[] = "Insufficient stock level : {$cartItem->getSku()}, Available: {$cartItem->getAvailQty()}";
+            }
         }
 
         $this->setErrors($errors);
