@@ -98,6 +98,10 @@ class CustomerProfileForm
         $formType = new CustomerProfileType();
         $formType->setCountries($countries);
 
+        if (!is_bool($entity->getIsShippingSame())) {
+            $entity->setIsShippingSame((bool) $entity->getIsShippingSame());
+        }
+
         $form = $this->getFormFactory()->create($formType, $entity, [
             'action' => $event->getAction(),
             'method' => $event->getMethod(),
