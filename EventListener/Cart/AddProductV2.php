@@ -22,6 +22,11 @@ class AddProductV2
      */
     protected $cartSessionService;
 
+    /**
+     * @var int|bool
+     */
+    protected $redirectToCart = 1;
+
     protected $router;
 
     protected $event;
@@ -101,6 +106,17 @@ class AddProductV2
         return $this->cartSessionService;
     }
 
+    public function setRedirectToCart($yesNo)
+    {
+        $this->redirectToCart = $yesNo;
+        return $this;
+    }
+
+    public function getRedirectToCart()
+    {
+        return $this->redirectToCart;
+    }
+
     public function initCartEntity()
     {
         $cart = $this->getCartSessionService()->getCart();
@@ -110,6 +126,13 @@ class AddProductV2
         $cartEntity = $cartId
             ? $this->getEntityService()->find(EntityConstants::CART, $cartId)
             : $this->getEntityService()->getInstance(EntityConstants::CART);
+
+        // more for development, testing
+        if (!$cartEntity) {
+            $cartEntity = $this->getEntityService()->getInstance(EntityConstants::CART);
+            $cartEntity->setJson($cart->toJson())
+                ->setCreatedAt(new \DateTime('now'));
+        }
 
         if (!$cartId) {
 
@@ -814,6 +837,21 @@ class AddProductV2
                         'success',
                         'Product Added to Cart'
                     );
+                }
+
+                if (!$this->getRedirectToCart()) {
+                    $route = 'cart_product_view';
+                    $params = ['slug' => $this->getCartItem()->getSlug()];
+                    if ($parentOptions = $this->getCartItem()->getParentOptions()) {
+                        if (is_object($parentOptions)) {
+                            $parentOptions = get_object_vars($parentOptions);
+                        }
+
+                        if (isset($parentOptions['slug'])) {
+                            $slug = $parentOptions['slug'];
+                            $params = ['slug' => $slug];
+                        }
+                    }
                 }
 
                 $url = $this->getRouter()->generate($route, $params);
