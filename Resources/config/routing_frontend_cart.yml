@@ -136,3 +136,18 @@ cart_image_upload_base64:
     path: /image/upload/base64
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Image:uploadBase64' }
     methods: [POST]
+
+cart_contact:
+    path: /contact
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Contact:index' }
+    methods: [GET]
+
+cart_contact_post:
+    path: /contact/post
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Contact:post' }
+    methods: [POST]
+
+cart_contact_thankyou:
+    path: /contact/thankyou
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Contact:thankyou' }
+    methods: [GET]

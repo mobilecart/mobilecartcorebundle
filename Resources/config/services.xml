@@ -18,6 +18,7 @@
         <parameter key="cart.is_production">0</parameter>
         <parameter key="cart.config.currency.base">USD</parameter>
         <parameter key="cart.email.from.main">test@test.com</parameter>
+        <parameter key="cart.email.to.main">test@test.com</parameter>
         <parameter key="cart.add.product.redirect.cart">1</parameter><!-- redirect to cart or product page after add to cart -->
         <parameter key="cart.discount.enabled">1</parameter><!-- enable discounts -->
         <parameter key="cart.total.discount.auto">1</parameter><!-- automatically load, validate, and apply discounts from the database -->
