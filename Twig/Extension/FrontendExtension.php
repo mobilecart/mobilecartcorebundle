@@ -716,11 +716,7 @@ class FrontendExtension extends \Twig_Extension
         if ($children = $category->getChildCategories()) {
             foreach($children as $child) {
                 $link = $this->getRouter()->generate('cart_category_products', ['slug' => $child->getSlug()]);
-                if ($grandchildren = $child->getChildCategories()) {
-                    $out .= '<li><a href="' . $link . '">' . $child->getName() . '</a>'. $this->subcategoryList($child).'</li>';
-                } else {
-                    $out .= '<li><a href="' . $link . '">' . $child->getName() . '</a></li>';
-                }
+                $out .= '<li><a href="' . $link . '">' . $child->getName() . '</a></li>';
             }
         }
         $out .= '</ul>';
