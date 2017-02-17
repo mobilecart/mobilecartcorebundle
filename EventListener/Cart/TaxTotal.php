@@ -12,6 +12,8 @@ class TaxTotal extends Total
 
     protected $event;
 
+    protected $taxService;
+
     protected function setEvent($event)
     {
         $this->event = $event;
@@ -30,6 +32,17 @@ class TaxTotal extends Total
             : [];
     }
 
+    public function setTaxService($taxService)
+    {
+        $this->taxService = $taxService;
+        return $this;
+    }
+
+    public function getTaxService()
+    {
+        return $this->taxService;
+    }
+
     public function __construct()
     {
         parent::__construct();
@@ -43,6 +56,16 @@ class TaxTotal extends Total
 
         $this->setEvent($event);
         $returnData = $this->getReturnData();
+
+        $cart = $event->getCart();
+        $currency = $cart->getCurrency() ? $cart->getCurrency() : 'USD';
+        $countryId = $cart->getCustomer()->getBillingCountryId();
+        $billingRegion = $cart->getCustomer()->getBillingRegion();
+
+        $rate = $this->getTaxService()->getRate($currency, $countryId, $billingRegion);
+        if ($rate !== false) {
+            $cart->setTaxRate($rate);
+        }
 
         $taxTotal = $event->getCart()->getCalculator()
             ->getTaxTotal();
