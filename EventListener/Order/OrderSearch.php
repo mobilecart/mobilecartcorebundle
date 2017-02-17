@@ -33,8 +33,13 @@ class OrderSearch
 
         $event->getSearch()
             ->setObjectType($event->getObjectType()) // Important: set this first
-            ->parseRequest($event->getRequest())
-            ->search();
+            ->parseRequest($event->getRequest());
+
+        if (!$event->getRequest()->get($event->getSearch()->getSortDirParam(), '')) {
+            $event->getSearch()->setSortDir('desc'); // sort by newest first, by default
+        }
+
+        $event->getSearch()->search();
 
         $event->setReturnData($returnData);
     }
