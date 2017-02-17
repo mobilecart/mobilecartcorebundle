@@ -12,6 +12,8 @@ class CustomerForgotPassword
 
     protected $router;
 
+    protected $fromEmail;
+
     protected $themeService;
 
     protected $entityService;
@@ -56,6 +58,17 @@ class CustomerForgotPassword
     public function getRouter()
     {
         return $this->router;
+    }
+
+    public function setFromEmail($fromEmail)
+    {
+        $this->fromEmail = $fromEmail;
+        return $this;
+    }
+
+    public function getFromEmail()
+    {
+        return $this->fromEmail;
     }
 
     public function setThemeService($themeService)
@@ -121,7 +134,7 @@ class CustomerForgotPassword
 
                 $message = \Swift_Message::newInstance()
                     ->setSubject('Password Reset')
-                    //->setFrom('~')
+                    ->setFrom($this->getFromEmail())
                     ->setTo($entity->getEmail())
                     ->setBody($body, 'text/html');
 
@@ -157,7 +170,7 @@ class CustomerForgotPassword
 
                 $message = \Swift_Message::newInstance()
                     ->setSubject('Password Reset')
-                    //->setFrom('~')
+                    ->setFrom($this->getFromEmail())
                     ->setTo($entity->getEmail())
                     ->setBody($body, 'text/html');
 

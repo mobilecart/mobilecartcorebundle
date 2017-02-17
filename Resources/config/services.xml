@@ -2119,6 +2119,9 @@
             <call method="setSecurityPasswordEncoder">
                 <argument type="service" id="security.password_encoder" />
             </call>
+            <call method="setFromEmail">
+                <argument type="string">%cart.email.from.main%</argument>
+            </call>
         </service>
 
         <service id="cart.listener.customer.forgotpassword.return" lazy="true" class="%cart.listener.customer.forgotpassword.return.class%">
