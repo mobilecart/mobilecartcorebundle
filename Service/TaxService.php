@@ -53,11 +53,19 @@ class TaxService
      */
     public function addRate($currency, $countryId, $region, $taxRate, $postcode = '')
     {
-        $this->rates[$countryId][$region] = [
-            'rate' => $taxRate,
-            'currency' => $currency,
-            'postcode' => $postcode,
-        ];
+        if ($postcode) {
+            $this->rates[$currency][$countryId][$region][$postcode] = [
+                'rate' => $taxRate,
+                'currency' => $currency,
+                'postcode' => $postcode,
+            ];
+        } else {
+            $this->rates[$currency][$countryId][$region] = [
+                'rate' => $taxRate,
+                'currency' => $currency,
+                'postcode' => $postcode,
+            ];
+        }
 
         return $this;
     }
@@ -84,7 +92,7 @@ class TaxService
         }
 
         if ($postcode) {
-            // todo : handle wildcards and ranges
+            // todo : handle ranges and wildcards
             return $this->rates[$currency][$countryId][$region];
         } else {
             return $this->rates[$currency][$countryId][$region];
