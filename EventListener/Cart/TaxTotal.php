@@ -64,7 +64,7 @@ class TaxTotal extends Total
 
         $rate = $this->getTaxService()->getRate($currency, $countryId, $billingRegion);
         if ($rate !== false) {
-            $cart->setTaxRate($rate);
+            $cart->setTaxRate($rate['rate']);
         }
 
         $taxTotal = $event->getCart()->getCalculator()
