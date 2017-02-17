@@ -58,6 +58,7 @@ class TaxTotal extends Total
         $returnData = $this->getReturnData();
 
         $cart = $event->getCart();
+        $cart->setIncludeTax(1);
         $currency = $cart->getCurrency() ? $cart->getCurrency() : 'USD';
         $countryId = $cart->getCustomer()->getBillingCountryId();
         $billingRegion = $cart->getCustomer()->getBillingRegion();
