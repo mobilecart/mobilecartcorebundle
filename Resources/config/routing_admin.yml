@@ -184,7 +184,7 @@ cart_admin_discount_show:
     methods: [GET]
 
 cart_admin_discount_edit:
-    path: '/admin/discount/{id}/edit'
+    path: /admin/discount/{id}/edit
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Discount:edit' }
     methods: [GET]
 
@@ -194,7 +194,7 @@ cart_admin_discount_update:
     methods: [PUT]
 
 cart_admin_discount_delete:
-    path: '/admin/discount/{id}'
+    path: /admin/discount/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Discount:delete' }
     methods: [DELETE]
 
@@ -404,12 +404,12 @@ cart_admin_order_show:
     methods: [GET]
 
 cart_admin_order_edit:
-    path: '/admin/order/{id}/edit'
+    path: /admin/order/{id}/edit
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:edit' }
     methods: [GET]
 
 cart_admin_order_update:
-    path: '/admin/order/{id}'
+    path: /admin/order/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:update' }
     methods: [PUT]
 

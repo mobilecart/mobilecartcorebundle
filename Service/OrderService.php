@@ -50,6 +50,11 @@ class OrderService
     protected $eventData = [];
 
     /**
+     * @var array
+     */
+    protected $statusOptions = []; // r[priority] = data
+
+    /**
      * @var AbstractEntityService
      */
     protected $entityService;
@@ -209,6 +214,31 @@ class OrderService
     public function getEventData()
     {
         return $this->eventData;
+    }
+
+    /**
+     * @param $priority
+     * @param $key
+     * @param $label
+     * @return $this
+     */
+    public function addStatusOption($priority, $key, $label)
+    {
+        $this->statusOptions[$priority] = [
+            'key' => $key,
+            'label' => $label,
+        ];
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getStatusOptions()
+    {
+        $options = $this->statusOptions;
+        ksort($options);
+        return $options;
     }
 
     /**

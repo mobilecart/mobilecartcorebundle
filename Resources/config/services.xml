@@ -591,6 +591,21 @@
             <call method="setEnableCreateShipment">
                 <argument type="string">%cart.shipping.enabled%</argument>
             </call>
+            <call method="addStatusOption">
+                <argument type="string">10</argument>
+                <argument type="string">processing</argument>
+                <argument type="string">Processing</argument>
+            </call>
+            <call method="addStatusOption">
+                <argument type="string">20</argument>
+                <argument type="string">partially_shipped</argument>
+                <argument type="string">Partially Shipped</argument>
+            </call>
+            <call method="addStatusOption">
+                <argument type="string">30</argument>
+                <argument type="string">shipped</argument>
+                <argument type="string">Shipped</argument>
+            </call>
         </service>
 
         <!-- Cart Service : (mostly) de-coupled from cart.session for API handling (APIs dont have cookies) -->
@@ -2712,6 +2727,10 @@
             <!-- For Allowed Country IDs -->
             <call method="setCartService">
                 <argument type="service" id="cart" />
+            </call>
+            <!-- For Order Status Options -->
+            <call method="setOrderService">
+                <argument type="service" id="cart.order" />
             </call>
         </service>
         <service id="cart.listener.order.new.return" lazy="true" class="%cart.listener.order.new.return.class%">
