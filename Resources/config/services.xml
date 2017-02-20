@@ -606,6 +606,11 @@
                 <argument type="string">shipped</argument>
                 <argument type="string">Shipped</argument>
             </call>
+            <call method="addStatusOption">
+                <argument type="string">40</argument>
+                <argument type="string">canceled</argument>
+                <argument type="string">Canceled</argument>
+            </call>
         </service>
 
         <!-- Cart Service : (mostly) de-coupled from cart.session for API handling (APIs dont have cookies) -->

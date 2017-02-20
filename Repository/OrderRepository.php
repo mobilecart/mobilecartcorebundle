@@ -69,6 +69,10 @@ class OrderRepository
                         'value' => 'shipped',
                         'label' => 'Shipped',
                     ],
+                    [
+                        'value' => 'canceled',
+                        'label' => 'Canceled',
+                    ],
                 ],
             ],
             [
