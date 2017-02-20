@@ -16,12 +16,6 @@ class Product
 {
     // todo : add indexes to columns
 
-    static $stockTypes = [
-        'none' => 'None',
-        'warehouse_single' => 'Single Location',
-        //'warehouse_multi' => 'Multiple Locations',
-    ];
-
     const TYPE_SIMPLE = 1;
     const TYPE_CONFIGURABLE = 2;
 

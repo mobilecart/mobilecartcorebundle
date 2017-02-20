@@ -32,6 +32,13 @@ class OrderShipment
     /**
      * @var string
      *
+     * @ORM\Column(name="source_address_key", type="string", length=255, nullable=true)
+     */
+    private $source_address_key;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="company", type="string", length=255)
      */
     private $company;
@@ -331,6 +338,7 @@ class OrderShipment
         return [
             'id' => $this->getId(),
             'created_at' => $this->getCreatedAt(),
+            'source_address_key' => $this->getSourceAddressKey(),
             'company' => $this->getCompany(),
             'method' => $this->getMethod(),
             'tracking' => $this->getTracking(),
@@ -376,6 +384,24 @@ class OrderShipment
     public function getCreatedAt()
     {
         return $this->created_at;
+    }
+
+    /**
+     * @param $srcAddressKey
+     * @return $this
+     */
+    public function setSourceAddressKey($srcAddressKey)
+    {
+        $this->source_address_key = $srcAddressKey;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSourceAddressKey()
+    {
+        return $this->source_address_key;
     }
 
     /**

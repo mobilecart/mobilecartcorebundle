@@ -52,6 +52,7 @@ class CustomerType extends AbstractType
             ->add('billing_name', 'text')
             ->add('billing_phone')
             ->add('billing_street', 'text')
+            ->add('billing_street2', 'text')
             ->add('billing_city', 'text')
             ->add('billing_region', 'text', [
                 'attr' => [
@@ -75,6 +76,10 @@ class CustomerType extends AbstractType
                 'attr' => ['class' => 'shipping-input'],
             ])
             ->add('shipping_street', 'text', [
+                'required' => 0,
+                'attr' => ['class' => 'shipping-input'],
+            ])
+            ->add('shipping_street2', 'text', [
                 'required' => 0,
                 'attr' => ['class' => 'shipping-input'],
             ])

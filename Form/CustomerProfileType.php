@@ -64,6 +64,11 @@ class CustomerProfileType extends AbstractType
                     'class' => 'billing-input',
                 ]
             ])
+            ->add('billing_street2', 'text', [
+                'attr' => [
+                    'class' => 'billing-input',
+                ]
+            ])
             ->add('billing_city', 'text', [
                 'attr' => [
                     'class' => 'billing-input',
@@ -101,7 +106,16 @@ class CustomerProfileType extends AbstractType
                     'class' => 'shipping-input',
                 ]
             ])
-            ->add('shipping_street')
+            ->add('shipping_street', 'text', [
+                'attr' => [
+                    'class' => 'shipping-input',
+                ]
+            ])
+            ->add('shipping_street2', 'text', [
+                'attr' => [
+                    'class' => 'shipping-input',
+                ]
+            ])
             ->add('shipping_city', 'text', [
                 'attr' => [
                     'class' => 'shipping-input',

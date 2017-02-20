@@ -135,14 +135,6 @@ class ProductType extends AbstractType
                 'choices' => $this->getCustomTemplates(),
             ])
         ;
-
-        // todo : user setter/getter in this class, and pass values from a listener and service
-        /*
-        $choices = \MobileCart\CoreBundle\Entity\Product::$stockTypes;
-        $builder->add('stock_type', 'choice', [
-            'choices'   => $choices,
-            'required'  => false
-        ]); //*/
     }
 
     /**

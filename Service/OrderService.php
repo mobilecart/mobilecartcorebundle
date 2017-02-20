@@ -30,7 +30,7 @@ use MobileCart\CoreBundle\Payment\TokenPaymentMethodServiceInterface;
  *
  * This class assumes an order can have multiple
  *  payments, invoices, refunds, etc
- * BUT it only creates 1 at a time
+ * BUT it only creates 1 order at a time
  * If you're creating multiple invoices for a single order
  *  it will swap out the invoice as they are created
  *
@@ -1204,6 +1204,7 @@ class OrderService
                 $orderShipment->setOrder($this->getOrder());
 
                 $addressId = $shipment->get('customer_address_id', 'main');
+                $srcAddressKey = $shipment->get('source_address_key', '');
 
                 if ($addressId == 'main') {
 
@@ -1214,7 +1215,8 @@ class OrderService
                         ->setRegion($customer->getShippingRegion())
                         ->setPostcode($customer->getShippingPostcode())
                         ->setCountryId($customer->getShippingCountryId())
-                        ->setPhone($customer->getShippingPhone());
+                        ->setPhone($customer->getShippingPhone())
+                        ->setSourceAddressKey($srcAddressKey);
 
                 } elseif ($addresses) {
                     foreach($addresses as $address) {
@@ -1236,11 +1238,13 @@ class OrderService
                             $orderShipment->setName($address->getName())
                                 ->setCompanyName($address->getCompany())
                                 ->setStreet($address->getStreet())
+                                ->setStreet2($address->getStreet2())
                                 ->setCity($address->getCity())
                                 ->setRegion($address->getRegion())
                                 ->setPostcode($address->getPostcode())
                                 ->setCountryId($address->getCountryId())
-                                ->setPhone($address->getPhone());
+                                ->setPhone($address->getPhone())
+                                ->setSourceAddressKey($srcAddressKey);
                         }
                     }
                 }

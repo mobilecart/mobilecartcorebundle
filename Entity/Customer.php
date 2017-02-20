@@ -110,6 +110,13 @@ class Customer
     private $billing_street;
 
     /**
+     * @var string $billing_street2
+     *
+     * @ORM\Column(name="billing_street2", type="string", length=255, nullable=true)
+     */
+    private $billing_street2;
+
+    /**
      * @var string $billing_city
      *
      * @ORM\Column(name="billing_city", type="string", length=255, nullable=true)
@@ -171,6 +178,13 @@ class Customer
      * @ORM\Column(name="shipping_street", type="string", length=255, nullable=true)
      */
     private $shipping_street;
+
+    /**
+     * @var string $shipping_street2
+     *
+     * @ORM\Column(name="shipping_street2", type="string", length=255, nullable=true)
+     */
+    private $shipping_street2;
 
     /**
      * @var string $shipping_city
@@ -658,6 +672,7 @@ class Customer
             'billing_company'     => $this->getBillingCompany(),
             'billing_phone'       => $this->getBillingPhone(),
             'billing_street'      => $this->getBillingStreet(),
+            'billing_street2'     => $this->getBillingStreet2(),
             'billing_city'        => $this->getBillingCity(),
             'billing_region'      => $this->getBillingRegion(),
             'billing_postcode'    => $this->getBillingPostcode(),
@@ -667,6 +682,7 @@ class Customer
             'shipping_company'    => $this->getShippingCompany(),
             'shipping_phone'      => $this->getShippingPhone(),
             'shipping_street'     => $this->getShippingStreet(),
+            'shipping_street2'    => $this->getShippingStreet2(),
             'shipping_city'       => $this->getShippingCity(),
             'shipping_region'     => $this->getShippingRegion(),
             'shipping_postcode'   => $this->getShippingPostcode(),
@@ -951,6 +967,28 @@ class Customer
     }
 
     /**
+     * Set billing_street2
+     *
+     * @param string $billingStreet2
+     * @return $this
+     */
+    public function setBillingStreet2($billingStreet2)
+    {
+        $this->billing_street2 = $billingStreet2;
+        return $this;
+    }
+
+    /**
+     * Get billing_street2
+     *
+     * @return string
+     */
+    public function getBillingStreet2()
+    {
+        return $this->billing_street2;
+    }
+
+    /**
      * Set billing_city
      *
      * @param string $billingCity
@@ -1147,6 +1185,28 @@ class Customer
     public function getShippingStreet()
     {
         return $this->shipping_street;
+    }
+
+    /**
+     * Set shipping_street2
+     *
+     * @param string $shippingStreet2
+     * @return $this
+     */
+    public function setShippingStreet2($shippingStreet2)
+    {
+        $this->shipping_street2 = $shippingStreet2;
+        return $this;
+    }
+
+    /**
+     * Get shipping_street2
+     *
+     * @return string
+     */
+    public function getShippingStreet2()
+    {
+        return $this->shipping_street2;
     }
 
     /**
