@@ -83,6 +83,7 @@ class OrderType extends AbstractType
                     new NotBlank(),
                 ],
             ])
+            ->add('billing_street2', 'text')
             ->add('billing_city', 'text', [
                 'required' => 1,
                 'constraints' => [
