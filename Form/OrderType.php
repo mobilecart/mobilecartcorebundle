@@ -15,6 +15,11 @@ class OrderType extends AbstractType
     protected $countries = [];
 
     /**
+     * @var array
+     */
+    protected $statusOptions = [];
+
+    /**
      * @param array $countries
      * @return $this
      */
@@ -33,12 +38,37 @@ class OrderType extends AbstractType
     }
 
     /**
+     * @param array $statusOptions
+     * @return $this
+     */
+    public function setStatusOptions(array $statusOptions)
+    {
+        $this->statusOptions = $statusOptions;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getStatusOptions()
+    {
+        return $this->statusOptions;
+    }
+
+    /**
      * @param FormBuilderInterface $builder
      * @param array $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('status', 'choice', [
+                'choices' => $this->getStatusOptions(),
+                'required' => 1,
+                'constraints' => [
+                    new NotBlank(),
+                ],
+            ])
             ->add('json', 'hidden')
             ->add('billing_name', 'text', [
                 'required' => 1,

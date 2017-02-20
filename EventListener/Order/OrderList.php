@@ -87,6 +87,11 @@ class OrderList
                 'sort' => 1,
             ],
             [
+                'key' => 'status',
+                'label' => 'Status',
+                'sort' => 1,
+            ],
+            [
                 'key' => 'billing_name',
                 'label' => 'Customer',
                 'sort' => 1,

@@ -22,6 +22,22 @@ class OrderItem implements CartEntityInterface
     private $id;
 
     /**
+     * @var string $status
+     *
+     * @ORM\Column(name="status", type="string", length=255, nullable=true)
+     *
+     */
+    private $status;
+
+    /**
+     * @var string $tracking
+     *
+     * @ORM\Column(name="tracking", type="string", length=255, nullable=true)
+     *
+     */
+    private $tracking;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime", nullable=true)
@@ -336,6 +352,8 @@ class OrderItem implements CartEntityInterface
         return [
             'id' => $this->getId(),
             'created_at' => $this->getCreatedAt(),
+            'status' => $this->getStatus(),
+            'tracking' => $this->getTracking(),
             'product_id' => $this->getProductId(),
             'sku' => $this->getSku(),
             'name' => $this->getName(),
@@ -357,6 +375,42 @@ class OrderItem implements CartEntityInterface
             'length' => $this->getLength(),
             'measure_unit' => $this->getMeasureUnit(),
         ];
+    }
+
+    /**
+     * @param $status
+     * @return $this
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param $Tracking
+     * @return $this
+     */
+    public function setTracking($Tracking)
+    {
+        $this->tracking = $Tracking;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTracking()
+    {
+        return $this->tracking;
     }
 
     /**

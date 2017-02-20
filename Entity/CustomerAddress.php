@@ -63,6 +63,13 @@ class CustomerAddress
     /**
      * @var string
      *
+     * @ORM\Column(name="street2", type="string", length=255, nullable=true)
+     */
+    private $street2;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="city", type="string", length=255)
      */
     private $city;
@@ -193,6 +200,7 @@ class CustomerAddress
             'company'    => $this->getCompany(),
             'phone'      => $this->getPhone(),
             'street'     => $this->getStreet(),
+            'street2'     => $this->getStreet2(),
             'city'       => $this->getCity(),
             'region'     => $this->getRegion(),
             'postcode'   => $this->getPostcode(),
@@ -303,6 +311,28 @@ class CustomerAddress
     public function getStreet()
     {
         return $this->street;
+    }
+
+    /**
+     * Set street
+     *
+     * @param string $street2
+     * @return CustomerAddress
+     */
+    public function setStreet2($street2)
+    {
+        $this->street2 = $street2;
+        return $this;
+    }
+
+    /**
+     * Get street2
+     *
+     * @return string
+     */
+    public function getStreet2()
+    {
+        return $this->street2;
     }
 
     /**

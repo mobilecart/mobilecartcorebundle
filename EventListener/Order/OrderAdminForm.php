@@ -19,6 +19,8 @@ class OrderAdminForm
 
     protected $cartService;
 
+    protected $orderService;
+
     protected $event;
 
     protected function setEvent($event)
@@ -94,6 +96,17 @@ class OrderAdminForm
         return $this->cartService;
     }
 
+    public function setOrderService($orderService)
+    {
+        $this->orderService = $orderService;
+        return $this;
+    }
+
+    public function getOrderService()
+    {
+        return $this->orderService;
+    }
+
     public function onOrderAdminForm(Event $event)
     {
         $this->setEvent($event);
@@ -111,6 +124,13 @@ class OrderAdminForm
 
         $formType = new OrderType();
         $formType->setCountries($countries);
+        if ($this->getOrderService()->getStatusOptions()) {
+            $statusOptions = [];
+            foreach($this->getOrderService()->getStatusOptions() as $option) {
+                $statusOptions[$option['key']] = $option['label'];
+            }
+            $formType->setStatusOptions($statusOptions);
+        }
 
         $form = $this->getFormFactory()->create($formType, $entity, [
             'action' => $event->getAction(),

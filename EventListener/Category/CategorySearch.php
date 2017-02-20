@@ -37,7 +37,8 @@ class CategorySearch
             ->parseRequest($event->getRequest())
             ->addJoin('left', EntityConstants::CATEGORY_PRODUCT, 'category_id')
             ->addColumn('count(' . EntityConstants::CATEGORY_PRODUCT . '.product_id)', 'product_count')
-            ->addGroupBy('main.id');
+            ->addGroupBy('main.id')
+        ;
 
         $returnData['search'] = $search;
         $returnData['result'] = $search->search();

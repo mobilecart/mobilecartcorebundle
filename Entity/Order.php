@@ -33,6 +33,14 @@ class Order
     private $created_at;
 
     /**
+     * @var string $status
+     *
+     * @ORM\Column(name="status", type="string", length=255, nullable=true)
+     *
+     */
+    private $status;
+
+    /**
      * @var string $email
      *
      * @ORM\Column(name="email", type="string", length=255, nullable=false)
@@ -69,6 +77,14 @@ class Order
      * @Assert\NotBlank(groups={"billing_address"})
      */
     private $billing_street;
+
+    /**
+     * @var string $billing_street2
+     *
+     * @ORM\Column(name="billing_street2", type="string", length=255, nullable=true)
+     * @Assert\NotBlank(groups={"billing_address"})
+     */
+    private $billing_street2;
 
     /**
      * @var string $billing_city
@@ -346,6 +362,7 @@ class Order
         $this->refunds = new \Doctrine\Common\Collections\ArrayCollection();
         $this->payments = new \Doctrine\Common\Collections\ArrayCollection();
         $this->history = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->status = 'processing';
     }
 
     public function __toString()
@@ -612,6 +629,7 @@ class Order
         return [
             'id' => $this->getId(),
             'created_at' => $this->getCreatedAt(),
+            'status' => $this->getStatus(),
             'reference_nbr' => $this->getReferenceNbr(),
             'payment_authorize' => $this->getPaymentAuthorize(),
             'customer_id' => $this->getCustomer() ? $this->getCustomer()->getId() : 0,
@@ -635,6 +653,7 @@ class Order
             'billing_company' => $this->getBillingCompany(),
             'billing_phone' => $this->getBillingPhone(),
             'billing_street' => $this->getBillingStreet(),
+            'billing_street2' => $this->getBillingStreet2(),
             'billing_city' => $this->getBillingCity(),
             'billing_region' => $this->getBillingRegion(),
             'billing_postcode' => $this->getBillingPostcode(),
@@ -680,6 +699,24 @@ class Order
     public function getReferenceNbr()
     {
         return $this->reference_nbr;
+    }
+
+    /**
+     * @param $status
+     * @return $this
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->status;
     }
 
     /**
@@ -1206,6 +1243,24 @@ class Order
     public function getBillingStreet()
     {
         return $this->billing_street;
+    }
+
+    /**
+     * @param $billingStreet2
+     * @return $this
+     */
+    public function setBillingStreet2($billingStreet2)
+    {
+        $this->billing_street2 = $billingStreet2;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBillingStreet2()
+    {
+        return $this->billing_street2;
     }
 
     /**

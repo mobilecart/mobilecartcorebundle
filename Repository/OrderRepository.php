@@ -37,6 +37,7 @@ class OrderRepository
     public function getSortableFields()
     {
         return [
+            'status' => 'Status',
             'id' => 'ID',
             'total' => 'Total',
             'billing_name' => 'Name',
@@ -51,6 +52,25 @@ class OrderRepository
     public function getFilterableFields()
     {
         return [
+            [
+                'code' => 'status',
+                'label' => 'Status',
+                'type' => 'string',
+                'choices' => [
+                    [
+                        'value' => 'processing',
+                        'label' => 'Processing',
+                    ],
+                    [
+                        'value' => 'partially_shipped',
+                        'label' => 'Partially Shipped',
+                    ],
+                    [
+                        'value' => 'shipped',
+                        'label' => 'Shipped',
+                    ],
+                ],
+            ],
             [
                 'code'  => 'email',
                 'label' => 'Email',

@@ -42,6 +42,7 @@ class CustomerAddressType extends AbstractType
             ->add('company', 'text')
             ->add('phone')
             ->add('street', 'text')
+            ->add('street2', 'text')
             ->add('city', 'text')
             ->add('region', 'text', [
                 'attr' => [

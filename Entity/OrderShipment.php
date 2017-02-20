@@ -98,6 +98,13 @@ class OrderShipment
     /**
      * @var string
      *
+     * @ORM\Column(name="street2", type="string", length=255, nullable=true)
+     */
+    private $street2;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="city", type="string", length=255, nullable=true)
      */
     private $city;
@@ -331,6 +338,7 @@ class OrderShipment
             'company_name' => $this->getCompany(),
             'phone' => $this->getPhone(),
             'street' => $this->getStreet(),
+            'street2' => $this->getStreet2(),
             'city' => $this->getCity(),
             'region' => $this->getRegion(),
             'postcode' => $this->getPostcode(),
@@ -374,7 +382,7 @@ class OrderShipment
      * Set name
      *
      * @param string $name
-     * @return CustomerAddress
+     * @return $this
      */
     public function setName($name)
     {
@@ -415,7 +423,7 @@ class OrderShipment
      * Set phone
      *
      * @param string $phone
-     * @return CustomerAddress
+     * @return $this
      */
     public function setPhone($phone)
     {
@@ -437,7 +445,7 @@ class OrderShipment
      * Set street
      *
      * @param string $street
-     * @return CustomerAddress
+     * @return $this
      */
     public function setStreet($street)
     {
@@ -454,12 +462,34 @@ class OrderShipment
     {
         return $this->street;
     }
+    
+    /**
+     * Set street
+     *
+     * @param string $street2
+     * @return $this
+     */
+    public function setStreet2($street2)
+    {
+        $this->street2 = $street2;
+        return $this;
+    }
+
+    /**
+     * Get street
+     *
+     * @return string
+     */
+    public function getStreet2()
+    {
+        return $this->street2;
+    }
 
     /**
      * Set city
      *
      * @param string $city
-     * @return CustomerAddress
+     * @return $this
      */
     public function setCity($city)
     {
@@ -481,7 +511,7 @@ class OrderShipment
      * Set region
      *
      * @param string $region
-     * @return CustomerAddress
+     * @return $this
      */
     public function setRegion($region)
     {
@@ -503,7 +533,7 @@ class OrderShipment
      * Set postcode
      *
      * @param string $postcode
-     * @return CustomerAddress
+     * @return $this
      */
     public function setPostcode($postcode)
     {
@@ -525,7 +555,7 @@ class OrderShipment
      * Set country_id
      *
      * @param string $countryId
-     * @return CustomerAddress
+     * @return $this
      */
     public function setCountryId($countryId)
     {

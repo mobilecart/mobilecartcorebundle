@@ -78,6 +78,7 @@ class OrderUpdateShipping
         $this->setEvent($event);
         $returnData = $this->getReturnData();
 
+        /*
         $request = $event->getRequest();
 
         // set shipment method on cart
@@ -121,6 +122,6 @@ class OrderUpdateShipping
 
         $returnData['discounts'] = $discounts;
 
-        $event->setReturnData($returnData);
+        $event->setReturnData($returnData); //*/
     }
 }

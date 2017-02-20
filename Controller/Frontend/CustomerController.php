@@ -242,6 +242,16 @@ class CustomerController extends Controller
         return $event->getResponse();
     }
 
+    public function updatePasswordAction(Request $request)
+    {
+
+    }
+
+    public function updatePassswordPostAction(Request $request)
+    {
+
+    }
+
     public function profileAction(Request $request)
     {
         $entity = $this->getUser();

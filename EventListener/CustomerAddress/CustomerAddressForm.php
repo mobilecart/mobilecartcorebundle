@@ -125,6 +125,7 @@ class CustomerAddressForm
                     'company',
                     'phone',
                     'street',
+                    'street2',
                     'city',
                     'region',
                     'postcode',
