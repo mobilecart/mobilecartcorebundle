@@ -58,6 +58,8 @@ class OrderUpdate
         $this->setEvent($event);
         $returnData = $this->getReturnData();
         $request = $event->getRequest();
+        $tracking = $request->get('tracking', []);
+
         $entity = $event->getEntity();
         $formData = $event->getFormData();
 
@@ -68,8 +70,19 @@ class OrderUpdate
             // update var values
             $this->getEntityService()
                 ->persistVariants($entity, $formData);
-
         }
+
+        if ($shipments = $entity->getShipments() && $tracking) {
+            foreach($shipments as $shipment) {
+                if (isset($tracking[$shipment->getId()])
+                    && $shipment->getTracking() != $tracking[$shipment->getId()]
+                ) {
+                    $shipment->setTracking($tracking[$shipment->getId()]);
+                    $this->getEntityService()->persist($shipment);
+                }
+            }
+        }
+
 
         if ($entity && $request->getSession()) {
             $request->getSession()->getFlashBag()->add(
