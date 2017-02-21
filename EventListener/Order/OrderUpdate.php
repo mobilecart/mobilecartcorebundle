@@ -73,7 +73,7 @@ class OrderUpdate
         }
 
         if ($shipments = $entity->getShipments() && $tracking) {
-            foreach($shipments as $shipment) {
+            foreach($entity->getShipments() as $shipment) {
                 if (isset($tracking[$shipment->getId()])
                     && $shipment->getTracking() != $tracking[$shipment->getId()]
                 ) {
