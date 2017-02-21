@@ -126,7 +126,6 @@ class Order
      * @var string $currency
      *
      * @ORM\Column(name="reference_nbr", type="string", length=16)
-     * @Assert\NotBlank()
      */
     private $reference_nbr;
 
@@ -141,7 +140,6 @@ class Order
      * @var string $json
      *
      * @ORM\Column(name="json", type="text")
-     * @Assert\NotBlank()
      */
     private $json;
 
@@ -149,7 +147,6 @@ class Order
      * @var string $currency
      *
      * @ORM\Column(name="currency", type="string", length=8)
-     * @Assert\NotBlank()
      */
     private $currency;
 
@@ -157,7 +154,6 @@ class Order
      * @var float $total
      *
      * @ORM\Column(name="total", type="decimal", precision=12, scale=4)
-     * @Assert\NotBlank()
      */
     private $total;
 
@@ -165,7 +161,6 @@ class Order
      * @var float $item_total
      *
      * @ORM\Column(name="item_total", type="decimal", precision=12, scale=4)
-     * @Assert\NotBlank()
      */
     private $item_total;
 
@@ -173,7 +168,6 @@ class Order
      * @var float $tax_total
      *
      * @ORM\Column(name="tax_total", type="decimal", precision=12, scale=4)
-     * @Assert\NotBlank()
      */
     private $tax_total;
 
@@ -181,7 +175,6 @@ class Order
      * @var float $discount_total
      *
      * @ORM\Column(name="discount_total", type="decimal", precision=12, scale=4)
-     * @Assert\NotBlank()
      */
     private $discount_total;
 
@@ -189,7 +182,6 @@ class Order
      * @var float $shipping_total
      *
      * @ORM\Column(name="shipping_total", type="decimal", precision=12, scale=4)
-     * @Assert\NotBlank()
      */
     private $shipping_total;
 
@@ -197,7 +189,6 @@ class Order
      * @var float $refund_total
      *
      * @ORM\Column(name="refund_total", type="decimal", precision=12, scale=4, nullable=true)
-     * @Assert\NotBlank()
      */
     private $refund_total;
 
@@ -205,7 +196,6 @@ class Order
      * @var string $base_currency
      *
      * @ORM\Column(name="base_currency", type="string", length=8)
-     * @Assert\NotBlank()
      */
     private $base_currency;
 
@@ -213,7 +203,6 @@ class Order
      * @var float $base_total
      *
      * @ORM\Column(name="base_total", type="decimal", precision=12, scale=4)
-     * @Assert\NotBlank()
      */
     private $base_total;
 
@@ -221,7 +210,6 @@ class Order
      * @var float $base_item_total
      *
      * @ORM\Column(name="base_item_total", type="decimal", precision=12, scale=4)
-     * @Assert\NotBlank()
      */
     private $base_item_total;
 
@@ -229,7 +217,6 @@ class Order
      * @var float $base_tax_total
      *
      * @ORM\Column(name="base_tax_total", type="decimal", precision=12, scale=4)
-     * @Assert\NotBlank()
      */
     private $base_tax_total;
 
@@ -237,7 +224,6 @@ class Order
      * @var float $base_discount_total
      *
      * @ORM\Column(name="base_discount_total", type="decimal", precision=12, scale=4)
-     * @Assert\NotBlank()
      */
     private $base_discount_total;
 
@@ -245,7 +231,6 @@ class Order
      * @var float $base_shipping_total
      *
      * @ORM\Column(name="base_shipping_total", type="decimal", precision=12, scale=4)
-     * @Assert\NotBlank()
      */
     private $base_shipping_total;
 
@@ -253,7 +238,6 @@ class Order
      * @var float $base_refund_total
      *
      * @ORM\Column(name="base_refund_total", type="decimal", precision=12, scale=4, nullable=true)
-     * @Assert\NotBlank()
      */
     private $base_refund_total;
 
