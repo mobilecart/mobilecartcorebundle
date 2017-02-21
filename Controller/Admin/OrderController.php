@@ -328,7 +328,7 @@ class OrderController extends Controller
             $returnEvent->setRequest($request);
             $returnEvent->setEntity($entity);
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CUSTOMER_UPDATE_RETURN, $returnEvent);
+                ->dispatch(CoreEvents::ORDER_UPDATE_RETURN, $returnEvent);
 
             return $returnEvent->getResponse();
         }
