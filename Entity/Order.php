@@ -82,7 +82,6 @@ class Order
      * @var string $billing_street2
      *
      * @ORM\Column(name="billing_street2", type="string", length=255, nullable=true)
-     * @Assert\NotBlank(groups={"billing_address"})
      */
     private $billing_street2;
 
