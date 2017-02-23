@@ -868,7 +868,9 @@ class AddProductV2
                 ) {
                     $route = 'cart_product_view';
                     $params = ['slug' => $this->getCartItem()->getSlug()];
-                    if ($parentOptions = $this->getCartItem()->getParentOptions()) {
+                    if ($this->getCartItem()->getParentOptions()) {
+                        $parentOptions = $this->getCartItem()->getParentOptions();
+                        
                         if (is_object($parentOptions)) {
                             $parentOptions = get_object_vars($parentOptions);
                         }
