@@ -366,8 +366,28 @@ class CustomerController extends Controller
 
     public function orderHistoryAction(Request $request)
     {
-        $entity = $this->getUser();
+        $nav = new CoreEvent();
+        $nav->setCurrentRoute('customer_orders');
 
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CUSTOMER_NAVIGATION, $nav);
+
+        $returnData = $nav->getReturnData();
+
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
+            ->setRequest($request)
+            ->setReturnData($returnData)
+            ->setCustomer($this->getUser());
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CUSTOMER_ORDERS_RETURN, $event);
+
+        return $event->getResponse();
+    }
+
+    public function orderViewAction(Request $request)
+    {
         $nav = new CoreEvent();
         $nav->setCurrentRoute('customer_profile');
 
@@ -380,19 +400,7 @@ class CustomerController extends Controller
         $event->setObjectType($this->objectType)
             ->setRequest($request)
             ->setReturnData($returnData)
-            ->setCustomer($entity);
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_ORDERS_RETURN, $event);
-
-        return $event->getResponse();
-    }
-
-    public function orderViewAction(Request $request)
-    {
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setRequest($request);
+            ->setCustomer($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_ORDER_RETURN, $event);

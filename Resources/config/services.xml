@@ -237,6 +237,7 @@
         <parameter key="cart.listener.customer.profile.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerProfileReturn</parameter>
         <parameter key="cart.listener.customer.profile.post.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerProfilePostReturn</parameter>
         <parameter key="cart.listener.customer.orders.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerOrdersReturn</parameter>
+        <parameter key="cart.listener.customer.order.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerOrderReturn</parameter>
         <parameter key="cart.listener.customer.forgotpassword.form.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPasswordForm</parameter>
         <parameter key="cart.listener.customer.forgotpassword.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPassword</parameter>
         <parameter key="cart.listener.customer.forgotpassword.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPasswordReturn</parameter>
@@ -2109,6 +2110,20 @@
             </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Return data to Customer Order View page -->
+        <service id="cart.listener.customer.order.return" lazy="true" class="%cart.listener.customer.order.return.class%">
+            <tag name="kernel.event_listener" event="customer.order.return" method="onCustomerOrderReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
             </call>
         </service>
 
