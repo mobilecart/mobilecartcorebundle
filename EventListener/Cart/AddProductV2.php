@@ -863,7 +863,9 @@ class AddProductV2
                     );
                 }
 
-                if (!$this->getRedirectToCart()) {
+                if (!$this->getRedirectToCart()
+                    && !$event->getIsMassUpdate()
+                ) {
                     $route = 'cart_product_view';
                     $params = ['slug' => $this->getCartItem()->getSlug()];
                     if ($parentOptions = $this->getCartItem()->getParentOptions()) {
