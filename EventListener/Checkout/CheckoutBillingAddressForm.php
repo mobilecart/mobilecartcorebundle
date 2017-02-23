@@ -122,6 +122,7 @@ class CheckoutBillingAddressForm
                 'billing_name',
                 'billing_company',
                 'billing_street',
+                'billing_street2',
                 'billing_city',
                 'billing_region',
                 'billing_postcode',

@@ -110,6 +110,7 @@ class CheckoutShippingAddressForm
                     'shipping_name',
                     'shipping_company',
                     'shipping_street',
+                    'shipping_street2',
                     'shipping_city',
                     'shipping_region',
                     'shipping_postcode',
