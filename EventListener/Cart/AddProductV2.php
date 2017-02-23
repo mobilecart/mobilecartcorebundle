@@ -639,7 +639,7 @@ class AddProductV2
         if (!$keyValue && $event->get('product_id')) {
             $qty = $event->get('qty');
             $keyValue = $event->get('product_id');
-            $keyField = 'id';
+            $keyField = 'product_id';
         }
 
         // check if product is a child product
@@ -870,7 +870,7 @@ class AddProductV2
                     $params = ['slug' => $this->getCartItem()->getSlug()];
                     if ($this->getCartItem()->getParentOptions()) {
                         $parentOptions = $this->getCartItem()->getParentOptions();
-                        
+
                         if (is_object($parentOptions)) {
                             $parentOptions = get_object_vars($parentOptions);
                         }
