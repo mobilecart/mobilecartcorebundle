@@ -187,6 +187,10 @@ class AddProductV2
 
     public function loadProduct($value, $idField = 'id')
     {
+        if ($idField == 'product_id') {
+            $idField = 'id';
+        }
+
         if ($idField == 'id') {
             return $this->getEntityService()->find(EntityConstants::PRODUCT, $value);
         }
@@ -526,7 +530,13 @@ class AddProductV2
                 }
             }
 
-            $this->getEntityService()->persist($cartItemEntity);
+            try {
+                $this->getEntityService()->persist($cartItemEntity);
+                $this->setSuccess(1);
+            } catch(\Exception $e) {
+
+            }
+
             $cartItem->setId($cartItemEntity->getId());
             $this->setCartItemEntity($cartItemEntity);
         }
@@ -607,7 +617,6 @@ class AddProductV2
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
         $recollectShipping = []; // r = [object, object] , object:{'customer_address_id':'','source_address_key':''}
 
-        $success = 0;
         $errors = [];
         $cartItemEntity = null;
         $product = null;
@@ -620,7 +629,7 @@ class AddProductV2
         // keyValue could be a sku
         $keyValue = $request->get('id', '');
         $keyField = $request->get('key', 'id');
-        $keyFields = ['id', 'sku']; // possibly allow more in the future
+        $keyFields = ['id', 'product_id', 'sku']; // possibly allow more in the future
         $productId = 0; // dont set productId until we know the valid value
 
         $parentProductId = $request->get('id', ''); // always the case: integer , parent product_id
@@ -637,7 +646,7 @@ class AddProductV2
         $simpleProductId = $request->get('simple_id', '');
         if ($simpleProductId) {
             $keyValue = $simpleProductId;
-            $keyField = 'id';
+            $keyField = 'product_id';
         } else {
             if (!in_array($keyField, $keyFields)) {
                 $keyField = 'id';
@@ -701,20 +710,18 @@ class AddProductV2
 
         if ($simpleProductId) {
             // we have a simple product, and its already in the cart
-            if ($this->getCartSessionService()->hasProductId($simpleProductId)) {
+            if ($this->getCartItem()) {
 
-                // todo : find by item id
-                $cartItem = $cart->findItem('product_id', $simpleProductId);
                 if ($event->getIsAdd()) {
-                    $this->setTotalQty($qty + $cartItem->getQty());
+                    $this->setTotalQty($qty + $this->getCartItem()->getQty());
                 } else {
                     $this->setTotalQty($qty);
                 }
 
                 // check criteria
-                if ($cartItem
-                    && $this->meetsCriteria($cartItem)
-                ) {
+                if ($this->meetsCriteria($this->getCartItem())) {
+
+                    $cartItem = $this->getCartItem();
 
                     // update quantity
                     $this->getCartSessionService()
@@ -760,20 +767,18 @@ class AddProductV2
                 }
             }
         } else {
-            if ($this->getCartSessionService()->hasProductId($productId)) {
+            if ($this->getCartItem()) {
 
-                // todo : find by item id
-                $cartItem = $cart->findItem('product_id', $productId);
                 if ($event->getIsAdd()) {
-                    $this->setTotalQty($qty + $cartItem->getQty());
+                    $this->setTotalQty($qty + $this->getCartItem()->getQty());
                 } else {
                     $this->setTotalQty($qty);
                 }
 
                 // check criteria
-                if ($cartItem
-                    && $this->meetsCriteria($cartItem)
-                ) {
+                if ($this->meetsCriteria($this->getCartItem())) {
+
+                    $cartItem = $this->getCartItem();
 
                     // update quantity
                     $this->getCartSessionService()
@@ -821,6 +826,7 @@ class AddProductV2
 
         $event->setRecollectShipping($recollectShipping);
         $event->setCartItemEntity($this->getCartItemEntity());
+        $event->setSuccess($this->getSuccess());
         $returnData['cart'] = $this->getCartSessionService()->getCart();
         $returnData['success'] = $this->getSuccess();
         $returnData['errors'] = $this->getErrors();
@@ -847,7 +853,9 @@ class AddProductV2
                         $route = 'cart_product_view';
                         $params = ['slug' => $this->getCartItem()->getSlug()];
                     }
-                } elseif ($success && $event->getIsAdd()) {
+                } elseif ($this->getSuccess()
+                    && !$event->getIsMassUpdate()
+                ) {
 
                     $request->getSession()->getFlashBag()->add(
                         'success',

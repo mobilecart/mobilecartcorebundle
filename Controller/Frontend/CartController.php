@@ -71,6 +71,8 @@ class CartController extends Controller
         $event->setRequest($request)
             ->setUser($this->getUser());
 
+        $success = true;
+
         if (is_array($qtys) && $qtys) {
             foreach($qtys as $productId => $qty) {
                 if ($qty < 1) {
@@ -85,6 +87,10 @@ class CartController extends Controller
 
                     $this->get('event_dispatcher')
                         ->dispatch(CoreEvents::CART_REMOVE_PRODUCT, $event);
+
+                    if (!$event->getSuccess()) {
+                        $success = false;
+                    }
 
                 } else {
 
@@ -101,8 +107,19 @@ class CartController extends Controller
                     $this->get('event_dispatcher')
                         ->dispatch(CoreEvents::CART_ADD_PRODUCT, $event);
 
+                    if (!$event->getSuccess()) {
+                        $success = false;
+                    }
+
                 }
             }
+        }
+
+        if ($success) {
+            $request->getSession()->getFlashBag()->add(
+                'success',
+                'Cart Updated'
+            );
         }
 
         return $event->getResponse();

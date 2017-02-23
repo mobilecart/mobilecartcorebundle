@@ -349,9 +349,14 @@ class CartSessionService
      * @param $product
      * @param array $parentOptions
      * @return Item
+     * @throws \InvalidArgumentException
      */
     public function createCartItem($product, $parentOptions = [])
     {
+        if (is_null($product)) {
+            throw new \InvalidArgumentException("Product cannot be null");
+        }
+
         $item = $this->getItemInstance();
         $data = $product->getData();
         $data['product_id'] = $data['id'];
