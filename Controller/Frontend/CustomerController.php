@@ -135,16 +135,17 @@ class CustomerController extends Controller
         $entity = $event->getEntity();
         $success = $event->getSuccess();
 
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
+        $returnEvent = new CoreEvent();
+        $returnEvent->setObjectType($this->objectType)
             ->setRequest($request)
             ->setSuccess($success)
-            ->setEntity($entity);
+            ->setEntity($entity)
+            ->setReturnData($event->getReturnData());
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_REGISTER_CONFIRM_RETURN, $event);
+            ->dispatch(CoreEvents::CUSTOMER_REGISTER_CONFIRM_RETURN, $returnEvent);
 
-        return $event->getResponse();
+        return $returnEvent->getResponse();
     }
 
     public function forgotPasswordAction(Request $request)
@@ -160,17 +161,15 @@ class CustomerController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_FORGOT_PASSWORD_FORM, $event);
 
-        $returnData = $event->getReturnData();
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setReturnData($returnData)
+        $returnEvent = new CoreEvent();
+        $returnEvent->setObjectType($this->objectType)
+            ->setReturnData($event->getReturnData())
             ->setRequest($request);
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_FORGOT_PASSWORD_RETURN, $event);
+            ->dispatch(CoreEvents::CUSTOMER_FORGOT_PASSWORD_RETURN, $returnEvent);
 
-        return $event->getResponse();
+        return $returnEvent->getResponse();
     }
 
     public function forgotPasswordPostAction(Request $request)
@@ -244,12 +243,12 @@ class CustomerController extends Controller
 
     public function updatePasswordAction(Request $request)
     {
-
+        // todo
     }
 
     public function updatePassswordPostAction(Request $request)
     {
-
+        // todo
     }
 
     public function profileAction(Request $request)
