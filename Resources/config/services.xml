@@ -9,7 +9,7 @@
     HOWTO Customize:
 
         Copy parameters to your custom bundle's services.xml and change the values
-        Also, ensure that your custom bundle loads after this bundle in app/AppKernel.php so the values are over-written
+        Also, ensure that your custom bundle loads after this bundle in app/AppKernel.php so these values are over-written
 
     -->
 
@@ -27,7 +27,7 @@
         <parameter key="cart.tax.enabled">1</parameter><!-- enable tax, tax totals -->
         <parameter key="cart.allow.guest.checkout">0</parameter><!-- enable guest checkout -->
         <parameter key="cart.allowed.country.ids">US,GB</parameter><!-- allowed country codes, in CSV -->
-        <parameter key="cart.listener.customer.login.reload.cart">1</parameter>
+        <parameter key="cart.customer.login.reload.cart">1</parameter>
         <parameter key="cart.shipping.flatrate.enabled">1</parameter>
         <parameter key="cart.shipping.flatrate.db.enabled">1</parameter>
         <parameter key="cart.add.product.disable.qty.check">0</parameter>
@@ -51,7 +51,7 @@
         <parameter key="cart.upload.temp">/tmp</parameter>
         <parameter key="cart.auth.token.class">MobileCart\CoreBundle\Service\GuardTokenAuthService</parameter>
         <parameter key="cart.auth.token.allow.admin">0</parameter>
-        <!-- DI Class Names -->
+        <!-- Services -->
         <parameter key="cart.search.class">MobileCart\CoreBundle\Service\DoctrineSearchServiceV2</parameter>
         <parameter key="cart.search.doctrine.class">MobileCart\CoreBundle\Service\DoctrineSearchServiceV2</parameter>
         <parameter key="cart.currency.class">MobileCart\CoreBundle\Service\CurrencyService</parameter>
@@ -74,6 +74,7 @@
         <parameter key="cart.tax.class">MobileCart\CoreBundle\Service\TaxService</parameter>
         <parameter key="cart.theme.class">MobileCart\CoreBundle\Service\ThemeService</parameter>
         <parameter key="cart.theme.config.class">MobileCart\CoreBundle\Service\ThemeConfig</parameter>
+        <!-- Entity Repositories -->
         <parameter key="cart.repo.admin_user">MobileCartCoreBundle:AdminUser</parameter>
         <parameter key="cart.repo.cart">MobileCartCoreBundle:Cart</parameter>
         <parameter key="cart.repo.cart_item">MobileCartCoreBundle:CartItem</parameter>
@@ -139,12 +140,15 @@
         <parameter key="cart.repo.shipping_method">MobileCartCoreBundle:ShippingMethod</parameter>
         <parameter key="cart.repo.url_rewrite">MobileCartCoreBundle:UrlRewrite</parameter>
         <parameter key="cart.repo.webhook_log">MobileCartCoreBundle:WebhookLog</parameter>
+        <!-- Event Listeners -->
         <parameter key="cart.listener.home.view.return.class">MobileCart\CoreBundle\EventListener\Home\ViewReturn</parameter>
         <parameter key="cart.listener.dashboard.notifications.class">MobileCart\CoreBundle\EventListener\Dashboard\DashboardNotifications</parameter>
         <parameter key="cart.listener.dashboard.view.return.class">MobileCart\CoreBundle\EventListener\Dashboard\DashboardViewReturn</parameter>
+        <!-- Login Handlers -->
         <parameter key="cart.listener.login.class">MobileCart\CoreBundle\EventListener\Security\Login</parameter>
         <parameter key="cart.listener.login.failed.class">MobileCart\CoreBundle\EventListener\Security\LoginFailed</parameter>
         <parameter key="cart.listener.logout.class">MobileCart\CoreBundle\EventListener\Security\Logout</parameter>
+        <!-- Checkout Handlers -->
         <parameter key="cart.listener.checkout.form.billing.address.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutBillingAddressForm</parameter>
         <parameter key="cart.listener.checkout.form.shipping.address.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutShippingAddressForm</parameter>
         <parameter key="cart.listener.checkout.form.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutForm</parameter>
@@ -161,7 +165,7 @@
         <parameter key="cart.listener.checkout.update.payment.method.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdatePaymentMethod</parameter>
         <parameter key="cart.listener.checkout.submit.order.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutSubmitOrder</parameter>
         <parameter key="cart.listener.checkout.success.return.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutSuccessReturn</parameter>
-        <parameter key="cart.listener.payment.method.handler.class">MobileCart\CoreBundle\EventListener\Payment\PaymentMethodHandler</parameter>
+        <!-- Cart Handlers -->
         <parameter key="cart.listener.cart.view.return.class">MobileCart\CoreBundle\EventListener\Cart\ViewReturn</parameter>
         <parameter key="cart.listener.cart.add.product.class">MobileCart\CoreBundle\EventListener\Cart\AddProduct</parameter>
         <parameter key="cart.listener.cart.update.totals.shipping.class">MobileCart\CoreBundle\EventListener\Cart\UpdateTotalsShipping</parameter>
@@ -176,6 +180,7 @@
         <parameter key="cart.listener.cart.total.tax.class">MobileCart\CoreBundle\EventListener\Cart\TaxTotal</parameter>
         <parameter key="cart.listener.cart.total.discount.class">MobileCart\CoreBundle\EventListener\Cart\DiscountTotal</parameter>
         <parameter key="cart.listener.cart.total.grand.class">MobileCart\CoreBundle\EventListener\Cart\GrandTotal</parameter>
+        <!-- Product and Category Handlers -->
         <parameter key="cart.listener.product.search.class">MobileCart\CoreBundle\EventListener\Product\ProductSearch</parameter>
         <parameter key="cart.listener.product.list.class">MobileCart\CoreBundle\EventListener\Product\ProductList</parameter>
         <parameter key="cart.listener.product.admin.form.class">MobileCart\CoreBundle\EventListener\Product\ProductAdminForm</parameter>
@@ -197,6 +202,7 @@
         <parameter key="cart.listener.category.insert.class">MobileCart\CoreBundle\EventListener\Category\CategoryInsert</parameter>
         <parameter key="cart.listener.category.delete.class">MobileCart\CoreBundle\EventListener\Category\CategoryDelete</parameter>
         <parameter key="cart.listener.category.admin.form.class">MobileCart\CoreBundle\EventListener\Category\CategoryAdminForm</parameter>
+        <!-- Content Handlers -->
         <parameter key="cart.listener.content.search.class">MobileCart\CoreBundle\EventListener\Content\ContentSearch</parameter>
         <parameter key="cart.listener.content.list.class">MobileCart\CoreBundle\EventListener\Content\ContentList</parameter>
         <parameter key="cart.listener.content.view.return.class">MobileCart\CoreBundle\EventListener\Content\ContentViewReturn</parameter>
@@ -218,6 +224,7 @@
         <parameter key="cart.listener.content_slot.insert.class">MobileCart\CoreBundle\EventListener\ContentSlot\ContentSlotInsert</parameter>
         <parameter key="cart.listener.content_slot.delete.class">MobileCart\CoreBundle\EventListener\ContentSlot\ContentSlotDelete</parameter>
         <parameter key="cart.listener.content_slot.admin.form.class">MobileCart\CoreBundle\EventListener\ContentSlot\ContentSlotAdminForm</parameter>
+        <!-- Customer Handlers -->
         <parameter key="cart.listener.customer.search.class">MobileCart\CoreBundle\EventListener\Customer\CustomerSearch</parameter>
         <parameter key="cart.listener.customer.list.class">MobileCart\CoreBundle\EventListener\Customer\CustomerList</parameter>
         <parameter key="cart.listener.customer.navigation.class">MobileCart\CoreBundle\EventListener\Customer\CustomerNavigation</parameter>
@@ -257,6 +264,7 @@
         <parameter key="cart.listener.customer_address.create.return.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressCreateReturn</parameter>
         <parameter key="cart.listener.customer_address.update.return.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressUpdateReturn</parameter>
         <parameter key="cart.listener.customer_address.delete.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressDelete</parameter>
+        <!-- Discount Admin Handlers -->
         <parameter key="cart.listener.discount.search.class">MobileCart\CoreBundle\EventListener\Discount\DiscountSearch</parameter>
         <parameter key="cart.listener.discount.list.class">MobileCart\CoreBundle\EventListener\Discount\DiscountList</parameter>
         <parameter key="cart.listener.discount.new.return.class">MobileCart\CoreBundle\EventListener\Discount\DiscountNewReturn</parameter>
@@ -267,6 +275,7 @@
         <parameter key="cart.listener.discount.create.return.class">MobileCart\CoreBundle\EventListener\Discount\DiscountCreateReturn</parameter>
         <parameter key="cart.listener.discount.update.return.class">MobileCart\CoreBundle\EventListener\Discount\DiscountUpdateReturn</parameter>
         <parameter key="cart.listener.discount.admin.form.class">MobileCart\CoreBundle\EventListener\Discount\DiscountAdminForm</parameter>
+        <!-- EAV Admin Handlers -->
         <parameter key="cart.listener.item_var.search.class">MobileCart\CoreBundle\EventListener\ItemVar\ItemVarSearch</parameter>
         <parameter key="cart.listener.item_var.list.class">MobileCart\CoreBundle\EventListener\ItemVar\ItemVarList</parameter>
         <parameter key="cart.listener.item_var.edit.return.class">MobileCart\CoreBundle\EventListener\ItemVar\ItemVarEditReturn</parameter>
@@ -307,6 +316,7 @@
         <parameter key="cart.listener.item_var_set_var.insert.class">MobileCart\CoreBundle\EventListener\ItemVarSetVar\ItemVarSetVarInsert</parameter>
         <parameter key="cart.listener.item_var_set_var.delete.class">MobileCart\CoreBundle\EventListener\ItemVarSetVar\ItemVarSetVarDelete</parameter>
         <parameter key="cart.listener.item_var_set_var.admin.form.class">MobileCart\CoreBundle\EventListener\ItemVarSetVar\ItemVarSetVarAdminForm</parameter>
+        <!-- Order Admin Handlers -->
         <parameter key="cart.listener.order.search.class">MobileCart\CoreBundle\EventListener\Order\OrderSearch</parameter>
         <parameter key="cart.listener.order.list.class">MobileCart\CoreBundle\EventListener\Order\OrderList</parameter>
         <parameter key="cart.listener.order.edit.return.class">MobileCart\CoreBundle\EventListener\Order\OrderEditReturn</parameter>
@@ -324,6 +334,8 @@
         <parameter key="cart.listener.order.remove.item.class">MobileCart\CoreBundle\EventListener\Order\OrderRemoveItem</parameter>
         <parameter key="cart.listener.order.add.discount.class">MobileCart\CoreBundle\EventListener\Order\OrderAddDiscount</parameter>
         <parameter key="cart.listener.order.remove.discount.class">MobileCart\CoreBundle\EventListener\Order\OrderRemoveDiscount</parameter>
+        <!-- Payment and Shipping Handlers -->
+        <parameter key="cart.listener.payment.method.handler.class">MobileCart\CoreBundle\EventListener\Payment\PaymentMethodHandler</parameter>
         <parameter key="cart.listener.shipping_method.search.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodSearch</parameter>
         <parameter key="cart.listener.shipping_method.list.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodList</parameter>
         <parameter key="cart.listener.shipping_method.admin.form.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodAdminForm</parameter>
@@ -335,6 +347,7 @@
         <parameter key="cart.listener.shipping_method.delete.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodDelete</parameter>
         <parameter key="cart.listener.shipping_rate.flatrate.class">MobileCart\CoreBundle\Shipping\FlatRate</parameter>
         <parameter key="cart.listener.shipping_rate.db.class">MobileCart\CoreBundle\Shipping\DB</parameter>
+        <!-- URL Rewrite Admin Handlers -->
         <parameter key="cart.listener.url_rewrite.search.class">MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteSearch</parameter>
         <parameter key="cart.listener.url_rewrite.list.class">MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteList</parameter>
         <parameter key="cart.listener.url_rewrite.edit.return.class">MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteEditReturn</parameter>
@@ -395,7 +408,7 @@
                 <argument type="service" id="cart.entity" />
             </call>
             <call method="setReloadCart">
-                <argument type="string">%cart.listener.customer.login.reload.cart%</argument>
+                <argument type="string">%cart.customer.login.reload.cart%</argument>
             </call>
         </service>
 
@@ -1987,6 +2000,7 @@
             </call>
         </service>
 
+        <!-- Customer Listeners -->
         <service id="cart.listener.customer.register.return" lazy="true" class="%cart.listener.customer.register.return.class%">
             <tag name="kernel.event_listener" event="customer.register.return" method="onCustomerRegisterReturn" priority="50" />
             <call method="setEntityService">
