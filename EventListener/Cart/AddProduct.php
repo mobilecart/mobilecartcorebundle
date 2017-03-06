@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
-class AddProductV2
+class AddProduct
 {
     /**
      * @var \MobileCart\CoreBundle\Service\DoctrineEntityService
