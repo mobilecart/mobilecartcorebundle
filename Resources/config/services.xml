@@ -29,7 +29,7 @@
         <parameter key="cart.allow.guest.checkout">0</parameter><!-- enable guest checkout -->
         <parameter key="cart.allowed.country.ids">US,GB</parameter><!-- allowed country codes, in CSV -->
         <parameter key="cart.customer.login.reload.cart">1</parameter><!-- reload recent cart after login -->
-        <parameter key="cart.shipping.flatrate.enabled">1</parameter><!-- enable flat-rate shipping -->
+        <parameter key="cart.shipping.flatrate.enabled">1</parameter><!-- enable config-based flat-rate shipping -->
         <parameter key="cart.shipping.flatrate.db.enabled">1</parameter><!-- enable db-based flatrate shipping -->
         <parameter key="cart.add.product.enable.qty.check">1</parameter><!-- enable product inventory checking when adding to cart -->
         <!-- ReCaptcha Settings -->

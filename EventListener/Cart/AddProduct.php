@@ -613,6 +613,7 @@ class AddProduct
     {
         $this->setEvent($event);
         $returnData = $this->getReturnData();
+        $this->setCartItem(null); // preventing a strange "bug"
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
         $recollectShipping = []; // r = [object, object] , object:{'customer_address_id':'','source_address_key':''}
