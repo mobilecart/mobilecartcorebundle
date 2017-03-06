@@ -19,6 +19,7 @@
         <parameter key="cart.config.currency.base">USD</parameter>
         <parameter key="cart.email.from.main">test@test.com</parameter>
         <parameter key="cart.email.to.main">test@test.com</parameter>
+        <parameter key="cart.image.upload.frontend.enabled">0</parameter><!-- enable image uploads in frontend -->
         <parameter key="cart.add.product.redirect.cart">1</parameter><!-- redirect to cart or product page after add to cart -->
         <parameter key="cart.discount.enabled">1</parameter><!-- enable discounts -->
         <parameter key="cart.total.discount.auto">1</parameter><!-- automatically load, validate, and apply discounts from the database -->
@@ -27,10 +28,10 @@
         <parameter key="cart.tax.enabled">1</parameter><!-- enable tax, tax totals -->
         <parameter key="cart.allow.guest.checkout">0</parameter><!-- enable guest checkout -->
         <parameter key="cart.allowed.country.ids">US,GB</parameter><!-- allowed country codes, in CSV -->
-        <parameter key="cart.customer.login.reload.cart">1</parameter>
-        <parameter key="cart.shipping.flatrate.enabled">1</parameter>
-        <parameter key="cart.shipping.flatrate.db.enabled">1</parameter>
-        <parameter key="cart.add.product.disable.qty.check">0</parameter>
+        <parameter key="cart.customer.login.reload.cart">1</parameter><!-- reload recent cart after login -->
+        <parameter key="cart.shipping.flatrate.enabled">1</parameter><!-- enable flat-rate shipping -->
+        <parameter key="cart.shipping.flatrate.db.enabled">1</parameter><!-- enable db-based flatrate shipping -->
+        <parameter key="cart.add.product.enable.qty.check">1</parameter><!-- enable product inventory checking when adding to cart -->
         <!-- ReCaptcha Settings -->
         <parameter key="recaptcha.key.site"> </parameter>
         <parameter key="recaptcha.key.secret"> </parameter>
@@ -48,32 +49,31 @@
         <parameter key="cart.load.frontend">cart.entity</parameter><!-- service id of frontend entity loading service -->
         <parameter key="cart.search.frontend">cart.search.doctrine</parameter><!-- service id of frontend search service -->
         <parameter key="cart.checkout.spa.enabled">1</parameter><!-- Enable Single-Page Checkout, or use Multi-Page -->
-        <parameter key="cart.upload.temp">/tmp</parameter>
+        <parameter key="cart.upload.temp">/tmp</parameter><!-- directory for temporary file uploads -->
         <parameter key="cart.auth.token.class">MobileCart\CoreBundle\Service\GuardTokenAuthService</parameter>
-        <parameter key="cart.auth.token.allow.admin">0</parameter>
+        <parameter key="cart.auth.token.allow.admin">0</parameter><!-- Enable GuardTokenAuth for Admin access -->
         <!-- Services -->
-        <parameter key="cart.search.class">MobileCart\CoreBundle\Service\DoctrineSearchServiceV2</parameter>
-        <parameter key="cart.search.doctrine.class">MobileCart\CoreBundle\Service\DoctrineSearchServiceV2</parameter>
+        <parameter key="cart.session.class">MobileCart\CoreBundle\Service\CartSessionService</parameter>
+        <parameter key="cart.class">MobileCart\CoreBundle\Service\CartService</parameter>
+        <parameter key="cart.checkout.session.class">MobileCart\CoreBundle\Service\CheckoutSessionService</parameter>
         <parameter key="cart.currency.class">MobileCart\CoreBundle\Service\CurrencyService</parameter>
+        <parameter key="cart.discount.class">MobileCart\CoreBundle\Service\DiscountService</parameter>
         <parameter key="cart.entity.class">MobileCart\CoreBundle\Service\DoctrineEntityService</parameter>
         <parameter key="cart.entity.pdo.class">MobileCart\CoreBundle\Service\PdoEntityService</parameter>
-        <parameter key="cart.image.class">MobileCart\CoreBundle\Service\ImageService</parameter>
-        <parameter key="cart.image.upload.frontend.enabled">0</parameter>
-        <parameter key="cart.order.class">MobileCart\CoreBundle\Service\OrderService</parameter>
-        <parameter key="cart.twig.frontend.class">MobileCart\CoreBundle\Twig\Extension\FrontendExtension</parameter>
-        <parameter key="cart.class">MobileCart\CoreBundle\Service\CartService</parameter>
-        <parameter key="cart.session.class">MobileCart\CoreBundle\Service\CartSessionService</parameter>
-        <parameter key="cart.total.class">MobileCart\CoreBundle\Service\CartTotalService</parameter>
-        <parameter key="cart.locale.class">MobileCart\CoreBundle\Service\LocaleService</parameter>
-        <parameter key="cart.checkout.session.class">MobileCart\CoreBundle\Service\CheckoutSessionService</parameter>
-        <parameter key="cart.discount.class">MobileCart\CoreBundle\Service\DiscountService</parameter>
         <parameter key="cart.geography.class">MobileCart\CoreBundle\Service\GeographyService</parameter>
+        <parameter key="cart.image.class">MobileCart\CoreBundle\Service\ImageService</parameter>
+        <parameter key="cart.locale.class">MobileCart\CoreBundle\Service\LocaleService</parameter>
+        <parameter key="cart.order.class">MobileCart\CoreBundle\Service\OrderService</parameter>
         <parameter key="cart.payment.class">MobileCart\CoreBundle\Service\PaymentService</parameter>
         <parameter key="cart.recaptcha.class">MobileCart\CoreBundle\Service\RecaptchaV2Service</parameter>
+        <parameter key="cart.search.class">MobileCart\CoreBundle\Service\DoctrineSearchServiceV2</parameter>
+        <parameter key="cart.search.doctrine.class">MobileCart\CoreBundle\Service\DoctrineSearchServiceV2</parameter>
         <parameter key="cart.shipping.class">MobileCart\CoreBundle\Service\ShippingService</parameter>
         <parameter key="cart.tax.class">MobileCart\CoreBundle\Service\TaxService</parameter>
         <parameter key="cart.theme.class">MobileCart\CoreBundle\Service\ThemeService</parameter>
         <parameter key="cart.theme.config.class">MobileCart\CoreBundle\Service\ThemeConfig</parameter>
+        <parameter key="cart.total.class">MobileCart\CoreBundle\Service\CartTotalService</parameter>
+        <parameter key="cart.twig.frontend.class">MobileCart\CoreBundle\Twig\Extension\FrontendExtension</parameter>
         <!-- Entity Repositories -->
         <parameter key="cart.repo.admin_user">MobileCartCoreBundle:AdminUser</parameter>
         <parameter key="cart.repo.cart">MobileCartCoreBundle:Cart</parameter>
@@ -1414,8 +1414,8 @@
             <call method="setRedirectToCart">
                 <argument type="string">%cart.add.product.redirect.cart%</argument>
             </call>
-            <call method="setDisableQtyCheck">
-                <argument type="string">%cart.add.product.disable.qty.check%</argument>
+            <call method="setEnableQtyCheck">
+                <argument type="string">%cart.add.product.enable.qty.check%</argument>
             </call>
         </service>
 

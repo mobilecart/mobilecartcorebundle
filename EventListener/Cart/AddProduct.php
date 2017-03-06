@@ -47,7 +47,7 @@ class AddProduct
 
     protected $hasTierPriceChange = false;
 
-    protected $disableQtyCheck = false;
+    protected $enableQtyCheck = true;
 
     protected $qty = 1;
 
@@ -310,15 +310,15 @@ class AddProduct
         return $this->success;
     }
 
-    public function setDisableQtyCheck($yesNo)
+    public function setEnableQtyCheck($yesNo)
     {
-        $this->disableQtyCheck = $yesNo;
+        $this->enableQtyCheck = $yesNo;
         return $this;
     }
 
-    public function getDisableQtyCheck()
+    public function getEnableQtyCheck()
     {
-        return $this->disableQtyCheck;
+        return $this->enableQtyCheck;
     }
 
     public function meetsCriteria($cartItem)
@@ -341,7 +341,7 @@ class AddProduct
             $errors[] = "Product is not in stock : {$cartItem->getSku()}";
         }
 
-        if (!$this->getDisableQtyCheck()) {
+        if ($this->getEnableQtyCheck()) {
 
             if (!$minQtyMet) {
                 $errors[] = "Minimum Qty is not met : {$cartItem->getSku()}, Qty: {$cartItem->getMinQty()}";
