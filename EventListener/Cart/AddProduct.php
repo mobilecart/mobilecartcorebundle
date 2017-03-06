@@ -669,7 +669,14 @@ class AddProduct
                 $this->setProduct($product);
 
                 // don't execute a query unless we have simpleProductId, and a product
-                if ($simpleProductId) {
+                if ($simpleProductId
+                    || $request->get('parent_product_id', 0) > 0
+                ) {
+
+                    if (!$parentProductId) {
+                        $parentProductId = $request->get('parent_product_id', 0);
+                    }
+
                     // load product from entity service
                     $parent = $this->loadProduct($parentProductId);
                     if ($parent) {
