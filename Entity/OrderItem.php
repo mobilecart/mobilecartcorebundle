@@ -45,6 +45,13 @@ class OrderItem implements CartEntityInterface
     private $created_at;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="source_address_key", type="string", length=255, nullable=true)
+     */
+    private $source_address_key;
+
+    /**
      * @var \MobileCart\CoreBundle\Entity\Order
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Order", inversedBy="items")
@@ -249,6 +256,24 @@ class OrderItem implements CartEntityInterface
     }
 
     /**
+     * @param $srcAddressKey
+     * @return $this
+     */
+    public function setSourceAddressKey($srcAddressKey)
+    {
+        $this->source_address_key = $srcAddressKey;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSourceAddressKey()
+    {
+        return $this->source_address_key;
+    }
+
+    /**
      * @param $key
      * @param $value
      * @return $this
@@ -352,6 +377,7 @@ class OrderItem implements CartEntityInterface
         return [
             'id' => $this->getId(),
             'created_at' => $this->getCreatedAt(),
+            'source_address_key' => $this->getSourceAddressKey(),
             'status' => $this->getStatus(),
             'tracking' => $this->getTracking(),
             'product_id' => $this->getProductId(),
