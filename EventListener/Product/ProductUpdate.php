@@ -4,6 +4,7 @@ namespace MobileCart\CoreBundle\EventListener\Product;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Entity\Product;
 
 class ProductUpdate
 {
@@ -64,6 +65,12 @@ class ProductUpdate
             // update var values
             $this->getEntityService()
                 ->persistVariants($entity, $formData);
+        }
+
+        if ($entity->getType() == Product::TYPE_CONFIGURABLE) {
+            $this->getEntityService()->getDoctrine()->getManager()->refresh($entity);
+            $entity->reconfigure();
+            $this->getEntityService()->persist($entity);
         }
 
         if ($entity && $request->getSession()) {
