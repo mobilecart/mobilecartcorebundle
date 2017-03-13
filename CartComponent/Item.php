@@ -15,16 +15,6 @@ class Item extends ArrayWrapper
     implements \ArrayAccess, \Serializable, \IteratorAggregate, \JsonSerializable
 {
 
-    static $prefix = 'item-';
-
-    /**
-     * Get key for associative arrays
-     */
-    static function getKey($itemId)
-    {
-        return self::$prefix . $itemId;
-    }
-
     public function __construct() 
     {
         parent::__construct($this->getDefaults());

@@ -14,18 +14,6 @@ namespace MobileCart\CoreBundle\CartComponent;
 class Shipment extends ArrayWrapper
     implements \ArrayAccess, \Serializable, \IteratorAggregate, \JsonSerializable
 {
-    /**
-     * @var string
-     */
-    static $prefix = 'shipment-'; // array key prefix
-
-    /**
-     * Get key for associative arrays
-     */
-    static function getKey($id)
-    {
-        return self::$prefix . $id;
-    }
 
     public function __construct()
     {
