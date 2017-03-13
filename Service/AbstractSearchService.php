@@ -290,6 +290,11 @@ abstract class AbstractSearchService
     public $sortBy = '';
 
     /**
+     * @var string
+     */
+    public $defaultSortBy = '';
+
+    /**
      * Sort direction parameter
      *
      * @var string
@@ -302,6 +307,11 @@ abstract class AbstractSearchService
      * @var string
      */
     public $sortDir = '';
+
+    /**
+     * @var string
+     */
+    public $defaultSortDir = '';
 
     /**
      * Fields which are sortable for the
@@ -1185,6 +1195,18 @@ abstract class AbstractSearchService
 
     /**
      * @param $sortBy
+     * @param string $sortDir
+     * @return $this
+     */
+    public function setDefaultSort($sortBy, $sortDir = 'asc')
+    {
+        $this->defaultSortBy = $sortBy;
+        $this->defaultSortDir = $sortDir;
+        return $this;
+    }
+
+    /**
+     * @param $sortBy
      * @return $this
      */
     public function setSortBy($sortBy)
@@ -1201,6 +1223,24 @@ abstract class AbstractSearchService
     public function getSortBy()
     {
         return $this->sortBy;
+    }
+
+    /**
+     * @param $sortBy
+     * @return $this
+     */
+    public function setDefaultSortBy($sortBy)
+    {
+        $this->defaultSortBy = $sortBy;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultSortBy()
+    {
+        return $this->defaultSortBy;
     }
 
     /**
@@ -1243,6 +1283,24 @@ abstract class AbstractSearchService
     public function getSortDir()
     {
         return $this->sortDir;
+    }
+
+    /**
+     * @param $sortDir
+     * @return $this
+     */
+    public function setDefaultSortDir($sortDir)
+    {
+        $this->defaultSortDir = $sortDir;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultSortDir()
+    {
+        return $this->defaultSortDir;
     }
 
     /**

@@ -714,8 +714,10 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
         $mainSql = $this->mainSql;
 
         // sort
-        if (isset($this->sortable[$this->getSortBy()])) {
+        if ($this->getSortBy() && isset($this->sortable[$this->getSortBy()])) {
             $mainSql .= " order by {$this->getSortBy()} {$this->getSortDir()}";
+        } elseif ($this->getDefaultSortBy()) {
+            $mainSql .= " order by {$this->getDefaultSortBy()} {$this->getDefaultSortDir()}";
         }
 
         $mainSql .= " limit {$offset},{$this->getLimit()}";
