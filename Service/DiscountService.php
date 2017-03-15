@@ -31,7 +31,7 @@ class DiscountService
     protected $isDiscountEnabled = false;
 
     /**
-     * @var mixed
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
 
@@ -72,7 +72,7 @@ class DiscountService
     }
 
     /**
-     * @param $entityService
+     * @param \MobileCart\CoreBundle\Service\AbstractEntityService $entityService
      * @return $this
      */
     public function setEntityService($entityService)
@@ -82,7 +82,7 @@ class DiscountService
     }
 
     /**
-     * @return mixed
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     public function getEntityService()
     {
@@ -150,6 +150,7 @@ class DiscountService
 
     /**
      * @param $code
+     * @return mixed
      */
     public function findByCouponCode($code)
     {

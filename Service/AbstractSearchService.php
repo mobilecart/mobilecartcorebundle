@@ -14,13 +14,19 @@ namespace MobileCart\CoreBundle\Service;
 use Symfony\Component\HttpFoundation\Request;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
+/**
+ * Class AbstractSearchService
+ * @package MobileCart\CoreBundle\Service
+ *
+ * The point of this is to have the ability to switch out the data storage, and keep the search API
+ */
 abstract class AbstractSearchService
 {
 
     /**
      * Note:
      *  - some members are public for json-encoding this object
-     *  - the result is standardized on the same result returned from ElasticSearch
+     *  - the result is standardized on the same result returned from ElasticSearch 1.7
      */
 
     /**

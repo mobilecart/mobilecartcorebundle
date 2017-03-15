@@ -22,27 +22,47 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
 
 class GuardTokenAuthService extends AbstractGuardAuthenticator
 {
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
+    /**
+     * @var bool
+     */
     protected $allowAdminLogin = false;
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
+    /**
+     * @param $isAllowed
+     * @return $this
+     */
     public function setAllowAdminLogin($isAllowed)
     {
         $this->allowAdminLogin = $isAllowed;
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function getAllowAdminLogin()
     {
         return $this->allowAdminLogin;
@@ -50,7 +70,7 @@ class GuardTokenAuthService extends AbstractGuardAuthenticator
 
     /**
      * Called on every request. Return whatever credentials you want,
-     * or null to stop authentication.
+     *  or null to stop authentication.
      */
     public function getCredentials(Request $request)
     {
@@ -65,6 +85,11 @@ class GuardTokenAuthService extends AbstractGuardAuthenticator
         ];
     }
 
+    /**
+     * @param mixed $credentials
+     * @param UserProviderInterface $userProvider
+     * @return mixed|null|UserInterface
+     */
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
         $apiKey = $credentials['token'];
@@ -89,6 +114,11 @@ class GuardTokenAuthService extends AbstractGuardAuthenticator
         ]);
     }
 
+    /**
+     * @param mixed $credentials
+     * @param UserInterface $user
+     * @return bool
+     */
     public function checkCredentials($credentials, UserInterface $user)
     {
         // check credentials - e.g. make sure the password is valid
@@ -98,12 +128,23 @@ class GuardTokenAuthService extends AbstractGuardAuthenticator
         return true;
     }
 
+    /**
+     * @param Request $request
+     * @param TokenInterface $token
+     * @param string $providerKey
+     * @return null|\Symfony\Component\HttpFoundation\Response
+     */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
         // on success, let the request continue
         return null;
     }
 
+    /**
+     * @param Request $request
+     * @param AuthenticationException $exception
+     * @return null|JsonResponse|\Symfony\Component\HttpFoundation\Response
+     */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
         $data = array(
@@ -130,6 +171,9 @@ class GuardTokenAuthService extends AbstractGuardAuthenticator
         return new JsonResponse($data, 401);
     }
 
+    /**
+     * @return bool
+     */
     public function supportsRememberMe()
     {
         return false;

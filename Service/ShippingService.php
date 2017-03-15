@@ -36,7 +36,7 @@ class ShippingService
     protected $eventDispatcher;
 
     /**
-     * @var
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
 
@@ -44,11 +44,6 @@ class ShippingService
      * @var array
      */
     protected $sourceAddresses = []; // r[key] = ArrayWrapper
-
-    public function __construct()
-    {
-
-    }
 
     /**
      * @param $yesNo

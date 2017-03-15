@@ -15,15 +15,24 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
 
 class GeographyService
 {
-
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;

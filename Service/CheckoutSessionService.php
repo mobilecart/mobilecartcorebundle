@@ -21,12 +21,12 @@ namespace MobileCart\CoreBundle\Service;
 class CheckoutSessionService
 {
     /**
-     * @var CartSessionService
+     * @var \MobileCart\CoreBundle\Service\CartSessionService
      */
     protected $cartSessionService;
 
     /**
-     * @var OrderService
+     * @var \MobileCart\CoreBundle\Service\OrderService
      */
     protected $orderService;
 
@@ -172,7 +172,7 @@ class CheckoutSessionService
     }
 
     /**
-     * @param CartSessionService $cartSessionService
+     * @param \MobileCart\CoreBundle\Service\CartSessionService $cartSessionService
      * @return $this
      */
     public function setCartSessionService($cartSessionService)
@@ -189,7 +189,7 @@ class CheckoutSessionService
     }
 
     /**
-     * @return CartSessionService
+     * @return \MobileCart\CoreBundle\Service\CartSessionService
      */
     public function getCartSessionService()
     {
@@ -197,7 +197,7 @@ class CheckoutSessionService
     }
 
     /**
-     * @param OrderService $orderService
+     * @param \MobileCart\CoreBundle\Service\OrderService $orderService
      * @return $this
      */
     public function setOrderService($orderService)
@@ -207,7 +207,7 @@ class CheckoutSessionService
     }
 
     /**
-     * @return OrderService
+     * @return \MobileCart\CoreBundle\Service\OrderService
      */
     public function getOrderService()
     {

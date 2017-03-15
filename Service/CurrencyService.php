@@ -13,6 +13,10 @@ namespace MobileCart\CoreBundle\Service;
 
 use Symfony\Component\Intl\Intl;
 
+/**
+ * Class CurrencyService
+ * @package MobileCart\CoreBundle\Service
+ */
 class CurrencyService
 {
     // todo: integrate more of:  http://symfony.com/doc/current/components/intl.html

@@ -17,6 +17,14 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
+/**
+ * Class AbstractEntityService
+ * @package MobileCart\CoreBundle\Service
+ *
+ * Abstract implementation of an Entity Service
+ *  which also implements UserProviderInterface for user authentication
+ * The point of this is to have the ability to switch out the data storage, and keep user authentication
+ */
 abstract class AbstractEntityService implements UserProviderInterface
 {
     /**

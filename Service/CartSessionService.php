@@ -12,7 +12,6 @@
 namespace MobileCart\CoreBundle\Service;
 
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
-use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Shipping\Rate;
 use MobileCart\CoreBundle\CartComponent\Cart;
 use MobileCart\CoreBundle\CartComponent\Item;
@@ -24,6 +23,12 @@ use MobileCart\CoreBundle\Shipping\RateRequest;
 use MobileCart\CoreBundle\Payment\CollectPaymentMethodRequest;
 use MobileCart\CoreBundle\Event\Payment\FilterPaymentMethodCollectEvent;
 
+/**
+ * Class CartSessionService
+ * @package MobileCart\CoreBundle\Service
+ *
+ * This service manages the shopping cart stored in session
+ */
 class CartSessionService
 {
     /**
@@ -60,7 +65,7 @@ class CartSessionService
     }
 
     /**
-     * @param CartService $cartService
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
      * @return $this
      */
     public function setCartService($cartService)
@@ -70,7 +75,7 @@ class CartSessionService
     }
 
     /**
-     * @return CartService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
     public function getCartService()
     {
@@ -78,7 +83,7 @@ class CartSessionService
     }
 
     /**
-     * @return ShippingService
+     * @return \MobileCart\CoreBundle\Service\ShippingService
      */
     public function getShippingService()
     {
@@ -86,7 +91,7 @@ class CartSessionService
     }
 
     /**
-     * @return DoctrineEntityService
+     * @return \MobileCart\CoreBundle\Service\DoctrineEntityService
      */
     public function getEntityService()
     {
@@ -94,7 +99,7 @@ class CartSessionService
     }
 
     /**
-     * @return CartTotalService
+     * @return \MobileCart\CoreBundle\Service\CartTotalService
      */
     public function getCartTotalService()
     {
@@ -102,7 +107,7 @@ class CartSessionService
     }
 
     /**
-     * @return mixed
+     * @return \MobileCart\CoreBundle\Service\DiscountService
      */
     public function getDiscountService()
     {
@@ -110,7 +115,7 @@ class CartSessionService
     }
 
     /**
-     * @return TaxService
+     * @return \MobileCart\CoreBundle\Service\TaxService
      */
     public function getTaxService()
     {
@@ -118,7 +123,7 @@ class CartSessionService
     }
 
     /**
-     * @return GeographyService
+     * @return \MobileCart\CoreBundle\Service\GeographyService
      */
     public function getGeographyService()
     {
@@ -269,7 +274,7 @@ class CartSessionService
     }
 
     /**
-     * @return CurrencyService
+     * @return \MobileCart\CoreBundle\Service\CurrencyService
      */
     public function getCurrencyService()
     {

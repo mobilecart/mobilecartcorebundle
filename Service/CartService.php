@@ -22,6 +22,10 @@ use MobileCart\CoreBundle\Shipping\RateRequest;
 use MobileCart\CoreBundle\Payment\CollectPaymentMethodRequest;
 use MobileCart\CoreBundle\Event\Payment\FilterPaymentMethodCollectEvent;
 
+/**
+ * Class CartService
+ * @package MobileCart\CoreBundle\Service
+ */
 class CartService
 {
     /**
@@ -30,27 +34,27 @@ class CartService
     protected $cart;
 
     /**
-     * @var ShippingService
+     * @var \MobileCart\CoreBundle\Service\ShippingService
      */
     protected $shippingService;
 
     /**
-     * @var DiscountService
+     * @var \MobileCart\CoreBundle\Service\DiscountService
      */
     protected $discountService;
 
     /**
-     * @var TaxService
+     * @var \MobileCart\CoreBundle\Service\TaxService
      */
     protected $taxService;
 
     /**
-     * @var CartTotalService
+     * @var \MobileCart\CoreBundle\Service\CartTotalService
      */
     protected $cartTotalService;
 
     /**
-     * @var GeographyService
+     * @var \MobileCart\CoreBundle\Service\GeographyService
      */
     protected $geographyService;
 
@@ -72,7 +76,7 @@ class CartService
     protected $isSpaEnabled = 1;
 
     /**
-     * @param CartTotalService $cartTotalService
+     * @param \MobileCart\CoreBundle\Service\CartTotalService $cartTotalService
      * @return $this
      */
     public function setCartTotalService($cartTotalService)
@@ -82,7 +86,7 @@ class CartService
     }
 
     /**
-     * @return CartTotalService
+     * @return \MobileCart\CoreBundle\Service\CartTotalService
      */
     public function getCartTotalService()
     {
@@ -90,7 +94,7 @@ class CartService
     }
 
     /**
-     * @param ShippingService $shippingService
+     * @param \MobileCart\CoreBundle\Service\ShippingService $shippingService
      * @return $this
      */
     public function setShippingService($shippingService)
@@ -100,7 +104,7 @@ class CartService
     }
 
     /**
-     * @return ShippingService
+     * @return \MobileCart\CoreBundle\Service\ShippingService
      */
     public function getShippingService()
     {
@@ -108,7 +112,7 @@ class CartService
     }
 
     /**
-     * @param DiscountService $discountService
+     * @param \MobileCart\CoreBundle\Service\DiscountService $discountService
      * @return $this
      */
     public function setDiscountService($discountService)
@@ -118,7 +122,7 @@ class CartService
     }
 
     /**
-     * @return DiscountService
+     * @return \MobileCart\CoreBundle\Service\DiscountService
      */
     public function getDiscountService()
     {
@@ -126,7 +130,7 @@ class CartService
     }
 
     /**
-     * @param $taxService
+     * @param \MobileCart\CoreBundle\Service\TaxService $taxService
      * @return $this
      */
     public function setTaxService($taxService)
@@ -136,7 +140,7 @@ class CartService
     }
 
     /**
-     * @return TaxService
+     * @return \MobileCart\CoreBundle\Service\TaxService
      */
     public function getTaxService()
     {
@@ -661,7 +665,7 @@ class CartService
     }
 
     /**
-     * @param $geographyService
+     * @param \MobileCart\CoreBundle\Service\GeographyService $geographyService
      * @return $this
      */
     public function setGeographyService($geographyService)
@@ -671,7 +675,7 @@ class CartService
     }
 
     /**
-     * @return GeographyService
+     * @return \MobileCart\CoreBundle\Service\GeographyService
      */
     public function getGeographyService()
     {

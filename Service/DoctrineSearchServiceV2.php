@@ -17,23 +17,43 @@ use MobileCart\CoreBundle\Repository\CartRepositoryInterface;
 
 class DoctrineSearchServiceV2 extends AbstractSearchService
 {
-
+    /**
+     * @var string
+     */
     protected $filtersSql = '';
 
+    /**
+     * @var string
+     */
     protected $mainSql = '';
 
+    /**
+     * @var string
+     */
     protected $countSql = '';
 
+    /**
+     * @var array
+     */
     protected $bindTypes = [];
 
+    /**
+     * @var array
+     */
     protected $filterParams = [];
 
+    /**
+     * @var array
+     */
     protected $advFilterParams = [];
 
+    /**
+     * @var array
+     */
     protected $facetFilterParams = [];
 
     /**
-     * Over-riding, and forcing a like filter here
+     * Currently, over-riding, and forcing a like filter here
      *  If you change InnoDB tables to MyISAM
      *  for example, on the product table
      *  then run SQL in CoreBundle/Resources/sql/product_fulltext_add.sql
@@ -567,6 +587,7 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
         $tables = $this->getEntityService()->getVarOptionTables();
         $tblItemVar = $this->getEntityService()->getTableName(EntityConstants::ITEM_VAR);
 
+        // Loop over EAV datatypes, in order to get facet counts for each Attribute
         // note: this cannot handle entity fields as facets, unless they are marked as a facet "somewhere"
 
         foreach(EntityConstants::getDatatypes() as $type => $label) {
@@ -685,7 +706,6 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
 
         /** @var \Doctrine\ORM\EntityManager $em */
         $em = $this->getEntityService()->getDoctrine()->getManager();
-        $repoStr = $this->getObjectRepository($this->getObjectType());
         $repo = $this->getEntityService()->getRepository($this->getObjectType());
         //$sortable = $repo->getSortableFields();
         $offset = ($this->getPage() - 1) * $this->getLimit();

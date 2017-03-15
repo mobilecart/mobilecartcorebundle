@@ -55,17 +55,17 @@ class OrderService
     protected $statusOptions = []; // r[priority] = data
 
     /**
-     * @var AbstractEntityService
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
 
     /**
-     * @var CartService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
     protected $cartService;
 
     /**
-     * @var PaymentService
+     * @var \MobileCart\CoreBundle\Service\PaymentService
      */
     protected $paymentService;
 
@@ -75,17 +75,17 @@ class OrderService
     protected $paymentMethodService;
 
     /**
-     * @var Cart
+     * @var \MobileCart\CoreBundle\CartComponent\Cart
      */
     protected $cart;
 
     /**
-     * @var Order
+     * @var \MobileCart\CoreBundle\Entity\Order
      */
     protected $order;
 
     /**
-     * @var CustomerToken
+     * @var \MobileCart\CoreBundle\Entity\CustomerToken
      */
     protected $customerToken;
 
@@ -145,7 +145,7 @@ class OrderService
     protected $paymentInfo;
 
     /**
-     * @var OrderPayment
+     * @var \MobileCart\CoreBundle\Entity\OrderPayment
      */
     protected $payment;
 
@@ -165,12 +165,12 @@ class OrderService
     protected $paymentData;
 
     /**
-     * @var OrderInvoice
+     * @var \MobileCart\CoreBundle\Entity\OrderInvoice
      */
     protected $invoice;
 
     /**
-     * @var OrderRefund
+     * @var \MobileCart\CoreBundle\Entity\OrderRefund
      */
     protected $refund;
 
@@ -324,7 +324,7 @@ class OrderService
     }
 
     /**
-     * @param Cart $cart
+     * @param $cart
      * @return $this
      */
     public function setCart($cart)
@@ -334,7 +334,7 @@ class OrderService
     }
 
     /**
-     * @return Cart
+     * @return \MobileCart\CoreBundle\CartComponent\Cart
      */
     public function getCart()
     {
@@ -352,7 +352,7 @@ class OrderService
     }
 
     /**
-     * @return Order
+     * @return \MobileCart\CoreBundle\Entity\Order
      */
     public function getOrder()
     {
@@ -370,7 +370,7 @@ class OrderService
     }
 
     /**
-     * @return CustomerToken
+     * @return \MobileCart\CoreBundle\Entity\CustomerToken
      */
     public function getCustomerToken()
     {
@@ -460,7 +460,7 @@ class OrderService
     }
 
     /**
-     * @return PaymentMethodServiceInterface
+     * @return PaymentMethodServiceInterface|TokenPaymentMethodServiceInterface
      */
     public function getPaymentMethodService()
     {
@@ -522,7 +522,7 @@ class OrderService
     }
 
     /**
-     * @param OrderPayment $payment
+     * @param $payment
      * @return $this
      */
     public function setPayment($payment)
@@ -532,7 +532,7 @@ class OrderService
     }
 
     /**
-     * @return OrderPayment
+     * @return \MobileCart\CoreBundle\Entity\OrderPayment
      */
     public function getPayment()
     {
@@ -612,7 +612,7 @@ class OrderService
     }
 
     /**
-     * @param OrderInvoice $invoice
+     * @param $invoice
      * @return $this
      */
     public function setInvoice($invoice)
@@ -622,7 +622,7 @@ class OrderService
     }
 
     /**
-     * @return OrderInvoice
+     * @return \MobileCart\CoreBundle\Entity\OrderInvoice
      */
     public function getInvoice()
     {
@@ -648,7 +648,7 @@ class OrderService
     }
 
     /**
-     * @param OrderRefund $refund
+     * @param $refund
      * @return $this
      */
     public function setRefund($refund)
@@ -658,7 +658,7 @@ class OrderService
     }
 
     /**
-     * @return OrderRefund
+     * @return \MobileCart\CoreBundle\Entity\OrderRefund
      */
     public function getRefund()
     {
@@ -962,7 +962,7 @@ class OrderService
     }
 
     /**
-     * @return Order
+     * @return $this
      * @throws \InvalidArgumentException
      */
     public function createOrder()

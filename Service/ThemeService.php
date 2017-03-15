@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 class ThemeService
 {
     /**
-     * @var
+     * @var \MobileCart\CoreBundle\Service\ThemeConfig
      */
     protected $themeConfig;
 
@@ -25,12 +25,19 @@ class ThemeService
      */
     protected $templating;
 
+    /**
+     * @param $themeConfig
+     * @return $this
+     */
     public function setThemeConfig($themeConfig)
     {
         $this->themeConfig = $themeConfig;
         return $this;
     }
 
+    /**
+     * @return ThemeConfig
+     */
     public function getThemeConfig()
     {
         return $this->themeConfig;

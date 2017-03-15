@@ -11,8 +11,6 @@
 
 namespace MobileCart\CoreBundle\Service;
 
-use MobileCart\CoreBundle\Constants\EntityConstants;
-
 class ImageService
 {
     /**

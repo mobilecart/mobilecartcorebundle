@@ -14,7 +14,7 @@ namespace MobileCart\CoreBundle\Service;
 class StockService
 {
     /**
-     * @var
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
 
@@ -29,7 +29,7 @@ class StockService
     }
 
     /**
-     * @return mixed
+     * @return AbstractEntityService
      */
     public function getEntityService()
     {
@@ -46,7 +46,9 @@ class StockService
             return $this;
         }
 
+        // todo : implement this
 
+        return $this;
     }
 
     /**
@@ -61,14 +63,21 @@ class StockService
         return $isOk;
     }
 
-
+    /**
+     * @param $productId
+     * @param $qty
+     * @return $this
+     */
     public function reduceStock($productId, $qty)
     {
+        // todo : implement this
 
         // throw new InsufficientStockException();
 
         // todo : observe event here
 
         $sql = "update product set qty = qty - {$qty} where id = ?";
+
+        return $this;
     }
 }

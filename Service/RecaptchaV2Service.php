@@ -4,32 +4,57 @@ namespace MobileCart\CoreBundle\Service;
 
 class RecaptchaV2Service
 {
+    /**
+     * @var string
+     */
     protected $privateKey = '';
 
+    /**
+     * @var string
+     */
     protected $publicKey = '';
 
+    /**
+     * @param $privateKey
+     * @return $this
+     */
     public function setPrivateKey($privateKey)
     {
         $this->privateKey = $privateKey;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getPrivateKey()
     {
         return $this->privateKey;
     }
 
+    /**
+     * @param $publicKey
+     * @return $this
+     */
     public function setPublicKey($publicKey)
     {
         $this->publicKey = $publicKey;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getPublicKey()
     {
         return $this->publicKey;
     }
 
+    /**
+     * @param $response
+     * @param string $ip
+     * @return bool
+     */
     public function isValid($response, $ip='')
     {
         $params = [
@@ -61,5 +86,4 @@ class RecaptchaV2Service
             ? $obj->success
             : false;
     }
-
 }

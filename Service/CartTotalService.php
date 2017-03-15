@@ -53,7 +53,7 @@ class CartTotalService
     protected $eventDispatcher;
 
     /**
-     * @var mixed
+     * @var \MobileCart\CoreBundle\Service\CurrencyService
      */
     protected $currencyService;
 
@@ -130,7 +130,7 @@ class CartTotalService
     }
 
     /**
-     * @param $currencyService
+     * @param \MobileCart\CoreBundle\Service\CurrencyService $currencyService
      * @return $this
      */
     public function setCurrencyService($currencyService)
@@ -140,7 +140,7 @@ class CartTotalService
     }
 
     /**
-     * @return mixed
+     * @return \MobileCart\CoreBundle\Service\CurrencyService
      */
     public function getCurrencyService()
     {
