@@ -53,6 +53,11 @@ class OrderRepository
     {
         return [
             [
+                'code'  => 'email',
+                'label' => 'Email',
+                'type'  => 'string',
+            ],
+            [
                 'code' => 'status',
                 'label' => 'Status',
                 'type' => 'string',
@@ -74,11 +79,6 @@ class OrderRepository
                         'label' => 'Canceled',
                     ],
                 ],
-            ],
-            [
-                'code'  => 'email',
-                'label' => 'Email',
-                'type'  => 'string',
             ],
             [
                 'code'  => 'billing_name',
