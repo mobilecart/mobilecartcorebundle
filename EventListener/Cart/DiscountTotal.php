@@ -11,39 +11,37 @@ class DiscountTotal extends Total
     const KEY = 'discounts';
     const LABEL = 'Discount';
 
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
     /**
      * @var array
      */
     protected $discounts;
 
     /**
-     * @var mixed
+     * @var \MobileCart\CoreBundle\Service\DiscountService
      */
     protected $discountService;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
-    }
-
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
     }
 
     /**
@@ -82,6 +80,9 @@ class DiscountTotal extends Total
         return $this->discountService;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onCartTotalCollect(Event $event)
     {
         // this includes both pre-tax and post-tax discounts
@@ -91,7 +92,7 @@ class DiscountTotal extends Total
         // getPreTaxDiscountTotal() and getPostTaxDiscountTotal()
 
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $cart = $event->getCart();
 

@@ -29,50 +29,92 @@ class AddProduct
 
     protected $router;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @var \MobileCart\CoreBundle\Entity\Cart
+     */
     protected $cartEntity;
 
+    /**
+     * @var \MobileCart\CoreBundle\Entity\Customer
+     */
     protected $customerEntity;
 
+    /**
+     * @var \MobileCart\CoreBundle\CartComponent\Item
+     */
     protected $cartItem;
 
+    /**
+     * @var \MobileCart\CoreBundle\Entity\CartItem
+     */
     protected $cartItemEntity;
 
+    /**
+     * @var \MobileCart\CoreBundle\Entity\Product
+     */
     protected $product;
 
+    /**
+     * @var int|null
+     */
     protected $productId;
 
+    /**
+     * @var bool
+     */
     protected $isAdd = true;
 
+    /**
+     * @var bool
+     */
     protected $hasTierPriceChange = false;
 
+    /**
+     * @var bool
+     */
     protected $enableQtyCheck = true;
 
+    /**
+     * @var int
+     */
     protected $qty = 1;
 
+    /**
+     * @var int
+     */
     protected $totalQty = 1;
 
+    /**
+     * @var array
+     */
     protected $errors = [];
 
+    /**
+     * @var int
+     */
     protected $success = 0;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
-    }
-
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
     }
 
     public function setRouter($router)
@@ -86,34 +128,55 @@ class AddProduct
         return $this->router;
     }
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\DoctrineEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
+    /**
+     * @param $cartSessionService
+     * @return $this
+     */
     public function setCartSessionService($cartSessionService)
     {
         $this->cartSessionService = $cartSessionService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     */
     public function getCartSessionService()
     {
         return $this->cartSessionService;
     }
 
+    /**
+     * @param $yesNo
+     * @return $this
+     */
     public function setRedirectToCart($yesNo)
     {
         $this->redirectToCart = $yesNo;
         return $this;
     }
 
+    /**
+     * @return bool|int
+     */
     public function getRedirectToCart()
     {
         return $this->redirectToCart;
@@ -163,28 +226,47 @@ class AddProduct
         return $this;
     }
 
+    /**
+     * @param $cartEntity
+     * @return $this
+     */
     public function setCartEntity($cartEntity)
     {
         $this->cartEntity = $cartEntity;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Entity\Cart
+     */
     public function getCartEntity()
     {
         return $this->cartEntity;
     }
 
+    /**
+     * @param $customerEntity
+     * @return $this
+     */
     public function setCustomerEntity($customerEntity)
     {
         $this->customerEntity = $customerEntity;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Entity\Customer
+     */
     public function getCustomerEntity()
     {
         return $this->customerEntity;
     }
 
+    /**
+     * @param $value
+     * @param string $idField
+     * @return mixed
+     */
     public function loadProduct($value, $idField = 'id')
     {
         if ($idField == 'product_id') {
@@ -200,127 +282,208 @@ class AddProduct
         ]);
     }
 
+    /**
+     * @param $product
+     * @return $this
+     */
     public function setProduct($product)
     {
         $this->product = $product;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Entity\Product
+     */
     public function getProduct()
     {
         return $this->product;
     }
 
+    /**
+     * @param $productId
+     * @return $this
+     */
     public function setProductId($productId)
     {
         $this->productId = $productId;
         return $this;
     }
 
+    /**
+     * @return int|null
+     */
     public function getProductId()
     {
         return $this->productId;
     }
 
+    /**
+     * @param $qty
+     * @return $this
+     */
     public function setQty($qty)
     {
         $this->qty = $qty;
         return $this;
     }
 
+    /**
+     * @return int
+     */
     public function getQty()
     {
         return $this->qty;
     }
 
+    /**
+     * @param $totalQty
+     * @return $this
+     */
     public function setTotalQty($totalQty)
     {
         $this->totalQty = $totalQty;
         return $this;
     }
 
+    /**
+     * @return int
+     */
     public function getTotalQty()
     {
         return $this->totalQty;
     }
 
+    /**
+     * @param $isAdd
+     * @return $this
+     */
     public function setIsAdd($isAdd)
     {
         $this->isAdd = $isAdd;
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function getIsAdd()
     {
         return $this->isAdd;
     }
 
+    /**
+     * @param $yesNo
+     * @return $this
+     */
     public function setHasTierPriceChange($yesNo)
     {
         $this->hasTierPriceChange = $yesNo;
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function getHasTierPriceChange()
     {
         return $this->hasTierPriceChange;
     }
 
+    /**
+     * @param array $errors
+     * @return $this
+     */
     public function setErrors(array $errors)
     {
         $this->errors = $errors;
         return $this;
     }
 
+    /**
+     * @return array
+     */
     public function getErrors()
     {
         return $this->errors;
     }
 
+    /**
+     * @param $cartItem
+     * @return $this
+     */
     public function setCartItem($cartItem)
     {
         $this->cartItem = $cartItem;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\CartComponent\Item
+     */
     public function getCartItem()
     {
         return $this->cartItem;
     }
 
+    /**
+     * @param $cartItemEntity
+     * @return $this
+     */
     public function setCartItemEntity($cartItemEntity)
     {
         $this->cartItemEntity = $cartItemEntity;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Entity\CartItem
+     */
     public function getCartItemEntity()
     {
         return $this->cartItemEntity;
     }
 
+    /**
+     * @param $success
+     * @return $this
+     */
     public function setSuccess($success)
     {
         $this->success = $success;
         return $this;
     }
 
+    /**
+     * @return int
+     */
     public function getSuccess()
     {
         return $this->success;
     }
 
+    /**
+     * @param $yesNo
+     * @return $this
+     */
     public function setEnableQtyCheck($yesNo)
     {
         $this->enableQtyCheck = $yesNo;
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function getEnableQtyCheck()
     {
         return $this->enableQtyCheck;
     }
 
+    /**
+     * @param $cartItem
+     * @return bool
+     */
     public function meetsCriteria($cartItem)
     {
         $qty = $this->getQty();
@@ -356,6 +519,10 @@ class AddProduct
         return count($errors) == 0;
     }
 
+    /**
+     * @param $cartItem
+     * @return $this
+     */
     public function updateTierPrice(&$cartItem)
     {
         if (!$cartItem || !is_object($cartItem)) {
@@ -400,6 +567,10 @@ class AddProduct
         return $this;
     }
 
+    /**
+     * @return $this
+     * @throws \Exception
+     */
     public function saveCartItem()
     {
         $cartItem = $this->getCartItem();
@@ -609,10 +780,14 @@ class AddProduct
         return $this;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onCartAddProduct(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
+
         $this->setCartItem(null); // preventing a strange "bug"
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');

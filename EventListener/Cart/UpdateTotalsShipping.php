@@ -5,9 +5,12 @@ namespace MobileCart\CoreBundle\EventListener\Cart;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Component\EventDispatcher\Event;
 
+/**
+ * Class UpdateTotalsShipping
+ * @package MobileCart\CoreBundle\EventListener\Cart
+ */
 class UpdateTotalsShipping
 {
-
     /**
      * @var \MobileCart\CoreBundle\Service\DoctrineEntityService
      */
@@ -20,24 +23,27 @@ class UpdateTotalsShipping
 
     protected $router;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
-    }
-
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
     }
 
     public function setRouter($router)
@@ -51,32 +57,48 @@ class UpdateTotalsShipping
         return $this->router;
     }
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\DoctrineEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
+    /**
+     * @param $cartSessionService
+     * @return $this
+     */
     public function setCartSessionService($cartSessionService)
     {
         $this->cartSessionService = $cartSessionService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     */
     public function getCartSessionService()
     {
         return $this->cartSessionService;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onUpdateTotalsShipping(Event $event)
     {
         $currencyService = $this->getCartSessionService()->getCurrencyService();
-
         $cartItems = $this->getCartSessionService()->getCart()->getItems();
 
         // re-collect shipping methods , if necessary
@@ -195,7 +217,5 @@ class UpdateTotalsShipping
 
         $cartId = $cartEntity->getId();
         $cart->setId($cartId);
-
     }
-
 }

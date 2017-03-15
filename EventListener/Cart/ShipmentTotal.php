@@ -10,31 +10,33 @@ class ShipmentTotal extends Total
     const KEY = 'shipments';
     const LABEL = 'Shipments';
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
+    /**
+     * @param Event $event
+     * @return bool
+     */
     public function onCartTotalCollect(Event $event)
     {
         if (!$event->getIsShippingEnabled()) {
@@ -42,7 +44,7 @@ class ShipmentTotal extends Total
         }
 
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $shipmentTotal = $event->getCart()->getCalculator()
             ->getShipmentTotal();

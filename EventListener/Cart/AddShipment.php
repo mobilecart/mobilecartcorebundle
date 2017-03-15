@@ -28,24 +28,27 @@ class AddShipment
 
     protected $router;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
-    }
-
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
     }
 
     public function setRouter($router)
@@ -59,43 +62,68 @@ class AddShipment
         return $this->router;
     }
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
+    /**
+     * @param $cartSessionService
+     * @return $this
+     */
     public function setCartSessionService($cartSessionService)
     {
         $this->cartSessionService = $cartSessionService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     */
     public function getCartSessionService()
     {
         return $this->cartSessionService;
     }
 
+    /**
+     * @param $shippingService
+     * @return $this
+     */
     public function setShippingService($shippingService)
     {
         $this->shippingService = $shippingService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ShippingService
+     */
     public function getShippingService()
     {
         return $this->shippingService;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onCartAddShipment(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
+
         $shippingService = $this->getShippingService();
         $cartSession = $this->getCartSessionService(); //->initCart()->collectShippingMethods();
 
@@ -180,11 +208,8 @@ class AddShipment
                     if ($success) {
                         $cartSession->collectTotals();
                     }
-
                 }
-
             }
-
 
         } else {
 

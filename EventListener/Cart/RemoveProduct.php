@@ -22,32 +22,42 @@ class RemoveProduct
 
     protected $router;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
@@ -64,21 +74,32 @@ class RemoveProduct
         return $this->router;
     }
 
+    /**
+     * @param $cartSessionService
+     * @return $this
+     */
     public function setCartSessionService($cartSessionService)
     {
         $this->cartSessionService = $cartSessionService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     */
     public function getCartSessionService()
     {
         return $this->cartSessionService;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onCartRemoveProduct(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
+
         $recollectShipping = [];
         $success = 0;
         $request = $event->getRequest();
@@ -168,7 +189,7 @@ class RemoveProduct
 
         } else {
 
-            // display error message
+            // todo: display error message
 
         }
 

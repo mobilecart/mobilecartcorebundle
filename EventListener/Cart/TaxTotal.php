@@ -10,44 +10,56 @@ class TaxTotal extends Total
     const KEY = 'tax';
     const LABEL = 'Tax';
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\TaxService
+     */
     protected $taxService;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param $taxService
+     * @return $this
+     */
     public function setTaxService($taxService)
     {
         $this->taxService = $taxService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\TaxService
+     */
     public function getTaxService()
     {
         return $this->taxService;
     }
 
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
+    /**
+     * @param Event $event
+     * @return bool
+     */
     public function onCartTotalCollect(Event $event)
     {
         if (!$event->getIsTaxEnabled()) {
@@ -77,7 +89,6 @@ class TaxTotal extends Total
             ->setIsAdd(1);
 
         $event->addTotal($this);
-
         $event->setReturnData($returnData);
     }
 }

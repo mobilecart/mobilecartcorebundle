@@ -11,32 +11,44 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AddDiscount
 {
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public $entityService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CartSessionService
+     */
     public $cartSessionService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\ShippingService
+     */
     public $shippingService;
 
     protected $router;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
-    }
-
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
     }
 
     public function setRouter($router)
@@ -50,43 +62,67 @@ class AddDiscount
         return $this->router;
     }
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
+    /**
+     * @param $cartSessionService
+     * @return $this
+     */
     public function setCartSessionService($cartSessionService)
     {
         $this->cartSessionService = $cartSessionService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     */
     public function getCartSessionService()
     {
         return $this->cartSessionService;
     }
 
+    /**
+     * @param $shippingService
+     * @return $this
+     */
     public function setShippingService($shippingService)
     {
         $this->shippingService = $shippingService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ShippingService
+     */
     public function getShippingService()
     {
         return $this->shippingService;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onCartAddDiscount(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
@@ -99,6 +135,8 @@ class AddDiscount
         $cartEntity = $cartId
             ? $this->getEntityService()->find(EntityConstants::CART, $cartId)
             : $this->getEntityService()->getInstance(EntityConstants::CART);
+
+        $event->setCartEntity($cartEntity);
 
         $discountEntity = $this->getEntityService()->findOneBy(EntityConstants::DISCOUNT, [
             'coupon_code' => $code,

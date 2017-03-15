@@ -9,24 +9,27 @@ class ProductAddToCartForm
 
     protected $form_factory;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
-    }
-
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
     }
 
     public function setFormFactory($formFactory)
@@ -40,10 +43,13 @@ class ProductAddToCartForm
         return $this->form_factory;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onProductAddToCartForm(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $data = [
             'id' => $event->getEntity()->getId(),

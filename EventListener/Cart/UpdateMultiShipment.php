@@ -26,64 +26,95 @@ class UpdateMultiShipment
      */
     protected $shippingService;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param $cartSessionService
+     * @return $this
+     */
     public function setCartSessionService($cartSessionService)
     {
         $this->cartSessionService = $cartSessionService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     */
     public function getCartSessionService()
     {
         return $this->cartSessionService;
     }
 
+    /**
+     * @param $shippingService
+     * @return $this
+     */
     public function setShippingService($shippingService)
     {
         $this->shippingService = $shippingService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ShippingService
+     */
     public function getShippingService()
     {
         return $this->shippingService;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CurrencyService
+     */
     public function getCurrencyService()
     {
         return $this->getCartSessionService()->getCartService()->getCartTotalService()->getCurrencyService();
     }
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
+    /**
+     * @param Event $event
+     * @throws \Exception
+     */
     public function onCartUpdateMultiShipment(Event $event)
     {
         $request = $event->getRequest();
@@ -355,7 +386,6 @@ class UpdateMultiShipment
             $cartEntity->setJson($cart->toJson());
             // update Cart in database
             $this->getEntityService()->persist($cartEntity);
-
             $this->getCartSessionService()->setCart($cart);
         }
     }

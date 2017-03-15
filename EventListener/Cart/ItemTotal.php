@@ -10,35 +10,36 @@ class ItemTotal extends Total
     const KEY = 'items';
     const LABEL = 'Items';
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
+    /**
+     * @param Event $event
+     */
     public function onCartTotalCollect(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $itemTotal = $event->getCart()->getCalculator()
             ->getItemTotal();
@@ -49,7 +50,6 @@ class ItemTotal extends Total
             ->setIsAdd(1);
 
         $event->addTotal($this);
-
         $event->setReturnData($returnData);
     }
 }
