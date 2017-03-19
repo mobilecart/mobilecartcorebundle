@@ -4,32 +4,42 @@ namespace MobileCart\CoreBundle\EventListener\ItemVarSetVar;
 
 use Symfony\Component\EventDispatcher\Event;
 
+/**
+ * Class ItemVarSetVarSearch
+ * @package MobileCart\CoreBundle\EventListener\ItemVarSetVar
+ */
 class ItemVarSetVarSearch
 {
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param Event $event
+     */
     public function onItemVarSetVarSearch(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $event->getSearch()
             ->setObjectType($event->getObjectType()) // Important: set this first

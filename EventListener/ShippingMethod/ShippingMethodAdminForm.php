@@ -6,51 +6,78 @@ use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\Form\ShippingMethodType;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
+/**
+ * Class ShippingMethodAdminForm
+ * @package MobileCart\CoreBundle\EventListener\ShippingMethod
+ */
 class ShippingMethodAdminForm
 {
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CurrencyService
+     */
     protected $currencyService;
 
     protected $formFactory;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
+    /**
+     * @param $currencyService
+     * @return $this
+     */
     public function setCurrencyService($currencyService)
     {
         $this->currencyService = $currencyService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CurrencyService
+     */
     public function getCurrencyService()
     {
         return $this->currencyService;
@@ -67,10 +94,13 @@ class ShippingMethodAdminForm
         return $this->formFactory;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onShippingMethodAdminForm(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $entity = $event->getEntity();
 

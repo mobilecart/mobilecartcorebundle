@@ -4,6 +4,10 @@ namespace MobileCart\CoreBundle\EventListener\Customer;
 
 use Symfony\Component\EventDispatcher\Event;
 
+/**
+ * Class CustomerForgotPassword
+ * @package MobileCart\CoreBundle\EventListener\Customer
+ */
 class CustomerForgotPassword
 {
     protected $securityPasswordEncoder;
@@ -12,20 +16,39 @@ class CustomerForgotPassword
 
     protected $router;
 
+    /**
+     * @var string
+     */
     protected $fromEmail;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\ThemeService
+     */
     protected $themeService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
@@ -60,12 +83,19 @@ class CustomerForgotPassword
         return $this->router;
     }
 
+    /**
+     * @param $fromEmail
+     * @return $this
+     */
     public function setFromEmail($fromEmail)
     {
         $this->fromEmail = $fromEmail;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getFromEmail()
     {
         return $this->fromEmail;
@@ -77,6 +107,9 @@ class CustomerForgotPassword
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ThemeService
+     */
     public function getThemeService()
     {
         return $this->themeService;
@@ -93,21 +126,31 @@ class CustomerForgotPassword
         return $this->securityPasswordEncoder;
     }
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onCustomerForgotPassword(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $entity = $event->getEntity();
         $request = $event->getRequest();

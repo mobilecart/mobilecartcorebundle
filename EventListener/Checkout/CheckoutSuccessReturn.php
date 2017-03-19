@@ -6,57 +6,101 @@ use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
+/**
+ * Class CheckoutSuccessReturn
+ * @package MobileCart\CoreBundle\EventListener\Checkout
+ */
 class CheckoutSuccessReturn
 {
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
+     */
     protected $checkoutSessionService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\ThemeService
+     */
     protected $themeService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
     protected $router;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     public function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     public function getEvent()
     {
         return $this->event;
     }
 
+    /**
+     * @param $checkoutSessionService
+     * @return $this
+     */
     public function setCheckoutSessionService($checkoutSessionService)
     {
         $this->checkoutSessionService = $checkoutSessionService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
+     */
     public function getCheckoutSessionService()
     {
         return $this->checkoutSessionService;
     }
 
+    /**
+     * @param $themeService
+     * @return $this
+     */
     public function setThemeService($themeService)
     {
         $this->themeService = $themeService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ThemeService
+     */
     public function getThemeService()
     {
         return $this->themeService;
     }
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
@@ -73,13 +117,10 @@ class CheckoutSuccessReturn
         return $this->router;
     }
 
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param Event $event
+     * @return bool
+     */
     public function onCheckoutSuccessReturn(Event $event)
     {
         $orderId = $this->getCheckoutSessionService()->getCartSessionService()->getSession()->get('order_id', 0);
@@ -92,7 +133,7 @@ class CheckoutSuccessReturn
         }
 
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         // get cart customer
         $cartCustomer = $this->getCheckoutSessionService()

@@ -6,59 +6,85 @@ use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Class OrderList
+ * @package MobileCart\CoreBundle\EventListener\Order
+ */
 class OrderList
 {
-
     protected $router;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\ThemeService
+     */
     protected $themeService;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param $themeService
+     * @return $this
+     */
     public function setThemeService($themeService)
     {
         $this->themeService = $themeService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ThemeService
+     */
     public function getThemeService()
     {
         return $this->themeService;
     }
 
+    /**
+     * @param $router
+     * @return $this
+     */
     public function setRouter($router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
     public function getRouter()
     {
         return $this->router;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onOrderList(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
@@ -111,14 +137,6 @@ class OrderList
         switch($format) {
             case 'json':
                 $response = new JsonResponse($returnData);
-                break;
-            case 'xml':
-                $response = new Response();
-                $response->headers->set('Content-Type', 'application/xml; charset=utf-8');
-
-                $response = $this->getThemeService()
-                    ->render('admin', 'Order:index.xml.twig', $returnData, $response);
-
                 break;
             default:
 

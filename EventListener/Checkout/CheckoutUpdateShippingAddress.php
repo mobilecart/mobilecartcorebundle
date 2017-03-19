@@ -8,22 +8,38 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class CheckoutUpdateShippingAddress
 {
+    /**
+     * @var Event
+     */
     protected $event;
 
     protected $formFactory;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
+     */
     protected $checkoutSessionService;
 
     protected $router;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     public function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     public function getEvent()
     {
         return $this->event;
@@ -40,19 +56,19 @@ class CheckoutUpdateShippingAddress
         return $this->formFactory;
     }
 
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param $checkoutSession
+     * @return $this
+     */
     public function setCheckoutSessionService($checkoutSession)
     {
         $this->checkoutSessionService = $checkoutSession;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
+     */
     public function getCheckoutSessionService()
     {
         return $this->checkoutSessionService;
@@ -69,17 +85,28 @@ class CheckoutUpdateShippingAddress
         return $this->router;
     }
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
+    /**
+     * @param Event $event
+     * @return bool
+     */
     public function onCheckoutUpdateShippingAddress(Event $event)
     {
         if (!$this->getCheckoutSessionService()->getCartSessionService()->getShippingService()->getIsShippingEnabled()) {
@@ -87,7 +114,7 @@ class CheckoutUpdateShippingAddress
         }
 
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $request = $event->getRequest();
         $formType = $event->getForm();

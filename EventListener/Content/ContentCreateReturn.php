@@ -13,24 +13,27 @@ class ContentCreateReturn
 
     protected $session;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
-    }
-
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
     }
 
     public function setRouter($router)
@@ -55,10 +58,13 @@ class ContentCreateReturn
         return $this->session;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onContentCreateReturn(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $response = '';
 
@@ -80,9 +86,6 @@ class ContentCreateReturn
                 ];
                 $response = new JsonResponse($returnData);
                 break;
-            //case 'xml':
-            //
-            //    break;
             default:
 
                 if ($messages = $event->getMessages()) {

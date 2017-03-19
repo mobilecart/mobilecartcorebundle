@@ -4,30 +4,40 @@ namespace MobileCart\CoreBundle\EventListener\Customer;
 
 use Symfony\Component\EventDispatcher\Event;
 
+/**
+ * Class CustomerInsert
+ * @package MobileCart\CoreBundle\EventListener\Customer
+ */
 class CustomerInsert
 {
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
     protected $securityPasswordEncoder;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
-    }
-
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
     }
 
     public function setSecurityPasswordEncoder($encoder)
@@ -41,21 +51,32 @@ class CustomerInsert
         return $this->securityPasswordEncoder;
     }
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onCustomerInsert(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
+
         $request = $event->getRequest();
         $entity = $event->getEntity();
         $formData = $event->getFormData();

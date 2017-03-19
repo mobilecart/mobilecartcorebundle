@@ -8,35 +8,58 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class CheckoutUpdateBillingAddress
 {
+    /**
+     * @var Event
+     */
     protected $event;
 
     protected $formFactory;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
+     */
     protected $checkoutSessionService;
 
     protected $passwordEncoder;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
     protected $router;
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
+    /**
+     * @param $event
+     * @return $this
+     */
     public function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     public function getEvent()
     {
         return $this->event;
@@ -53,19 +76,19 @@ class CheckoutUpdateBillingAddress
         return $this->formFactory;
     }
 
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param $checkoutSession
+     * @return $this
+     */
     public function setCheckoutSessionService($checkoutSession)
     {
         $this->checkoutSessionService = $checkoutSession;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
+     */
     public function getCheckoutSessionService()
     {
         return $this->checkoutSessionService;
@@ -93,10 +116,13 @@ class CheckoutUpdateBillingAddress
         return $this->router;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onCheckoutUpdateBillingAddress(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $request = $event->getRequest();
         $formType = $event->getForm();

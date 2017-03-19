@@ -7,84 +7,134 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\CartComponent\Cart;
 
+/**
+ * Class OrderInsert
+ * @package MobileCart\CoreBundle\EventListener\Order
+ */
 class OrderInsert
 {
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CurrencyService
+     */
     protected $currencyService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\OrderService
+     */
     protected $orderService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CartSessionService
+     */
     protected $cartSessionService;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
+    /**
+     * @param $currencyService
+     * @return $this
+     */
     public function setCurrencyService($currencyService)
     {
         $this->currencyService = $currencyService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CurrencyService
+     */
     public function getCurrencyService()
     {
         return $this->currencyService;
     }
 
+    /**
+     * @param $orderService
+     * @return $this
+     */
     public function setOrderService($orderService)
     {
         $this->orderService = $orderService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\OrderService
+     */
     public function getOrderService()
     {
         return $this->orderService;
     }
 
+    /**
+     * @param $cartSessionService
+     * @return $this
+     */
     public function setCartSessionService($cartSessionService)
     {
         $this->cartSessionService = $cartSessionService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     */
     public function getCartSessionService()
     {
         return $this->cartSessionService;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onOrderInsert(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $entity = $event->getEntity();
         $formData = $event->getFormData();
@@ -149,8 +199,6 @@ class OrderInsert
             ->setIsRefund($isRefund)
             ->setPaymentMethod($paymentMethod)
             ->setPaymentFormData($paymentInfo)
-            // ->setShipmentMethod()
-            // ->setShipmentData()
             ->submitCart()
             ->getOrder();
 

@@ -8,32 +8,39 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class CustomerProfilePostReturn
 {
-    protected $request;
-
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\ThemeService
+     */
     protected $themeService;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
     protected $router;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
-    }
-
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
     }
 
     public function setRouter($router)
@@ -47,46 +54,50 @@ class CustomerProfilePostReturn
         return $this->router;
     }
 
+    /**
+     * @param $themeService
+     * @return $this
+     */
     public function setThemeService($themeService)
     {
         $this->themeService = $themeService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ThemeService
+     */
     public function getThemeService()
     {
         return $this->themeService;
     }
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
-    public function setRequest($request)
-    {
-        $this->request = $request;
-        return $this;
-    }
-
-    public function getRequest()
-    {
-        return $this->request;
-    }
-
+    /**
+     * @param Event $event
+     */
     public function onCustomerProfilePostReturn(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
-
+        $returnData = $event->getReturnData();
         $customer = $event->getEntity();
-        $objectType = $event->getObjectType();
 
         $request = $event->get('request');
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');

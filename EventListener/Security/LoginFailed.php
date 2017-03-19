@@ -37,7 +37,7 @@ class LoginFailed implements AuthenticationFailureHandlerInterface
     protected $eventDispatcher;
 
     /**
-     * @var
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
 
@@ -68,7 +68,7 @@ class LoginFailed implements AuthenticationFailureHandlerInterface
     }
 
     /**
-     * @return mixed
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     public function getEntityService()
     {

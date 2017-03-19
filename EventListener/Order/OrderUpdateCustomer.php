@@ -5,52 +5,81 @@ namespace MobileCart\CoreBundle\EventListener\Order;
 use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\CartComponent\Customer;
 
+/**
+ * Class OrderUpdateCustomer
+ * @package MobileCart\CoreBundle\EventListener\Order
+ */
 class OrderUpdateCustomer
 {
-
+    /**
+     * @var \MobileCart\CoreBundle\Service\CartSessionService
+     */
     protected $cartSession;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CartTotalService
+     */
     protected $cartTotalService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\DiscountService
+     */
     protected $discountService;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param $cartSession
+     * @return $this
+     */
     public function setCartSession($cartSession)
     {
         $this->cartSession = $cartSession;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     */
     public function getCartSession()
     {
         return $this->cartSession;
     }
 
+    /**
+     * @param $cartTotalService
+     * @return $this
+     */
     public function setCartTotalService($cartTotalService)
     {
         $this->cartTotalService = $cartTotalService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartTotalService
+     */
     public function getCartTotalService()
     {
         return $this->cartTotalService;
@@ -67,17 +96,20 @@ class OrderUpdateCustomer
     }
 
     /**
-     * @return mixed
+     * @return \MobileCart\CoreBundle\Service\DiscountService
      */
     public function getDiscountService()
     {
         return $this->discountService;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onOrderUpdateCustomer(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $request = $event->getRequest();
 

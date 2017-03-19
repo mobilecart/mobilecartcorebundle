@@ -4,74 +4,111 @@ namespace MobileCart\CoreBundle\EventListener\Checkout;
 
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
 
+/**
+ * Class CheckoutSubmitOrder
+ * @package MobileCart\CoreBundle\EventListener\Checkout
+ */
 class CheckoutSubmitOrder
 {
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
+     */
     protected $checkoutSessionService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\OrderService
+     */
     protected $orderService;
 
     protected $router;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     public function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     public function getEvent()
     {
         return $this->event;
     }
 
+    /**
+     * @param $checkoutSessionService
+     * @return $this
+     */
     public function setCheckoutSessionService($checkoutSessionService)
     {
         $this->checkoutSessionService = $checkoutSessionService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
+     */
     public function getCheckoutSessionService()
     {
         return $this->checkoutSessionService;
     }
 
+    /**
+     * @param $orderService
+     * @return $this
+     */
     public function setOrderService($orderService)
     {
         $this->orderService = $orderService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\OrderService
+     */
     public function getOrderService()
     {
         return $this->orderService;
     }
 
+    /**
+     * @param $router
+     * @return $this
+     */
     public function setRouter($router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
     public function getRouter()
     {
         return $this->router;
     }
 
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param Event $event
+     * @return bool
+     */
     public function onCheckoutSubmitOrder(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $isValid = 0;
         $returnData['messages'] = []; // r[messages] = [msg, msg, msg]

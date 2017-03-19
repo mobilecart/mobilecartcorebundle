@@ -6,32 +6,45 @@ use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
+/**
+ * Class CustomerOrderReturn
+ * @package MobileCart\CoreBundle\EventListener\Customer
+ */
 class CustomerOrderReturn
 {
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\ThemeService
+     */
     protected $themeService;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
     protected $router;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
-    }
-
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
     }
 
     public function setRouter($router)
@@ -45,41 +58,54 @@ class CustomerOrderReturn
         return $this->router;
     }
 
+    /**
+     * @param $themeService
+     * @return $this
+     */
     public function setThemeService($themeService)
     {
         $this->themeService = $themeService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ThemeService
+     */
     public function getThemeService()
     {
         return $this->themeService;
     }
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onCustomerOrderReturn(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
         $request = $event->getRequest();
+
         $orderId = $request->get('id', 0);
-
         $customer = $event->getCustomer();
-
-        $objectType = $event->getObjectType();
-
         $typeSections = [];
-
         $returnData['template_sections'] = $typeSections;
 
         $order = $this->getEntityService()->find(EntityConstants::ORDER, $orderId);

@@ -5,39 +5,55 @@ namespace MobileCart\CoreBundle\EventListener\ItemVarSet;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ * Class ItemVarSetList
+ * @package MobileCart\CoreBundle\EventListener\ItemVarSet
+ */
 class ItemVarSetList
 {
-
     protected $router;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\ThemeService
+     */
     protected $themeService;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param $themeService
+     * @return $this
+     */
     public function setThemeService($themeService)
     {
         $this->themeService = $themeService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ThemeService
+     */
     public function getThemeService()
     {
         return $this->themeService;
@@ -49,10 +65,18 @@ class ItemVarSetList
         return $this;
     }
 
+    public function getRouter()
+    {
+        return $this->router;
+    }
+
+    /**
+     * @param Event $event
+     */
     public function onItemVarSetList(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
@@ -96,9 +120,6 @@ class ItemVarSetList
             case 'json':
                 $response = new JsonResponse($returnData);
                 break;
-            //case 'xml':
-            //
-            //    break;
             default:
 
                 $response = $this->getThemeService()

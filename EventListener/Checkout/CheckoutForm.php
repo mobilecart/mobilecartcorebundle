@@ -11,30 +11,58 @@ use MobileCart\CoreBundle\Constants\CheckoutConstants;
 
 class CheckoutForm
 {
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
     protected $formFactory;
 
     protected $router;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\PaymentService
+     */
     protected $paymentService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
+     */
     protected $checkoutSessionService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\ThemeService
+     */
     protected $themeService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\ShippingService
+     */
     protected $shippingService;
 
+    /**
+     * @var string
+     */
     protected $theme = 'frontend';
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
@@ -62,84 +90,126 @@ class CheckoutForm
         return $this->router;
     }
 
+    /**
+     * @param $paymentService
+     * @return $this
+     */
     public function setPaymentService($paymentService)
     {
         $this->paymentService = $paymentService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\PaymentService
+     */
     public function getPaymentService()
     {
         return $this->paymentService;
     }
 
+    /**
+     * @param $checkoutSession
+     * @return $this
+     */
     public function setCheckoutSessionService($checkoutSession)
     {
         $this->checkoutSessionService = $checkoutSession;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
+     */
     public function getCheckoutSessionService()
     {
         return $this->checkoutSessionService;
     }
 
+    /**
+     * @param $themeService
+     * @return $this
+     */
     public function setThemeService($themeService)
     {
         $this->themeService = $themeService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ThemeService
+     */
     public function getThemeService()
     {
         return $this->themeService;
     }
 
+    /**
+     * @param $shippingService
+     * @return $this
+     */
     public function setShippingService($shippingService)
     {
         $this->shippingService = $shippingService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ShippingService
+     */
     public function getShippingService()
     {
         return $this->shippingService;
     }
 
+    /**
+     * @return bool
+     */
     public function getDisplayEmailInput()
     {
         return $this->getCheckoutSessionService()->getAllowGuestCheckout();
     }
 
+    /**
+     * @param $theme
+     * @return $this
+     */
     public function setTheme($theme)
     {
         $this->theme = $theme;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getTheme()
     {
         return $this->theme;
     }
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param Event $event
+     * @return bool
+     */
     public function onCheckoutForm(Event $event)
     {
         if ($event->getSingleStep()) {
@@ -147,7 +217,7 @@ class CheckoutForm
         }
 
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         // sections are combined with other listeners/observer
         //  and later ordered

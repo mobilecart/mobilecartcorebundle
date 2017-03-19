@@ -13,24 +13,27 @@ class ContentSlotCreateReturn
 
     protected $session;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
-    }
-
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
     }
 
     public function setRouter($router)
@@ -55,10 +58,13 @@ class ContentSlotCreateReturn
         return $this->session;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onContentSlotCreateReturn(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $response = '';
 
@@ -98,5 +104,4 @@ class ContentSlotCreateReturn
         $event->setReturnData($returnData);
         $event->setResponse($response);
     }
-
 }

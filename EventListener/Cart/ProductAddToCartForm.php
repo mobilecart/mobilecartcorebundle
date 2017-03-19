@@ -7,7 +7,7 @@ use Symfony\Component\EventDispatcher\Event;
 class ProductAddToCartForm
 {
 
-    protected $form_factory;
+    protected $formFactory;
 
     /**
      * @var Event
@@ -34,13 +34,13 @@ class ProductAddToCartForm
 
     public function setFormFactory($formFactory)
     {
-        $this->form_factory = $formFactory;
+        $this->formFactory = $formFactory;
         return $this;
     }
 
     public function getFormFactory()
     {
-        return $this->form_factory;
+        return $this->formFactory;
     }
 
     /**

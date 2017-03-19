@@ -4,7 +4,6 @@ namespace MobileCart\CoreBundle\EventListener\Category;
 
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class CategoryUpdateReturn
@@ -13,24 +12,27 @@ class CategoryUpdateReturn
 
     protected $session;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
-    }
-
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
     }
 
     public function setRouter($router)
@@ -55,11 +57,13 @@ class CategoryUpdateReturn
         return $this->session;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onCategoryUpdateReturn(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
-
+        $returnData = $event->getReturnData();
         $response = '';
 
         $entity = $event->getEntity();
@@ -80,9 +84,6 @@ class CategoryUpdateReturn
                 ];
                 $response = new JsonResponse($returnData);
                 break;
-            //case 'xml':
-            //
-            //    break;
             default:
 
                 if ($messages = $event->getMessages()) {

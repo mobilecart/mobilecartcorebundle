@@ -7,38 +7,52 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
+/**
+ * Class ItemVarUpdateReturn
+ * @package MobileCart\CoreBundle\EventListener\ItemVar
+ */
 class ItemVarUpdateReturn
 {
     protected $router;
 
     protected $session;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param $router
+     * @return $this
+     */
     public function setRouter($router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
     public function getRouter()
     {
         return $this->router;
@@ -55,10 +69,13 @@ class ItemVarUpdateReturn
         return $this->session;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onItemVarUpdateReturn(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $response = '';
 
@@ -80,9 +97,6 @@ class ItemVarUpdateReturn
                 ];
                 $response = new JsonResponse($returnData);
                 break;
-            //case 'xml':
-            //
-            //    break;
             default:
 
                 if ($messages = $event->getMessages()) {
@@ -98,5 +112,4 @@ class ItemVarUpdateReturn
         $event->setReturnData($returnData);
         $event->setResponse($response);
     }
-
 }

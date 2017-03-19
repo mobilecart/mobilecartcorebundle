@@ -10,65 +10,99 @@ use MobileCart\CoreBundle\Constants\CheckoutConstants;
 
 class CheckoutShippingAddressForm
 {
+    /**
+     * @var Event
+     */
     protected $event;
 
     protected $router;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\ThemeService
+     */
     protected $themeService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
+     */
     protected $checkoutSessionService;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
+    /**
+     * @param $themeService
+     * @return $this
+     */
     public function setThemeService($themeService)
     {
         $this->themeService = $themeService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ThemeService
+     */
     public function getThemeService()
     {
         return $this->themeService;
     }
 
+    /**
+     * @param $router
+     * @return $this
+     */
     public function setRouter($router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
     public function getRouter()
     {
         return $this->router;
     }
 
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param $checkoutSession
+     * @return $this
+     */
     public function setCheckoutSessionService($checkoutSession)
     {
         $this->checkoutSessionService = $checkoutSession;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
+     */
     public function getCheckoutSessionService()
     {
         return $this->checkoutSessionService;
     }
 
+    /**
+     * @param Event $event
+     * @return bool
+     */
     public function onCheckoutForm(Event $event)
     {
         if ($event->getSingleStep()
@@ -82,7 +116,7 @@ class CheckoutShippingAddressForm
         }
 
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         // sections are combined with other listeners/observer
         //  and later ordered

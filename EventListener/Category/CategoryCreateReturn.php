@@ -13,24 +13,27 @@ class CategoryCreateReturn
 
     protected $session;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
-    }
-
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
     }
 
     public function setRouter($router)
@@ -55,10 +58,13 @@ class CategoryCreateReturn
         return $this->session;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onCategoryCreateReturn(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $response = '';
         $entity = $event->getEntity();
@@ -79,12 +85,10 @@ class CategoryCreateReturn
                 ];
                 $response = new JsonResponse($returnData);
                 break;
-            //case 'xml':
-            //
-            //    break;
             default:
 
-                if ($messages = $event->getMessages()) {
+                $messages = $event->getMessages();
+                if ($messages) {
                     foreach($messages as $code => $message) {
                         $this->getSession()->getFlashBag()->add($code, $message);
                     }

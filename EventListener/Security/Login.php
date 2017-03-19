@@ -31,12 +31,12 @@ class Login implements AuthenticationSuccessHandlerInterface
     protected $eventDispatcher;
 
     /**
-     * @var
+     * @var \MobileCart\CoreBundle\Service\CartSessionService
      */
     protected $cartSessionService;
 
     /**
-     * @var
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
 
@@ -65,30 +65,44 @@ class Login implements AuthenticationSuccessHandlerInterface
     }
 
     /**
-     * @return mixed
+     * @return \MobileCart\CoreBundle\Service\CartSessionService
      */
     public function getCartSessionService()
     {
         return $this->cartSessionService;
     }
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
+    /**
+     * @param $reloadCart
+     * @return $this
+     */
     public function setReloadCart($reloadCart)
     {
         $this->reloadCart = $reloadCart;
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function getReloadCart()
     {
         return $this->reloadCart;

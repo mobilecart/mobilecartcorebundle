@@ -4,42 +4,65 @@ namespace MobileCart\CoreBundle\EventListener\Customer;
 
 use Symfony\Component\EventDispatcher\Event;
 
+/**
+ * Class CustomerRegisterConfirm
+ * @package MobileCart\CoreBundle\EventListener\Customer
+ */
 class CustomerRegisterConfirm
 {
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
     protected $mailer;
 
-    protected $fromEmail;
+    /**
+     * @var string
+     */
+    protected $fromEmail = '';
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\ThemeService
+     */
     protected $themeService;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
@@ -56,32 +79,49 @@ class CustomerRegisterConfirm
         return $this->mailer;
     }
 
+    /**
+     * @param $fromEmail
+     * @return $this
+     */
     public function setFromEmail($fromEmail)
     {
         $this->fromEmail = $fromEmail;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getFromEmail()
     {
         return $this->fromEmail;
     }
 
+    /**
+     * @param $themeService
+     * @return $this
+     */
     public function setThemeService($themeService)
     {
         $this->themeService = $themeService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ThemeService
+     */
     public function getThemeService()
     {
         return $this->themeService;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onCustomerRegisterConfirm(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $request = $event->getRequest();
         $id = $request->get('id', 0);

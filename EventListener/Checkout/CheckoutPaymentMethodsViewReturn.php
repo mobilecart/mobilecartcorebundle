@@ -7,53 +7,88 @@ use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\Payment\CollectPaymentMethodRequest;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
+/**
+ * Class CheckoutPaymentMethodsViewReturn
+ * @package MobileCart\CoreBundle\EventListener\Checkout
+ */
 class CheckoutPaymentMethodsViewReturn
 {
+    /**
+     * @var \MobileCart\CoreBundle\Service\ThemeService
+     */
     protected $themeService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\PaymentService
+     */
     protected $paymentService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
+     */
     protected $checkoutSessionService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
+    /**
+     * @var string
+     */
     protected $layout = 'frontend';
 
+    /**
+     * @var string
+     */
     protected $defaultTemplate = 'Checkout:payment_methods_full.html.twig';
 
+    /**
+     * @var Event
+     */
     protected $event;
 
     protected $router;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param $tpl
+     * @return $this
+     */
     public function setDefaultTemplate($tpl)
     {
         $this->defaultTemplate = $tpl;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getDefaultTemplate()
     {
         return $this->defaultTemplate;
     }
 
+    /**
+     * @return string
+     */
     public function getTemplate()
     {
         return $this->getEvent()->getTemplate()
@@ -61,23 +96,37 @@ class CheckoutPaymentMethodsViewReturn
             : $this->defaultTemplate;
     }
 
+    /**
+     * @param $themeService
+     * @return $this
+     */
     public function setThemeService($themeService)
     {
         $this->themeService = $themeService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ThemeService
+     */
     public function getThemeService()
     {
         return $this->themeService;
     }
 
+    /**
+     * @param $paymentService
+     * @return $this
+     */
     public function setPaymentService($paymentService)
     {
         $this->paymentService = $paymentService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\PaymentService
+     */
     public function getPaymentService()
     {
         return $this->paymentService;
@@ -101,48 +150,75 @@ class CheckoutPaymentMethodsViewReturn
         return $this->entityService;
     }
 
+    /**
+     * @param $checkoutSessionService
+     * @return $this
+     */
     public function setCheckoutSessionService($checkoutSessionService)
     {
         $this->checkoutSessionService = $checkoutSessionService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
+     */
     public function getCheckoutSessionService()
     {
         return $this->checkoutSessionService;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     */
     public function getCartSession()
     {
         return $this->getCheckoutSessionService()->getCartSessionService();
     }
 
+    /**
+     * @param $layout
+     * @return $this
+     */
     public function setLayout($layout)
     {
         $this->layout = $layout;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getLayout()
     {
         return $this->layout;
     }
 
+    /**
+     * @param $router
+     * @return $this
+     */
     public function setRouter($router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
     public function getRouter()
     {
         return $this->router;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onCheckoutPaymentMethodsViewReturn(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
         $request = $event->getRequest();
 
         $cart = $this->getCartSession()

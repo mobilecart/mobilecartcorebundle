@@ -7,18 +7,34 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class CheckoutUpdatePaymentMethod
 {
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
+     */
     protected $checkoutSessionService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     public function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     public function getEvent()
     {
         return $this->event;
@@ -35,35 +51,38 @@ class CheckoutUpdatePaymentMethod
     }
 
     /**
-     * @return mixed
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
+    /**
+     * @param $checkoutSessionService
+     * @return $this
+     */
     public function setCheckoutSessionService($checkoutSessionService)
     {
         $this->checkoutSessionService = $checkoutSessionService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
+     */
     public function getCheckoutSessionService()
     {
         return $this->checkoutSessionService;
     }
 
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param Event $event
+     */
     public function onCheckoutUpdatePaymentMethod(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $isValid = 0;
 

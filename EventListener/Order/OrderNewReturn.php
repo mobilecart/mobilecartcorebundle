@@ -7,123 +7,180 @@ use MobileCart\CoreBundle\CartComponent\Cart;
 use MobileCart\CoreBundle\Payment\CollectPaymentMethodRequest;
 use MobileCart\CoreBundle\Shipping\RateRequest;
 
+/**
+ * Class OrderNewReturn
+ * @package MobileCart\CoreBundle\EventListener\Order
+ */
 class OrderNewReturn
 {
-    protected $request;
-
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CurrencyService
+     */
     protected $currencyService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\PaymentService
+     */
     protected $paymentService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\ShippingService
+     */
     protected $shippingService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CartTotalService
+     */
     protected $cartTotalService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\ThemeService
+     */
     protected $themeService;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param $themeService
+     * @return $this
+     */
     public function setThemeService($themeService)
     {
         $this->themeService = $themeService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ThemeService
+     */
     public function getThemeService()
     {
         return $this->themeService;
     }
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
-    public function setRequest($request)
-    {
-        $this->request = $request;
-        return $this;
-    }
-
-    public function getRequest()
-    {
-        return $this->request;
-    }
-
+    /**
+     * @param $currencyService
+     * @return $this
+     */
     public function setCurrencyService($currencyService)
     {
         $this->currencyService = $currencyService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CurrencyService
+     */
     public function getCurrencyService()
     {
         return $this->currencyService;
     }
 
+    /**
+     * @param $paymentService
+     * @return $this
+     */
     public function setPaymentService($paymentService)
     {
         $this->paymentService = $paymentService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\PaymentService
+     */
     public function getPaymentService()
     {
         return $this->paymentService;
     }
 
+    /**
+     * @param $shippingService
+     * @return $this
+     */
     public function setShippingService($shippingService)
     {
         $this->shippingService = $shippingService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ShippingService
+     */
     public function getShippingService()
     {
         return $this->shippingService;
     }
 
+    /**
+     * @param $cartTotalService
+     * @return $this
+     */
     public function setCartTotalService($cartTotalService)
     {
         $this->cartTotalService = $cartTotalService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartTotalService
+     */
     public function getCartTotalService()
     {
         return $this->cartTotalService;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onOrderNewReturn(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $order = $event->getEntity();
 

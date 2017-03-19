@@ -9,51 +9,82 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class CheckoutViewReturn
 {
+    /**
+     * @var \MobileCart\CoreBundle\Service\ThemeService
+     */
     protected $themeService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CartSessionService
+     */
     protected $cartSession;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\PaymentService
+     */
     protected $paymentService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
+    /**
+     * @var string
+     */
     protected $layout = 'frontend';
 
+    /**
+     * @var string
+     */
     protected $defaultTemplate = 'Checkout:index.html.twig';
 
+    /**
+     * @var Event
+     */
     protected $event;
 
     protected $router;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param $tpl
+     * @return $this
+     */
     public function setDefaultTemplate($tpl)
     {
         $this->defaultTemplate = $tpl;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getDefaultTemplate()
     {
         return $this->defaultTemplate;
     }
 
+    /**
+     * @return string
+     */
     public function getTemplate()
     {
         return $this->getEvent()->getTemplate()
@@ -61,56 +92,91 @@ class CheckoutViewReturn
             : $this->defaultTemplate;
     }
 
+    /**
+     * @param $themeService
+     * @return $this
+     */
     public function setThemeService($themeService)
     {
         $this->themeService = $themeService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ThemeService
+     */
     public function getThemeService()
     {
         return $this->themeService;
     }
 
+    /**
+     * @param $cartSession
+     * @return $this
+     */
     public function setCartSession($cartSession)
     {
         $this->cartSession = $cartSession;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     */
     public function getCartSession()
     {
         return $this->cartSession;
     }
 
+    /**
+     * @param $paymentService
+     * @return $this
+     */
     public function setPaymentService($paymentService)
     {
         $this->paymentService = $paymentService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\PaymentService
+     */
     public function getPaymentService()
     {
         return $this->paymentService;
     }
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
+    /**
+     * @param $layout
+     * @return $this
+     */
     public function setLayout($layout)
     {
         $this->layout = $layout;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getLayout()
     {
         return $this->layout;
@@ -127,10 +193,13 @@ class CheckoutViewReturn
         return $this->router;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onCheckoutViewReturn(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $cart = $this->getCartSession()
             //->collectShippingMethods() // avoid collecting shipping methods unless the cart changes or the shipping address changes

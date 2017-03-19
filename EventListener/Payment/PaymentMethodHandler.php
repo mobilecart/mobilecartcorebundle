@@ -6,15 +6,28 @@ use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Component\EventDispatcher\Event;
 
+/**
+ * Class PaymentMethodHandler
+ * @package MobileCart\CoreBundle\EventListener\Payment
+ */
 class PaymentMethodHandler
 {
 
     protected $paymentMethodService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CartSessionService
+     */
     protected $cartSessionService;
 
+    /**
+     * @var bool
+     */
     protected $isEnabled;
 
     public function setPaymentMethodService($paymentMethodService)
@@ -28,12 +41,19 @@ class PaymentMethodHandler
         return $this->paymentMethodService;
     }
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
@@ -50,19 +70,26 @@ class PaymentMethodHandler
     }
 
     /**
-     * @return mixed
+     * @return \MobileCart\CoreBundle\Service\CartSessionService
      */
     public function getCartSessionService()
     {
         return $this->cartSessionService;
     }
 
+    /**
+     * @param $isEnabled
+     * @return $this
+     */
     public function setIsEnabled($isEnabled)
     {
         $this->isEnabled = $isEnabled;
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function getIsEnabled()
     {
         return $this->isEnabled;

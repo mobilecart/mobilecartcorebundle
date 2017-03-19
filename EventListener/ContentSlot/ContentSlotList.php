@@ -5,39 +5,55 @@ namespace MobileCart\CoreBundle\EventListener\ContentSlot;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ * Class ContentSlotList
+ * @package MobileCart\CoreBundle\EventListener\ContentSlot
+ */
 class ContentSlotList
 {
-
     protected $router;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\ThemeService
+     */
     protected $themeService;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param $themeService
+     * @return $this
+     */
     public function setThemeService($themeService)
     {
         $this->themeService = $themeService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ThemeService
+     */
     public function getThemeService()
     {
         return $this->themeService;
@@ -54,10 +70,13 @@ class ContentSlotList
         return $this->router;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onContentSlotList(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
@@ -102,14 +121,8 @@ class ContentSlotList
             case 'json':
                 $response = new JsonResponse($returnData);
                 break;
-            //case 'xml':
-            //
-            //    break;
             default:
-
-                //$response = $this->getThemeService()
-                //    ->render('admin', 'Content:index.html.twig', $returnData);
-                $response = null;
+                $response = null; // currently un-used
                 break;
         }
 

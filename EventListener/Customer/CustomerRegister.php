@@ -5,39 +5,54 @@ namespace MobileCart\CoreBundle\EventListener\Customer;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Component\EventDispatcher\Event;
 
+/**
+ * Class CustomerRegister
+ * @package MobileCart\CoreBundle\EventListener\Customer
+ */
 class CustomerRegister
 {
-
+    /**
+     * @var Event
+     */
     protected $event;
 
     protected $mailer;
 
+    /**
+     * @var string
+     */
     protected $fromEmail = '';
 
     protected $router;
 
     protected $passwordEncoder;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\ThemeService
+     */
     protected $themeService;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     public function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     public function getEvent()
     {
         return $this->event;
-    }
-
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
     }
 
     public function setMailer($mailer)
@@ -51,12 +66,19 @@ class CustomerRegister
         return $this->mailer;
     }
 
+    /**
+     * @param $fromEmail
+     * @return $this
+     */
     public function setFromEmail($fromEmail)
     {
         $this->fromEmail = $fromEmail;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getFromEmail()
     {
         return $this->fromEmail;
@@ -84,36 +106,52 @@ class CustomerRegister
         return $this->passwordEncoder;
     }
 
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
+    /**
+     * @param $themeService
+     * @return $this
+     */
     public function setThemeService($themeService)
     {
         $this->themeService = $themeService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ThemeService
+     */
     public function getThemeService()
     {
         return $this->themeService;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onCustomerRegister(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $entity = $event->getEntity();
         $formData = $event->getFormData();
-        $request = $event->getRequest();
 
         $itemVarSet = $this->getEntityService()->findOneBy(EntityConstants::ITEM_VAR_SET, [
             'object_type' => EntityConstants::CUSTOMER,

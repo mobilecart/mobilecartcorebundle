@@ -7,30 +7,37 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
+/**
+ * Class DiscountUpdateReturn
+ * @package MobileCart\CoreBundle\EventListener\Discount
+ */
 class DiscountUpdateReturn
 {
     protected $router;
 
     protected $session;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
-    }
-
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
     }
 
     public function setRouter($router)
@@ -55,10 +62,13 @@ class DiscountUpdateReturn
         return $this->session;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onDiscountUpdateReturn(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $response = '';
 
@@ -95,5 +105,4 @@ class DiscountUpdateReturn
         $event->setReturnData($returnData);
         $event->setResponse($response);
     }
-
 }

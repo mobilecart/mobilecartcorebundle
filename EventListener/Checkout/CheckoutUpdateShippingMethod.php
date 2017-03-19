@@ -7,18 +7,31 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class CheckoutUpdateShippingMethod
 {
+    /**
+     * @var Event
+     */
     protected $event;
 
     protected $formFactory;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
+     */
     protected $checkoutSessionService;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     public function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     public function getEvent()
     {
         return $this->event;
@@ -35,24 +48,28 @@ class CheckoutUpdateShippingMethod
         return $this->formFactory;
     }
 
+    /**
+     * @param $checkoutSessionService
+     * @return $this
+     */
     public function setCheckoutSessionService($checkoutSessionService)
     {
         $this->checkoutSessionService = $checkoutSessionService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
+     */
     public function getCheckoutSessionService()
     {
         return $this->checkoutSessionService;
     }
 
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param Event $event
+     * @return bool
+     */
     public function onCheckoutUpdateShippingMethod(Event $event)
     {
         if (!$this->getCheckoutSessionService()->getCartSessionService()->getShippingService()->getIsShippingEnabled()) {
@@ -60,7 +77,7 @@ class CheckoutUpdateShippingMethod
         }
 
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $request = $event->getRequest();
         $formType = $event->getForm();

@@ -7,57 +7,90 @@ use Symfony\Component\Intl\Intl;
 use MobileCart\CoreBundle\Form\OrderType;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
+/**
+ * Class OrderAdminForm
+ * @package MobileCart\CoreBundle\EventListener\Order
+ */
 class OrderAdminForm
 {
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CurrencyService
+     */
     protected $currencyService;
 
     protected $formFactory;
 
     protected $router;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\CartService
+     */
     protected $cartService;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\OrderService
+     */
     protected $orderService;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
+    /**
+     * @param $currencyService
+     * @return $this
+     */
     public function setCurrencyService($currencyService)
     {
         $this->currencyService = $currencyService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CurrencyService
+     */
     public function getCurrencyService()
     {
         return $this->currencyService;
@@ -85,32 +118,49 @@ class OrderAdminForm
         return $this->router;
     }
 
+    /**
+     * @param $cartService
+     * @return $this
+     */
     public function setCartService($cartService)
     {
         $this->cartService = $cartService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
     public function getCartService()
     {
         return $this->cartService;
     }
 
+    /**
+     * @param $orderService
+     * @return $this
+     */
     public function setOrderService($orderService)
     {
         $this->orderService = $orderService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\OrderService
+     */
     public function getOrderService()
     {
         return $this->orderService;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onOrderAdminForm(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $entity = $event->getEntity();
 

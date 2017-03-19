@@ -6,31 +6,40 @@ use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\Shipping\RateRequest;
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 
+/**
+ * Class ShippingMethodList
+ * @package MobileCart\CoreBundle\EventListener\ShippingMethod
+ */
 class ShippingMethodList
 {
-
     protected $router;
 
+    /**
+     * @var \MobileCart\CoreBundle\Service\ShippingService
+     */
     protected $shippingService;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
-    }
-
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
     }
 
     public function setRouter($router)
@@ -44,21 +53,31 @@ class ShippingMethodList
         return $this->router;
     }
 
+    /**
+     * @param $shippingService
+     * @return $this
+     */
     public function setShippingService($shippingService)
     {
         $this->shippingService = $shippingService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ShippingService
+     */
     public function getShippingService()
     {
         return $this->shippingService;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onShippingMethodList(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $search = new ArrayWrapper([
             'formats' => [

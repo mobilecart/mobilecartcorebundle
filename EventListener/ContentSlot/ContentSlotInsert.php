@@ -3,60 +3,68 @@
 namespace MobileCart\CoreBundle\EventListener\ContentSlot;
 
 use Symfony\Component\EventDispatcher\Event;
-use MobileCart\CoreBundle\Constants\EntityConstants;
 
+/**
+ * Class ContentSlotInsert
+ * @package MobileCart\CoreBundle\EventListener\ContentSlot
+ */
 class ContentSlotInsert
 {
+    /**
+     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     protected $entityService;
 
+    /**
+     * @var Event
+     */
     protected $event;
 
+    /**
+     * @param $event
+     * @return $this
+     */
     protected function setEvent($event)
     {
         $this->event = $event;
         return $this;
     }
 
+    /**
+     * @return Event
+     */
     protected function getEvent()
     {
         return $this->event;
     }
 
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
+    /**
+     * @param $entityService
+     * @return $this
+     */
     public function setEntityService($entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
     public function getEntityService()
     {
         return $this->entityService;
     }
 
+    /**
+     * @param Event $event
+     */
     public function onContentSlotInsert(Event $event)
     {
         $this->setEvent($event);
-        $returnData = $this->getReturnData();
-        //$request = $event->getRequest();
+        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
-        //$formData = $event->getFormData();
-
         $this->getEntityService()->persist($entity);
-
-        if ($entity && $event->getRequest()->getSession()) {
-            $event->getRequest()->getSession()->getFlashBag()->add(
-                'success',
-                'Content Slot Created!'
-            );
-        }
-
         $event->setReturnData($returnData);
     }
 }
