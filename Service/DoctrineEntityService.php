@@ -784,6 +784,26 @@ class DoctrineEntityService
                     }
 
                     break;
+                case EntityConstants::INPUT_CHECKBOX:
+
+                    $v = (int) $v;
+
+                    // look for for row
+                    $varValue = $this->findOneBy($varValueObjectType, [
+                        'parent' => $entity->getId(),
+                        'item_var' => $itemVar->getId(),
+                    ]);
+
+                    if (!$varValue) {
+                        $varValue = $this->getInstance($varValueObjectType);
+                        $varValue->setItemVar($itemVar)
+                            ->setParent($entity);
+                    }
+
+                    $varValue->setValue($v);
+                    $this->persist($varValue);
+
+                    break;
                 default:
 
                     // look for for row

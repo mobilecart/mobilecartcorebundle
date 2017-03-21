@@ -85,6 +85,7 @@ class EntityConstants
     const INPUT_DATE = 'date';
     const INPUT_SELECT = 'select';
     const INPUT_MULTISELECT = 'multiselect';
+    const INPUT_CHECKBOX = 'checkbox';
 
     static $formInputs = [
         self::INPUT_TEXT => 'Text',
@@ -92,6 +93,7 @@ class EntityConstants
         self::INPUT_DATE => 'Date',
         self::INPUT_SELECT => 'Select',
         self::INPUT_MULTISELECT => 'Multiselect',
+        self::INPUT_CHECKBOX => 'Checkbox',
     ];
 
     // Parent entities
