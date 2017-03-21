@@ -3,6 +3,7 @@
 namespace MobileCart\CoreBundle\EventListener\Product;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
+use MobileCart\CoreBundle\Entity\ProductConfig;
 use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\Entity\Product;
 
@@ -87,7 +88,97 @@ class ProductUpdate
         }
 
         if ($entity->getType() == Product::TYPE_CONFIGURABLE) {
-            $this->getEntityService()->getDoctrine()->getManager()->refresh($entity);
+
+            // Doctrine-specific : needed ?
+            // $this->getEntityService()->getDoctrine()->getManager()->refresh($entity);
+
+            // get current config
+            $productVariantCodes = [];
+            $pConfigs = $entity->getProductConfigs();
+            if ($pConfigs) {
+                foreach($pConfigs as $tmpConfig) {
+                    $childProductId = $tmpConfig->getChildProduct()->getId();
+                    $varCode = $tmpConfig->getItemVar()->getCode();
+                    $productVariantCodes[$childProductId][$varCode] = $tmpConfig;
+                }
+            }
+
+            // update configurable product information
+
+            $simpleIds = is_array($request->get('simple_ids', []))
+                ? array_keys($request->get('simple_ids', []))
+                : [];
+
+            $variantCodes = $request->get('config_vars', []);
+            $variants = [];
+
+            if ($simpleIds && $variantCodes) {
+
+                // load variants
+                $variants = $this->getEntityService()->findBy(EntityConstants::ITEM_VAR, [
+                    'code' => $variantCodes
+                ]);
+
+                // load products
+                $simples = $this->getEntityService()->findBy(EntityConstants::PRODUCT, [
+                    'id' => $simpleIds,
+                ]);
+
+                if ($simples && $variants) {
+
+                    foreach($simples as $simple) {
+                        foreach($variants as $itemVar) {
+
+                            $childProductId = $simple->getId();
+                            $varCode = $itemVar->getCode();
+
+                            if (isset($productVariantCodes[$childProductId][$varCode])) {
+                                // already have it
+                                //  unset it, and whatever is left will be deleted
+                                unset($productVariantCodes[$childProductId][$varCode]);
+                            } else {
+                                // dont already have it
+                                //  create it, and dont add to $productVariantCodes
+                                $pConfig = new ProductConfig();
+                                $pConfig->setProduct($entity)
+                                    ->setChildProduct($simple)
+                                    ->setItemVar($itemVar);
+
+                                $this->getEntityService()->persist($pConfig);
+                            }
+                        }
+                    }
+
+                    if ($productVariantCodes) {
+                        foreach($productVariantCodes as $childProductId => $varCodes) {
+                            if ($varCodes) {
+                                foreach($varCodes as $varCode) {
+                                    if (isset($productVariantCodes[$childProductId][$varCode])) {
+                                        $pConfig = $productVariantCodes[$childProductId][$varCode];
+                                        $this->getEntityService()->remove($pConfig);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    $entity->reconfigure();
+                    $this->getEntityService()->persist($entity);
+                } else {
+                    if ($pConfigs) {
+                        foreach($pConfigs as $pConfig) {
+                            $this->getEntityService()->remove($pConfig);
+                        }
+                    }
+                }
+            } else {
+                if ($pConfigs) {
+                    foreach($pConfigs as $pConfig) {
+                        $this->getEntityService()->remove($pConfig);
+                    }
+                }
+            }
+
             $entity->reconfigure();
             $this->getEntityService()->persist($entity);
         }

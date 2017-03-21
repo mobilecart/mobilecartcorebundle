@@ -111,10 +111,15 @@ class ProductNewReturn
     {
         $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $product = $event->getEntity();
+        $request = $event->getRequest();
 
-        $varSet = null; // todo: load from request data
+        $formData = $request->get('form', []);
+        $varSetId = isset($formData['var_set_id'])
+            ? $formData['var_set_id']
+            : 0;
+
+        $varSet = $this->getEntityService()->find(EntityConstants::ITEM_VAR_SET, $varSetId);
         $objectType = EntityConstants::PRODUCT;
         $typeSections = [];
 
