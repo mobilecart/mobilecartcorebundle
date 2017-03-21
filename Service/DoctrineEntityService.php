@@ -638,6 +638,7 @@ class DoctrineEntityService
                     break;
                 case EntityConstants::INT:
                     $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_INT;
+                    $v = (int) $v;
                     break;
                 case EntityConstants::VARCHAR:
                     $varOptionObjectType = EntityConstants::ITEM_VAR_OPTION_VARCHAR;
@@ -782,26 +783,6 @@ class DoctrineEntityService
                             $this->persist($aVarValue);
                         }
                     }
-
-                    break;
-                case EntityConstants::INPUT_CHECKBOX:
-
-                    $v = (int) $v;
-
-                    // look for for row
-                    $varValue = $this->findOneBy($varValueObjectType, [
-                        'parent' => $entity->getId(),
-                        'item_var' => $itemVar->getId(),
-                    ]);
-
-                    if (!$varValue) {
-                        $varValue = $this->getInstance($varValueObjectType);
-                        $varValue->setItemVar($itemVar)
-                            ->setParent($entity);
-                    }
-
-                    $varValue->setValue($v);
-                    $this->persist($varValue);
 
                     break;
                 default:
