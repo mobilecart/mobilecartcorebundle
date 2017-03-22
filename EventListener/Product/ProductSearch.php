@@ -85,6 +85,10 @@ class ProductSearch
             ->parseRequest($event->getRequest())
             ->addFilters($filters);
 
+        if ($event->getSection() == CoreEvent::SECTION_FRONTEND) {
+            $search->setDefaultSort('sort_order', 'asc');
+        }
+
         $returnData['search'] = $search;
         $returnData['result'] = $search->search();
 
