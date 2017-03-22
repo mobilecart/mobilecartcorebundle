@@ -738,6 +738,8 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
             $mainSql .= " order by {$this->getSortBy()} {$this->getSortDir()}";
         } elseif ($this->getDefaultSortBy()) {
             $mainSql .= " order by {$this->getDefaultSortBy()} {$this->getDefaultSortDir()}";
+        } else {
+            $mainSql .= " order by main.id asc";
         }
 
         $mainSql .= " limit {$offset},{$this->getLimit()}";

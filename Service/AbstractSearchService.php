@@ -1608,12 +1608,8 @@ abstract class AbstractSearchService
         // listeners should call addSortable() before calling parseRequest()
         $this->addSortable($repo->getSortableFields());
         $sortBy = $this->getRequest()->get($this->sortByParam, '');
-        if (isset($this->sortable[$sortBy])) {
+        if ($sortBy && isset($this->sortable[$sortBy])) {
             $this->sortBy = $sortBy;
-        } else if (isset($this->sortable[0])) {
-            $this->sortBy = $this->sortable[0];
-        } else {
-            $this->sortBy = 'id';
         }
 
         // transform array to be similar to filterable array
