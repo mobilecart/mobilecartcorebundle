@@ -89,7 +89,7 @@ class ProductUpdate
 
         if ($entity->getType() == Product::TYPE_CONFIGURABLE) {
 
-            // Doctrine-specific : needed ?
+            // Doctrine-specific :
             // $this->getEntityService()->getDoctrine()->getManager()->refresh($entity);
 
             // get current config
@@ -106,7 +106,7 @@ class ProductUpdate
             // update configurable product information
 
             $simpleIds = is_array($request->get('simple_ids', []))
-                ? array_keys($request->get('simple_ids', []))
+                ? $request->get('simple_ids', [])
                 : [];
 
             $variantCodes = $request->get('config_vars', []);
@@ -139,12 +139,14 @@ class ProductUpdate
                             } else {
                                 // dont already have it
                                 //  create it, and dont add to $productVariantCodes
-                                $pConfig = new ProductConfig();
+                                $pConfig = $this->getEntityService()->getInstance(EntityConstants::PRODUCT_CONFIG);
                                 $pConfig->setProduct($entity)
                                     ->setChildProduct($simple)
                                     ->setItemVar($itemVar);
 
                                 $this->getEntityService()->persist($pConfig);
+
+                                $entity->addProductConfig($pConfig);
                             }
                         }
                     }
@@ -162,8 +164,6 @@ class ProductUpdate
                         }
                     }
 
-                    $entity->reconfigure();
-                    $this->getEntityService()->persist($entity);
                 } else {
                     if ($pConfigs) {
                         foreach($pConfigs as $pConfig) {
@@ -184,6 +184,7 @@ class ProductUpdate
         }
 
         if ($entity && $request->getSession()) {
+
             $request->getSession()->getFlashBag()->add(
                 'success',
                 'Product Updated!'

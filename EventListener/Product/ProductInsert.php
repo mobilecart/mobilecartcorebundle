@@ -92,8 +92,48 @@ class ProductInsert
                 ->persistVariants($entity, $formData);
         }
 
+        // update configurable product information
+
         if ($entity->getType() == Product::TYPE_CONFIGURABLE) {
-            $this->getEntityService()->getDoctrine()->getManager()->refresh($entity);
+
+            $simpleIds = is_array($request->get('simple_ids', []))
+                ? $request->get('simple_ids', [])
+                : [];
+
+            $variants = [];
+
+            if ($simpleIds) {
+
+                $variantCodes = $request->get('config_vars', []);
+                if ($variantCodes) {
+
+                    $variants = $this->getEntityService()->findBy(EntityConstants::ITEM_VAR, [
+                        'code' => $variantCodes
+                    ]);
+                }
+
+                // load products
+                $simples = $this->getEntityService()->findBy(EntityConstants::PRODUCT, [
+                    'id' => $simpleIds,
+                ]);
+
+                if ($simples && $variants) {
+                    foreach ($simples as $simple) {
+                        foreach($variants as $itemVar) {
+
+                            $pConfig = $this->getEntityService()->getInstance(EntityConstants::PRODUCT_CONFIG);
+                            $pConfig->setProduct($entity)
+                                ->setChildProduct($simple)
+                                ->setItemVar($itemVar);
+
+                            $this->getEntityService()->persist($pConfig);
+
+                            $entity->addProductConfig($pConfig);
+                        }
+                    }
+                }
+            }
+
             $entity->reconfigure();
             $this->getEntityService()->persist($entity);
         }
@@ -103,47 +143,6 @@ class ProductInsert
                 'success',
                 'Product Created!'
             );
-        }
-
-        // update configurable product information
-
-        $simpleIds = is_array($request->get('simple_ids', []))
-            ? array_keys($request->get('simple_ids', []))
-            : [];
-
-        $variants = [];
-
-        if ($simpleIds) {
-
-            $variantCodes = $request->get('config_vars', []);
-            if ($variantCodes) {
-
-                $variants = $this->getEntityService()->findBy(EntityConstants::ITEM_VAR, [
-                    'code' => $variantCodes
-                ]);
-            }
-
-            // load products
-            $simples = $this->getEntityService()->findBy(EntityConstants::PRODUCT, [
-                'id' => $simpleIds,
-            ]);
-
-            if ($simples && $variants) {
-                foreach ($simples as $simple) {
-                    foreach($variants as $itemVar) {
-
-                        $pConfig = new ProductConfig();
-                        $pConfig->setProduct($entity)
-                            ->setChildProduct($simple)
-                            ->setItemVar($itemVar);
-
-                        $this->getEntityService()->persist($pConfig);
-                    }
-                }
-
-                $entity->reconfigure();
-                $this->getEntityService()->persist($entity);
-            }
         }
 
         // update categories
