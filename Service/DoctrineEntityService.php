@@ -656,6 +656,18 @@ class DoctrineEntityService
             switch($itemVar->getFormInput()) {
                 case EntityConstants::INPUT_SELECT:
 
+                    // retrieve existing value, and delete if it exists
+                    $aVarValues = $this->findBy($varValueObjectType, [
+                        'parent' => $entity,
+                        'item_var' => $itemVar->getId(),
+                    ]);
+
+                    if ($aVarValues) {
+                        foreach($aVarValues as $aVarValue) {
+                            $this->remove($aVarValue);
+                        }
+                    }
+
                     $varOption = $this->findOneBy($varOptionObjectType, [
                         'item_var' => $itemVar->getId(),
                         'value' => $v
