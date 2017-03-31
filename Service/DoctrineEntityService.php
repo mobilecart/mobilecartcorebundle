@@ -582,10 +582,24 @@ class DoctrineEntityService
         // check if we have multi-select inputs before we getVarValues(), which executes queries
         $hasMultiSelect = false;
         foreach($data as $k => $v) {
+
+            if (in_array($k, $baseDataKeys)) {
+                unset($data[$k]);
+                continue;
+            }
+
             if (is_array($v)) {
                 $hasMultiSelect = true;
-                break;
             }
+        }
+
+        if (isset($data['_token'])) {
+            unset($data['_token']);
+        }
+
+        // nothing to do if there's no data
+        if (!$data) {
+            return $this;
         }
 
         // Note : if there's no value selected in a select input
@@ -662,10 +676,21 @@ class DoctrineEntityService
                         'item_var' => $itemVar->getId(),
                     ]);
 
+                    // if we find the current value already exists,
+                    //  set this to the exiting entity with the same value
+                    $exists = false;
                     if ($aVarValues) {
                         foreach($aVarValues as $aVarValue) {
-                            $this->remove($aVarValue);
+                            if ($aVarValue->getValue() == $v) {
+                                $exists = true;
+                            } else {
+                                $this->remove($aVarValue);
+                            }
                         }
+                    }
+
+                    if ($exists) {
+                        continue;
                     }
 
                     $varOption = $this->findOneBy($varOptionObjectType, [

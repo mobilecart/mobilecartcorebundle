@@ -2,7 +2,6 @@
 
 namespace MobileCart\CoreBundle\EventListener\Product;
 
-use MobileCart\CoreBundle\Entity\ProductConfig;
 use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Entity\Product;
@@ -86,11 +85,6 @@ class ProductInsert
         $entity->setFulltextSearch(implode(' ', $fulltextData));
 
         $this->getEntityService()->persist($entity);
-        if ($formData) {
-
-            $this->getEntityService()
-                ->persistVariants($entity, $formData);
-        }
 
         // update configurable product information
 
@@ -118,7 +112,7 @@ class ProductInsert
                 ]);
 
                 if ($simples && $variants) {
-                    foreach ($simples as $simple) {
+                    foreach($simples as $simple) {
                         foreach($variants as $itemVar) {
 
                             $pConfig = $this->getEntityService()->getInstance(EntityConstants::PRODUCT_CONFIG);
@@ -129,6 +123,18 @@ class ProductInsert
                             $this->getEntityService()->persist($pConfig);
 
                             $entity->addProductConfig($pConfig);
+
+                            switch($itemVar->getFormInput()) {
+                                case EntityConstants::INPUT_MULTISELECT:
+                                    // check if it's already in formData
+
+                                    // else ensure the data is an array and add it
+
+                                    break;
+                                default:
+
+                                    break;
+                            }
                         }
                     }
                 }
@@ -138,17 +144,15 @@ class ProductInsert
             $this->getEntityService()->persist($entity);
         }
 
-        if ($entity && $request->getSession()) {
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Product Created!'
-            );
+        if ($formData) {
+
+            $this->getEntityService()
+                ->persistVariants($entity, $formData);
         }
 
         // update categories
         $postedIds = $request->get('category_ids', []);
         if ($postedIds) {
-            $postedIds = array_keys($postedIds); // keys from: r[x] = "on"
             foreach($postedIds as $categoryId) {
                 $categoryProduct = $this->getEntityService()->getInstance(EntityConstants::CATEGORY_PRODUCT);
                 $category = $this->getEntityService()->find(EntityConstants::CATEGORY, $categoryId);
@@ -166,6 +170,17 @@ class ProductInsert
             if ($images) {
                 $this->getEntityService()->updateImages(EntityConstants::PRODUCT_IMAGE, $entity, $images);
             }
+        }
+
+        if ($entity
+            && $entity->getId()
+            && $request->getSession()
+        ) {
+
+            $request->getSession()->getFlashBag()->add(
+                'success',
+                'Product Created!'
+            );
         }
 
         $event->setReturnData($returnData);

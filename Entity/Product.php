@@ -523,6 +523,8 @@ class Product
             'is_taxable' => (bool) $this->getIsTaxable(),
             'visibility' => $this->getVisibility(),
             'can_backorder' => $this->getCanBackorder(),
+            'fulltext_search' => $this->getFulltextSearch(),
+            'custom_search' => $this->getCustomSearch(),
         ];
     }
 
@@ -1854,6 +1856,28 @@ class Product
     public function getProductConfigs()
     {
         return $this->product_configs;
+    }
+
+    /**
+     * @param array $productConfigs
+     * @return $this
+     */
+    public function setProductConfigs(array $productConfigs)
+    {
+        $this->product_configs = new \Doctrine\Common\Collections\ArrayCollection();
+        if (!$productConfigs) {
+            return $this;
+        }
+
+        foreach($productConfigs as $pConfig) {
+            if (!($pConfig instanceof ProductConfig)) {
+                continue;
+            }
+
+            $this->product_configs[] = $pConfig;
+        }
+
+        return $this;
     }
 
     /**

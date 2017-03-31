@@ -134,7 +134,7 @@ class ProductNewReturn
         ];
 
         $typeSections['categories'] = [
-            'section_id'   => 'category',
+            'section_id'   => 'categories',
             'label'        => 'Categories',
             'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Product/Category:category_tabs.html.twig',
             'js_template'  => $this->getThemeService()->getTemplatePath('admin') . 'Product/Category:category_tabs_js.html.twig',

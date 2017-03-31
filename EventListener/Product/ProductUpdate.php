@@ -87,14 +87,13 @@ class ProductUpdate
                 ->persistVariants($entity, $formData);
         }
 
+        // ensure configurable product is configured correctly
         if ($entity->getType() == Product::TYPE_CONFIGURABLE) {
-
-            // Doctrine-specific :
-            // $this->getEntityService()->getDoctrine()->getManager()->refresh($entity);
 
             // get current config
             $productVariantCodes = [];
-            $pConfigs = $entity->getProductConfigs();
+            $pConfigs = $entity->getProductConfigs(); // current
+            $newConfigs = []; // new
             if ($pConfigs) {
                 foreach($pConfigs as $tmpConfig) {
                     $childProductId = $tmpConfig->getChildProduct()->getId();
@@ -103,14 +102,11 @@ class ProductUpdate
                 }
             }
 
-            // update configurable product information
-
             $simpleIds = is_array($request->get('simple_ids', []))
                 ? $request->get('simple_ids', [])
                 : [];
 
             $variantCodes = $request->get('config_vars', []);
-            $variants = [];
 
             if ($simpleIds && $variantCodes) {
 
@@ -134,6 +130,7 @@ class ProductUpdate
 
                             if (isset($productVariantCodes[$childProductId][$varCode])) {
                                 // already have it
+                                $newConfigs[] = $productVariantCodes[$childProductId][$varCode];
                                 //  unset it, and whatever is left will be deleted
                                 unset($productVariantCodes[$childProductId][$varCode]);
                             } else {
@@ -146,19 +143,17 @@ class ProductUpdate
 
                                 $this->getEntityService()->persist($pConfig);
 
-                                $entity->addProductConfig($pConfig);
+                                $newConfigs[] = $pConfig;
                             }
                         }
                     }
 
+                    // delete whats left
                     if ($productVariantCodes) {
-                        foreach($productVariantCodes as $childProductId => $varCodes) {
-                            if ($varCodes) {
-                                foreach($varCodes as $varCode) {
-                                    if (isset($productVariantCodes[$childProductId][$varCode])) {
-                                        $pConfig = $productVariantCodes[$childProductId][$varCode];
-                                        $this->getEntityService()->remove($pConfig);
-                                    }
+                        foreach($productVariantCodes as $childProductId => $pConfigs) {
+                            if ($pConfigs) {
+                                foreach($pConfigs as $varCode => $pConfig) {
+                                    $this->getEntityService()->remove($pConfig);
                                 }
                             }
                         }
@@ -179,6 +174,7 @@ class ProductUpdate
                 }
             }
 
+            $entity->setProductConfigs($newConfigs);
             $entity->reconfigure();
             $this->getEntityService()->persist($entity);
         }
@@ -194,7 +190,6 @@ class ProductUpdate
         // update categories
         $categoryIds = $entity->getCategoryIds();
         $postedIds = $request->get('category_ids', []);
-        $postedIds = array_keys($postedIds); // keys from: r[x] = "on"
         $removed = array_diff($categoryIds, $postedIds);
         $added = array_diff($postedIds, $categoryIds);
 
