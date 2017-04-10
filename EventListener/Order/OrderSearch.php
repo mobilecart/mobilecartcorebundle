@@ -45,9 +45,7 @@ class OrderSearch
             ->setObjectType($event->getObjectType()) // Important: set this first
             ->parseRequest($event->getRequest());
 
-        if (!$event->getRequest()->get($event->getSearch()->getSortDirParam(), '')) {
-            $event->getSearch()->setSortDir('desc'); // sort by newest first, by default
-        }
+        $event->getSearch()->setDefaultSort('created_at', 'desc');
 
         $event->getSearch()->search();
 
