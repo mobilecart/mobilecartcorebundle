@@ -11,6 +11,7 @@
 
 namespace MobileCart\CoreBundle\Service;
 
+use MobileCart\CoreBundle\Entity\Product;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
@@ -670,156 +671,18 @@ class DoctrineEntityService
             switch($itemVar->getFormInput()) {
                 case EntityConstants::INPUT_SELECT:
 
-                    // retrieve existing value, and delete if it exists
-                    $aVarValues = $this->findBy($varValueObjectType, [
-                        'parent' => $entity,
-                        'item_var' => $itemVar->getId(),
-                    ]);
-
-                    // if we find the current value already exists,
-                    //  set this to the exiting entity with the same value
-                    $exists = false;
-                    if ($aVarValues) {
-                        foreach($aVarValues as $aVarValue) {
-                            if ($aVarValue->getValue() == $v) {
-                                $exists = true;
-                            } else {
-                                $this->remove($aVarValue);
-                            }
-                        }
-                    }
-
-                    if ($exists) {
-                        continue;
-                    }
-
-                    $varOption = $this->findOneBy($varOptionObjectType, [
-                        'item_var' => $itemVar->getId(),
-                        'value' => $v
-                    ]);
-
-                    $varOptionId = $varOption
-                        ? $varOption->getId()
-                        : 0;
-
-                    if (!$varOption) {
-
-                        // save new var option
-                        $varOption = $this->getInstance($varOptionObjectType);
-                        $varOption->setItemVar($itemVar)
-                            ->setValue($v)
-                            ->setUrlValue($this->slugify($v));
-
-                        $this->persist($varOption);
-
-                        // insert new row in x_var_value_y
-
-                        $varValue = $this->getInstance($varValueObjectType);
-                        $varValue->setItemVar($itemVar)
-                            ->setItemVarOption($varOption)
-                            ->setParent($entity)
-                            ->setValue($v);
-
+                    if ($objectType == EntityConstants::PRODUCT
+                        && $entity->getType() == Product::TYPE_CONFIGURABLE
+                    ) {
+                        $this->persistMultiselectVariant($entity, $itemVar, $v, $varValueObjectType, $varOptionObjectType);
                     } else {
-
-                        // we have a ItemVarOption
-
-                        // look for for existing VarValue in x_var_value_y
-                        //  we can only have 1 value, since it's not a multi-select
-
-                        $varValue = $this->findOneBy($varValueObjectType, [
-                            'parent' => $entity->getId(),
-                            'item_var' => $itemVar->getId(),
-                            'item_var_option' => $varOptionId,
-                        ]);
-
-                        if (!$varValue) {
-
-                            $varValue = $this->getInstance($varValueObjectType);
-                            $varValue->setItemVar($itemVar)
-                                ->setParent($entity)
-                                ->setItemVarOption($varOption);
-                        }
-
-                        $varValue->setValue($v);
-                        $this->persist($varValue);
+                        $this->persistSelectVariant($entity, $itemVar, $v, $varValueObjectType, $varOptionObjectType);
                     }
 
                     break;
                 case EntityConstants::INPUT_MULTISELECT:
 
-                    // load all values for this entity and variant
-                    $varValues = $this->findBy($varValueObjectType, [
-                        'parent' => $entity->getId(),
-                        'item_var' => $itemVar->getId(),
-                    ]);
-
-                    if (!is_array($v)) {
-                        $v = [$v];
-                    }
-
-                    // loop on form data
-                    foreach($v as $varValue) {
-
-                        // see if we have a VarOption with the specified value
-                        $varOption = $this->findOneBy($varOptionObjectType, [
-                            'item_var' => $itemVar->getId(),
-                            'value' => $varValue
-                        ]);
-
-                        // if we dont have an Option, create one
-                        if (!$varOption) {
-
-                            // automatically create new var option
-                            $varOption = $this->getInstance($varOptionObjectType);
-                            $varOption->setItemVar($itemVar)
-                                ->setValue($v)
-                                ->setUrlValue($this->slugify($v));
-
-                            $this->persist($varOption);
-
-                            // insert new row in x_var_value_y
-
-                            $aVarValue = $this->getInstance($varValueObjectType);
-                            $aVarValue->setItemVar($itemVar)
-                                ->setItemVarOption($varOption)
-                                ->setParent($entity)
-                                ->setValue($varValue);
-
-                            $this->persist($aVarValue);
-
-                        } else {
-
-                            // we have a VarOption
-
-                            // figure out if we already have this value, and avoid a duplicate being saved
-                            $exists = false;
-                            if ($varValues) {
-                                foreach($varValues as $k => $aVarValue) {
-                                    if ($aVarValue->getValue() == $varValue) {
-                                        unset($varValues[$k]); // unset values as we find them. whatever is left is deleted
-                                        $exists = true;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if ($exists) {
-                                // we already have the value, nothing to do
-                                continue;
-                            }
-
-                            // assuming we need to create a VarValue
-
-                            $aVarValue = $this->getInstance($varValueObjectType);
-                            $aVarValue->setItemVar($itemVar)
-                                ->setParent($entity)
-                                ->setItemVarOption($varOption)
-                                ->setValue($varValue);
-
-                            $this->persist($aVarValue);
-                        }
-                    }
+                    $this->persistMultiselectVariant($entity, $itemVar, $v, $varValueObjectType, $varOptionObjectType);
 
                     break;
                 default:
@@ -840,6 +703,182 @@ class DoctrineEntityService
                     $this->persist($varValue);
 
                     break;
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param $entity
+     * @param $itemVar
+     * @param $value
+     * @param $varValueObjectType
+     * @param $varOptionObjectType
+     * @return $this
+     */
+    public function persistSelectVariant($entity, $itemVar, $value, $varValueObjectType, $varOptionObjectType)
+    {
+        // retrieve existing value, and delete if it exists
+        $aVarValues = $this->findBy($varValueObjectType, [
+            'parent' => $entity,
+            'item_var' => $itemVar->getId(),
+        ]);
+
+        // if we find the current value already exists,
+        //  set this to the exiting entity with the same value
+        $exists = false;
+        if ($aVarValues) {
+            foreach($aVarValues as $aVarValue) {
+                if ($aVarValue->getValue() == $value) {
+                    $exists = true;
+                } else {
+                    $this->remove($aVarValue);
+                }
+            }
+        }
+
+        if ($exists) {
+            return $this;
+        }
+
+        $varOption = $this->findOneBy($varOptionObjectType, [
+            'item_var' => $itemVar->getId(),
+            'value' => $value
+        ]);
+
+        $varOptionId = $varOption
+            ? $varOption->getId()
+            : 0;
+
+        if (!$varOption) {
+
+            // save new var option
+            $varOption = $this->getInstance($varOptionObjectType);
+            $varOption->setItemVar($itemVar)
+                ->setValue($value)
+                ->setUrlValue($this->slugify($value));
+
+            $this->persist($varOption);
+
+            // insert new row in x_var_value_y
+
+            $varValue = $this->getInstance($varValueObjectType);
+            $varValue->setItemVar($itemVar)
+                ->setItemVarOption($varOption)
+                ->setParent($entity)
+                ->setValue($value);
+
+        } else {
+
+            // we have a ItemVarOption
+
+            // look for for existing VarValue in x_var_value_y
+            //  we can only have 1 value, since it's not a multi-select
+
+            $varValue = $this->findOneBy($varValueObjectType, [
+                'parent' => $entity->getId(),
+                'item_var' => $itemVar->getId(),
+                'item_var_option' => $varOptionId,
+            ]);
+
+            if (!$varValue) {
+
+                $varValue = $this->getInstance($varValueObjectType);
+                $varValue->setItemVar($itemVar)
+                    ->setParent($entity)
+                    ->setItemVarOption($varOption);
+            }
+
+            $varValue->setValue($value);
+            $this->persist($varValue);
+        }
+
+        return $this;
+    }
+
+    /**
+     * This method is for persisting values for a single entity and variant
+     *
+     * @param $entity
+     * @param $itemVar
+     * @param $values
+     * @param $varValueObjectType
+     * @param $varOptionObjectType
+     * @return $this
+     */
+    public function persistMultiselectVariant($entity, $itemVar, $values, $varValueObjectType, $varOptionObjectType)
+    {
+        // load all values for this entity and variant
+        $varValues = $this->findBy($varValueObjectType, [
+            'parent' => $entity->getId(),
+            'item_var' => $itemVar->getId(),
+        ]);
+
+        if (!is_array($values)) {
+            $values = [$values];
+        }
+
+        // loop on form data
+        foreach($values as $value) {
+
+            // see if we have a VarOption with the specified value
+            $varOption = $this->findOneBy($varOptionObjectType, [
+                'item_var' => $itemVar->getId(),
+                'value' => $value
+            ]);
+
+            // if we dont have an Option, create one
+            if (!$varOption) {
+
+                // automatically create new var option
+                $varOption = $this->getInstance($varOptionObjectType);
+                $varOption->setItemVar($itemVar)
+                    ->setValue($value)
+                    ->setUrlValue($this->slugify($value));
+
+                $this->persist($varOption);
+
+                // insert new row in x_var_value_y
+
+                $aVarValue = $this->getInstance($varValueObjectType);
+                $aVarValue->setItemVar($itemVar)
+                    ->setItemVarOption($varOption)
+                    ->setParent($entity)
+                    ->setValue($value);
+
+                $this->persist($aVarValue);
+
+            } else {
+
+                // we have a VarOption
+
+                // figure out if we already have this value, and avoid a duplicate being saved
+                $exists = false;
+                if ($varValues) {
+                    foreach($varValues as $k => $aVarValue) {
+                        if ($aVarValue->getValue() == $value) {
+                            unset($varValues[$k]); // unset values as we find them. whatever is left is deleted
+                            $exists = true;
+                            break;
+                        }
+                    }
+                }
+
+                if ($exists) {
+                    // we already have the value, nothing to do
+                    continue;
+                }
+
+                // assuming we need to create a VarValue
+
+                $aVarValue = $this->getInstance($varValueObjectType);
+                $aVarValue->setItemVar($itemVar)
+                    ->setParent($entity)
+                    ->setItemVarOption($varOption)
+                    ->setValue($value);
+
+                $this->persist($aVarValue);
             }
         }
 

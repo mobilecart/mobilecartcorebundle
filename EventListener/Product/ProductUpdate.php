@@ -80,12 +80,6 @@ class ProductUpdate
         $entity->setFulltextSearch(implode(' ', $fulltextData));
 
         $this->getEntityService()->persist($entity);
-        if ($formData) {
-
-            // update var values
-            $this->getEntityService()
-                ->persistVariants($entity, $formData);
-        }
 
         // ensure configurable product is configured correctly
         if ($entity->getType() == Product::TYPE_CONFIGURABLE) {
@@ -145,6 +139,22 @@ class ProductUpdate
 
                                 $newConfigs[] = $pConfig;
                             }
+
+                            $simpleValue = $simple->getData($itemVar->getCode());
+                            if (isset($formData[$itemVar->getCode()])) {
+
+                                if (!is_array($formData[$itemVar->getCode()])) {
+                                    $aValue = $formData[$itemVar->getCode()];
+                                    $formData[$itemVar->getCode()] = [$aValue];
+                                }
+
+                                if (!in_array($simpleValue, $formData[$itemVar->getCode()])) {
+                                    $formData[$itemVar->getCode()][] = $simpleValue;
+                                }
+
+                            } else {
+                                $formData[$itemVar->getCode()] = [$simpleValue];
+                            }
                         }
                     }
 
@@ -177,6 +187,13 @@ class ProductUpdate
             $entity->setProductConfigs($newConfigs);
             $entity->reconfigure();
             $this->getEntityService()->persist($entity);
+        }
+
+        if ($formData) {
+
+            // update var values
+            $this->getEntityService()
+                ->persistVariants($entity, $formData);
         }
 
         if ($entity && $request->getSession()) {

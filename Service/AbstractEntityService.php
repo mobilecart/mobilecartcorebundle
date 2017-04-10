@@ -181,7 +181,10 @@ abstract class AbstractEntityService implements UserProviderInterface
      */
     public function slugify($str)
     {
-        return str_replace('--', '-', strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $str))));
+        $str = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $str)));
+        $str = str_replace('/', '', $str);
+        $str = str_replace('--', '-', $str);
+        return $str;
     }
 
     /**

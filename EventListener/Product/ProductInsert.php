@@ -124,16 +124,20 @@ class ProductInsert
 
                             $entity->addProductConfig($pConfig);
 
-                            switch($itemVar->getFormInput()) {
-                                case EntityConstants::INPUT_MULTISELECT:
-                                    // check if it's already in formData
+                            $simpleValue = $simple->getData($itemVar->getCode());
+                            if (isset($formData[$itemVar->getCode()])) {
 
-                                    // else ensure the data is an array and add it
+                                if (!is_array($formData[$itemVar->getCode()])) {
+                                    $aValue = $formData[$itemVar->getCode()];
+                                    $formData[$itemVar->getCode()] = [$aValue];
+                                }
 
-                                    break;
-                                default:
+                                if (!in_array($simpleValue, $formData[$itemVar->getCode()])) {
+                                    $formData[$itemVar->getCode()][] = $simpleValue;
+                                }
 
-                                    break;
+                            } else {
+                                $formData[$itemVar->getCode()] = [$simpleValue];
                             }
                         }
                     }

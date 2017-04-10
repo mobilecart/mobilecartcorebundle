@@ -3,6 +3,7 @@
 namespace MobileCart\CoreBundle\EventListener\Product;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
+use MobileCart\CoreBundle\Entity\Product;
 use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\Form\ProductType;
 
@@ -222,7 +223,8 @@ class ProductAdminForm
                             'choices'   => $choices,
                             'required'  => $var->getIsRequired(),
                             'label'     => $var->getName(),
-                            'multiple'  => ($var->getFormInput() == 'multiselect'),
+                            'multiple'  => ($var->getFormInput() == EntityConstants::INPUT_MULTISELECT
+                                            || ($entity->getType() == Product::TYPE_CONFIGURABLE && $var->getFormInput() == EntityConstants::INPUT_SELECT)),
                         ]);
 
                         $customFields[] = $name;
@@ -256,7 +258,8 @@ class ProductAdminForm
                 foreach($varValues as $varValue) {
                     $var = $varValue->getItemVar();
                     $name = $var->getCode();
-                    $isMultiple = ($var->getFormInput() == EntityConstants::INPUT_MULTISELECT);
+                    $isMultiple = ($var->getFormInput() == EntityConstants::INPUT_MULTISELECT
+                                    || ($entity->getType() == Product::TYPE_CONFIGURABLE && $var->getFormInput() == EntityConstants::INPUT_SELECT));
 
                     $value = ($varValue->getItemVarOption())
                         ? $varValue->getItemVarOption()->getValue()

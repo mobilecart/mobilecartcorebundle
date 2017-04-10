@@ -4,6 +4,7 @@ namespace MobileCart\CoreBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
  * MobileCart\CoreBundle\Entity\Product
@@ -657,7 +658,6 @@ class Product
 
         $data = $this->getBaseData();
         $data['var_set_id'] = $varSetId;
-        //$data['tags'] = $this->getTagsData();
 
         $varValues = $this->getVarValues();
         if (!$varValues) {
@@ -685,7 +685,11 @@ class Product
                     break;
             }
 
-            if ($itemVar->getFormInput() == 'multiselect') {
+            // Configurable products need to have a multiselect on variants which are used to configure the product
+            //  each of the stored values will be values from simple products
+            if ($itemVar->getFormInput() == EntityConstants::INPUT_MULTISELECT
+                || ($itemVar->getFormInput() == EntityConstants::INPUT_SELECT && $this->getType() == self::TYPE_CONFIGURABLE)
+            ) {
                 if (!isset($data[$itemVar->getCode()])) {
                     $data[$itemVar->getCode()] = [];
                 }
