@@ -708,7 +708,7 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
         $em = $this->getEntityService()->getDoctrine()->getManager();
         $repo = $this->getEntityService()->getRepository($this->getObjectType());
         //$sortable = $repo->getSortableFields();
-        $offset = ($this->getPage() - 1) * $this->getLimit();
+        $offset = $this->getOffset();
 
         // main filter execution
         //  sets $this->filteredIds
@@ -738,7 +738,9 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
             $mainSql .= " order by {$this->getSortBy()} {$this->getSortDir()}";
         } elseif ($this->getDefaultSortBy()) {
             $mainSql .= " order by {$this->getDefaultSortBy()} {$this->getDefaultSortDir()}";
+            $this->setSort($this->getDefaultSortBy(), $this->getDefaultSortDir());
         } else {
+            $this->setSort('id', 'asc');
             $mainSql .= " order by main.id asc";
         }
 
@@ -758,8 +760,7 @@ class DoctrineSearchServiceV2 extends AbstractSearchService
                 ->populateVarValues($this->getObjectType(), $entities);
         }
 
-        if (
-            method_exists($repo, 'hasImages')
+        if (method_exists($repo, 'hasImages')
             && $repo->hasImages()
         ) {
 

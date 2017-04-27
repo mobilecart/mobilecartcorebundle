@@ -48,6 +48,33 @@ class CategoryRepository
     /**
      * @return array
      */
+    public function getAdvSortableFields()
+    {
+        return [
+            'sort_order' => [
+                'label' => 'Parent Category',
+                'active' => 0,
+                'value' => 'parent_category_id',
+                'dir' => 'asc',
+            ],
+            'name_az' => [
+                'label' => 'Name (A-Z)',
+                'active' => 0,
+                'value' => 'name',
+                'dir' => 'asc',
+            ],
+            'name_za' => [
+                'label' => 'Name (Z-A)',
+                'active' => 0,
+                'value' => 'name',
+                'dir' => 'desc',
+            ],
+        ];
+    }
+
+    /**
+     * @return array
+     */
     public function getFilterableFields()
     {
         return [

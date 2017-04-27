@@ -56,6 +56,51 @@ class ProductRepository
     /**
      * @return array
      */
+    public function getAdvSortableFields()
+    {
+        return [
+            'sort_order' => [
+                'label' => 'Sort Order',
+                'active' => 0,
+                'value' => 'sort_order',
+                'dir' => 'asc',
+            ],
+            'price_asc' => [
+                'label' => 'Lowest Price',
+                'active' => 0,
+                'value' => 'price',
+                'dir' => 'asc',
+            ],
+            'price_desc' => [
+                'label' => 'Highest Price',
+                'active' => 0,
+                'value' => 'price',
+                'dir' => 'desc',
+            ],
+            'created_at_newest' => [
+                'label' => 'Newest',
+                'active' => 0,
+                'value' => 'created_at',
+                'dir' => 'desc',
+            ],
+            'name_az' => [
+                'label' => 'Name (A-Z)',
+                'active' => 0,
+                'value' => 'name',
+                'dir' => 'asc',
+            ],
+            'name_za' => [
+                'label' => 'Name (Z-A)',
+                'active' => 0,
+                'value' => 'name',
+                'dir' => 'desc',
+            ],
+        ];
+    }
+
+    /**
+     * @return array
+     */
     public function getFilterableFields()
     {
         return [

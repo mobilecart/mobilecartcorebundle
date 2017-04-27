@@ -103,7 +103,7 @@ class OrderRepository
      */
     public function getSearchField()
     {
-        return ['email', 'billing_name', 'billing_company', 'shipping_name', 'shipping_company'];
+        return ['email', 'billing_name', 'billing_company'];
     }
 
     /**

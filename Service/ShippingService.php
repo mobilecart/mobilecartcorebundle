@@ -196,9 +196,10 @@ class ShippingService
      */
     public function createRateRequest($srcAddressKey, array $cartItems = [])
     {
-        if ($sourceAddress = $this->getSourceAddress($srcAddressKey)) {
+        $request = new RateRequest();
+        $sourceAddress = $this->getSourceAddress($srcAddressKey);
+        if ($sourceAddress) {
 
-            $request = new RateRequest();
             $request->fromArray([
                 'to_array'    => 0,
                 'include_all' => 0,
@@ -215,7 +216,20 @@ class ShippingService
             return $request;
         }
 
-        return null;
+        $request->fromArray([
+            'to_array'    => 0,
+            'include_all' => 0,
+            'postcode' => '',
+            'country_id' => '',
+            'region' => '',
+            'src_postcode' => '',
+            'src_country_id' => '',
+            'src_region' => '',
+            'source_address_key' => 'main',
+            'cart_items' => $cartItems,
+        ]);
+
+        return $request;
     }
 
     /**

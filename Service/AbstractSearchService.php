@@ -328,6 +328,14 @@ abstract class AbstractSearchService
     public $sortable = [];
 
     /**
+     * Sort Options which are more User Friendly
+     *  The configuration has more data also.
+     *
+     * @var array
+     */
+    protected $advSortable = [];
+
+    /**
      * Fields which are filterable for the
      *  specified object type
      *
@@ -492,6 +500,7 @@ abstract class AbstractSearchService
         $this->result = [];
         $this->filterable = [];
         $this->sortable = [];
+        $this->advSortable = [];
         $this->filters = [];
         $this->advFilters = [];
         $this->query = '';
@@ -1306,6 +1315,10 @@ abstract class AbstractSearchService
      */
     public function getDefaultSortDir()
     {
+        if (!$this->defaultSortDir) {
+            return 'asc';
+        }
+
         return $this->defaultSortDir;
     }
 
@@ -1405,6 +1418,26 @@ abstract class AbstractSearchService
     }
 
     /**
+     * @return array
+     */
+    public function getAdvSortable()
+    {
+        $advSortable = $this->advSortable;
+        if ($advSortable && $this->getSortBy()) {
+            foreach($advSortable as $k => $info) {
+                if ($info['value'] == $this->getSortBy()
+                    && $info['dir'] == $this->getSortDir()
+                ) {
+                    $advSortable[$k]['active'] = 1;
+                    break;
+                }
+            }
+        }
+
+        return $advSortable;
+    }
+
+    /**
      * Set page number
      *
      * @param $page
@@ -1424,6 +1457,14 @@ abstract class AbstractSearchService
         return (int) ($this->page)
             ? $this->page
             : 1;
+    }
+
+    /**
+     * @return int
+     */
+    public function getOffset()
+    {
+        return ($this->getPage() - 1) * $this->getLimit();
     }
 
     /**
@@ -1556,6 +1597,8 @@ abstract class AbstractSearchService
     }
 
     /**
+     * Initialize object type and set search parameters
+     *
      * @param $objectType
      * @return $this
      */
@@ -1565,6 +1608,9 @@ abstract class AbstractSearchService
         $repo = $this->getEntityService()->getRepository($objectType);
         $this->filterable = $repo->getFilterableFields();
         $this->sortable = $repo->getSortableFields();
+        if (method_exists($repo, 'getAdvSortableFields')) {
+            $this->advSortable = $repo->getAdvSortableFields();
+        }
         $this->setIsEAV($repo->isEAV());
         $this->searchField = $repo->getSearchField(); // handle array of fields
         $this->searchMethod = $repo->getSearchMethod();
@@ -1610,6 +1656,15 @@ abstract class AbstractSearchService
         $sortBy = $this->getRequest()->get($this->sortByParam, '');
         if ($sortBy && isset($this->sortable[$sortBy])) {
             $this->sortBy = $sortBy;
+            $this->sortDir = $this->getRequest()->get($this->sortDirParam, '');
+        } elseif ($this->getDefaultSortBy()) {
+            $this->setSort($this->getDefaultSortBy(), $this->getDefaultSortDir());
+        } else {
+            $this->setSort('id', 'asc');
+        }
+
+        if ($this->sortDir != 'desc') {
+            $this->sortDir = 'asc';
         }
 
         // transform array to be similar to filterable array
@@ -1627,9 +1682,9 @@ abstract class AbstractSearchService
             }
         }
 
-        $this->sortDir = $this->getRequest()->get($this->sortDirParam, '');
-        if ($this->sortDir != 'desc') {
-            $this->sortDir = 'asc';
+        // frontend sorting options, more user-friendly
+        if (method_exists($repo, 'getAdvSortableFields')) {
+            $this->advSortable = $repo->getAdvSortableFields();
         }
 
         // HANDLE FILTERS
