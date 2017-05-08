@@ -143,7 +143,7 @@ class FrontendExtension extends \Twig_Extension
     {
         return [
 //            'var_dump' => new \Twig_Filter_Function('var_dump'),
-//            'md5' => new \Twig_Filter_Function('md5'),
+            'money' => new \Twig_SimpleFilter('money', [$this, 'money'], ['is_safe' => ['html']])
         ];
     }
 
@@ -209,6 +209,15 @@ class FrontendExtension extends \Twig_Extension
         }
 
         return $this->getImageService()->getDefaultImage($objectType, $code);
+    }
+
+    /**
+     * @param $val
+     * @return string
+     */
+    public function money($val)
+    {
+        return number_format($val, 2, '.', '');
     }
 
     /**
