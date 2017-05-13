@@ -7,11 +7,11 @@ _home:
 #    type: rewrite
 
 login_route:
-    pattern: /login
+    path: /login
     defaults: { _controller: MobileCartCoreBundle:Security:login }
 
 login_check:
-    pattern: /login_check
+    path: /login_check
 
 logout:
     path: /logout

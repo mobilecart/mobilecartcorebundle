@@ -1338,7 +1338,7 @@
         </service>
 
         <!-- Search Service : via Doctrine -->
-        <service id="cart.search" lazy="true" scope="prototype" class="%cart.search.class%">
+        <service id="cart.search" lazy="true" shared="false" class="%cart.search.class%">
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>
