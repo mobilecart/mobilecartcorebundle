@@ -4,27 +4,34 @@ namespace MobileCart\CoreBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Intl\Intl;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use MobileCart\CoreBundle\Service\CartService;
 
 class CustomerAddressType extends AbstractType
 {
     /**
-     * @var array
+     * @var CartService $cartService
      */
-    protected $countries = [];
+    protected $cartService;
 
     /**
-     * @param array $countries
+     * @param CartService $cartService
      * @return $this
      */
-    public function setCountries(array $countries)
+    public function setCartService(CartService $cartService)
     {
-        $this->countries = $countries;
+        $this->cartService = $cartService;
         return $this;
+    }
+
+    /**
+     * @return CartService
+     */
+    public function getCartService()
+    {
+        return $this->cartService;
     }
 
     /**
@@ -32,25 +39,33 @@ class CustomerAddressType extends AbstractType
      */
     public function getCountries()
     {
-        return $this->countries;
+        $allCountries = Intl::getRegionBundle()->getCountryNames();
+        $allowedCountries = $this->getCartService()->getAllowedCountryIds();
+
+        $countries = [];
+        foreach($allowedCountries as $countryId) {
+            $countries[$countryId] = $allCountries[$countryId];
+        }
+
+        return $countries;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name', 'text')
-            ->add('company', 'text')
+            ->add('name', TextType::class)
+            ->add('company', TextType::class)
             ->add('phone')
-            ->add('street', 'text')
-            ->add('street2', 'text')
-            ->add('city', 'text')
-            ->add('region', 'text', [
+            ->add('street', TextType::class)
+            ->add('street2', TextType::class)
+            ->add('city', TextType::class)
+            ->add('region', TextType::class, [
                 'attr' => [
                     'class' => 'region-input',
                 ],
             ])
-            ->add('postcode', 'text')
-            ->add('country_id', 'choice', [
+            ->add('postcode', TextType::class)
+            ->add('country_id', ChoiceType::class, [
                 'choices' => $this->getCountries(),
                 'attr' => [
                     'class' => 'country-input',
@@ -59,7 +74,7 @@ class CustomerAddressType extends AbstractType
         ;
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'customer_address';
     }

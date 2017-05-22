@@ -4,7 +4,6 @@ namespace MobileCart\CoreBundle\EventListener\CustomerAddress;
 
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\Intl\Intl;
-use MobileCart\CoreBundle\Form\CustomerAddressType;
 
 /**
  * Class CustomerAddressForm
@@ -21,6 +20,11 @@ class CustomerAddressForm
      * @var \MobileCart\CoreBundle\Service\CurrencyService
      */
     protected $currencyService;
+
+    /**
+     * @var string
+     */
+    protected $formTypeClass = '';
 
     protected $formFactory;
 
@@ -90,6 +94,24 @@ class CustomerAddressForm
         return $this->currencyService;
     }
 
+    /**
+     * @param $class
+     * @return $this
+     */
+    public function setFormTypeClass($class)
+    {
+        $this->formTypeClass = $class;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormTypeClass()
+    {
+        return $this->formTypeClass;
+    }
+
     public function setFormFactory($formFactory)
     {
         $this->formFactory = $formFactory;
@@ -138,20 +160,7 @@ class CustomerAddressForm
         $this->setEvent($event);
         $returnData = $event->getReturnData();
 
-        $entity = $event->getEntity();
-
-        $allCountries = Intl::getRegionBundle()->getCountryNames();
-        $allowedCountries = $this->getCartService()->getAllowedCountryIds();
-
-        $countries = [];
-        foreach($allowedCountries as $countryId) {
-            $countries[$countryId] = $allCountries[$countryId];
-        }
-
-        $formType = new CustomerAddressType();
-        $formType->setCountries($countries);
-
-        $form = $this->getFormFactory()->create($formType, $entity, [
+        $form = $this->getFormFactory()->create($this->getFormTypeClass(), $event->getEntity(), [
             'action' => $event->getAction(),
             'method' => $event->getMethod(),
         ]);

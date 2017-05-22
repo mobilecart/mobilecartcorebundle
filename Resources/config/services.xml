@@ -359,6 +359,8 @@
         <parameter key="cart.listener.url_rewrite.delete.class">MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteDelete</parameter>
         <parameter key="cart.listener.url_rewrite.admin.form.class">MobileCart\CoreBundle\EventListener\UrlRewrite\UrlRewriteAdminForm</parameter>
         <parameter key="cart.listener.webhook_log.insert.class">MobileCart\CoreBundle\EventListener\WebhookLog\WebhookLogInsert</parameter>
+        <!-- Forms -->
+        <parameter key="cart.form.type.customer_address.class">MobileCart\CoreBundle\Form\CustomerAddressType</parameter>
     </parameters>
 
     <services>
@@ -2257,6 +2259,14 @@
                 <argument type="service" id="cart.theme"/>
             </call>
         </service>
+        <!-- Customer Address Form Type -->
+        <service id="cart.form.type.customer_address" lazy="true" class="%cart.form.type.customer_address.class%">
+            <tag name="form.type" />
+            <call method="setCartService">
+                <argument type="service" id="cart" />
+            </call>
+        </service>
+        <!-- Customer Address Form Builder -->
         <service id="cart.listener.customer_address.form" lazy="true" class="%cart.listener.customer_address.form.class%">
             <tag name="kernel.event_listener" event="customer_address.form" method="onCustomerAddressForm" priority="50" />
             <call method="setEntityService">
@@ -2268,7 +2278,9 @@
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
             </call>
-            <!-- For Allowed Country IDs -->
+            <call method="setFormTypeClass">
+                <argument type="string">%cart.form.type.customer_address.class%</argument>
+            </call>
             <call method="setCartService">
                 <argument type="service" id="cart" />
             </call>
