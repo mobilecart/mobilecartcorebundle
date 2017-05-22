@@ -43,7 +43,8 @@ class CustomerAddressSearch
 
         $search = $event->getSearch()
             ->setObjectType($event->getObjectType()) // Important: set this first
-            ->parseRequest($event->getRequest());
+            ->parseRequest($event->getRequest())
+            ->addFilter('customer_id', $event->getUser()->getId());
 
         $returnData['search'] = $search;
         $returnData['result'] = $search->search();

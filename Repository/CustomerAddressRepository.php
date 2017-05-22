@@ -51,6 +51,11 @@ class CustomerAddressRepository
     {
         return [
             [
+                'code'  => 'customer_id',
+                'label' => 'Customer',
+                'type'  => 'number',
+            ],
+            [
                 'code'  => 'name',
                 'label' => 'Name',
                 'type'  => 'string',
