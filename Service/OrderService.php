@@ -666,6 +666,14 @@ class OrderService
     }
 
     /**
+     * @return CartTotalService
+     */
+    public function getCartTotalService()
+    {
+        return $this->getCartService()->getCartTotalService();
+    }
+
+    /**
      * Submit Cart
      *  This is the main method used in checkout
      *
