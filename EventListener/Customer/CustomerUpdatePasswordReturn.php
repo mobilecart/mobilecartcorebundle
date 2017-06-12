@@ -105,13 +105,6 @@ class CustomerUpdatePasswordReturn
                     $form = $form->createView();
                     $returnData['form'] = $form;
 
-                    if ($request->getSession()) {
-                        $request->getSession()->getFlashBag()->add(
-                            'success',
-                            'Password Updated!'
-                        );
-                    }
-
                     $response = $this->getThemeService()
                         ->render('frontend', 'Customer:update_password.html.twig', $returnData);
 
