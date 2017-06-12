@@ -2211,7 +2211,7 @@
         </service>
 
         <!-- Event Listener : Customer Update Password Form -->
-        <service id="cart.listener.customer.forgotpassword.form" lazy="true" class="%cart.listener.customer.updatepassword.form.class%">
+        <service id="cart.listener.customer.updatepassword.form" lazy="true" class="%cart.listener.customer.updatepassword.form.class%">
             <tag name="kernel.event_listener" event="customer.updatepassword.form" method="onCustomerUpdatePasswordForm" priority="50" />
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
