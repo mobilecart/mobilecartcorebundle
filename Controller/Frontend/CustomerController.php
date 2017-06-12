@@ -243,12 +243,107 @@ class CustomerController extends Controller
 
     public function updatePasswordAction(Request $request)
     {
-        // todo
+        $customerId = $request->get('id', 0);
+        $confirmHash = $request->get('hash', '');
+        $form = null;
+        $returnData = [];
+
+        $entity = $this->get('cart.entity')
+            ->findOneBy($this->objectType, [
+                'id' => $customerId,
+                'confirm_hash' => $confirmHash,
+            ]);
+
+        if ($entity) {
+
+            $formEvent = new CoreEvent();
+            $formEvent->setObjectType($this->objectType)
+                ->setRequest($request)
+                ->setAction($this->generateUrl('customer_update_password_post', ['id' => $customerId, 'hash' => $confirmHash]))
+                ->setMethod('POST');
+
+            $this->get('event_dispatcher')
+                ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD_FORM, $formEvent);
+
+            $form = $formEvent->getForm();
+            $returnData = $formEvent->getReturnData();
+        }
+
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
+            ->setRequest($request)
+            ->setForm($form)
+            ->setEntity($entity)
+            ->setReturnData($returnData);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD_RETURN, $event);
+
+        return $event->getResponse();
     }
 
-    public function updatePassswordPostAction(Request $request)
+    public function updatePasswordPostAction(Request $request)
     {
-        // todo
+        $customerId = $request->get('id', 0);
+        $confirmHash = $request->get('hash', '');
+        $form = null;
+        $returnData = [];
+
+        $entity = $this->get('cart.entity')
+            ->findOneBy($this->objectType, [
+                'id' => $customerId,
+                'confirm_hash' => $confirmHash,
+            ]);
+
+        if ($entity) {
+
+            $formEvent = new CoreEvent();
+            $formEvent->setObjectType($this->objectType)
+                ->setRequest($request)
+                ->setAction($this->generateUrl('customer_update_password_post'))
+                ->setMethod('POST');
+
+            $this->get('event_dispatcher')
+                ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD_FORM, $formEvent);
+
+            $form = $formEvent->getForm();
+            $returnData = $formEvent->getReturnData();
+
+            if ($form->handleRequest($request)->isValid()) {
+
+                $plaintext = $form->get('password')->getData();
+                $formData = [
+                    'password' => $plaintext,
+                ];
+
+                $event = new CoreEvent();
+                $event->setObjectType($this->objectType)
+                    ->setEntity($entity)
+                    ->setRequest($request)
+                    ->setFormData($formData);
+
+                $this->get('event_dispatcher')
+                    ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD, $event);
+
+                $returnData['success'] = 1;
+
+            } else {
+                $returnData['error'] = 1;
+            }
+        } else {
+            $returnData['error'] = 1;
+        }
+
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
+            ->setEntity($entity)
+            ->setRequest($request)
+            ->setReturnData($returnData);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD_POST_RETURN, $event);
+
+        return $event->getResponse();
     }
 
     public function profileAction(Request $request)

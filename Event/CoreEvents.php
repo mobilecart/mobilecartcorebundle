@@ -132,6 +132,11 @@ final class CoreEvents
     const CUSTOMER_ORDERS_RETURN = 'customer.orders.return';
     const CUSTOMER_ORDER_RETURN = 'customer.order.return';
     const CUSTOMER_NAVIGATION = 'customer.navigation';
+    const CUSTOMER_UPDATE_PASSWORD = 'customer.updatepassword';
+    const CUSTOMER_UPDATE_PASSWORD_FORM = 'customer.updatepassword.form';
+    const CUSTOMER_UPDATE_PASSWORD_RETURN = 'customer.updatepassword.return';
+    const CUSTOMER_UPDATE_PASSWORD_SUCCESS = 'customer.updatepassword.success';
+    const CUSTOMER_UPDATE_PASSWORD_POST_RETURN = 'customer.updatepassword.post.return';
 
     const CUSTOMER_ADDRESS_LIST = 'customer_address.list';
     const CUSTOMER_ADDRESS_SEARCH = 'customer_address.search';

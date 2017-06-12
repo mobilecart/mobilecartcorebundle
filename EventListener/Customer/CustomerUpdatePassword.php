@@ -8,7 +8,7 @@ use Symfony\Component\EventDispatcher\Event;
  * Class CustomerForgotPassword
  * @package MobileCart\CoreBundle\EventListener\Customer
  */
-class CustomerForgotPassword
+class CustomerUpdatePassword
 {
     protected $securityPasswordEncoder;
 
@@ -147,84 +147,21 @@ class CustomerForgotPassword
     /**
      * @param Event $event
      */
-    public function onCustomerForgotPassword(Event $event)
+    public function onCustomerUpdatePassword(Event $event)
     {
         $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $entity = $event->getEntity();
         $request = $event->getRequest();
+        $formData = $event->getFormData();
 
-        $confirmHash = md5(microtime());
-        $plaintext = substr($confirmHash, 0, 8);
+        $plaintext = $formData['password'];;
+        $encoder = $this->getSecurityPasswordEncoder();
+        $encoded = $encoder->encodePassword($entity, $plaintext);
+        $entity->setHash($encoded);
 
-        if ($event->getEmailPassword()) {
-
-            $encoder = $this->getSecurityPasswordEncoder();
-            $encoded = $encoder->encodePassword($entity, $plaintext);
-            $entity->setHash($encoded);
-
-            $this->getEntityService()->persist($entity);
-
-            $tplData = [
-                'password' => $plaintext,
-            ];
-
-            $tpl = 'Email:password_reset.html.twig';
-            $body = $this->getThemeService()->renderView('email', $tpl, $tplData);
-
-            try {
-
-                $message = \Swift_Message::newInstance()
-                    ->setSubject('Password Reset')
-                    ->setFrom($this->getFromEmail())
-                    ->setTo($entity->getEmail())
-                    ->setBody($body, 'text/html');
-
-                $this->getMailer()->send($message);
-
-            } catch(\Exception $e) {
-                // todo : handle error
-            }
-
-        } else {
-
-            $entity->setConfirmHash($confirmHash);
-            $this->getEntityService()->persist($entity);
-
-            $route = 'customer_update_password';
-
-            $urlData = [
-                'id' => $entity->getId(),
-                'hash' => $confirmHash,
-            ];
-
-            $url = $this->getRouter()->generate($route, $urlData);
-
-            $tplData = array_merge($entity->getData(), [
-                'url' => $url,
-            ]);
-
-            $tpl = 'Email:customer_update_password.html.twig';
-
-            $body = $this->getThemeService()->renderView('email', $tpl, $tplData);
-
-            $subject = 'Update Password';
-
-            try {
-
-                $message = \Swift_Message::newInstance()
-                    ->setSubject($subject)
-                    ->setFrom($this->getFromEmail())
-                    ->setTo($entity->getEmail())
-                    ->setBody($body, 'text/html');
-
-                $this->getMailer()->send($message);
-
-            } catch(\Exception $e) {
-                // todo : handle error
-            }
-        }
+        $this->getEntityService()->persist($entity);
 
         $event->setReturnData($returnData);
     }

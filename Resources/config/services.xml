@@ -250,6 +250,10 @@
         <parameter key="cart.listener.customer.forgotpassword.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPasswordReturn</parameter>
         <parameter key="cart.listener.customer.forgotpassword.post.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPasswordPostReturn</parameter>
         <parameter key="cart.listener.customer.forgotpassword.success.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPasswordSuccess</parameter>
+        <parameter key="cart.listener.customer.updatepassword.form.class">MobileCart\CoreBundle\EventListener\Customer\CustomerUpdatePasswordForm</parameter>
+        <parameter key="cart.listener.customer.updatepassword.class">MobileCart\CoreBundle\EventListener\Customer\CustomerUpdatePassword</parameter>
+        <parameter key="cart.listener.customer.updatepassword.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerUpdatePasswordReturn</parameter>
+        <parameter key="cart.listener.customer.updatepassword.post.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerUpdatePasswordPostReturn</parameter>
         <parameter key="cart.listener.customer.insert.class">MobileCart\CoreBundle\EventListener\Customer\CustomerInsert</parameter>
         <parameter key="cart.listener.customer.update.class">MobileCart\CoreBundle\EventListener\Customer\CustomerUpdate</parameter>
         <parameter key="cart.listener.customer.delete.class">MobileCart\CoreBundle\EventListener\Customer\CustomerDelete</parameter>
@@ -2143,6 +2147,7 @@
             </call>
         </service>
 
+        <!-- Event Listener : Customer Forgot Password -->
         <service id="cart.listener.customer.forgotpassword.form" lazy="true" class="%cart.listener.customer.forgotpassword.form.class%">
             <tag name="kernel.event_listener" event="customer.forgotpassword.form" method="onCustomerForgotPasswordForm" priority="50" />
             <call method="setEntityService">
@@ -2202,6 +2207,62 @@
             <tag name="kernel.event_listener" event="customer.forgotpassword.success" method="onCustomerForgotPasswordSuccess" priority="50" />
             <call method="setThemeService">
                 <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+
+        <!-- Event Listener : Customer Update Password Form -->
+        <service id="cart.listener.customer.forgotpassword.form" lazy="true" class="%cart.listener.customer.updatepassword.form.class%">
+            <tag name="kernel.event_listener" event="customer.updatepassword.form" method="onCustomerUpdatePasswordForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+        </service>
+
+        <service id="cart.listener.customer.updatepassword" lazy="true" class="%cart.listener.customer.updatepassword.class%">
+            <tag name="kernel.event_listener" event="customer.updatepassword" method="onCustomerUpdatePassword" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setMailer">
+                <argument type="service" id="mailer" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+            <call method="setSecurityPasswordEncoder">
+                <argument type="service" id="security.password_encoder" />
+            </call>
+            <call method="setFromEmail">
+                <argument type="string">%cart.email.from.main%</argument>
+            </call>
+        </service>
+
+        <service id="cart.listener.customer.updatepassword.return" lazy="true" class="%cart.listener.customer.updatepassword.return.class%">
+            <tag name="kernel.event_listener" event="customer.updatepassword.return" method="onCustomerUpdatePasswordReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+
+        <service id="cart.listener.customer.updatepassword.post.return" lazy="true" class="%cart.listener.customer.updatepassword.post.return.class%">
+            <tag name="kernel.event_listener" event="customer.updatepassword.post.return" method="onCustomerUpdatePasswordPostReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
             </call>
         </service>
 

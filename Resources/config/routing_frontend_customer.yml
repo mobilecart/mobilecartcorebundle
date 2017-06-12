@@ -33,6 +33,16 @@ customer_forgot_password_success:
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Customer:forgotPasswordSuccess' }
     methods: [GET]
 
+customer_update_password:
+    path: /account/update-password
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Customer:updatePassword' }
+    methods: [GET]
+
+customer_update_password_post:
+    path: /account/update-password
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Customer:updatePasswordPost' }
+    methods: [POST]
+
 customer_profile:
     path: /customer/profile
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Customer:profile' }
