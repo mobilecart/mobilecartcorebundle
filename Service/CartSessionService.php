@@ -977,7 +977,11 @@ class CartSessionService
             $addressId = 'address_' . $addressId; // prefixing integers
         }
 
-        $this->getLogger()->info("Collecting Shipping Rates for Customer ID : {$this->getCart()->getCustomer()->getId()}");
+        $customerId = ($this->getCart()->getCustomer() && $this->getCart()->getCustomer()->getId())
+            ? $this->getCart()->getCustomer()->getId()
+            : 0;
+
+        $this->getLogger()->info("Collecting Shipping Rates for Customer ID : {$customerId}");
 
         // get current shipment method
         $currentShipment = $this->getCart()->getAddressShipment($addressId, $srcAddressKey);
@@ -989,9 +993,9 @@ class CartSessionService
         $rates = [];
         try {
             $rates = $this->getShippingService()->collectShippingRates($request);
-            $this->getLogger()->info("Shipping Rates Successful for Customer ID : {$this->getCart()->getCustomer()->getId()}");
+            $this->getLogger()->info("Shipping Rates Successful for Customer ID : {$customerId}");
         } catch(\Exception $e) {
-            $this->getLogger()->error("Shipping Exception for Customer ID : {$this->getCart()->getCustomer()->getId()} : {$e->getMessage()}");
+            $this->getLogger()->error("Shipping Exception for Customer ID : {$customerId} : {$e->getMessage()}");
         }
 
         $this->setRates($rates, $addressId, $srcAddressKey);
