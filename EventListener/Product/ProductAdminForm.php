@@ -189,6 +189,7 @@ class ProductAdminForm
                     'height',
                     'length',
                     'measure_unit',
+                    'source_address_key',
                 ],
             ],
         ];

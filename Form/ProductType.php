@@ -65,6 +65,7 @@ class ProductType extends AbstractType
                 ],
             ])
 //            ->add('type', 'hidden') // type is handled in controller logic
+            ->add('source_address_key', 'text', ['required' => 0, 'label' => 'Warehouse Code'])
             ->add('weight', 'text', ['required' => 0])
             ->add('weight_unit', 'choice', [
                 'required' => 0,

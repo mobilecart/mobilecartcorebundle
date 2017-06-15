@@ -47,6 +47,11 @@ class CartSessionService
     protected $cartService;
 
     /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * @param $session
      * @return $this
      */
@@ -80,6 +85,24 @@ class CartSessionService
     public function getCartService()
     {
         return $this->cartService;
+    }
+
+    /**
+     * @param $logger
+     * @return $this
+     */
+    public function setLogger($logger)
+    {
+        $this->logger = $logger;
+        return $this;
+    }
+
+    /**
+     * @return \Psr\Log\LoggerInterface
+     */
+    public function getLogger()
+    {
+        return $this->logger;
     }
 
     /**
@@ -954,6 +977,8 @@ class CartSessionService
             $addressId = 'address_' . $addressId; // prefixing integers
         }
 
+        $this->getLogger()->info("Collecting Shipping Rates for Customer ID : {$this->getCart()->getCustomer()->getId()}");
+
         // get current shipment method
         $currentShipment = $this->getCart()->getAddressShipment($addressId, $srcAddressKey);
 
@@ -961,7 +986,14 @@ class CartSessionService
             ->removeShippingMethods($addressId, $srcAddressKey);
 
         $request = $this->createRateRequest($addressId, $srcAddressKey);
-        $rates = $this->getShippingService()->collectShippingRates($request);
+        $rates = [];
+        try {
+            $rates = $this->getShippingService()->collectShippingRates($request);
+            $this->getLogger()->info("Shipping Rates Successful for Customer ID : {$this->getCart()->getCustomer()->getId()}");
+        } catch(\Exception $e) {
+            $this->getLogger()->error("Shipping Exception for Customer ID : {$this->getCart()->getCustomer()->getId()} : {$e->getMessage()}");
+        }
+
         $this->setRates($rates, $addressId, $srcAddressKey);
 
         // add first rate as a shipment
