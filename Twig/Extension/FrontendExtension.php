@@ -292,7 +292,11 @@ class FrontendExtension extends \Twig_Extension
      */
     public function frontendAssetDir()
     {
-        return $this->getThemeConfig()->getFrontendAssetDir();
+        $dir = $this->getThemeConfig()->getFrontendAssetDir();
+        if (substr($dir, 0, 1) != '/') {
+            return '/' . $dir;
+        }
+        return $dir;
     }
 
     /**

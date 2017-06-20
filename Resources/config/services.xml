@@ -1065,6 +1065,9 @@
             <call method="setDoctrine">
                 <argument type="service" id="doctrine" />
             </call>
+            <call method="setCartSessionService">
+                <argument type="service" id="cart.session" />
+            </call>
             <call method="addProductType">
                 <argument>1</argument>
                 <argument>Simple</argument>
@@ -1343,7 +1346,9 @@
 
         <!-- PDO-based Entity Service -->
         <service id="cart.entity.pdo" lazy="true" class="%cart.entity.pdo.class%">
-
+            <call method="setCartSessionService">
+                <argument type="service" id="cart.session" />
+            </call>
         </service>
 
         <!-- Search Service : via Doctrine -->

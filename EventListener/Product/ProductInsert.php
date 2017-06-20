@@ -82,7 +82,9 @@ class ProductInsert
                 unset($fulltextData[$k]);
             }
         }
-        $entity->setFulltextSearch(implode(' ', $fulltextData));
+
+        $entity->setFulltextSearch(implode(' ', $fulltextData))
+            ->setCreatedAt(new \DateTime('now'));
 
         $this->getEntityService()->persist($entity);
 

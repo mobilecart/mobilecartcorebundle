@@ -43,11 +43,10 @@ class OrderSearch
 
         $event->getSearch()
             ->setObjectType($event->getObjectType()) // Important: set this first
-            ->parseRequest($event->getRequest());
-
-        $event->getSearch()->setDefaultSort('created_at', 'desc');
-
-        $event->getSearch()->search();
+            ->setDefaultSort('created_at', 'desc')
+            ->parseRequest($event->getRequest())
+            ->search()
+        ;
 
         $event->setReturnData($returnData);
     }

@@ -43,6 +43,7 @@ class CustomerSearch
 
         $event->getSearch()
             ->setObjectType($event->getObjectType()) // Important: set this first
+            ->setDefaultSort('created_at', 'desc')
             ->parseRequest($event->getRequest())
             ->search();
 

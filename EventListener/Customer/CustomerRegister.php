@@ -153,6 +153,18 @@ class CustomerRegister
         $entity = $event->getEntity();
         $formData = $event->getFormData();
 
+        $existing = $this->getEntityService()->findOneBy(EntityConstants::CUSTOMER, [
+            'email' => $formData['email'],
+        ]);
+
+        if ($existing) {
+            $event->getRequest()->getSession()->getFlashBag()->add(
+                'danger',
+                'Customer Already Registered. Did you forget your password ?'
+            );
+            return;
+        }
+
         $itemVarSet = $this->getEntityService()->findOneBy(EntityConstants::ITEM_VAR_SET, [
             'object_type' => EntityConstants::CUSTOMER,
         ]);

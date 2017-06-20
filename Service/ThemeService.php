@@ -80,7 +80,7 @@ class ThemeService
     }
 
     /**
-     * Render and return Response
+     * Render and return Response, including some headers
      *
      * @param $theme
      * @param $template
