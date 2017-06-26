@@ -73,9 +73,17 @@ class TaxTotal extends Total
         $cart->setIncludeTax(1);
         $currency = $cart->getCurrency() ? $cart->getCurrency() : 'USD';
         $countryId = $cart->getCustomer()->getBillingCountryId();
-        $billingRegion = $cart->getCustomer()->getBillingRegion();
+        $region = $cart->getCustomer()->getBillingRegion();
 
-        $rate = $this->getTaxService()->getRate($currency, $countryId, $billingRegion);
+        if ($event->getIsShippingEnabled()
+            && strlen($cart->getCustomer()->getShippingRegion())
+            && strlen($cart->getCustomer()->getShippingCountryId())
+        ) {
+            $countryId = $cart->getCustomer()->getShippingCountryId();
+            $region = $cart->getCustomer()->getShippingRegion();
+        }
+
+        $rate = $this->getTaxService()->getRate($currency, $countryId, $region);
         if ($rate !== false) {
             $cart->setTaxRate($rate['rate']);
         }

@@ -102,7 +102,8 @@ class UpdateTotalsShipping
         $cartItems = $this->getCartSessionService()->getCart()->getItems();
 
         // re-collect shipping methods , if necessary
-        if ($recollectAddresses = $event->getRecollectShipping()) {
+        $recollectAddresses = $event->getRecollectShipping();
+        if ($recollectAddresses) {
             foreach($recollectAddresses as $recollectAddress) {
 
                 $customerAddressId = $recollectAddress->get('customer_address_id', 'main');

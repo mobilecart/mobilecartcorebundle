@@ -128,13 +128,6 @@ class CustomerUpdate
 
         }
 
-        if ($event->getSection() == CoreEvent::SECTION_FRONTEND) {
-            // update session info
-
-            $this->getCartSessionService()
-                ->setCustomerEntity($entity);
-        }
-
         if ($entity && $request->getSession()) {
             $request->getSession()->getFlashBag()->add(
                 'success',
