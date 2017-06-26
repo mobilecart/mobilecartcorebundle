@@ -981,6 +981,7 @@ class AddProduct
 
                 if (!$this->getRedirectToCart()
                     && !$event->getIsMassUpdate()
+                    && $this->getCartItem()
                 ) {
                     $route = 'cart_product_view';
                     $params = ['slug' => $this->getCartItem()->getSlug()];
