@@ -59,7 +59,7 @@ class ContactController extends Controller
             // render template
 
             $body = $this->get('cart.theme')
-                ->render('email', 'Email:contact_message.html.twig', $viewData);
+                ->renderView('email', 'Email:contact_message.html.twig', $viewData);
 
             $subject = 'Contact Form Submission';
             $recipient = trim($this->getParameter('cart.email.to.main'));
