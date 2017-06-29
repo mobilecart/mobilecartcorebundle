@@ -169,7 +169,7 @@ class UpdateTotalsShipping
             $addresses = $this->getCartSessionService()->getCart()->getCustomer()->getAddresses();
             if ($addresses) {
                 foreach($addresses as $address) {
-                    $postcodes[] = $address->getPostcode();
+                    $postcodes[] = $address['postcode'];
                 }
             }
         }
