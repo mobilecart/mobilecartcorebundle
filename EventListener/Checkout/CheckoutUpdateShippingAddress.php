@@ -28,6 +28,11 @@ class CheckoutUpdateShippingAddress
     protected $entityService;
 
     /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * @param $event
      * @return $this
      */
@@ -101,6 +106,24 @@ class CheckoutUpdateShippingAddress
     public function getEntityService()
     {
         return $this->entityService;
+    }
+
+    /**
+     * @param $logger
+     * @return $this
+     */
+    public function setLogger($logger)
+    {
+        $this->logger = $logger;
+        return $this;
+    }
+
+    /**
+     * @return \Psr\Log\LoggerInterface
+     */
+    public function getLogger()
+    {
+        return $this->logger;
     }
 
     /**

@@ -30,6 +30,11 @@ class CheckoutUpdateBillingAddress
     protected $router;
 
     /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * @param $entityService
      * @return $this
      */
@@ -114,6 +119,24 @@ class CheckoutUpdateBillingAddress
     public function getRouter()
     {
         return $this->router;
+    }
+
+    /**
+     * @param $logger
+     * @return $this
+     */
+    public function setLogger($logger)
+    {
+        $this->logger = $logger;
+        return $this;
+    }
+
+    /**
+     * @return \Psr\Log\LoggerInterface
+     */
+    public function getLogger()
+    {
+        return $this->logger;
     }
 
     /**
