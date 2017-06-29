@@ -29,6 +29,11 @@ class UpdateTotalsShipping
     protected $event;
 
     /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * @param $event
      * @return $this
      */
@@ -94,12 +99,34 @@ class UpdateTotalsShipping
     }
 
     /**
+     * @param $logger
+     * @return $this
+     */
+    public function setLogger($logger)
+    {
+        $this->logger = $logger;
+        return $this;
+    }
+
+    /**
+     * @return \Psr\Log\LoggerInterface
+     */
+    public function getLogger()
+    {
+        return $this->logger;
+    }
+
+    /**
      * @param Event $event
      */
     public function onUpdateTotalsShipping(Event $event)
     {
         $currencyService = $this->getCartSessionService()->getCurrencyService();
         $cartItems = $this->getCartSessionService()->getCart()->getItems();
+
+        $customerId = ($this->getCartSessionService()->getCart()->getCustomer() && $this->getCartSessionService()->getCart()->getCustomer()->getId())
+            ? $this->getCartSessionService()->getCart()->getCustomer()->getId()
+            : 0;
 
         // re-collect shipping methods , if necessary
         $recollectAddresses = $event->getRecollectShipping();
@@ -136,6 +163,17 @@ class UpdateTotalsShipping
         $cart = $this->getCartSessionService()
             ->collectTotals()
             ->getCart();
+
+        $postcodes = [];
+        if ($customerId) {
+            $addresses = $this->getCartSessionService()->getCart()->getCustomer()->getAddresses();
+            if ($addresses) {
+                foreach($addresses as $address) {
+                    $postcodes[] = $address->getPostcode();
+                }
+            }
+        }
+        $this->getLogger()->info("UpdateTotalsShipment : Cart Customer ID: {$customerId} , postcodes: " . implode(', ', $postcodes));
 
         $baseCurrency = $currencyService->getBaseCurrency();
 

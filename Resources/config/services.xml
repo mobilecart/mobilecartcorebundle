@@ -1449,6 +1449,9 @@
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>
+            <call method="setLogger">
+                <argument type="service" id="logger" />
+            </call>
         </service>
 
         <!-- Event Listener: Add Product to Cart : from a User Session, not for APIs -->

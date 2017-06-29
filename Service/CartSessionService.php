@@ -537,6 +537,7 @@ class CartSessionService
         $customer->setId($entity->getId());
         $addresses = [];
         $addressEntities = $entity->getAddresses();
+        $postcodes = [];
 
         $addresses[] = [
             'id' => 'main',
@@ -551,11 +552,14 @@ class CartSessionService
             'phone' => $entity->getShippingPhone(),
         ];
 
+        $postcodes[] = $entity->getShippingPostcode();
+
         if ($addressEntities) {
             foreach($addressEntities as $addressEntity) {
                 $address = $addressEntity->getData();
                 $address['label'] = $address['street'] . ' ' . $address['city'] . ', ' . $address['region'];
                 $addresses[] = $address;
+                $postcodes[] = $addressEntity->getPostcode();
             }
         }
         $customer->setAddresses($addresses);
@@ -570,6 +574,10 @@ class CartSessionService
         $customer->setGroups($groupNames);
 
         $this->setCustomer($customer);
+
+        $cartCustomerId = $this->getCart()->getCustomerId();
+        $this->getLogger()->info("CartSession : setCustomerEntity() : Customer ID : {$entity->getId()}, Cart Customer ID: {$cartCustomerId} , postcodes: " . implode(', ', $postcodes));
+
         return $this;
     }
 
@@ -959,10 +967,10 @@ class CartSessionService
                 }
             }
 
-            return $this;
+        } else {
+            $this->reloadShipments($addressId, $srcAddressKey);
         }
 
-        $this->reloadShipments($addressId, $srcAddressKey);
         return $this;
     }
 
@@ -981,7 +989,16 @@ class CartSessionService
             ? $this->getCart()->getCustomer()->getId()
             : 0;
 
-        $this->getLogger()->info("Collecting Shipping Rates for Customer ID : {$customerId}");
+        $postcodes = [];
+        if ($customerId) {
+            $addresses = $this->getCart()->getCustomer()->getAddresses();
+            if ($addresses) {
+                foreach($addresses as $address) {
+                    $postcodes[] = $address->getPostcode();
+                }
+            }
+        }
+        $this->getLogger()->info("CartSession : reloadShipments() : Cart Customer ID: {$customerId} , postcodes: " . implode(', ', $postcodes));
 
         // get current shipment method
         $currentShipment = $this->getCart()->getAddressShipment($addressId, $srcAddressKey);
@@ -993,44 +1010,47 @@ class CartSessionService
         $rates = [];
         try {
             $rates = $this->getShippingService()->collectShippingRates($request);
-            $this->getLogger()->info("Shipping Rates Successful for Customer ID : {$customerId}");
+            $this->getLogger()->info("CartSession : reloadShipments() : Shipping Rates Successful for Customer ID : {$customerId}");
         } catch(\Exception $e) {
-            $this->getLogger()->error("Shipping Exception for Customer ID : {$customerId} : {$e->getMessage()}");
+            $this->getLogger()->error("CartSession : reloadShipments() : Shipping Exception for Customer ID : {$customerId} : {$e->getMessage()}");
         }
 
         $this->setRates($rates, $addressId, $srcAddressKey);
 
         // add first rate as a shipment
-        if (!$this->addressHasShipment($addressId, $srcAddressKey)
-            && count($rates)
-        ) {
-
-            $rates = array_values($rates);
-            $rate = $rates[0];
-            if ($currentShipment) {
-                foreach($rates as $idx => $aRate) {
-                    if ($aRate->getCode() == $currentShipment->getCode()) {
-                        $rate = $rates[$idx];
-                        break;
+        if (!$this->addressHasShipment($addressId, $srcAddressKey)) {
+            if (count($rates)) {
+                $rates = array_values($rates);
+                $rate = $rates[0];
+                if ($currentShipment) {
+                    foreach($rates as $idx => $aRate) {
+                        if ($aRate->getCode() == $currentShipment->getCode()) {
+                            $rate = $rates[$idx];
+                            break;
+                        }
                     }
                 }
-            }
 
-            $shipment = new Shipment();
-            $shipment->fromArray($rate->getData());
+                $shipment = new Shipment();
+                $shipment->fromArray($rate->getData());
 
-            $productIds = [];
-            if ($request->getCartItems()) {
-                foreach($request->getCartItems() as $item) {
-                    $productIds[] = $item->getProductId();
-                    if ($cartItem = $this->getCart()->findItem('id', $item->getId())) {
-                        $cartItem->set('customer_address_id', $addressId);
-                        $cartItem->set('source_address_key', $srcAddressKey);
+                $productIds = [];
+                if ($request->getCartItems()) {
+                    foreach($request->getCartItems() as $item) {
+                        $productIds[] = $item->getProductId();
+                        if ($cartItem = $this->getCart()->findItem('id', $item->getId())) {
+                            $cartItem->set('customer_address_id', $addressId);
+                            $cartItem->set('source_address_key', $srcAddressKey);
+                        }
                     }
                 }
-            }
 
-            $this->addShipment($shipment, $addressId, $productIds, $srcAddressKey);
+                $this->addShipment($shipment, $addressId, $productIds, $srcAddressKey);
+
+                $this->getLogger()->info("CartSession : reloadShipments() : Added Default Shipment for Customer ID : {$customerId}");
+            } else {
+                $this->getLogger()->error("CartSession : reloadShipments() : No rates for Customer ID : {$customerId}");
+            }
         }
 
         return $this;
