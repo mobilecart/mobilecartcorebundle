@@ -15,9 +15,9 @@ use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 
 class Rate extends ArrayWrapper
 {
-    public function __construct()
+    public function __construct($data = [])
     {
-        parent::__construct([
+        $baseData = [
             'currency' => 'USD',
             'price' => '',
             'cost' => '',
@@ -26,7 +26,15 @@ class Rate extends ArrayWrapper
             'method' => '',
             'title' => '',
             'sort' => 1,
-        ]);
+        ];
+
+        if ($data) {
+            foreach($data as $k => $v) {
+                $baseData[$k] = $v;
+            }
+        }
+
+        parent::__construct($baseData);
     }
 
     /**
