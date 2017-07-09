@@ -192,9 +192,10 @@ class ShippingService
     /**
      * @param $srcAddressKey
      * @param array $cartItems
+     * @param float|string $addtlPrice for handling costs or flat shipping prices
      * @return RateRequest|null
      */
-    public function createRateRequest($srcAddressKey, array $cartItems = [])
+    public function createRateRequest($srcAddressKey, array $cartItems = [], $addtlPrice = 0.0)
     {
         $request = new RateRequest();
         $sourceAddress = $this->getSourceAddress($srcAddressKey);
@@ -211,6 +212,7 @@ class ShippingService
                 'src_region' => $sourceAddress->getProvince(),
                 'source_address_key' => $sourceAddress->getKey(),
                 'cart_items' => $cartItems,
+                'addtl_price' => $addtlPrice,
             ]);
 
             return $request;
@@ -227,6 +229,7 @@ class ShippingService
             'src_region' => '',
             'source_address_key' => 'main',
             'cart_items' => $cartItems,
+            'addtl_price' => $addtlPrice,
         ]);
 
         return $request;

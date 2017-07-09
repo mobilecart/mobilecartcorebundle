@@ -873,17 +873,25 @@ class CartSessionService
         $customer = $this->getCustomer();
 
         $cartItems = [];
+        $addtlPrice = 0.0;
         if ($this->hasItems()) {
             foreach($this->getItems() as $item) {
                 if ($item->get('customer_address_id') == $addressId
                     && $item->get('source_address_key') == $srcAddressKey
                 ) {
+
+                    if ($item->get('is_flat_shipping')) {
+                        $addtlPrice += ($item->getQty() * (float) $item->get('flat_shipping_price'));
+                        continue;
+                    }
+
                     $cartItems[] = $item;
                 }
             }
         }
 
-        $rateRequest = $this->getShippingService()->createRateRequest($srcAddressKey, $cartItems);
+        $rateRequest = $this->getShippingService()
+            ->createRateRequest($srcAddressKey, $cartItems, $addtlPrice);
 
         // default to 'main' shipping address
         $postcode = $customer->getShippingPostcode();
@@ -998,6 +1006,7 @@ class CartSessionService
                 }
             }
         }
+
         $this->getLogger()->info("CartSession : reloadShipments() : Cart Customer ID: {$customerId} , postcodes: " . implode(', ', $postcodes));
 
         // get current shipment method
