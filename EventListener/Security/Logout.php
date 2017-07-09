@@ -75,11 +75,7 @@ class Logout implements LogoutSuccessHandlerInterface
      */
     public function onLogoutSuccess(Request $request)
     {
-        $customer = $this->getCartSessionService()->getCustomerInstance();
-        $this->getCartSessionService()
-            ->setCustomer($customer)
-            ->collectShippingMethods()
-            ->collectTotals();
+        $this->getCartSessionService()->initCart();
 
         $event = new CoreEvent();
 
