@@ -274,6 +274,20 @@ class Product
     private $tier_prices;
 
     /**
+     * @var boolean $is_flat_shipping
+     *
+     * @ORM\Column(name="is_flat_shipping", type="boolean", nullable=true)
+     */
+    private $is_flat_shipping;
+
+    /**
+     * @var float $flat_shipping_price
+     *
+     * @ORM\Column(name="flat_shipping_price", type="decimal", precision=12, scale=4, nullable=true)
+     */
+    private $flat_shipping_price;
+
+    /**
      * @var float $weight
      *
      * @ORM\Column(name="weight", type="decimal", precision=12, scale=4, nullable=true)
@@ -1482,6 +1496,42 @@ class Product
     public function getGroupPrices()
     {
         return $this->group_prices;
+    }
+
+    /**
+     * @param $isFlatShipping
+     * @return $this
+     */
+    public function setIsFlatShipping($isFlatShipping)
+    {
+        $this->is_flat_shipping = (bool) $isFlatShipping;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsFlatShipping()
+    {
+        return $this->is_flat_shipping;
+    }
+
+    /**
+     * @param $flatShippingPrice
+     * @return $this
+     */
+    public function setFlatShippingPrice($flatShippingPrice)
+    {
+        $this->flat_shipping_price = $flatShippingPrice;
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getFlatShippingPrice()
+    {
+        return $this->flat_shipping_price;
     }
 
     /**

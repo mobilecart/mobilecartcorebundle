@@ -183,13 +183,15 @@ class ProductAdminForm
                 'label' => 'Shipping',
                 'id' => 'shipping',
                 'fields' => [
+                    'is_flat_shipping',
+                    'flat_shipping_price',
+                    'source_address_key',
                     'weight',
                     'weight_unit',
                     'width',
                     'height',
                     'length',
                     'measure_unit',
-                    'source_address_key',
                 ],
             ],
         ];
