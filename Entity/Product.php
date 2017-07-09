@@ -523,6 +523,8 @@ class Product
             'price' => $this->getPrice(),
             'special_price' => $this->getSpecialPrice(),
             'stock_type' => $this->getStockType(),
+            'is_flat_shipping' => $this->getIsFlatShipping(),
+            'flat_shipping_price' => $this->getFlatShippingPrice(),
             'source_address_key' => $this->getSourceAddressKey(),
             'qty' => $this->getQty(),
             'qty_unit' => $this->getQtyUnit(),
