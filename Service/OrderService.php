@@ -180,6 +180,11 @@ class OrderService
     protected $addressShipments = []; // r[address_id] = shipment->getId()
 
     /**
+     * @var string
+     */
+    protected $orderReferenceOffset = '';
+
+    /**
      * @param $eventDispatcher
      * @return $this
      */
@@ -357,6 +362,24 @@ class OrderService
     public function getOrder()
     {
         return $this->order;
+    }
+
+    /**
+     * @param $offset
+     * @return $this
+     */
+    public function setOrderReferenceOffset($offset)
+    {
+        $this->orderReferenceOffset = $offset;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOrderReferenceOffset()
+    {
+        return $this->orderReferenceOffset;
     }
 
     /**
@@ -1065,7 +1088,7 @@ class OrderService
 
         }
 
-        $baseReferenceNbr = '100000000';
+        $baseReferenceNbr = $this->getOrderReferenceOffset();
         $order->setReferenceNbr($baseReferenceNbr);
         $order->setCreatedAt(new \DateTime('now'));
 
