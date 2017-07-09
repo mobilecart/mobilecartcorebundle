@@ -87,6 +87,7 @@
         <parameter key="cart.repo.category_var_value_text">MobileCartCoreBundle:CategoryVarValueText</parameter>
         <parameter key="cart.repo.category_var_value_varchar">MobileCartCoreBundle:CategoryVarValueVarchar</parameter>
         <parameter key="cart.repo.category_product">MobileCartCoreBundle:CategoryProduct</parameter>
+        <parameter key="cart.repo.config_setting">MobileCartCoreBundle:ConfigSetting</parameter>
         <parameter key="cart.repo.content">MobileCartCoreBundle:Content</parameter>
         <parameter key="cart.repo.content_image">MobileCartCoreBundle:ContentImage</parameter>
         <parameter key="cart.repo.content_slot">MobileCartCoreBundle:ContentSlot</parameter>
@@ -203,6 +204,17 @@
         <parameter key="cart.listener.category.insert.class">MobileCart\CoreBundle\EventListener\Category\CategoryInsert</parameter>
         <parameter key="cart.listener.category.delete.class">MobileCart\CoreBundle\EventListener\Category\CategoryDelete</parameter>
         <parameter key="cart.listener.category.admin.form.class">MobileCart\CoreBundle\EventListener\Category\CategoryAdminForm</parameter>
+        <!-- ConfigSetting Handlers -->
+        <parameter key="cart.listener.config_setting.search.class">MobileCart\CoreBundle\EventListener\ConfigSetting\ConfigSettingSearch</parameter>
+        <parameter key="cart.listener.config_setting.list.class">MobileCart\CoreBundle\EventListener\ConfigSetting\ConfigSettingList</parameter>
+        <parameter key="cart.listener.config_setting.edit.return.class">MobileCart\CoreBundle\EventListener\ConfigSetting\ConfigSettingEditReturn</parameter>
+        <parameter key="cart.listener.config_setting.new.return.class">MobileCart\CoreBundle\EventListener\ConfigSetting\ConfigSettingNewReturn</parameter>
+        <parameter key="cart.listener.config_setting.create.return.class">MobileCart\CoreBundle\EventListener\ConfigSetting\ConfigSettingCreateReturn</parameter>
+        <parameter key="cart.listener.config_setting.update.return.class">MobileCart\CoreBundle\EventListener\ConfigSetting\ConfigSettingUpdateReturn</parameter>
+        <parameter key="cart.listener.config_setting.update.class">MobileCart\CoreBundle\EventListener\ConfigSetting\ConfigSettingUpdate</parameter>
+        <parameter key="cart.listener.config_setting.insert.class">MobileCart\CoreBundle\EventListener\ConfigSetting\ConfigSettingInsert</parameter>
+        <parameter key="cart.listener.config_setting.delete.class">MobileCart\CoreBundle\EventListener\ConfigSetting\ConfigSettingDelete</parameter>
+        <parameter key="cart.listener.config_setting.admin.form.class">MobileCart\CoreBundle\EventListener\ConfigSetting\ConfigSettingAdminForm</parameter>
         <!-- Content Handlers -->
         <parameter key="cart.listener.content.search.class">MobileCart\CoreBundle\EventListener\Content\ContentSearch</parameter>
         <parameter key="cart.listener.content.list.class">MobileCart\CoreBundle\EventListener\Content\ContentList</parameter>
@@ -496,6 +508,10 @@
             <call method="addAdminEditRoute">
                 <argument type="string">category</argument>
                 <argument type="string">cart_admin_category_edit</argument>
+            </call>
+            <call method="addAdminEditRoute">
+                <argument type="string">config_setting</argument>
+                <argument type="string">cart_admin_config_setting_edit</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">content</argument>
@@ -1177,6 +1193,10 @@
                 <argument>%cart.repo.category_product%</argument>
             </call>
             <call method="addObjectRepository">
+                <argument>config_setting</argument>
+                <argument>%cart.repo.config_setting%</argument>
+            </call>
+            <call method="addObjectRepository">
                 <argument>content</argument>
                 <argument>%cart.repo.content%</argument>
             </call>
@@ -1744,6 +1764,92 @@
         </service>
         <service id="cart.listener.category.admin.form" lazy="true" class="%cart.listener.category.admin.form.class%">
             <tag name="kernel.event_listener" event="category.admin.form" method="onCategoryAdminForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+            <call method="setThemeConfig">
+                <argument type="service" id="cart.theme.config" />
+            </call>
+        </service>
+
+        <!-- ConfigSetting Services and Listeners -->
+        <service id="cart.listener.config_setting.search" lazy="true" class="%cart.listener.config_setting.search.class%">
+            <tag name="kernel.event_listener" event="config_setting.search" method="onConfigSettingSearch" priority="50" />
+        </service>
+        <service id="cart.listener.config_setting.list" lazy="true" class="%cart.listener.config_setting.list.class%">
+            <tag name="kernel.event_listener" event="config_setting.list" method="onConfigSettingList" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.config_setting.edit.return" lazy="true" class="%cart.listener.config_setting.edit.return.class%">
+            <tag name="kernel.event_listener" event="config_setting.edit.return" method="onConfigSettingEditReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setImageService">
+                <argument type="service" id="cart.image" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.config_setting.new.return" lazy="true" class="%cart.listener.config_setting.new.return.class%">
+            <tag name="kernel.event_listener" event="config_setting.new.return" method="onConfigSettingNewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setImageService">
+                <argument type="service" id="cart.image" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.config_setting.create.return" lazy="true" class="%cart.listener.config_setting.create.return.class%">
+            <tag name="kernel.event_listener" event="config_setting.create.return" method="onConfigSettingCreateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.config_setting.update.return" lazy="true" class="%cart.listener.config_setting.update.return.class%">
+            <tag name="kernel.event_listener" event="config_setting.update.return" method="onConfigSettingUpdateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.config_setting.update" lazy="true" class="%cart.listener.config_setting.update.class%">
+            <tag name="kernel.event_listener" event="config_setting.update" method="onConfigSettingUpdate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.config_setting.insert" lazy="true" class="%cart.listener.config_setting.insert.class%">
+            <tag name="kernel.event_listener" event="config_setting.insert" method="onConfigSettingInsert" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.config_setting.delete" lazy="true" class="%cart.listener.config_setting.delete.class%">
+            <tag name="kernel.event_listener" event="config_setting.delete" method="onConfigSettingDelete" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.config_setting.admin.form" lazy="true" class="%cart.listener.config_setting.admin.form.class%">
+            <tag name="kernel.event_listener" event="config_setting.admin.form" method="onConfigSettingAdminForm" priority="50" />
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>

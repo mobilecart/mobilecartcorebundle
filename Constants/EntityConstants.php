@@ -103,6 +103,7 @@ class EntityConstants
     const CATEGORY = 'category';
     const CATEGORY_IMAGE = 'category_image';
     const CATEGORY_PRODUCT = 'category_product';
+    const CONFIG_SETTING = 'config_setting';
     const CONTENT = 'content';
     const CONTENT_IMAGE = 'content_image';
     const CONTENT_SLOT = 'content_slot';

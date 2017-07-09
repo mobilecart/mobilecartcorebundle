@@ -38,6 +38,46 @@ cart_admin_category_mass_delete:
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Category:massDelete' }
     methods: [POST]
 
+cart_admin_config_setting:
+    path: /admin/config_setting/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ConfigSetting:index' }
+    methods: [GET]
+
+cart_admin_config_setting_create:
+    path: /admin/config_setting/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ConfigSetting:create' }
+    methods: [POST]
+
+cart_admin_config_setting_new:
+    path: /admin/config_setting/new
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ConfigSetting:new' }
+    methods: [GET]
+
+cart_admin_config_setting_show:
+    path: /admin/config_setting/{id}
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ConfigSetting:show' }
+    methods: [GET]
+
+cart_admin_config_setting_edit:
+    path: /admin/config_setting/{id}/edit
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ConfigSetting:edit' }
+    methods: [GET]
+
+cart_admin_config_setting_update:
+    path: /admin/config_setting/{id}
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ConfigSetting:update' }
+    methods: [PUT]
+
+cart_admin_config_setting_delete:
+    path: /admin/config_setting/{id}
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ConfigSetting:delete' }
+    methods: [DELETE]
+
+cart_admin_config_setting_mass_delete:
+    path: /admin/config_setting/mass_delete
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\ConfigSetting:massDelete' }
+    methods: [POST]
+
 cart_admin_content:
     path: /admin/content/
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Content:index' }
