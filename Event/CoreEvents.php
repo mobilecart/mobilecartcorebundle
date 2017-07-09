@@ -77,6 +77,18 @@ final class CoreEvents
     const CATEGORY_UPDATE_RETURN = 'category.update.return';
     const CATEGORY_ADMIN_FORM = 'category.admin.form';
 
+    const CONFIG_SETTING_LIST = 'config_setting.list';
+    const CONFIG_SETTING_SEARCH = 'config_setting.search';
+    const CONFIG_SETTING_UPDATE = 'config_setting.update';
+    const CONFIG_SETTING_INSERT = 'config_setting.insert';
+    const CONFIG_SETTING_DELETE = 'config_setting.delete';
+    const CONFIG_SETTING_SAVE = 'config_setting.save';
+    const CONFIG_SETTING_EDIT_RETURN = 'config_setting.edit.return';
+    const CONFIG_SETTING_NEW_RETURN = 'config_setting.new.return';
+    const CONFIG_SETTING_CREATE_RETURN = 'config_setting.create.return';
+    const CONFIG_SETTING_UPDATE_RETURN = 'config_setting.update.return';
+    const CONFIG_SETTING_ADMIN_FORM = 'config_setting.admin.form';
+
     const CONTENT_LIST = 'content.list';
     const CONTENT_SEARCH = 'content.search';
     const CONTENT_UPDATE = 'content.update';
@@ -222,6 +234,7 @@ final class CoreEvents
     const ORDER_UPDATE_CUSTOMER = 'order.update.customer';
     const ORDER_INSERT = 'order.insert';
     const ORDER_DELETE = 'order.delete';
+    const ORDER_EXPORT = 'order.export';
     const ORDER_SAVE = 'order.save';
     const ORDER_EDIT_RETURN = 'order.edit.return';
     const ORDER_NEW_RETURN = 'order.new.return';
