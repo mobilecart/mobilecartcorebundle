@@ -615,6 +615,36 @@ class FrontendExtension extends \Twig_Extension
                         break;
                 }
                 break;
+            case EntityConstants::ORDER:
+                switch($field) {
+                    case 'reference_nbr':
+                        $orderId = (int) substr($value, 1);
+                        $url = $this->router->generate('cart_admin_order_edit', ['id' => $orderId]);
+                        return '<a href="' . $url . '">' . $value . '</a>';
+                        break;
+                    case 'total':
+                        return number_format($value, 2);
+                        break;
+                    default:
+                        return $value;
+                        break;
+                }
+                break;
+            case EntityConstants::ORDER_ITEM:
+                switch($field) {
+                    case 'reference_nbr':
+                        $orderId = (int) substr($value, 1);
+                        $url = $this->router->generate('cart_admin_order_edit', ['id' => $orderId]);
+                        return '<a href="' . $url . '">' . $value . '</a>';
+                        break;
+                    case 'price':
+                        return number_format($value, 2);
+                        break;
+                    default:
+                        return $value;
+                        break;
+                }
+                break;
             default:
                 return $value;
                 break;
