@@ -174,6 +174,11 @@ final class CoreEvents
     const DISCOUNT_UPDATE_RETURN = 'discount.update.return';
     const DISCOUNT_ADMIN_FORM = 'discount.admin.form';
 
+    const EXPORT_RUN = 'export.run';
+    const EXPORT_RUN_RETURN = 'export.run.return';
+    const EXPORT_OPTIONS_COLLECT = 'export_options.collect';
+    const EXPORT_OPTIONS_VIEW_RETURN = 'export_options.view.return';
+
     const ITEM_VAR_LIST = 'item_var.list';
     const ITEM_VAR_SEARCH = 'item_var.search';
     const ITEM_VAR_UPDATE = 'item_var.update';
@@ -242,6 +247,9 @@ final class CoreEvents
     const ORDER_UPDATE_RETURN = 'order.update.return';
     const ORDER_ADMIN_FORM = 'order.admin.form';
     const ORDER_SUBMIT_SUCCESS = 'order.submit.success';
+
+    const ORDER_ITEM_LIST = 'order_item.list';
+    const ORDER_ITEM_SEARCH = 'order_item.search';
 
     // All Payment methods
     const PAYMENT_METHOD_COLLECT = 'payment_method.collect';

@@ -1,17 +1,17 @@
 <?php
 
-namespace MobileCart\CoreBundle\EventListener\ConfigSetting;
+namespace MobileCart\CoreBundle\EventListener\OrderItem;
 
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Class ConfigSettingList
- * @package MobileCart\CoreBundle\EventListener\ConfigSetting
+ * Class OrderItemList
+ * @package MobileCart\CoreBundle\EventListener\OrderItem
  */
-class ConfigSettingList
+class OrderItemList
 {
-
     protected $router;
 
     /**
@@ -60,12 +60,19 @@ class ConfigSettingList
         return $this->themeService;
     }
 
+    /**
+     * @param $router
+     * @return $this
+     */
     public function setRouter($router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
     public function getRouter()
     {
         return $this->router;
@@ -74,7 +81,7 @@ class ConfigSettingList
     /**
      * @param Event $event
      */
-    public function onConfigSettingList(Event $event)
+    public function onOrderItemList(Event $event)
     {
         $this->setEvent($event);
         $returnData = $event->getReturnData();
@@ -82,22 +89,7 @@ class ConfigSettingList
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
         $response = '';
-
-        $returnData['mass_actions'] =
-        [
-            [
-                'label'         => 'Delete Config Settings',
-                'input_label'   => 'Confirm Mass-Delete ?',
-                'input'         => 'mass_delete',
-                'input_type'    => 'select',
-                'input_options' => [
-                    ['value' => 0, 'label' => 'No'],
-                    ['value' => 1, 'label' => 'Yes'],
-                ],
-                'url' => $this->getRouter()->generate('cart_admin_config_setting_mass_delete'),
-                'external' => 0,
-            ],
-        ];
+        $returnData['mass_actions'] = [];
 
         $returnData['columns'] =
         [
@@ -107,18 +99,38 @@ class ConfigSettingList
                 'sort' => 1,
             ],
             [
-                'key' => 'label',
-                'label' => 'Label',
+                'key' => 'reference_nbr',
+                'label' => 'Order #',
                 'sort' => 1,
             ],
             [
-                'key' => 'code',
-                'label' => 'Code',
+                'key' => 'sku',
+                'label' => 'SKU',
                 'sort' => 1,
             ],
             [
-                'key' => 'value',
-                'label' => 'Value',
+                'key' => 'name',
+                'label' => 'Name',
+                'sort' => 1,
+            ],
+            [
+                'key' => 'price',
+                'label' => 'Price',
+                'sort' => 1,
+            ],
+            [
+                'key' => 'qty',
+                'label' => 'Qty',
+                'sort' => 1,
+            ],
+            [
+                'key' => 'shipping_method',
+                'label' => 'Shipping',
+                'sort' => 1,
+            ],
+            [
+                'key' => 'order_created_at',
+                'label' => 'Created At',
                 'sort' => 1,
             ],
         ];
@@ -130,7 +142,7 @@ class ConfigSettingList
             default:
 
                 $response = $this->getThemeService()
-                    ->render('admin', 'ConfigSetting:index.html.twig', $returnData);
+                    ->render('admin', 'OrderItem:index.html.twig', $returnData);
 
                 break;
         }

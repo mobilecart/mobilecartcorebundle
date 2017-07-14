@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * MobileCart\CoreBundle\Entity\OrderItem
  *
  * @ORM\Table(name="order_item")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\OrderItemRepository")
  */
 class OrderItem implements CartEntityInterface
 {

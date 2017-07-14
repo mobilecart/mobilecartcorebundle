@@ -1170,7 +1170,7 @@ class OrderService
                         $orderItem->setShipment($shipment);
                     }
                 }
-
+                $orderItem->setCreatedAt(new \DateTime('now'));
                 $this->getEntityService()->persist($orderItem);
 
                 $product = $this->getEntityService()->find(EntityConstants::PRODUCT, $item->getProductId());
