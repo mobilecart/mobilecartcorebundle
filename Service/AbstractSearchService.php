@@ -2125,8 +2125,7 @@ abstract class AbstractSearchService
     abstract protected function executeFacetCounts();
 
     /**
-     * @param array $params
      * @return mixed
      */
-    abstract public function search(array $params = []);
+    abstract public function search();
 }

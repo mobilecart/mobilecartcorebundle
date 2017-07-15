@@ -655,54 +655,15 @@ class DoctrineSearchService extends AbstractSearchService
     }
 
     /**
-     * @param array $params
      * @return array|mixed
      */
-    public function search(array $params = [])
+    public function search()
     {
         if ($this->getExecutedFilters()) {
             return $this->getResult();
         }
 
         // todo: add sql filter strings, next to filteredIds[]
-
-        if ($params) {
-
-            // fulltext search
-            $search = isset($params['search']) ? $params['search'] : '';
-            // facets included in facet counts, result
-            $facets = isset($params['facets']) ? $params['facets'] : [];
-            // filter[key] = value
-            $filters = isset($params['filters']) ? $params['filters'] : [];
-            // advFilter['field' => 'a', 'op' => 'b', 'value' => 'c']
-            $advFilters = isset($params['filters']) ? $params['filters'] : [];
-            // page number
-            $page = (int) isset($params['page']) ? $params['page'] : 1;
-            // limit per page
-            $limit = isset($params['limit']) ? $params['limit'] : 15;
-            if ($limit < 1) {
-                $limit = 1;
-            }
-            // field to sort by
-            $sortBy = isset($params['sort_by']) ? $params['sort_by'] : '';
-            // sort direction
-            $sortDir = isset($params['sort_dir']) ? $params['sort_dir'] : '';
-
-            $this->sortDir = $sortDir;
-            $this->sortBy = $sortBy;
-            $this->limit = (int) $limit;
-            $this->page = (int) $page;
-            $this->filters = $filters;
-            $this->advFilters = $advFilters;
-            $this->facets = $facets;
-
-            $repo = $this->getEntityService()->getRepository($this->getObjectType());
-            $sortable = $repo->getSortableFields();
-            $filterable = $repo->getFilterableFields();
-            $this->sortable = $sortable;
-            $this->filterable = $filterable;
-            $this->query = $search;
-        }
 
         /** @var \Doctrine\ORM\EntityManager $em */
         $em = $this->getEntityService()->getDoctrine()->getManager();
