@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\OrderRepository")
  */
 class Order
-    implements CartEntityInterface, CartEntityEAVInterface
+    implements CartEntityEAVInterface
 {
     /**
      * @var integer

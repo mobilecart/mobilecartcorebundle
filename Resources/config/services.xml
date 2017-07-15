@@ -71,8 +71,8 @@
         <parameter key="cart.order.class">MobileCart\CoreBundle\Service\OrderService</parameter>
         <parameter key="cart.payment.class">MobileCart\CoreBundle\Service\PaymentService</parameter>
         <parameter key="cart.recaptcha.class">MobileCart\CoreBundle\Service\RecaptchaV2Service</parameter>
-        <parameter key="cart.search.class">MobileCart\CoreBundle\Service\DoctrineSearchServiceV2</parameter>
-        <parameter key="cart.search.doctrine.class">MobileCart\CoreBundle\Service\DoctrineSearchServiceV2</parameter>
+        <parameter key="cart.search.class">MobileCart\CoreBundle\Service\DoctrineSearchService</parameter>
+        <parameter key="cart.search.doctrine.class">MobileCart\CoreBundle\Service\DoctrineSearchService</parameter>
         <parameter key="cart.shipping.class">MobileCart\CoreBundle\Service\ShippingService</parameter>
         <parameter key="cart.tax.class">MobileCart\CoreBundle\Service\TaxService</parameter>
         <parameter key="cart.theme.class">MobileCart\CoreBundle\Service\ThemeService</parameter>

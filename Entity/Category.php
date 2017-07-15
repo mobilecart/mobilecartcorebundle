@@ -12,7 +12,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CategoryRepository")
  */
 class Category
-    implements CartEntityInterface, CartEntityEAVInterface
+    implements CartEntityEAVInterface
 {
     /**
      * @var integer $id

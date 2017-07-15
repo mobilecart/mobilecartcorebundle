@@ -13,7 +13,7 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\ProductRepository")
  */
 class Product
-    implements CartEntityInterface, CartEntityEAVInterface
+    implements CartEntityEAVInterface
 {
     // todo : add indexes to columns
 

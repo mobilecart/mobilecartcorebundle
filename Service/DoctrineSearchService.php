@@ -15,7 +15,7 @@ use Doctrine\ORM\Query;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Repository\CartRepositoryInterface;
 
-class DoctrineSearchServiceV2 extends AbstractSearchService
+class DoctrineSearchService extends AbstractSearchService
 {
     /**
      * @var string

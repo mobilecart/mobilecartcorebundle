@@ -14,7 +14,7 @@ use Symfony\Component\Security\Core\User\AdvancedUserInterface;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CustomerRepository")
  */
 class Customer
-    implements AdvancedUserInterface, CartEntityInterface, CartEntityEAVInterface, \Serializable
+    implements AdvancedUserInterface, CartEntityEAVInterface, \Serializable
 {
     /**
      * @var integer $id

@@ -18,7 +18,7 @@ namespace MobileCart\CoreBundle\Entity;
  * Method definitions for EAV-based Entities
  *
  */
-interface CartEntityEAVInterface
+interface CartEntityEAVInterface extends CartEntityInterface
 {
     /**
      * Get Var Values as Entities
