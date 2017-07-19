@@ -189,14 +189,18 @@ class FrontendExtension extends \Twig_Extension
         if (is_array($objectData)) {
             if (isset($objectData['images']) && is_array($objectData['images'])) {
                 foreach($objectData['images'] as $imageData) {
-                    if ($imageData['code'] == $code) {
-                        return $imageData['path'];
+                    if (isset($imageData['code']) && $imageData['code'] == $code) {
+                        if ($isDefault && isset($imageData['is_default']) && $imageData['is_default']) {
+                            return $imageData['path'];
+                        } else {
+                            $fallback = $imageData['path'];
+                        }
                     }
                 }
             }
         } elseif (is_object($objectData) && method_exists($objectData, 'getImagePath')) {
             // todo : implement an interface here
-            $path = $objectData->getImagePath($code, 1);
+            $path = $objectData->getImagePath($code, $isDefault);
             if ($path) {
                 return $path;
             }
@@ -206,7 +210,11 @@ class FrontendExtension extends \Twig_Extension
                     $imageData = get_object_vars($imageData);
                 }
                 if (isset($imageData['code']) && $imageData['code'] == $code) {
-                    return $imageData['path'];
+                    if ($isDefault && isset($imageData['is_default']) && $imageData['is_default']) {
+                        return $imageData['path'];
+                    } else {
+                        $fallback = $imageData['path'];
+                    }
                 }
             }
         }
