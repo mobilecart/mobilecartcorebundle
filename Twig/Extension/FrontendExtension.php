@@ -180,10 +180,12 @@ class FrontendExtension extends \Twig_Extension
      * @param $objectType
      * @param $objectData
      * @param $code
+     * @param $isDefault
      * @return string
      */
-    public function imagePath($objectType, $objectData, $code)
+    public function imagePath($objectType, $objectData, $code, $isDefault = 0)
     {
+        $fallback = '';
         if (is_array($objectData)) {
             if (isset($objectData['images']) && is_array($objectData['images'])) {
                 foreach($objectData['images'] as $imageData) {
@@ -193,7 +195,8 @@ class FrontendExtension extends \Twig_Extension
                 }
             }
         } elseif (is_object($objectData) && method_exists($objectData, 'getImagePath')) {
-            $path = $objectData->getImagePath($code);
+            // todo : implement an interface here
+            $path = $objectData->getImagePath($code, 1);
             if ($path) {
                 return $path;
             }
@@ -208,6 +211,12 @@ class FrontendExtension extends \Twig_Extension
             }
         }
 
+        if ($fallback) {
+            return $fallback;
+        }
+
+        // returns the "placeholder", not the default image
+        // todo : rename method to getPlaceholderImage()
         return $this->getImageService()->getDefaultImage($objectType, $code);
     }
 

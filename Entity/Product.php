@@ -2094,28 +2094,36 @@ class Product
 
     /**
      * @param $code
+     * @param $isDefault
      * @return string
      */
-    public function getImage($code)
+    public function getImage($code, $isDefault = 0)
     {
+        $fallback = '';
         if ($this->images) {
             foreach($this->images as $image) {
                 if ($image->getCode() == $code) {
-                    return $image;
+                    if ($isDefault && $image->getIsDefault()) {
+                        return $image;
+                    } else {
+                        $fallback = $image;
+                    }
+
                 }
             }
         }
 
-        return '';
+        return $fallback;
     }
 
     /**
      * @param $code
+     * @param $isDefault
      * @return mixed
      */
-    public function getImagePath($code)
+    public function getImagePath($code, $isDefault = 0)
     {
-        if ($image = $this->getImage($code)) {
+        if ($image = $this->getImage($code, $isDefault)) {
             return $image->getPath();
         }
         return '';

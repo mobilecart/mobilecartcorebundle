@@ -197,7 +197,7 @@ class ImageController extends Controller
     public function uploadBase64Action(Request $request)
     {
         $base64 = $request->get('base64', '');
-        $itemId = $request->get('item_id', '');
+        $itemId = $request->get('object_id', '');
         $hasError = false;
 
         if ($base64) {
