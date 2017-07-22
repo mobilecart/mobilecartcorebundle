@@ -81,13 +81,14 @@ class ProductSearch
         $search = $event->getSearch()
             ->setObjectType($event->getObjectType()) // Important: set this first
             ->setCategoryId($categoryId)
-            ->setPopulateVarValues($loadVarValues)
-            ->parseRequest($event->getRequest())
-            ->addFilters($filters);
+            ->setPopulateVarValues($loadVarValues);
 
         if ($event->getSection() == CoreEvent::SECTION_FRONTEND) {
             $search->setDefaultSort('sort_order', 'asc');
         }
+
+        $search->parseRequest($event->getRequest())
+            ->addFilters($filters);
 
         $returnData['search'] = $search;
         $returnData['result'] = $search->search();
