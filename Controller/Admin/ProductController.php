@@ -494,6 +494,42 @@ class ProductController extends Controller
     }
 
     /**
+     * Duplicates a Product entity.
+     *
+     * @Route("/{id}", name="cart_admin_product_duplicate")
+     * @Method("POST")
+     */
+    public function duplicateAction(Request $request, $id)
+    {
+        $entity = $this->get('cart.entity')->find($this->objectType, $id);
+        if (!$entity) {
+            throw $this->createNotFoundException('Unable to find Product entity.');
+        }
+
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
+            ->setEntity($entity)
+            ->setRequest($request);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::PRODUCT_DUPLICATE, $event);
+
+        $request->getSession()->getFlashBag()->add(
+            'success',
+            'Product Successfully Duplicated!'
+        );
+
+        $returnEvent = new CoreEvent();
+        $returnEvent->setMessages($event->getMessages());
+        $returnEvent->setRequest($request);
+        $returnEvent->setEntity($event->getEntity());
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::PRODUCT_UPDATE_RETURN, $returnEvent);
+
+        return $returnEvent->getResponse();
+    }
+
+    /**
      * Mass-Update Products
      *
      * @Route("/mass_update", name="cart_admin_product_mass_update")

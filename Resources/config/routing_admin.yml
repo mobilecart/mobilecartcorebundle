@@ -553,6 +553,11 @@ cart_admin_product_delete:
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:delete' }
     methods: [DELETE]
 
+cart_admin_product_duplicate:
+    path: /admin/product/{id}/duplicate
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:duplicate' }
+    methods: [POST]
+
 cart_admin_product_mass_update:
     path: /admin/product/mass_update
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:massUpdate' }

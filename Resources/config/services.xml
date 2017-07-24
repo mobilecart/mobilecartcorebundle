@@ -198,6 +198,7 @@
         <parameter key="cart.listener.product.update.class">MobileCart\CoreBundle\EventListener\Product\ProductUpdate</parameter>
         <parameter key="cart.listener.product.insert.class">MobileCart\CoreBundle\EventListener\Product\ProductInsert</parameter>
         <parameter key="cart.listener.product.delete.class">MobileCart\CoreBundle\EventListener\Product\ProductDelete</parameter>
+        <parameter key="cart.listener.product.duplicate.class">MobileCart\CoreBundle\EventListener\Product\ProductDuplicate</parameter>
         <!-- Category Handlers -->
         <parameter key="cart.listener.category.search.class">MobileCart\CoreBundle\EventListener\Category\CategorySearch</parameter>
         <parameter key="cart.listener.category.list.class">MobileCart\CoreBundle\EventListener\Category\CategoryList</parameter>
@@ -1747,6 +1748,12 @@
         </service>
         <service id="cart.listener.product.delete" lazy="true" class="%cart.listener.product.delete.class%">
             <tag name="kernel.event_listener" event="product.delete" method="onProductDelete" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.product.duplicate" lazy="true" class="%cart.listener.product.duplicate.class%">
+            <tag name="kernel.event_listener" event="product.duplicate" method="onProductDuplicate" priority="50" />
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>

@@ -478,6 +478,19 @@ class Product
         return $this;
     }
 
+    public function setData(array $data)
+    {
+        if (!$data) {
+            return $this;
+        }
+
+        foreach($data as $key => $value) {
+            $this->set($key, $value);
+        }
+
+        return $this;
+    }
+
     /**
      * @param $data
      * @return Product
@@ -1894,6 +1907,22 @@ class Product
         }
 
         return $categoryIds;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCategories()
+    {
+        $categories = [];
+        $categoryProducts = $this->getCategoryProducts();
+        if ($categoryProducts) {
+            foreach($categoryProducts as $categoryProduct) {
+                $categories[] = $categoryProduct->getCategory();
+            }
+        }
+
+        return $categories;
     }
 
     /**

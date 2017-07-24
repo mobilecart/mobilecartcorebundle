@@ -112,6 +112,18 @@ class ProductImage
         return $this->id;
     }
 
+    /**
+     * Set id
+     *
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
     public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::PRODUCT_IMAGE;
@@ -127,6 +139,19 @@ class ProductImage
         $vars = get_object_vars($this);
         if (array_key_exists($key, $vars)) {
             $this->$key = $value;
+        }
+
+        return $this;
+    }
+
+    public function setData(array $data)
+    {
+        if (!$data) {
+            return $this;
+        }
+
+        foreach($data as $key => $value) {
+            $this->set($key, $value);
         }
 
         return $this;
