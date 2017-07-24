@@ -55,6 +55,7 @@ final class CoreEvents
     const PRODUCT_UPDATE = 'product.update';
     const PRODUCT_INSERT = 'product.insert';
     const PRODUCT_DELETE = 'product.delete';
+    const PRODUCT_DUPLICATE = 'product.duplicate';
     const PRODUCT_SAVE = 'product.save';
     const PRODUCT_EDIT_RETURN = 'product.edit.return';
     const PRODUCT_NEW_RETURN = 'product.new.return';
