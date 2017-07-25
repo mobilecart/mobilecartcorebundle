@@ -18,12 +18,26 @@ class ContactFormType extends AbstractType
             ->add('email', TextType::class, [
                 'attr' => [
                     'placeholder' => 'Email'
-                ]
+                ],
+                'mapped' => false,
+            ])
+            ->add('name', TextType::class, [
+                'attr' => [
+                    'placeholder' => 'Name'
+                ],
+                'mapped' => false,
+            ])
+            ->add('phone', TextType::class, [
+                'attr' => [
+                    'placeholder' => 'Phone'
+                ],
+                'mapped' => false,
             ])
             ->add('message', TextareaType::class, [
                 'attr' => [
                     'placeholder' => 'Message'
-                ]
+                ],
+                'mapped' => false,
             ])
         ;
     }
@@ -31,6 +45,11 @@ class ContactFormType extends AbstractType
     public function getName()
     {
         return 'contact';
+    }
+
+    public function getBlockPrefix()
+    {
+        return 'export_options';
     }
 
     public function configureOptions(OptionsResolver $resolver)

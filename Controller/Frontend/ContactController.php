@@ -2,6 +2,8 @@
 
 namespace MobileCart\CoreBundle\Controller\Frontend;
 
+use MobileCart\CoreBundle\Event\CoreEvent;
+use MobileCart\CoreBundle\Event\CoreEvents;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -9,19 +11,17 @@ class ContactController extends Controller
 {
     public function indexAction(Request $request)
     {
-        // build form
-        $formType = new \MobileCart\CoreBundle\Form\ContactFormType();
+        $event = new CoreEvent();
+        $event->setRequest($request);
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CONTACT_FORM, $event);
 
-        $form = $this->createForm($formType, null, [
-            'action' => $this->generateUrl('cart_contact_post', []),
-            'method' => 'POST'
-        ]);
+        $returnData = $event->getReturnData();
+        $form = $returnData['form'];
 
-        $returnData = [
-            'form' => $form->createView(),
-            'user' => $this->getUser(),
-            'recaptcha_key' => trim($this->getParameter('recaptcha.key.site'))
-        ];
+        $returnData['form'] = $form->createView();
+        $returnData['user'] = $this->getUser();
+        $returnData['recaptcha_key'] = trim($this->getParameter('recaptcha.key.site'));
 
         // render template
         return $this->get('cart.theme')
@@ -31,8 +31,14 @@ class ContactController extends Controller
     public function postAction(Request $request)
     {
         // build form
-        $formType = new \MobileCart\CoreBundle\Form\ContactFormType();
-        $form = $this->createForm($formType);
+        $event = new CoreEvent();
+        $event->setRequest($request);
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CONTACT_FORM, $event);
+
+        $returnData = $event->getReturnData();
+        $form = $returnData['form'];
+
         // validate
         if ($form->handleRequest($request)->isValid()) {
 
@@ -40,47 +46,19 @@ class ContactController extends Controller
             $recaptchaKey = trim($this->getParameter('recaptcha.key.site'));
             if ($recaptchaKey && $request->get('g-recaptcha-response', '')) {
                 if (!$this->get('cart.recaptcha')->isValid($request->get('g-recaptcha-response'))) {
-
                     // redirect
                     return $this->redirectToRoute('cart_contact', []);
                 }
             }
 
-            // send email
-            $formData = $form->getData();
+            $emailEvent = new CoreEvent();
+            $emailEvent->setFormData($form->getData())
+                ->setRequest($request);
 
-            $email = $formData['email'];
-            $message = $formData['message'];
-            $viewData = [
-                'email' => $email,
-                'message' => $message,
-            ];
+            $this->get('event_dispatcher')
+                ->dispatch(CoreEvents::CONTACT_FORM_POST, $emailEvent);
 
-            // render template
-
-            $body = $this->get('cart.theme')
-                ->renderView('email', 'Email:contact_message.html.twig', $viewData);
-
-            $subject = 'Contact Form Submission';
-            $recipient = trim($this->getParameter('cart.email.to.main'));
-            $fromEmail = trim($this->getParameter('cart.email.from.main'));
-
-            try {
-
-                $msg = \Swift_Message::newInstance()
-                    ->setSubject($subject)
-                    ->setFrom($fromEmail)
-                    ->setTo($recipient)
-                    ->setBody($body, 'text/html');
-
-                $this->get('mailer')->send($msg);
-
-            } catch(\Exception $e) {
-                // todo : handle error
-            }
-
-            // redirect
-            return $this->redirectToRoute('cart_contact_thankyou', []);
+            return $emailEvent->getResponse();
         }
 
         // redirect

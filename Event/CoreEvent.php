@@ -23,7 +23,6 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class CoreEvent extends Event
 {
-
     const SECTION_BACKEND = 'backend';
     const SECTION_FRONTEND = 'frontend';
     const SECTION_API = 'api';
@@ -193,6 +192,27 @@ class CoreEvent extends Event
     public function setData(array $data)
     {
         $this->data = $data;
+        return $this;
+    }
+
+    /**
+     * @param array $data
+     * @return $this
+     */
+    public function addReturnData(array $data)
+    {
+        if (!isset($this->data['return_data'])) {
+            $this->data['return_data'] = [];
+        }
+
+        if (!$data) {
+            return $this;
+        }
+
+        foreach($data as $key => $value) {
+            $this->data['return_data'][$key] = $value;
+        }
+
         return $this;
     }
 

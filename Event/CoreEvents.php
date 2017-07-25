@@ -90,6 +90,9 @@ final class CoreEvents
     const CONFIG_SETTING_UPDATE_RETURN = 'config_setting.update.return';
     const CONFIG_SETTING_ADMIN_FORM = 'config_setting.admin.form';
 
+    const CONTACT_FORM = 'contact.form';
+    const CONTACT_FORM_POST = 'contact.form.post';
+
     const CONTENT_LIST = 'content.list';
     const CONTENT_SEARCH = 'content.search';
     const CONTENT_UPDATE = 'content.update';
