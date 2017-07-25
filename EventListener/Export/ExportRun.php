@@ -123,6 +123,8 @@ class ExportRun
             'method' => 'POST',
         ]);
 
+        $response = '';
+
         if ($form->handleRequest($request)->isValid()) {
             $formData = $request->request->get('export_options');
             $exportOptionKey = $formData['export_option'];
@@ -138,10 +140,11 @@ class ExportRun
                 ->setEndDate($endDate)
                 ->runExport();
 
-
+            if ($export->getResponse()) {
+                $response = $export->getResponse();
+            }
         }
 
-        $response = '';
         $event->setReturnData($returnData);
         $event->setResponse($response);
     }

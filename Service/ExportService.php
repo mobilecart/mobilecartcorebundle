@@ -211,7 +211,18 @@ class ExportService
     public function runExport()
     {
         $exportOptions = $this->getExportOptions();
-        if (!isset($exportOptions[$this->exportOptionKey])) {
+        $found = false;
+
+        if ($exportOptions) {
+            foreach($exportOptions as $exportOption) {
+                if ($exportOption->getKey() == $this->exportOptionKey) {
+                    $found = true;
+                    break;
+                }
+            }
+        }
+
+        if (!$found) {
             throw new \InvalidArgumentException('Invalid Export Option');
         }
 
@@ -225,7 +236,7 @@ class ExportService
             ->setFieldsEnclosedWith($this->fieldsEnclosedWith);
 
         $this->getEventDispatcher()
-            ->dispatch(CoreEvents::EXPORT_RUN, $event);
+            ->dispatch(CoreEvents::EXPORT_OPTIONS_COLLECT, $event);
 
         return $event->getExport();
     }
