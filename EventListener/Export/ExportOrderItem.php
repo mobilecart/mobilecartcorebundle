@@ -3,6 +3,7 @@
 namespace MobileCart\CoreBundle\EventListener\Export;
 
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Component\EventDispatcher\Event;
 
 class ExportOrderItem
@@ -72,10 +73,21 @@ class ExportOrderItem
             if ($event->getExportOptionKey() == $this->exportOptionKey) {
                 // build query
 
-                // loop rows, build string
+                $itemTable = $this->getEntityService()->getTableName(EntityConstants::ORDER_ITEM);
+                $shipTable = $this->getEntityService()->getTableName(EntityConstants::ORDER_SHIPMENT);
+                $orderTable = $this->getEntityService()->getTableName(EntityConstants::ORDER);
+
+                $sql = "select o.id, o.reference_nbr, oi.id, oi.sku, oi.name, oi.base_price, oi.qty, oi.tax" .
+                    " from {$itemTable} oi "
+                ;
+
+                // output header
+
+                // loop rows, echo string
 
                 // create Export object, set data
 
+                die();
             }
         } else {
             $event->addExportOption(new ArrayWrapper([

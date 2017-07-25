@@ -49,7 +49,7 @@ class ContactFormType extends AbstractType
 
     public function getBlockPrefix()
     {
-        return 'export_options';
+        return 'contact';
     }
 
     public function configureOptions(OptionsResolver $resolver)

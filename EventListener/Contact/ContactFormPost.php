@@ -132,6 +132,7 @@ class ContactFormPost
     {
         $this->setEvent($event);
         $returnData = $event->getReturnData();
+        $request = $event->getRequest();
         $formData = $event->getFormData();
 
         $viewData = [
