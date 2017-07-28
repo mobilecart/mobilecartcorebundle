@@ -122,36 +122,43 @@ class CategoryController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CATEGORY_ADMIN_FORM, $formEvent);
 
+        $invalid = [];
+        $messages = [];
         $form = $formEvent->getForm();
-
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
 
-            // observe event
-            //  add category to indexes, etc
-            $event = new CoreEvent();
-            $event->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData);
+            $existing = $this->get('cart.entity')->findOneBy(EntityConstants::CATEGORY, [
+                'slug' => $formData['slug']
+            ]);
 
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CATEGORY_INSERT, $event);
+            if ($existing) {
+                $invalid['slug'] = ['Slug already exists'];
+            } else {
+                // observe event
+                //  add category to indexes, etc
+                $event = new CoreEvent();
+                $event->setEntity($entity)
+                    ->setRequest($request)
+                    ->setFormData($formData);
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CATEGORY_CREATE_RETURN, $returnEvent);
+                $this->get('event_dispatcher')
+                    ->dispatch(CoreEvents::CATEGORY_INSERT, $event);
 
-            return $returnEvent->getResponse();
+                $returnEvent = new CoreEvent();
+                $returnEvent->setMessages($event->getMessages());
+                $returnEvent->setRequest($request);
+                $returnEvent->setEntity($entity);
+                $this->get('event_dispatcher')
+                    ->dispatch(CoreEvents::CATEGORY_CREATE_RETURN, $returnEvent);
+
+                return $returnEvent->getResponse();
+            }
         }
 
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
-            $invalid = [];
-            $messages = [];
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {
@@ -305,37 +312,52 @@ class CategoryController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CATEGORY_ADMIN_FORM, $formEvent);
 
+        $invalid = [];
+        $messages = [];
         $form = $formEvent->getForm();
-
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
 
-            // observe event
-            // update entity via command bus
-            $event = new CoreEvent();
-            $event->setObjectType($this->objectType)
-                ->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData);
+            $exists = false;
+            $existingSlug = $this->get('cart.entity')->findBy(EntityConstants::CATEGORY, [
+                'slug' => $formData['slug'],
+            ]);
 
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CATEGORY_UPDATE, $event);
+            if ($existingSlug) {
+                foreach($existingSlug as $aProduct) {
+                    if ($aProduct->getId() != $entity->getId()) {
+                        $exists = true;
+                        $invalid['slug'] = ['Slug already exists'];
+                        break;
+                    }
+                }
+            }
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CATEGORY_UPDATE_RETURN, $returnEvent);
+            if (!$exists) {
 
-            return $returnEvent->getResponse();
+                $event = new CoreEvent();
+                $event->setObjectType($this->objectType)
+                    ->setEntity($entity)
+                    ->setRequest($request)
+                    ->setFormData($formData);
+
+                $this->get('event_dispatcher')
+                    ->dispatch(CoreEvents::CATEGORY_UPDATE, $event);
+
+                $returnEvent = new CoreEvent();
+                $returnEvent->setMessages($event->getMessages());
+                $returnEvent->setRequest($request);
+                $returnEvent->setEntity($entity);
+                $this->get('event_dispatcher')
+                    ->dispatch(CoreEvents::CATEGORY_UPDATE_RETURN, $returnEvent);
+
+                return $returnEvent->getResponse();
+            }
         }
 
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
-            $invalid = [];
-            $messages = [];
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {

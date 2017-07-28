@@ -269,36 +269,45 @@ class ProductController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::PRODUCT_ADMIN_FORM, $formEvent);
 
+        $invalid = [];
+        $messages = [];
         $form = $formEvent->getForm();
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
 
-            // observe event
-            //  add product to indexes, etc
-            $event = new CoreEvent();
-            $event->setObjectType($this->objectType)
-                ->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData);
+            $existing = $this->get('cart.entity')->findOneBy(EntityConstants::PRODUCT, [
+                'slug' => $formData['slug']
+            ]);
 
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::PRODUCT_INSERT, $event);
+            if ($existing) {
+                $invalid['slug'] = ['Slug already exists'];
+            } else {
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::PRODUCT_CREATE_RETURN, $returnEvent);
+                // observe event
+                //  add product to indexes, etc
+                $event = new CoreEvent();
+                $event->setObjectType($this->objectType)
+                    ->setEntity($entity)
+                    ->setRequest($request)
+                    ->setFormData($formData);
 
-            return $returnEvent->getResponse();
+                $this->get('event_dispatcher')
+                    ->dispatch(CoreEvents::PRODUCT_INSERT, $event);
+
+                $returnEvent = new CoreEvent();
+                $returnEvent->setMessages($event->getMessages());
+                $returnEvent->setRequest($request);
+                $returnEvent->setEntity($entity);
+                $this->get('event_dispatcher')
+                    ->dispatch(CoreEvents::PRODUCT_CREATE_RETURN, $returnEvent);
+
+                return $returnEvent->getResponse();
+            }
         }
 
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
-            $invalid = [];
-            $messages = [];
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {
@@ -397,37 +406,66 @@ class ProductController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::PRODUCT_ADMIN_FORM, $formEvent);
 
+        $invalid = [];
+        $messages = [];
         $form = $formEvent->getForm();
-
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
 
-            // observe event
-            // update entity via command bus
-            $event = new CoreEvent();
-            $event->setObjectType($this->objectType)
-                ->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData);
+            $exists = false;
+            $existingSlug = $this->get('cart.entity')->findBy(EntityConstants::PRODUCT, [
+                'slug' => $formData['slug'],
+            ]);
 
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::PRODUCT_UPDATE, $event);
+            if ($existingSlug) {
+                foreach($existingSlug as $aProduct) {
+                    if ($aProduct->getId() != $entity->getId()) {
+                        $exists = true;
+                        $invalid['slug'] = ['Slug already exists'];
+                        break;
+                    }
+                }
+            }
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::PRODUCT_UPDATE_RETURN, $returnEvent);
+            $existingSku = $this->get('cart.entity')->findBy(EntityConstants::PRODUCT, [
+                'sku' => $formData['sku'],
+            ]);
 
-            return $returnEvent->getResponse();
+            if ($existingSku) {
+                foreach($existingSku as $aProduct) {
+                    if ($aProduct->getId() != $entity->getId()) {
+                        $exists = true;
+                        $invalid['sku'] = ['SKU already exists'];
+                        break;
+                    }
+                }
+            }
+
+            if (!$exists) {
+
+                $event = new CoreEvent();
+                $event->setObjectType($this->objectType)
+                    ->setEntity($entity)
+                    ->setRequest($request)
+                    ->setFormData($formData);
+
+                $this->get('event_dispatcher')
+                    ->dispatch(CoreEvents::PRODUCT_UPDATE, $event);
+
+                $returnEvent = new CoreEvent();
+                $returnEvent->setMessages($event->getMessages());
+                $returnEvent->setRequest($request);
+                $returnEvent->setEntity($entity);
+                $this->get('event_dispatcher')
+                    ->dispatch(CoreEvents::PRODUCT_UPDATE_RETURN, $returnEvent);
+
+                return $returnEvent->getResponse();
+            }
         }
 
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
-            $invalid = [];
-            $messages = [];
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {
