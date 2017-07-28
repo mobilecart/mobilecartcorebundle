@@ -58,7 +58,6 @@ class ProductSearch
                 $filters = [
                     'is_in_stock' => 1,
                     'is_public' => 1,
-                    //'visibility' => 4,
                     'is_enabled' => 1,
                 ];
 

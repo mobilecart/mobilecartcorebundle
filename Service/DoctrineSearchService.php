@@ -721,7 +721,7 @@ class DoctrineSearchService extends AbstractSearchService
                 ->populateVarValues($this->getObjectType(), $entities);
         }
 
-        if (method_exists($repo, 'hasImages')
+        if ($repo instanceof \MobileCart\CoreBundle\Repository\CartRepositoryInterface
             && $repo->hasImages()
         ) {
 

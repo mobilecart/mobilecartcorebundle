@@ -1657,10 +1657,6 @@ abstract class AbstractSearchService
         if ($sortBy && isset($this->sortable[$sortBy])) {
             $this->sortBy = $sortBy;
             $this->sortDir = $this->getRequest()->get($this->sortDirParam, '');
-        } elseif ($this->getDefaultSortBy()) {
-            $this->setSort($this->getDefaultSortBy(), $this->getDefaultSortDir());
-        } else {
-            $this->setSort('id', 'asc');
         }
 
         if ($this->sortDir != 'desc') {
