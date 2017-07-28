@@ -122,6 +122,7 @@ class FrontendExtension extends \Twig_Extension
             'customerAddress' => new \Twig_SimpleFunction('customerAddress', [$this, 'customerAddress'], array('is_safe' => array('html'))),
             'shippingStreet' => new \Twig_SimpleFunction('shippingStreet', [$this, 'shippingStreet'], array('is_safe' => array('html'))),
             'shippingName' => new \Twig_SimpleFunction('shippingName', [$this, 'shippingName'], array('is_safe' => array('html'))),
+            'isShippingSame' => new \Twig_SimpleFunction('isShippingSame', [$this, 'isShippingSame'], array('is_safe' => array('html'))),
             'shippingCity' => new \Twig_SimpleFunction('shippingCity', [$this, 'shippingCity'], array('is_safe' => array('html'))),
             'shippingRegion' => new \Twig_SimpleFunction('shippingRegion', [$this, 'shippingRegion'], array('is_safe' => array('html'))),
             'shippingPostcode' => new \Twig_SimpleFunction('shippingPostcode', [$this, 'shippingPostcode'], array('is_safe' => array('html'))),
@@ -1037,6 +1038,14 @@ class FrontendExtension extends \Twig_Extension
     public function customerAddresses()
     {
         return $this->getCartSessionService()->getCustomerAddresses();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isShippingSame()
+    {
+        return (bool) $this->getCustomer()->getIsShippingSame();
     }
 
     /**
