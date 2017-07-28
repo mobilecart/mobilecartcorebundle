@@ -135,6 +135,7 @@ class ItemVarAdminForm
                     'sort_order',
                     'is_searchable',
                     'is_facet',
+                    'is_sortable',
                 ],
             ],
         ];

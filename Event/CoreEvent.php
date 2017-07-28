@@ -27,6 +27,12 @@ class CoreEvent extends Event
     const SECTION_FRONTEND = 'frontend';
     const SECTION_API = 'api';
 
+    static $sections = [
+        self::SECTION_FRONTEND,
+        self::SECTION_BACKEND,
+        self::SECTION_API, // todo: get rid of this and use $is_api
+    ];
+
     const MSG_INFO = 'info';
     const MSG_SUCCESS = 'success';
     const MSG_WARNING = 'warning';
@@ -36,14 +42,35 @@ class CoreEvent extends Event
      * Data
      *
      * @var array
-     * @access public
      */
-    public $data = [];
+    protected $data = [];
+
+    /**
+     * Return Data
+     *
+     * @var array
+     */
+    protected $return_data = [];
 
     /**
      * @var array
      */
-    public $messages = [];
+    protected $messages = [];
+
+    /**
+     * @var string
+     */
+    protected $section = '';
+
+    /**
+     * @var bool
+     */
+    protected $is_mass_update = false;
+
+    /**
+     * @var bool
+     */
+    protected $is_api = false;
 
     public function __construct(array $data = [])
     {
@@ -177,6 +204,30 @@ class CoreEvent extends Event
     }
 
     /**
+     * @param mixed $param1
+     * @param mixed $param2
+     * @return $this
+     */
+    public function setData($param1, $param2 = null)
+    {
+        if (is_array($param1)) {
+            $this->data = $param1;
+        } elseif (is_scalar($param1)) {
+            $this->data[$param1] = $param2;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
      * @param array $data
      * @return $this
      */
@@ -189,9 +240,28 @@ class CoreEvent extends Event
      * @param array $data
      * @return $this
      */
-    public function setData(array $data)
+    public function fromArray(array $data)
     {
-        $this->data = $data;
+        //ensuring that defaults are preserved
+        foreach($data as $key => $value) {
+            $this->data[$key] = $value;
+        }
+        return $this;
+    }
+
+    /**
+     * @param mixed $param1
+     * @param mixed $param2
+     * @return $this
+     */
+    public function setReturnData($param1, $param2 = null)
+    {
+        if (is_array($param1)) {
+            $this->return_data = $param1;
+        } elseif (is_scalar($param1)) {
+            $this->return_data[$param1] = $param2;
+        }
+
         return $this;
     }
 
@@ -201,35 +271,23 @@ class CoreEvent extends Event
      */
     public function addReturnData(array $data)
     {
-        if (!isset($this->data['return_data'])) {
-            $this->data['return_data'] = [];
-        }
-
         if (!$data) {
             return $this;
         }
 
         foreach($data as $key => $value) {
-            $this->data['return_data'][$key] = $value;
+            $this->return_data[$key] = $value;
         }
 
         return $this;
     }
 
     /**
-     * Common convention in listeners. Made a method for it
-     *
      * @return array
      */
     public function getReturnData()
     {
-        if (isset($this->data['return_data'])
-            && is_array($this->data['return_data'])
-        ) {
-            return $this->data['return_data'];
-        }
-
-        return [];
+        return $this->return_data;
     }
 
     /**
@@ -319,27 +377,6 @@ class CoreEvent extends Event
     }
 
     /**
-     * @return array
-     */
-    public function getData()
-    {
-        return $this->data;
-    }
-
-    /**
-     * @param array $data
-     * @return $this
-     */
-    public function fromArray(array $data)
-    {
-        //ensuring that defaults are preserved
-        foreach($data as $key => $value) {
-            $this->data[$key] = $value;
-        }
-        return $this;
-    }
-
-    /**
      * @return string
      */
     public function toJson()
@@ -354,5 +391,62 @@ class CoreEvent extends Event
     public function fromJson($json)
     {
         return $this->fromArray((array) json_decode($json));
+    }
+
+    /**
+     * @param $section
+     * @throws \Exception
+     */
+    public function setSection($section)
+    {
+        if (!in_array($section, self::$sections)) {
+            throw new \Exception("Invalid Section");
+        }
+
+        $this->section = $section;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSection()
+    {
+        return $this->section;
+    }
+
+    /**
+     * @param $yesNo
+     * @return $this
+     */
+    public function setIsMassUpdate($yesNo)
+    {
+        $this->is_mass_update = $yesNo;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsMassUpdate()
+    {
+        return $this->is_mass_update;
+    }
+
+    /**
+     * @param $isApi
+     * @return $this
+     */
+    public function setIsApi($isApi)
+    {
+        $this->is_api = $isApi;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsApi()
+    {
+        return $this->is_api;
     }
 }

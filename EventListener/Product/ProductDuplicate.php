@@ -70,6 +70,7 @@ class ProductDuplicate
 
         $origEntity = $event->getEntity();
         $formData = $origEntity->getData();
+        $baseData = $origEntity->getBaseData();
         unset($formData['id']);
 
         $categories = $origEntity->getCategories();
@@ -79,6 +80,7 @@ class ProductDuplicate
         $entity->setData($formData);
         $entity->setSlug($origEntity->getSlug() . '-copy');
         $entity->setSku($origEntity->getSku() . '-copy');
+        $entity->setItemVarSet($origEntity->getItemVarSet());
 
         if (!$entity->getCurrency()) {
             // todo : use currency service
@@ -86,6 +88,7 @@ class ProductDuplicate
         }
 
         $entity->setCreatedAt(new \DateTime('now'));
+
         $this->getEntityService()->persist($entity);
 
         $id = $entity->getId();
@@ -93,6 +96,14 @@ class ProductDuplicate
         $newSku = str_replace('-copy', "-{$id}", $entity->getSku());
         $entity->setSlug($newSlug)
             ->setSku($newSku);
+
+        $this->getEntityService()->persist($entity);
+
+        foreach($baseData as $k => $v) {
+            if (array_key_exists($k, $formData)) {
+                unset($formData[$k]);
+            }
+        }
 
         if ($formData) {
 

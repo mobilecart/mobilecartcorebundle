@@ -61,6 +61,8 @@ class ItemVarInsert
         $returnData = $event->getReturnData();
 
         $entity = $event->getEntity();
+        $entity->setUrlToken($this->getEntityService()->slugify($entity->getUrlToken()));
+        $entity->setCode($this->getEntityService()->slugify($entity->getCode()));
         $this->getEntityService()->persist($entity);
 
         if ($entity && $event->getRequest()->getSession()) {

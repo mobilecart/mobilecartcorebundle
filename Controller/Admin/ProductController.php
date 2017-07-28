@@ -644,7 +644,8 @@ class ProductController extends Controller
                 $event = new CoreEvent();
                 $event->setObjectType($this->objectType)
                     ->setEntity($entity)
-                    ->setRequest($request);
+                    ->setRequest($request)
+                    ->setIsMassUpdate(true);
 
                 $this->get('event_dispatcher')
                     ->dispatch(CoreEvents::PRODUCT_DELETE, $event);

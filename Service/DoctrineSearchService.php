@@ -605,10 +605,10 @@ class DoctrineSearchService extends AbstractSearchService
 
             $sql = "SELECT distinct(vv.item_var_option_id), vv.item_var_id, ivo.value, ivo.url_value , iv.name, iv.code, iv.url_token, count(*) as count".
                 " FROM `{$tblValue}` vv inner join `{$tblItemVarOption}` ivo on vv.item_var_option_id=ivo.id".
-                " inner join `{$tblItemVar}` iv on vv.item_var_id=iv.id".
+                " inner join `{$tblItemVar}` iv on vv.item_var_id=iv.id and iv.is_facet=1 and iv.is_displayed=1".
                 " WHERE {$filtersStr}".
                 " group by vv.item_var_option_id, vv.item_var_id".
-                " order by `vv`.`item_var_id`, count desc";
+                " order by `iv`.`sort_order` asc, count desc";
 
             $em = $this->getEntityService()->getDoctrine()->getManager();
             $stmt = $em->getConnection()->prepare($sql);

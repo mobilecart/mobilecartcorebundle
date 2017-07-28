@@ -124,7 +124,10 @@ class ProductDelete
 
         $this->getEntityService()->remove($entity, EntityConstants::PRODUCT);
 
-        if ($entity && $event->getRequest()->getSession()) {
+        if ($entity
+            && $event->getRequest()->getSession()
+            && !$event->getIsMassUpdate()
+        ) {
             $event->getRequest()->getSession()->getFlashBag()->add(
                 'success',
                 'Product Deleted!'

@@ -65,6 +65,7 @@ class ItemVarOptionUpdate
         $returnData = $event->getReturnData();
 
         $entity = $event->getEntity();
+        $entity->setUrlValue($this->getEntityService()->slugify($entity->getUrlValue()));
         $this->getEntityService()->persist($entity);
 
         if ($entity && $event->getRequest()->getSession()) {

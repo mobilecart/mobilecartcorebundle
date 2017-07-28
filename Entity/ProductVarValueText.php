@@ -74,6 +74,16 @@ class ProductVarValueText
     }
 
     /**
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
      * Set value
      *
      * @param string $value
