@@ -75,8 +75,7 @@ class TaxTotal extends Total
         $countryId = $cart->getCustomer()->getBillingCountryId();
         $region = $cart->getCustomer()->getBillingRegion();
 
-        if ($event->getIsShippingEnabled()
-            && strlen($cart->getCustomer()->getShippingRegion())
+        if (strlen($cart->getCustomer()->getShippingRegion())
             && strlen($cart->getCustomer()->getShippingCountryId())
         ) {
             $countryId = $cart->getCustomer()->getShippingCountryId();
