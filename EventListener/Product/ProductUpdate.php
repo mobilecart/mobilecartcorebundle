@@ -79,6 +79,8 @@ class ProductUpdate
         }
         $entity->setFulltextSearch(implode(' ', $fulltextData));
 
+        $entity->setSlug($this->getEntityService()->slugify($entity->getSlug()));
+
         $this->getEntityService()->persist($entity);
 
         // ensure configurable product is configured correctly

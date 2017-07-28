@@ -65,6 +65,8 @@ class CategoryUpdate
         $formData = $event->getFormData();
         $request = $event->getRequest();
 
+        $entity->setSlug($this->getEntityService()->slugify($entity->getSlug()));
+
         $this->getEntityService()->persist($entity);
         if ($formData) {
 

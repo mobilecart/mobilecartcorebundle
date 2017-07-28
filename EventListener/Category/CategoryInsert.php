@@ -65,6 +65,8 @@ class CategoryInsert
         $entity = $event->getEntity();
         $formData = $event->getFormData();
 
+        $entity->setSlug($this->getEntityService()->slugify($entity->getSlug()));
+
         $this->getEntityService()->persist($entity);
         if ($formData) {
 

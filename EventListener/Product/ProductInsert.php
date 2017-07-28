@@ -86,6 +86,8 @@ class ProductInsert
         $entity->setFulltextSearch(implode(' ', $fulltextData))
             ->setCreatedAt(new \DateTime('now'));
 
+        $entity->setSlug($this->getEntityService()->slugify($entity->getSlug()));
+
         $this->getEntityService()->persist($entity);
 
         // update configurable product information
