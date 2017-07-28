@@ -63,4 +63,9 @@ interface CartRepositoryInterface
      * @return mixed
      */
     public function getSearchMethod();
+
+    /**
+     * @return bool
+     */
+    public function hasImages();
 }

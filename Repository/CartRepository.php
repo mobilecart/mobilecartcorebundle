@@ -13,5 +13,11 @@ use Doctrine\ORM\EntityRepository;
 class CartRepository
     extends EntityRepository
 {
-
+    /**
+     * @return bool
+     */
+    public function hasImages()
+    {
+        return false;
+    }
 }
