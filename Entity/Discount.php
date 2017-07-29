@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\DiscountRepository")
  */
 class Discount
+    extends AbstractCartEntity
     implements CartEntityInterface
 {
     /**
@@ -20,250 +21,165 @@ class Discount
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255)
      */
-    private $name;
+    protected $name;
 
     /**
      * @var integer $priority
      *
      * @ORM\Column(name="priority", type="integer", nullable=true)
      */
-    private $priority;
+    protected $priority;
 
     /**
      * @var float $value
      *
      * @ORM\Column(name="value", type="decimal", precision=5, scale=2)
      */
-    private $value;
+    protected $value;
 
     /**
      * @var string $applied_as
      *
      * @ORM\Column(name="applied_as", type="string", length=16)
      */
-    private $applied_as;
+    protected $applied_as;
 
     /**
      * @var string $applied_to
      *
      * @ORM\Column(name="applied_to", type="string", length=16)
      */
-    private $applied_to;
+    protected $applied_to;
 
     /**
      * @var boolean $is_pre_tax
      *
      * @ORM\Column(name="is_pre_tax", type="boolean", nullable=true)
      */
-    private $is_pre_tax;
+    protected $is_pre_tax;
 
     /**
      * @var boolean $is_auto
      *
      * @ORM\Column(name="is_auto", type="boolean", nullable=true)
      */
-    private $is_auto;
+    protected $is_auto;
     
     /**
      * @var int $start_time
      *
      * @ORM\Column(name="start_time", type="datetime", nullable=true)
      */
-    private $start_time;
+    protected $start_time;
     
     /**
      * @var int $end_time
      *
      * @ORM\Column(name="end_time", type="datetime", nullable=true)
      */
-    private $end_time;
+    protected $end_time;
 
     /**
      * @var boolean $is_stopper
      *
      * @ORM\Column(name="is_stopper", type="boolean", nullable=true)
      */
-    private $is_stopper;
+    protected $is_stopper;
     
     /**
      * @var boolean $is_compound
      *
      * @ORM\Column(name="is_compound", type="boolean", nullable=true)
      */
-    private $is_compound;
+    protected $is_compound;
     
     /**
      * @var boolean $is_proportional
      *
      * @ORM\Column(name="is_proportional", type="boolean", nullable=true)
      */
-    private $is_proportional;
+    protected $is_proportional;
     
     /**
      * @var float $max_amount
      *
      * @ORM\Column(name="max_amount", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $max_amount;
+    protected $max_amount;
     
     /**
      * @var float $max_qty
      *
      * @ORM\Column(name="max_qty", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $max_qty;
+    protected $max_qty;
     
     /**
      * @var boolean $is_max_per_item
      *
      * @ORM\Column(name="is_max_per_item", type="boolean", nullable=true)
      */
-    private $is_max_per_item;
+    protected $is_max_per_item;
 
     /**
      * @var string $coupon_code
      *
      * @ORM\Column(name="coupon_code", type="string", length=128, nullable=true)
      */
-    private $coupon_code;
+    protected $coupon_code;
 
     /**
      * @var string $promo_skus
      *
      * @ORM\Column(name="promo_skus", type="text", nullable=true)
      */
-    private $promo_skus;
+    protected $promo_skus;
 
     /**
      * @var string $pre_conditions
      *
      * @ORM\Column(name="pre_conditions", type="text", nullable=true)
      */
-    private $pre_conditions;
+    protected $pre_conditions;
 
     /**
      * @var string $target_conditions
      *
      * @ORM\Column(name="target_conditions", type="text", nullable=true)
      */
-    private $target_conditions;
+    protected $target_conditions;
 
     /**
-     * Get id
-     *
-     * @return integer
+     * @return int|null
      */
     public function getId()
     {
         return $this->id;
     }
 
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::DISCOUNT;
-    }
-
-    /**
-     * @param $key
-     * @param $value
-     * @return $this
-     */
-    public function set($key, $value)
-    {
-        $vars = get_object_vars($this);
-        if (array_key_exists($key, $vars)) {
-            $this->$key = $value;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param $data
-     * @return $this
-     */
-    public function fromArray($data)
-    {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Lazy-loading getter
-     *  ideal for usage in the View layer
-     *
-     * @param $key
-     * @return mixed|null
-     */
-    public function get($key)
-    {
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
-
-        $data = $this->getBaseData();
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        $data = $this->getData();
-        if (isset($data[$key])) {
-
-            if (is_array($data[$key])) {
-                return implode(',', $data[$key]);
-            }
-
-            return $data[$key];
-        }
-
-        return '';
-    }
-
-    /**
-     * Getter , after fully loading
-     *  use only if necessary, and avoid calling multiple times
-     *
-     * @param string $key
-     * @return array|null
-     */
-    public function getData($key = '')
-    {
-        $data = $this->getBaseData();
-
-        if (strlen($key) > 0) {
-
-            return isset($data[$key])
-                ? $data[$key]
-                : null;
-        }
-
-        return $data;
-    }
-
-    /**
-     * @return array
-     */
-    public function getLuceneVarValuesData()
-    {
-        // Note:
-        // be careful with adding foreign relationships here
-        // since it will add 1 query every time an item is loaded
-
-        return $this->getBaseData();
     }
 
     /**

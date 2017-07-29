@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\VarValueRepository")
  */
 class ProductVarValueDatetime
+    implements CartEntityVarValueInterface
 {
     /**
      * @var integer $id
@@ -19,14 +20,14 @@ class ProductVarValueDatetime
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string $value
      *
      * @ORM\Column(name="value", type="datetime")
      */
-    private $value;
+    protected $value;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVar
@@ -36,7 +37,7 @@ class ProductVarValueDatetime
      *   @ORM\JoinColumn(name="item_var_id", referencedColumnName="id", nullable=false)
      * })
      */
-    private $item_var;
+    protected $item_var;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarOptionDatetime
@@ -46,7 +47,7 @@ class ProductVarValueDatetime
      *   @ORM\JoinColumn(name="item_var_option_id", referencedColumnName="id", nullable=true)
      * })
      */
-    private $item_var_option;
+    protected $item_var_option;
     
     /**
      * @var \MobileCart\CoreBundle\Entity\Product
@@ -56,7 +57,7 @@ class ProductVarValueDatetime
      *   @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      */
-    private $parent;
+    protected $parent;
 
     public function __toString()
     {
@@ -124,7 +125,7 @@ class ProductVarValueDatetime
     }
 
     /**
-     * @param ItemVarOption $itemVarOption
+     * @param $itemVarOption
      * @return $this
      */
     public function setItemVarOption($itemVarOption)
@@ -134,9 +135,7 @@ class ProductVarValueDatetime
     }
 
     /**
-     * Get item_var_option
-     *
-     * @return \MobileCart\CoreBundle\Entity\ItemVarOption
+     * @return mixed|ItemVarOptionDatetime
      */
     public function getItemVarOption()
     {
@@ -144,10 +143,10 @@ class ProductVarValueDatetime
     }
 
     /**
-     * @param Product $parent
+     * @param CartEntityEAVInterface $parent
      * @return $this
      */
-    public function setParent(Product $parent)
+    public function setParent(CartEntityEAVInterface $parent)
     {
         $this->parent = $parent;
         return $this;
@@ -156,7 +155,7 @@ class ProductVarValueDatetime
     /**
      * Get parent
      *
-     * @return \MobileCart\CoreBundle\Entity\Product
+     * @return \MobileCart\CoreBundle\Entity\CartEntityEAVInterface
      */
     public function getParent()
     {

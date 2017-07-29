@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CustomerTokenRepository")
  */
 class CustomerToken
+    extends AbstractCartEntity
     implements CartEntityInterface
 {
     /**
@@ -20,7 +21,7 @@ class CustomerToken
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Customer
@@ -30,78 +31,79 @@ class CustomerToken
      *   @ORM\JoinColumn(name="customer_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      */
-    private $customer;
+    protected $customer;
 
     /**
      * @var string $service
      *
      * @ORM\Column(name="service", type="string", length=255, nullable=false)
      */
-    private $service;
+    protected $service;
 
     /**
      * @var string $service_account_id
      *
      * @ORM\Column(name="service_account_id", type="string", length=255, nullable=true)
      */
-    private $service_account_id;
+    protected $service_account_id;
 
     /**
      * @var string $token
      *
      * @ORM\Column(name="token", type="string", length=255, nullable=false)
      */
-    private $token;
+    protected $token;
 
     /**
      * @var string $cc_type
      *
      * @ORM\Column(name="cc_type", type="string", length=64, nullable=true)
      */
-    private $cc_type;
+    protected $cc_type;
 
     /**
      * @var string $cc_last_four
      *
      * @ORM\Column(name="cc_last_four", type="string", length=4, nullable=true)
      */
-    private $cc_last_four;
+    protected $cc_last_four;
 
     /**
      * @var string $cc_fingerprint
      *
      * @ORM\Column(name="cc_fingerprint", type="string", length=255, nullable=true)
      */
-    private $cc_fingerprint;
+    protected $cc_fingerprint;
 
     /**
      * @var string $created_at
      *
      * @ORM\Column(name="created_at", type="datetime", nullable=true)
      */
-    private $created_at;
+    protected $created_at;
 
     /**
      * @var string $crated_at
      *
      * @ORM\Column(name="expires_at", type="datetime", nullable=true)
      */
-    private $expires_at;
+    protected $expires_at;
 
     public function __toString()
     {
         return $this->service_account_id; // most common for stripe
     }
 
+    /**
+     * @return string
+     */
     public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::CUSTOMER_TOKEN;
     }
 
     /**
-     * Get id
-     *
-     * @return integer
+     * @return int|null
      */
     public function getId()
     {
@@ -109,99 +111,13 @@ class CustomerToken
     }
 
     /**
-     * @param $key
-     * @param $value
+     * @param $id
      * @return $this
      */
-    public function set($key, $value)
+    public function setId($id)
     {
-        $vars = get_object_vars($this);
-        if (array_key_exists($key, $vars)) {
-            $this->$key = $value;
-        }
-
+        $this->id = $id;
         return $this;
-    }
-
-    /**
-     * @param $data
-     * @return $this
-     */
-    public function fromArray($data)
-    {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Lazy-loading getter
-     *  ideal for usage in the View layer
-     *
-     * @param $key
-     * @return mixed|null
-     */
-    public function get($key)
-    {
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
-
-        $data = $this->getBaseData();
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        $data = $this->getData();
-        if (isset($data[$key])) {
-
-            if (is_array($data[$key])) {
-                return implode(',', $data[$key]);
-            }
-
-            return $data[$key];
-        }
-
-        return '';
-    }
-
-    /**
-     * Getter , after fully loading
-     *  use only if necessary, and avoid calling multiple times
-     *
-     * @param string $key
-     * @return array|null
-     */
-    public function getData($key = '')
-    {
-        $data = $this->getBaseData();
-
-        if (strlen($key) > 0) {
-
-            return isset($data[$key])
-                ? $data[$key]
-                : null;
-        }
-
-        return $data;
-    }
-
-    /**
-     * @return array
-     */
-    public function getLuceneVarValuesData()
-    {
-        // Note:
-        // be careful with adding foreign relationships here
-        // since it will add 1 query every time an item is loaded
-
-        return $this->getBaseData();
     }
 
     /**

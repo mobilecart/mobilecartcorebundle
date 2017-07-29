@@ -11,6 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\ObjectLogRepository")
  */
 class ObjectLog
+    extends AbstractCartEntity
+    implements CartEntityInterface
 {
     /**
      * @var int
@@ -19,59 +21,95 @@ class ObjectLog
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
      *
      * @ORM\Column(name="object_type", type="string", length=32)
      */
-    private $object_type;
+    protected $object_type;
 
     /**
      * @var int
      *
      * @ORM\Column(name="object_id", type="integer")
      */
-    private $object_id;
+    protected $object_id;
 
     /**
      * @var string
      *
      * @ORM\Column(name="object_data", type="text", nullable=true)
      */
-    private $object_data;
+    protected $object_data;
 
     /**
      * @var string
      *
      * @ORM\Column(name="description", type="text", nullable=true)
      */
-    private $description;
+    protected $description;
 
     /**
      * @var string
      *
      * @ORM\Column(name="action", type="string", length=16, nullable=true)
      */
-    private $action;
+    protected $action;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      */
-    private $created_at;
+    protected $created_at;
 
+    public function __construct()
+    {
+
+    }
 
     /**
-     * Get id
-     *
-     * @return integer 
+     * @return int|null
      */
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getObjectTypeKey()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::OBJECT_LOG;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBaseData()
+    {
+        return [
+            'id' => $this->getId(),
+            'object_type' => $this->getObjectType(),
+            'object_id' => $this->getObjectId(),
+            'object_data' => $this->getObjectData(),
+            'description' => $this->getDescription(),
+            'action' => $this->getAction(),
+            'created_at' => $this->getCreatedAt(),
+        ];
     }
 
     /**

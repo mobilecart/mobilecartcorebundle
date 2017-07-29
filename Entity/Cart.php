@@ -10,7 +10,9 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="cart")
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CartRepository")
  */
-class Cart implements CartEntityInterface
+class Cart
+    extends AbstractCartEntity
+    implements CartEntityInterface
 {
     /**
      * @var integer $id
@@ -19,14 +21,14 @@ class Cart implements CartEntityInterface
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime", nullable=true)
      */
-    private $created_at;
+    protected $created_at;
 
     /**
      * @var Customer
@@ -36,127 +38,128 @@ class Cart implements CartEntityInterface
      *   @ORM\JoinColumn(name="customer_id", referencedColumnName="id", nullable=true)
      * })
      */
-    private $customer;
+    protected $customer;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\CartItem
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\CartItem", mappedBy="cart")
      */
-    private $cart_items;
+    protected $cart_items;
 
     /**
      * @var string $currency
      *
      * @ORM\Column(name="currency", type="string", length=8, nullable=true)
      */
-    private $currency;
+    protected $currency;
 
     /**
      * @var float $total
      *
      * @ORM\Column(name="total", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $total;
+    protected $total;
 
     /**
      * @var float $item_total
      *
      * @ORM\Column(name="item_total", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $item_total;
+    protected $item_total;
 
     /**
      * @var float $tax_total
      *
      * @ORM\Column(name="tax_total", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $tax_total;
+    protected $tax_total;
 
     /**
      * @var float $discount_total
      *
      * @ORM\Column(name="discount_total", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $discount_total;
+    protected $discount_total;
 
     /**
      * @var float $shipping_total
      *
      * @ORM\Column(name="shipping_total", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $shipping_total;
+    protected $shipping_total;
 
     /**
      * @var string $base_currency
      *
      * @ORM\Column(name="base_currency", type="string", length=8, nullable=true)
      */
-    private $base_currency;
+    protected $base_currency;
 
     /**
      * @var float $base_total
      *
      * @ORM\Column(name="base_total", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $base_total;
+    protected $base_total;
 
     /**
      * @var float $base_item_total
      *
      * @ORM\Column(name="base_item_total", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $base_item_total;
+    protected $base_item_total;
 
     /**
      * @var float $base_tax_total
      *
      * @ORM\Column(name="base_tax_total", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $base_tax_total;
+    protected $base_tax_total;
 
     /**
      * @var float $base_discount_total
      *
      * @ORM\Column(name="base_discount_total", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $base_discount_total;
+    protected $base_discount_total;
 
     /**
      * @var float $base_shipping_total
      *
      * @ORM\Column(name="base_shipping_total", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $base_shipping_total;
+    protected $base_shipping_total;
 
     /**
      * @var string $json
      *
      * @ORM\Column(name="json", type="text")
      */
-    private $json;
+    protected $json;
 
     /**
      * @var boolean $is_wishlist
      *
      * @ORM\Column(name="is_wishlist", type="boolean", nullable=true)
      */
-    private $is_wishlist;
+    protected $is_wishlist;
 
     public function __construct()
     {
         $this->cart_items = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
+    /**
+     * @return string
+     */
     public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::CART;
     }
 
     /**
-     * Get id
-     *
-     * @return integer 
+     * @return int|null
      */
     public function getId()
     {
@@ -164,95 +167,13 @@ class Cart implements CartEntityInterface
     }
 
     /**
-     * @param $key
-     * @param $value
+     * @param $id
      * @return $this
      */
-    public function set($key, $value)
+    public function setId($id)
     {
-        $vars = get_object_vars($this);
-        if (array_key_exists($key, $vars)) {
-            $this->$key = $value;
-        }
-
+        $this->id = $id;
         return $this;
-    }
-
-    /**
-     * @param $data
-     * @return $this
-     */
-    public function fromArray($data)
-    {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Lazy-loading getter
-     *  ideal for usage in the View layer
-     *
-     * @param $key
-     * @return mixed|null
-     */
-    public function get($key)
-    {
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
-
-        $data = $this->getBaseData();
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        $data = $this->getData();
-        if (isset($data[$key])) {
-
-            if (is_array($data[$key])) {
-                return implode(',', $data[$key]);
-            }
-
-            return $data[$key];
-        }
-
-        return '';
-    }
-
-    /**
-     * Getter , after fully loading
-     *  use only if necessary, and avoid calling multiple times
-     *
-     * @param string $key
-     * @return array|null
-     */
-    public function getData($key = '')
-    {
-        $data = $this->getBaseData();
-
-        if (strlen($key) > 0) {
-
-            return isset($data[$key])
-                ? $data[$key]
-                : null;
-        }
-
-        return $data;
-    }
-
-    /**
-     * @return array
-     */
-    public function getLuceneVarValuesData()
-    {
-        return $this->getBaseData();
     }
 
     /**

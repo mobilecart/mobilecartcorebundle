@@ -12,7 +12,8 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CategoryRepository")
  */
 class Category
-    implements CartEntityEAVInterface
+    extends AbstractCartEntityEAV
+    implements CartEntityEAVInterface, CartEntityImageParentInterface
 {
     /**
      * @var integer $id
@@ -21,130 +22,130 @@ class Category
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime", nullable=true)
      */
-    private $created_at;
+    protected $created_at;
 
     /**
      * @var integer $old_id
      *
      * @ORM\Column(name="old_id", type="integer", nullable=true)
      */
-    private $old_id;
+    protected $old_id;
 
     /**
      * @var integer $sort_order
      *
      * @ORM\Column(name="sort_order", type="integer", nullable=true)
      */
-    private $sort_order;
+    protected $sort_order;
 
     /**
      * @var boolean $is_public
      *
      * @ORM\Column(name="is_public", type="boolean", nullable=true)
      */
-    private $is_public;
+    protected $is_public;
 
     /**
      * @var boolean $is_searchable
      *
      * @ORM\Column(name="is_searchable", type="boolean", nullable=true)
      */
-    private $is_searchable;
+    protected $is_searchable;
 
     /**
      * @var string $custom_template
      *
      * @ORM\Column(name="custom_template", type="string", length=255, nullable=true)
      */
-    private $custom_template;
+    protected $custom_template;
 
     /**
      * @var integer $display_mode
      *
      * @ORM\Column(name="display_mode", type="integer", nullable=true)
      */
-    private $display_mode;
+    protected $display_mode;
 
     /**
      * @var string
      *
      * @ORM\Column(name="page_title", type="text", nullable=true)
      */
-    private $page_title;
+    protected $page_title;
 
     /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255)
      */
-    private $name;
+    protected $name;
 
     /**
      * @var string
      *
      * @ORM\Column(name="slug", type="string", length=255)
      */
-    private $slug;
+    protected $slug;
 
     /**
      * @var string
      *
      * @ORM\Column(name="content", type="text", nullable=true)
      */
-    private $content;
+    protected $content;
 
     /**
      * @var string $meta_description
      *
      * @ORM\Column(name="meta_description", type="text", nullable=true)
      */
-    private $meta_description;
+    protected $meta_description;
 
     /**
      * @var string $meta_keywords
      *
      * @ORM\Column(name="meta_keywords", type="text", nullable=true)
      */
-    private $meta_keywords;
+    protected $meta_keywords;
 
     /**
      * @var string $meta_title
      *
      * @ORM\Column(name="meta_title", type="text", nullable=true)
      */
-    private $meta_title;
+    protected $meta_title;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\CategoryImage
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\CategoryImage", mappedBy="parent")
      */
-    private $images;
+    protected $images;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\CategoryProduct $category_products
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\CategoryProduct", mappedBy="category")
      */
-    private $category_products;
+    protected $category_products;
 
     /**
      * @ORM\ManyToOne(targetEntity="Category", inversedBy="child_categories")
      * @ORM\JoinColumn(name="parent_category_id", referencedColumnName="id")
      */
-    private $parent_category;
+    protected $parent_category;
 
     /**
      * @ORM\OneToMany(targetEntity="Category", mappedBy="parent_category")
      */
-    private $child_categories;
+    protected $child_categories;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarSet
@@ -154,42 +155,42 @@ class Category
      *   @ORM\JoinColumn(name="item_var_set_id", referencedColumnName="id", nullable=true)
      * })
      */
-    private $item_var_set;
+    protected $item_var_set;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\CategoryVarValueDatetime
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\CategoryVarValueDatetime", mappedBy="parent")
      */
-    private $var_values_datetime;
+    protected $var_values_datetime;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\CategoryVarValueDecimal
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\CategoryVarValueDecimal", mappedBy="parent")
      */
-    private $var_values_decimal;
+    protected $var_values_decimal;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\CategoryVarValueInt
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\CategoryVarValueInt", mappedBy="parent")
      */
-    private $var_values_int;
+    protected $var_values_int;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\CategoryVarValueText
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\CategoryVarValueText", mappedBy="parent")
      */
-    private $var_values_text;
+    protected $var_values_text;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\CategoryVarValueVarchar
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\CategoryVarValueVarchar", mappedBy="parent")
      */
-    private $var_values_varchar;
+    protected $var_values_varchar;
 
     public function __construct()
     {
@@ -208,255 +209,30 @@ class Category
         return $this->getName();
     }
 
+    /**
+     * @return int|null
+     */
     public function getId()
     {
         return $this->id;
     }
 
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::CATEGORY;
-    }
-
-    /**
-     * @param $key
-     * @param $value
-     * @return Category
-     */
-    public function set($key, $value)
-    {
-        $vars = get_object_vars($this);
-        if (array_key_exists($key, $vars)) {
-            $this->$key = $value;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param array $data
-     * @return Category
-     */
-    public function fromArray($data)
-    {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Lazy-loading getter
-     *  ideal for usage in the View layer
-     *
-     * @param $key
-     * @return mixed|null
-     */
-    public function get($key)
-    {
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
-
-        $data = $this->getBaseData();
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        $data = $this->getData();
-        if (isset($data[$key])) {
-
-            if (is_array($data[$key])) {
-                return implode(',', $data[$key]);
-            }
-
-            return $data[$key];
-        }
-
-        return '';
-    }
-
-    /**
-     * Get All Data or specific key of data
-     *
-     * @param string $key
-     * @return array|null
-     */
-    public function getData($key = '')
-    {
-        if (strlen($key) > 0) {
-
-            $data = $this->getBaseData();
-            if (isset($data[$key])) {
-                return $data[$key];
-            }
-
-            $data = $this->getVarValuesData();
-            return isset($data[$key])
-                ? $data[$key]
-                : null;
-        }
-
-        return array_merge($this->getVarValuesData(), $this->getBaseData());
-    }
-
-    /**
-     * @return array
-     */
-    public function getLuceneVarValuesData()
-    {
-        // Note:
-        // be careful with adding foreign relationships here
-        // since it will add 1 query every time an item is loaded
-
-        $pData = $this->getBaseData();
-
-        $varValues = $this->getVarValues();
-        if (!$varValues->count()) {
-            return $pData;
-        }
-
-        foreach($varValues as $itemVarValue) {
-
-            /** @var ItemVar $itemVar */
-            $itemVar = $itemVarValue->getItemVar();
-
-            $value = $itemVarValue->getValue();
-            switch($itemVar->getDatatype()) {
-                case 'int':
-                    $value = (int) $value;
-                    break;
-                case 'decimal':
-                    $value = (float) $value;
-                    break;
-                case 'datetime':
-                    // for Lucene
-                    $value = gmdate('Y-m-d\TH:i:s\Z', strtotime($value));
-                    break;
-                default:
-                    $value = (string) $value;
-                    break;
-            }
-
-            if ($itemVar->getFormInput() == 'multiselect') {
-                if (!isset($data[$itemVar->getCode()])) {
-                    $data[$itemVar->getCode()] = array();
-                }
-                $data[$itemVar->getCode()][] = $value;
-            } else {
-                $data[$itemVar->getCode()] = $value;
-            }
-
-        }
-
-        return array_merge($this->getVarValuesData(), $pData);
-    }
-
-    /**
-     * Get Var Values as associative Array
-     *
-     * @return array
-     */
-    public function getVarValuesData()
-    {
-        $varSet = $this->getItemVarSet();
-        $varSetId = ($varSet instanceof ItemVarSet)
-            ? $varSet->getId()
-            : null;
-
-        $data = $this->getBaseData();
-        $data['var_set_id'] = $varSetId;
-        //$data['tags'] = $this->getTagsData();
-
-        $varValues = $this->getVarValues();
-        if (!$varValues) {
-            return $data;
-        }
-
-        foreach($varValues as $itemVarValue) {
-
-            /** @var ItemVar $itemVar */
-            $itemVar = $itemVarValue->getItemVar();
-
-            $value = $itemVarValue->getValue();
-            switch($itemVar->getDatatype()) {
-                case 'int':
-                    $value = (int) $value;
-                    break;
-                case 'decimal':
-                    $value = (float) $value;
-                    break;
-                case 'datetime':
-                    $value = gmdate('Y-m-d H:i:s', strtotime($value));
-                    break;
-                default:
-                    $value = (string) $value;
-                    break;
-            }
-
-            if ($itemVar->getFormInput() == 'multiselect') {
-                if (!isset($data[$itemVar->getCode()])) {
-                    $data[$itemVar->getCode()] = array();
-                }
-                $data[$itemVar->getCode()][] = $value;
-            } else {
-                $data[$itemVar->getCode()] = $value;
-            }
-
-        }
-
-        return $data;
-    }
-
-    /**
-     *
-     * @return array
-     */
-    public function getVarValues()
-    {
-        $values = new ArrayCollection();
-        $datetimes = $this->getVarValuesDatetime();
-        $decimals = $this->getVarValuesDecimal();
-        $ints = $this->getVarValuesInt();
-        $texts = $this->getVarValuesText();
-        $varchars = $this->getVarValuesVarchar();
-
-        if ($datetimes) {
-            foreach($datetimes as $value) {
-                $values->add($value);
-            }
-        }
-
-        if ($decimals) {
-            foreach($decimals as $value) {
-                $values->add($value);
-            }
-        }
-
-        if ($ints) {
-            foreach($ints as $value) {
-                $values->add($value);
-            }
-        }
-
-        if ($texts) {
-            foreach($texts as $value) {
-                $values->add($value);
-            }
-        }
-
-        if ($varchars) {
-            foreach($varchars as $value) {
-                $values->add($value);
-            }
-        }
-
-        return $values;
     }
 
     /**
@@ -761,10 +537,6 @@ class Category
         return $this->meta_title;
     }
 
-    //TODO: IS_ATTRIBUTE : Join with attribute
-    // - need: is_attribute : javascript form control for selecting item_var_set
-    // - need: item_var_set, form_input, is_multi_valued
-
     /**
      * Set parent_category
      *
@@ -904,7 +676,7 @@ class Category
     }
 
     /**
-     * Get var_values
+     * Get var_values_int
      *
      * @return \Doctrine\Common\Collections\Collection
      */
@@ -954,10 +726,10 @@ class Category
     }
 
     /**
-     * @param CategoryImage $image
-     * @return Category
+     * @param CartEntityImageInterface $image
+     * @return $this
      */
-    public function addImage(CategoryImage $image)
+    public function addImage(CartEntityImageInterface $image)
     {
         $this->images[] = $image;
         return $this;
@@ -973,27 +745,36 @@ class Category
 
     /**
      * @param $code
+     * @param bool $isDefault
      * @return string
      */
-    public function getImage($code)
+    public function getImage($code, $isDefault = false)
     {
+        $fallback = '';
         if ($this->images) {
             foreach($this->images as $image) {
                 if ($image->getCode() == $code) {
-                    return $image;
+                    if ($isDefault && $image->getIsDefault()) {
+                        return $image;
+                    } else {
+                        $fallback = $image;
+                    }
+
                 }
             }
         }
-        return '';
+
+        return $fallback;
     }
 
     /**
      * @param $code
+     * @param bool $isDefault
      * @return mixed
      */
-    public function getImagePath($code)
+    public function getImagePath($code, $isDefault = false)
     {
-        if ($image = $this->getImage($code)) {
+        if ($image = $this->getImage($code, $isDefault)) {
             return $image->getPath();
         }
         return '';

@@ -14,9 +14,15 @@ namespace MobileCart\CoreBundle\Entity;
 interface CartEntityInterface
 {
     /**
-     * @return mixed
+     * @return int|null
      */
     public function getId();
+
+    /**
+     * @param int|null $id
+     * @return $this
+     */
+    public function setId($id);
 
     /**
      * @return mixed
@@ -40,10 +46,17 @@ interface CartEntityInterface
     public function get($key);
 
     /**
+     * @param array|string|int $param1
+     * @param mixed|null $param2
+     * @return $this
+     */
+    public function setData($param1, $param2 = null);
+
+    /**
      * @param array $data
      * @return $this
      */
-    public function fromArray($data);
+    public function fromArray(array $data);
 
     /**
      * @return array

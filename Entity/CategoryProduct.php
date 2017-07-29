@@ -11,6 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CommonRepository")
  */
 class CategoryProduct
+    extends AbstractCartEntity
+    implements CartEntityInterface
 {
     /**
      * @var integer
@@ -19,7 +21,7 @@ class CategoryProduct
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Product
@@ -29,7 +31,7 @@ class CategoryProduct
      *   @ORM\JoinColumn(name="product_id", referencedColumnName="id")
      * })
      */
-    private $product;
+    protected $product;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Category
@@ -39,28 +41,50 @@ class CategoryProduct
      *   @ORM\JoinColumn(name="category_id", referencedColumnName="id")
      * })
      */
-    private $category;
+    protected $category;
 
     /**
      * @var integer
      *
      * @ORM\Column(name="sort_order", type="integer", nullable=true)
      */
-    private $sort_order;
+    protected $sort_order;
 
     /**
-     * Get id
-     *
-     * @return integer 
+     * @return int|null
      */
     public function getId()
     {
         return $this->id;
     }
 
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::CATEGORY_PRODUCT;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBaseData()
+    {
+        return [
+            'id' => $this->getId(),
+            'sort_order' => $this->getSortOrder(),
+        ];
     }
 
     /**

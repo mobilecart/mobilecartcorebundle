@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\ContentSlotRepository")
  */
 class ContentSlot
+    extends AbstractCartEntity
     implements CartEntityInterface
 {
     /**
@@ -20,70 +21,70 @@ class ContentSlot
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var integer $old_id
      *
      * @ORM\Column(name="old_id", type="integer", nullable=true)
      */
-    private $old_id;
+    protected $old_id;
 
     /**
      * @var string
      *
      * @ORM\Column(name="title", type="text", nullable=true)
      */
-    private $title;
+    protected $title;
 
     /**
      * @var string
      *
      * @ORM\Column(name="body_text", type="text", nullable=true)
      */
-    private $body_text;
+    protected $body_text;
 
     /**
      * @var integer
      *
      * @ORM\Column(name="sort_order", type="integer", nullable=true)
      */
-    private $sort_order;
+    protected $sort_order;
 
     /**
      * @var string
      *
      * @ORM\Column(name="content_type", type="string", length=16, nullable=true)
      */
-    private $content_type;
+    protected $content_type;
 
     /**
      * @var string
      *
      * @ORM\Column(name="url", type="text", nullable=true)
      */
-    private $url;
+    protected $url;
 
     /**
      * @var string
      *
      * @ORM\Column(name="embed_code", type="text", nullable=true)
      */
-    private $embed_code;
+    protected $embed_code;
 
     /**
      * @var string
      *
      * @ORM\Column(name="path", type="text", nullable=true)
      */
-    private $path;
+    protected $path;
 
     /**
      * @var string
      *
      * @ORM\Column(name="alt_text", type="string", length=255, nullable=true)
      */
-    private $alt_text;
+    protected $alt_text;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Content
@@ -93,113 +94,32 @@ class ContentSlot
      *   @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=true, onDelete="CASCADE")
      * })
      */
-    private $parent;
+    protected $parent;
 
     /**
-     * Get id
-     *
-     * @return integer 
+     * @return int|null
      */
     public function getId()
     {
         return $this->id;
     }
 
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::CONTENT_SLOT;
-    }
-
-    /**
-     * @param $key
-     * @param $value
-     * @return $this
-     */
-    public function set($key, $value)
-    {
-        $vars = get_object_vars($this);
-        if (array_key_exists($key, $vars)) {
-            $this->$key = $value;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param $data
-     * @return $this
-     */
-    public function fromArray($data)
-    {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Lazy-loading getter
-     *  ideal for usage in the View layer
-     *
-     * @param $key
-     * @return mixed|null
-     */
-    public function get($key)
-    {
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
-
-        $data = $this->getBaseData();
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        $data = $this->getData();
-        if (isset($data[$key])) {
-
-            if (is_array($data[$key])) {
-                return implode(',', $data[$key]);
-            }
-
-            return $data[$key];
-        }
-
-        return '';
-    }
-
-    /**
-     * Getter , after fully loading
-     *  use only if necessary, and avoid calling multiple times
-     *
-     * @param string $key
-     * @return array|null
-     */
-    public function getData($key = '')
-    {
-        $data = $this->getBaseData();
-
-        if (strlen($key) > 0) {
-
-            return isset($data[$key])
-                ? $data[$key]
-                : null;
-        }
-
-        return $data;
-    }
-
-    /**
-     * @return array
-     */
-    public function getLuceneVarValuesData()
-    {
-        return $this->getBaseData();
     }
 
     /**

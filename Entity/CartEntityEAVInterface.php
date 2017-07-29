@@ -40,4 +40,40 @@ interface CartEntityEAVInterface extends CartEntityInterface
      * @return array
      */
     public function getLuceneVarValuesData();
+
+    /**
+     * Get var_values_datetime
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getVarValuesDatetime();
+
+    /**
+     * Get var_values_decimal
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getVarValuesDecimal();
+
+    /**
+     * Get var_values_int
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getVarValuesInt();
+
+    /**
+     * Get var_values_text
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getVarValuesText();
+
+    /**
+     * Get var_values_varchar
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getVarValuesVarchar();
+
 }

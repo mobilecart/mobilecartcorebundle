@@ -8,9 +8,10 @@ use Doctrine\ORM\Mapping as ORM;
  * OrderHistory
  *
  * @ORM\Table(name="order_history")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CommonRepository")
  */
 class OrderHistory
+    extends AbstractCartEntity
     implements CartEntityInterface
 {
     /**
@@ -31,35 +32,35 @@ class OrderHistory
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime", nullable=true)
      */
-    private $created_at;
+    protected $created_at;
 
     /**
      * @var string
      *
      * @ORM\Column(name="user", type="string", length=255)
      */
-    private $user;
+    protected $user;
 
     /**
      * @var integer
      *
      * @ORM\Column(name="history_type", type="integer")
      */
-    private $history_type;
+    protected $history_type;
 
     /**
      * @var string
      *
      * @ORM\Column(name="message", type="text")
      */
-    private $message;
+    protected $message;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Order
@@ -69,119 +70,37 @@ class OrderHistory
      *   @ORM\JoinColumn(name="order_id", referencedColumnName="id")
      * })
      */
-    private $order;
+    protected $order;
 
     /**
-     * Get id
-     *
-     * @return integer 
+     * @return int|null
      */
     public function getId()
     {
         return $this->id;
     }
 
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::ORDER_HISTORY;
     }
 
     /**
-     * @param $key
-     * @param $value
-     * @return $this
-     */
-    public function set($key, $value)
-    {
-        $vars = get_object_vars($this);
-        if (array_key_exists($key, $vars)) {
-            $this->$key = $value;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param $data
-     * @return $this
-     */
-    public function fromArray($data)
-    {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Lazy-loading getter
-     *  ideal for usage in the View layer
-     *
-     * @param $key
-     * @return mixed|null
-     */
-    public function get($key)
-    {
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
-
-        $data = $this->getBaseData();
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        $data = $this->getData();
-        if (isset($data[$key])) {
-
-            if (is_array($data[$key])) {
-                return implode(',', $data[$key]);
-            }
-
-            return $data[$key];
-        }
-
-        return '';
-    }
-
-    /**
-     * Getter , after fully loading
-     *  use only if necessary, and avoid calling multiple times
-     *
-     * @param string $key
-     * @return array|null
-     */
-    public function getData($key = '')
-    {
-        $data = $this->getBaseData();
-
-        if (strlen($key) > 0) {
-
-            return isset($data[$key])
-                ? $data[$key]
-                : null;
-        }
-
-        return $data;
-    }
-
-    /**
      * @return array
      */
-    public function getLuceneVarValuesData()
-    {
-        // Note:
-        // be careful with adding foreign relationships here
-        // since it will add 1 query every time an item is loaded
-
-        return $this->getBaseData();
-    }
-
     public function getBaseData()
     {
         return [

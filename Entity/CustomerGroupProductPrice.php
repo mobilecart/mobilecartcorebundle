@@ -22,21 +22,21 @@ class CustomerGroupProductPrice
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var float $price
      *
      * @ORM\Column(name="price", type="decimal", precision=12, scale=4)
      */
-    private $price;
+    protected $price;
 
     /**
      * @var string $currency
      *
      * @ORM\Column(name="currency", type="string", length=8)
      */
-    private $currency;
+    protected $currency;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Product
@@ -46,7 +46,7 @@ class CustomerGroupProductPrice
      *   @ORM\JoinColumn(name="product_id", referencedColumnName="id", nullable=false)
      * })
      */
-    private $product;
+    protected $product;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\CustomerGroup
@@ -56,13 +56,42 @@ class CustomerGroupProductPrice
      *   @ORM\JoinColumn(name="customer_group_id", referencedColumnName="id", nullable=true)
      * })
      */
-    private $customer_group;
+    protected $customer_group;
 
     public function __toString()
     {
         return ''. $this->price;
     }
 
+    /**
+     * @return mixed|string
+     */
+    public function getObjectTypeKey()
+    {
+        return EntityConstants::CUSTOMER_GROUP_PRODUCT_PRICE;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
     public function getBaseData()
     {
         return [
@@ -70,21 +99,6 @@ class CustomerGroupProductPrice
             'price' => $this->getPrice(),
             'currency' => $this->getPrice(),
         ];
-    }
-
-    public function getObjectTypeKey()
-    {
-        return EntityConstants::CUSTOMER_GROUP_PRODUCT_PRICE;
-    }
-
-    /**
-     * Get id
-     *
-     * @return integer 
-     */
-    public function getId()
-    {
-        return $this->id;
     }
 
     /**

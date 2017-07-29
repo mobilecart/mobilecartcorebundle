@@ -10,7 +10,9 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="order_item")
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\OrderItemRepository")
  */
-class OrderItem implements CartEntityInterface
+class OrderItem
+    extends AbstractCartEntity
+    implements CartEntityInterface
 {
     /**
      * @var integer $id
@@ -19,7 +21,7 @@ class OrderItem implements CartEntityInterface
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string $status
@@ -27,7 +29,7 @@ class OrderItem implements CartEntityInterface
      * @ORM\Column(name="status", type="string", length=255, nullable=true)
      *
      */
-    private $status;
+    protected $status;
 
     /**
      * @var string $tracking
@@ -35,21 +37,21 @@ class OrderItem implements CartEntityInterface
      * @ORM\Column(name="tracking", type="string", length=255, nullable=true)
      *
      */
-    private $tracking;
+    protected $tracking;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime", nullable=true)
      */
-    private $created_at;
+    protected $created_at;
 
     /**
      * @var string
      *
      * @ORM\Column(name="source_address_key", type="string", length=255, nullable=true)
      */
-    private $source_address_key;
+    protected $source_address_key;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Order
@@ -59,7 +61,7 @@ class OrderItem implements CartEntityInterface
      *   @ORM\JoinColumn(name="order_id", referencedColumnName="id")
      * })
      */
-    private $order;
+    protected $order;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\OrderShipment
@@ -69,165 +71,181 @@ class OrderItem implements CartEntityInterface
      *   @ORM\JoinColumn(name="order_shipment_id", referencedColumnName="id")
      * })
      */
-    private $shipment;
+    protected $shipment;
 
     /**
      * @var integer $product_id
      *
      * @ORM\Column(name="product_id", type="integer")
      */
-    private $product_id;
+    protected $product_id;
 
     /**
      * @var string $sku
      *
      * @ORM\Column(name="sku", type="string", length=255)
      */
-    private $sku;
+    protected $sku;
 
     /**
      * @var string $name
      *
      * @ORM\Column(name="name", type="string", length=255)
      */
-    private $name;
+    protected $name;
 
     /**
      * @var float $price
      *
      * @ORM\Column(name="price", type="decimal", precision=12, scale=4)
      */
-    private $price;
+    protected $price;
 
     /**
      * @var float $cost
      *
      * @ORM\Column(name="cost", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $cost;
+    protected $cost;
 
     /**
      * @var float $tax
      *
      * @ORM\Column(name="tax", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $tax;
+    protected $tax;
 
     /**
      * @var float $discount
      *
      * @ORM\Column(name="discount", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $discount;
+    protected $discount;
 
     /**
      * @var string $currency
      *
      * @ORM\Column(name="currency", type="string", length=8)
      */
-    private $currency;
+    protected $currency;
 
     /**
      * @var float $base_price
      *
      * @ORM\Column(name="base_price", type="decimal", precision=12, scale=4)
      */
-    private $base_price;
+    protected $base_price;
 
     /**
      * @var float $base_cost
      *
      * @ORM\Column(name="base_cost", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $base_cost;
+    protected $base_cost;
 
     /**
      * @var float $base_tax
      *
      * @ORM\Column(name="base_tax", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $base_tax;
+    protected $base_tax;
 
     /**
      * @var float $base_discount
      *
      * @ORM\Column(name="base_discount", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $base_discount;
+    protected $base_discount;
 
     /**
      * @var string $base_currency
      *
      * @ORM\Column(name="base_currency", type="string", length=8)
      */
-    private $base_currency;
+    protected $base_currency;
 
     /**
      * @var integer $qty
      *
      * @ORM\Column(name="qty", type="integer")
      */
-    private $qty;
+    protected $qty;
 
     /**
      * @var float $weight
      *
      * @ORM\Column(name="weight", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $weight;
+    protected $weight;
 
     /**
      * @var string $weight_unit
      *
      * @ORM\Column(name="weight_unit", type="string", length=8, nullable=true)
      */
-    private $weight_unit;
+    protected $weight_unit;
 
     /**
      * @var float $width
      *
      * @ORM\Column(name="width", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $width;
+    protected $width;
 
     /**
      * @var float $height
      *
      * @ORM\Column(name="height", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $height;
+    protected $height;
 
     /**
      * @var float $length
      *
      * @ORM\Column(name="length", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $length;
+    protected $length;
 
     /**
      * @var string $measure_unit
      *
      * @ORM\Column(name="measure_unit", type="string", length=8, nullable=true)
      */
-    private $measure_unit;
+    protected $measure_unit;
 
     /**
      * @var string $json
      *
      * @ORM\Column(name="json", type="text")
      */
-    private $json;
+    protected $json;
+
+    public function __construct()
+    {
+
+    }
 
     /**
-     * Get id
-     *
-     * @return integer 
+     * @return int|null
      */
     public function getId()
     {
         return $this->id;
     }
 
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::ORDER_ITEM;
@@ -271,102 +289,6 @@ class OrderItem implements CartEntityInterface
     public function getSourceAddressKey()
     {
         return $this->source_address_key;
-    }
-
-    /**
-     * @param $key
-     * @param $value
-     * @return $this
-     */
-    public function set($key, $value)
-    {
-        $vars = get_object_vars($this);
-        if (array_key_exists($key, $vars)) {
-            $this->$key = $value;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param $data
-     * @return $this
-     */
-    public function fromArray($data)
-    {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Lazy-loading getter
-     *  ideal for usage in the View layer
-     *
-     * @param $key
-     * @return mixed|null
-     */
-    public function get($key)
-    {
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
-
-        $data = $this->getBaseData();
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        $data = $this->getData();
-        if (isset($data[$key])) {
-
-            if (is_array($data[$key])) {
-                return implode(',', $data[$key]);
-            }
-
-            return $data[$key];
-        }
-
-        return '';
-    }
-
-    /**
-     * Getter , after fully loading
-     *  use only if necessary, and avoid calling multiple times
-     *
-     * @param string $key
-     * @return array|null
-     */
-    public function getData($key = '')
-    {
-        $data = $this->getBaseData();
-
-        if (strlen($key) > 0) {
-
-            return isset($data[$key])
-                ? $data[$key]
-                : null;
-        }
-
-        return $data;
-    }
-
-    /**
-     * @return array
-     */
-    public function getLuceneVarValuesData()
-    {
-        // Note:
-        // be careful with adding foreign relationships here
-        // since it will add 1 query every time an item is loaded
-
-        return $this->getBaseData();
     }
 
     /**

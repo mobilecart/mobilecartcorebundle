@@ -6,46 +6,60 @@ use \Doctrine\Common\Collections\Collection;
 
 class RecursiveCategoryIterator implements \RecursiveIterator
 {
-
-    private $_data;
+    /**
+     * @var \Doctrine\Common\Collections\Collection
+     */
+    protected $data;
 
     public function __construct(Collection $data)
     {
-        $this->_data = $data;
+        $this->data = $data;
     }
 
+    /**
+     * @return bool
+     */
     public function hasChildren()
     {
-        return (!$this->_data->current()->getChildCategories()->isEmpty());
+        return (!$this->data->current()->getChildCategories()->isEmpty());
     }
 
+    /**
+     * @return RecursiveCategoryIterator|\RecursiveIterator
+     */
     public function getChildren()
     {
-        return new RecursiveCategoryIterator($this->_data->current()->getChildCategories());
+        return new RecursiveCategoryIterator($this->data->current()->getChildCategories());
     }
 
+    /**
+     * @return mixed
+     */
     public function current()
     {
-        return $this->_data->current();
+        return $this->data->current();
     }
 
     public function next()
     {
-        $this->_data->next();
+        $this->data->next();
     }
 
     public function key()
     {
-        return $this->_data->key();
+        return $this->data->key();
     }
 
+    /**
+     * @return bool
+     */
     public function valid()
     {
-        return $this->_data->current() instanceof Category;
+        return $this->data->current() instanceof Category;
     }
 
     public function rewind()
     {
-        $this->_data->first();
+        $this->data->first();
     }
 }

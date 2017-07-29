@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  */
 class ContentVarValueInt
+    implements CartEntityVarValueInterface
 {
     /**
      * @var integer $id
@@ -19,14 +20,14 @@ class ContentVarValueInt
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string $value
      *
      * @ORM\Column(name="value", type="integer")
      */
-    private $value;
+    protected $value;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVar
@@ -36,7 +37,7 @@ class ContentVarValueInt
      *   @ORM\JoinColumn(name="item_var_id", referencedColumnName="id", nullable=false)
      * })
      */
-    private $item_var;
+    protected $item_var;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarOptionInt
@@ -46,7 +47,7 @@ class ContentVarValueInt
      *   @ORM\JoinColumn(name="item_var_option_id", referencedColumnName="id", nullable=true)
      * })
      */
-    private $item_var_option;
+    protected $item_var_option;
     
     /**
      * @var \MobileCart\CoreBundle\Entity\Content
@@ -56,7 +57,7 @@ class ContentVarValueInt
      *   @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      */
-    private $parent;
+    protected $parent;
 
     public function __toString()
     {
@@ -134,10 +135,10 @@ class ContentVarValueInt
     }
 
     /**
-     * @param Content $parent
+     * @param CartEntityEAVInterface $parent
      * @return $this
      */
-    public function setParent(Content $parent)
+    public function setParent(CartEntityEAVInterface $parent)
     {
         $this->parent = $parent;
         return $this;
@@ -146,7 +147,7 @@ class ContentVarValueInt
     /**
      * Get parent
      *
-     * @return \MobileCart\CoreBundle\Entity\Content
+     * @return \MobileCart\CoreBundle\Entity\CartEntityEAVInterface
      */
     public function getParent()
     {

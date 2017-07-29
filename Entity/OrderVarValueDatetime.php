@@ -8,9 +8,10 @@ use Doctrine\ORM\Mapping as ORM;
  * MobileCart\CoreBundle\Entity\OrderVarValueDatetime
  *
  * @ORM\Table(name="order_var_value_datetime")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CommonRepository")
  */
 class OrderVarValueDatetime
+    implements CartEntityVarValueInterface
 {
     /**
      * @var integer $id
@@ -19,14 +20,14 @@ class OrderVarValueDatetime
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string $value
      *
      * @ORM\Column(name="value", type="datetime")
      */
-    private $value;
+    protected $value;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVar
@@ -36,7 +37,7 @@ class OrderVarValueDatetime
      *   @ORM\JoinColumn(name="item_var_id", referencedColumnName="id", nullable=false)
      * })
      */
-    private $item_var;
+    protected $item_var;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarOptionDatetime
@@ -46,7 +47,7 @@ class OrderVarValueDatetime
      *   @ORM\JoinColumn(name="item_var_option_id", referencedColumnName="id", nullable=true)
      * })
      */
-    private $item_var_option;
+    protected $item_var_option;
     
     /**
      * @var \MobileCart\CoreBundle\Entity\Order
@@ -56,7 +57,7 @@ class OrderVarValueDatetime
      *   @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      */
-    private $parent;
+    protected $parent;
 
     public function __toString()
     {
@@ -114,7 +115,7 @@ class OrderVarValueDatetime
     }
 
     /**
-     * @param ItemVarOption $itemVarOption
+     * @param $itemVarOption
      * @return $this
      */
     public function setItemVarOption($itemVarOption)
@@ -124,9 +125,7 @@ class OrderVarValueDatetime
     }
 
     /**
-     * Get item_var_option
-     *
-     * @return \MobileCart\CoreBundle\Entity\ItemVarOption
+     * @return mixed|ItemVarOptionDatetime
      */
     public function getItemVarOption()
     {
@@ -134,10 +133,10 @@ class OrderVarValueDatetime
     }
 
     /**
-     * @param Order $parent
+     * @param CartEntityEAVInterface $parent
      * @return $this
      */
-    public function setParent(Order $parent)
+    public function setParent(CartEntityEAVInterface $parent)
     {
         $this->parent = $parent;
         return $this;
@@ -146,7 +145,7 @@ class OrderVarValueDatetime
     /**
      * Get parent
      *
-     * @return \MobileCart\CoreBundle\Entity\Order
+     * @return \MobileCart\CoreBundle\Entity\CartEntityEAVInterface
      */
     public function getParent()
     {

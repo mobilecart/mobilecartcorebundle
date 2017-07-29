@@ -14,6 +14,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\OrderRepository")
  */
 class Order
+    extends AbstractCartEntityEAV
     implements CartEntityEAVInterface
 {
     /**
@@ -23,14 +24,14 @@ class Order
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime", nullable=true)
      */
-    private $created_at;
+    protected $created_at;
 
     /**
      * @var string $status
@@ -38,7 +39,7 @@ class Order
      * @ORM\Column(name="status", type="string", length=255, nullable=true)
      *
      */
-    private $status;
+    protected $status;
 
     /**
      * @var string $email
@@ -46,7 +47,7 @@ class Order
      * @ORM\Column(name="email", type="string", length=255, nullable=false)
      *
      */
-    private $email;
+    protected $email;
 
     /**
      * @var string $billing_name
@@ -54,21 +55,21 @@ class Order
      * @ORM\Column(name="billing_name", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"billing_address"})
      */
-    private $billing_name;
+    protected $billing_name;
 
     /**
      * @var string $billing_company
      *
      * @ORM\Column(name="billing_company", type="string", length=255, nullable=true)
      */
-    private $billing_company;
+    protected $billing_company;
 
     /**
      * @var string $billing_phone
      *
      * @ORM\Column(name="billing_phone", type="string", length=24, nullable=true)
      */
-    private $billing_phone;
+    protected $billing_phone;
 
     /**
      * @var string $billing_street
@@ -76,14 +77,14 @@ class Order
      * @ORM\Column(name="billing_street", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"billing_address"})
      */
-    private $billing_street;
+    protected $billing_street;
 
     /**
      * @var string $billing_street2
      *
      * @ORM\Column(name="billing_street2", type="string", length=255, nullable=true)
      */
-    private $billing_street2;
+    protected $billing_street2;
 
     /**
      * @var string $billing_city
@@ -91,7 +92,7 @@ class Order
      * @ORM\Column(name="billing_city", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"billing_address"})
      */
-    private $billing_city;
+    protected $billing_city;
 
     /**
      * @var string $billing_region
@@ -99,7 +100,7 @@ class Order
      * @ORM\Column(name="billing_region", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"billing_address"})
      */
-    private $billing_region;
+    protected $billing_region;
 
     /**
      * @var string $billing_postcode
@@ -107,7 +108,7 @@ class Order
      * @ORM\Column(name="billing_postcode", type="string", length=32, nullable=true)
      * @Assert\NotBlank(groups={"billing_address"})
      */
-    private $billing_postcode;
+    protected $billing_postcode;
 
     /**
      * @var string $billing_country_id
@@ -115,7 +116,7 @@ class Order
      * @ORM\Column(name="billing_country_id", type="string", length=2, nullable=true)
      * @Assert\NotBlank(groups={"billing_address"})
      */
-    private $billing_country_id;
+    protected $billing_country_id;
 
     // is_fraud
     // fraud_rating
@@ -126,161 +127,161 @@ class Order
      *
      * @ORM\Column(name="reference_nbr", type="string", length=16)
      */
-    private $reference_nbr;
+    protected $reference_nbr;
 
     /**
      * @var string $payment_authorize
      *
      * @ORM\Column(name="payment_authorize", type="text", nullable=true)
      */
-    private $payment_authorize;
+    protected $payment_authorize;
 
     /**
      * @var string $json
      *
      * @ORM\Column(name="json", type="text")
      */
-    private $json;
+    protected $json;
 
     /**
      * @var string $currency
      *
      * @ORM\Column(name="currency", type="string", length=8)
      */
-    private $currency;
+    protected $currency;
 
     /**
      * @var float $total
      *
      * @ORM\Column(name="total", type="decimal", precision=12, scale=4)
      */
-    private $total;
+    protected $total;
 
     /**
      * @var float $item_total
      *
      * @ORM\Column(name="item_total", type="decimal", precision=12, scale=4)
      */
-    private $item_total;
+    protected $item_total;
 
     /**
      * @var float $tax_total
      *
      * @ORM\Column(name="tax_total", type="decimal", precision=12, scale=4)
      */
-    private $tax_total;
+    protected $tax_total;
 
     /**
      * @var float $discount_total
      *
      * @ORM\Column(name="discount_total", type="decimal", precision=12, scale=4)
      */
-    private $discount_total;
+    protected $discount_total;
 
     /**
      * @var float $shipping_total
      *
      * @ORM\Column(name="shipping_total", type="decimal", precision=12, scale=4)
      */
-    private $shipping_total;
+    protected $shipping_total;
 
     /**
      * @var float $refund_total
      *
      * @ORM\Column(name="refund_total", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $refund_total;
+    protected $refund_total;
 
     /**
      * @var string $base_currency
      *
      * @ORM\Column(name="base_currency", type="string", length=8)
      */
-    private $base_currency;
+    protected $base_currency;
 
     /**
      * @var float $base_total
      *
      * @ORM\Column(name="base_total", type="decimal", precision=12, scale=4)
      */
-    private $base_total;
+    protected $base_total;
 
     /**
      * @var float $base_item_total
      *
      * @ORM\Column(name="base_item_total", type="decimal", precision=12, scale=4)
      */
-    private $base_item_total;
+    protected $base_item_total;
 
     /**
      * @var float $base_tax_total
      *
      * @ORM\Column(name="base_tax_total", type="decimal", precision=12, scale=4)
      */
-    private $base_tax_total;
+    protected $base_tax_total;
 
     /**
      * @var float $base_discount_total
      *
      * @ORM\Column(name="base_discount_total", type="decimal", precision=12, scale=4)
      */
-    private $base_discount_total;
+    protected $base_discount_total;
 
     /**
      * @var float $base_shipping_total
      *
      * @ORM\Column(name="base_shipping_total", type="decimal", precision=12, scale=4)
      */
-    private $base_shipping_total;
+    protected $base_shipping_total;
 
     /**
      * @var float $base_refund_total
      *
      * @ORM\Column(name="base_refund_total", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $base_refund_total;
+    protected $base_refund_total;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\OrderItem
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\OrderItem", mappedBy="order")
      */
-    private $items;
+    protected $items;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\OrderInvoice
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\OrderInvoice", mappedBy="order")
      */
-    private $invoices;
+    protected $invoices;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\OrderRefund
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\OrderRefund", mappedBy="order")
      */
-    private $refunds;
+    protected $refunds;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\OrderPayment
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\OrderPayment", mappedBy="order")
      */
-    private $payments;
+    protected $payments;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\OrderShipment
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\OrderShipment", mappedBy="order")
      */
-    private $shipments;
+    protected $shipments;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\OrderHistory
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\OrderHistory", mappedBy="order")
      */
-    private $history;
+    protected $history;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Customer
@@ -290,7 +291,7 @@ class Order
      *   @ORM\JoinColumn(name="customer_id", referencedColumnName="id")
      * })
      */
-    private $customer;
+    protected $customer;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarSet
@@ -300,42 +301,42 @@ class Order
      *   @ORM\JoinColumn(name="item_var_set_id", referencedColumnName="id", nullable=true)
      * })
      */
-    private $item_var_set;
+    protected $item_var_set;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\OrderVarValueDatetime
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\OrderVarValueDatetime", mappedBy="parent")
      */
-    private $var_values_datetime;
+    protected $var_values_datetime;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\OrderVarValueDecimal
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\OrderVarValueDecimal", mappedBy="parent")
      */
-    private $var_values_decimal;
+    protected $var_values_decimal;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\OrderVarValueInt
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\OrderVarValueInt", mappedBy="parent")
      */
-    private $var_values_int;
+    protected $var_values_int;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\OrderVarValueText
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\OrderVarValueText", mappedBy="parent")
      */
-    private $var_values_text;
+    protected $var_values_text;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\OrderVarValueVarchar
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\OrderVarValueVarchar", mappedBy="parent")
      */
-    private $var_values_varchar;
+    protected $var_values_varchar;
 
     public function __construct()
     {
@@ -353,255 +354,30 @@ class Order
         return $this->getReferenceNbr();
     }
 
+    /**
+     * @return int|null
+     */
     public function getId()
     {
         return $this->id;
     }
 
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::ORDER;
-    }
-
-    /**
-     * Lazy-loading getter
-     *  ideal for usage in the View layer
-     *
-     * @param $key
-     * @return mixed|null
-     */
-    public function get($key)
-    {
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
-
-        $data = $this->getBaseData();
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        $data = $this->getData();
-        if (isset($data[$key])) {
-
-            if (is_array($data[$key])) {
-                return implode(',', $data[$key]);
-            }
-
-            return $data[$key];
-        }
-
-        return '';
-    }
-
-    /**
-     * Get All Data or specific key of data
-     *
-     * @param string $key
-     * @return array|null
-     */
-    public function getData($key = '')
-    {
-        if (strlen($key) > 0) {
-
-            $data = $this->getBaseData();
-            if (isset($data[$key])) {
-                return $data[$key];
-            }
-
-            $data = $this->getVarValuesData();
-            return isset($data[$key])
-                ? $data[$key]
-                : null;
-        }
-
-        return array_merge($this->getVarValuesData(), $this->getBaseData());
-    }
-
-    /**
-     * @return array
-     */
-    public function getLuceneVarValuesData()
-    {
-        // Note:
-        // be careful with adding foreign relationships here
-        // since it will add 1 query every time an item is loaded
-
-        $pData = $this->getBaseData();
-
-        $varValues = $this->getVarValues();
-        if (!$varValues->count()) {
-            return $pData;
-        }
-
-        foreach($varValues as $itemVarValue) {
-
-            /** @var ItemVar $itemVar */
-            $itemVar = $itemVarValue->getItemVar();
-
-            $value = $itemVarValue->getValue();
-            switch($itemVar->getDatatype()) {
-                case 'int':
-                    $value = (int) $value;
-                    break;
-                case 'decimal':
-                    $value = (float) $value;
-                    break;
-                case 'datetime':
-                    // for Lucene
-                    $value = gmdate('Y-m-d\TH:i:s\Z', strtotime($value));
-                    break;
-                default:
-                    $value = (string) $value;
-                    break;
-            }
-
-            if ($itemVar->getFormInput() == 'multiselect') {
-                if (!isset($data[$itemVar->getCode()])) {
-                    $data[$itemVar->getCode()] = array();
-                }
-                $data[$itemVar->getCode()][] = $value;
-            } else {
-                $data[$itemVar->getCode()] = $value;
-            }
-
-        }
-
-        return array_merge($this->getVarValuesData(), $pData);
-    }
-
-    /**
-     * Get Var Values as associative Array
-     *
-     * @return array
-     */
-    public function getVarValuesData()
-    {
-        $varSet = $this->getItemVarSet();
-        $varSetId = ($varSet instanceof ItemVarSet)
-            ? $varSet->getId()
-            : null;
-
-        $data = $this->getBaseData();
-        $data['var_set_id'] = $varSetId;
-        //$data['tags'] = $this->getTagsData();
-
-        $varValues = $this->getVarValues();
-        if (!$varValues) {
-            return $data;
-        }
-
-        foreach($varValues as $itemVarValue) {
-
-            /** @var ItemVar $itemVar */
-            $itemVar = $itemVarValue->getItemVar();
-
-            $value = $itemVarValue->getValue();
-            switch($itemVar->getDatatype()) {
-                case 'int':
-                    $value = (int) $value;
-                    break;
-                case 'decimal':
-                    $value = (float) $value;
-                    break;
-                case 'datetime':
-                    $value = gmdate('Y-m-d H:i:s', strtotime($value));
-                    break;
-                default:
-                    $value = (string) $value;
-                    break;
-            }
-
-            if ($itemVar->getFormInput() == 'multiselect') {
-                if (!isset($data[$itemVar->getCode()])) {
-                    $data[$itemVar->getCode()] = array();
-                }
-                $data[$itemVar->getCode()][] = $value;
-            } else {
-                $data[$itemVar->getCode()] = $value;
-            }
-
-        }
-
-        return $data;
-    }
-
-    /**
-     *
-     * @return array
-     */
-    public function getVarValues()
-    {
-        $values = new ArrayCollection();
-        $datetimes = $this->getVarValuesDatetime();
-        $decimals = $this->getVarValuesDecimal();
-        $ints = $this->getVarValuesInt();
-        $texts = $this->getVarValuesText();
-        $varchars = $this->getVarValuesVarchar();
-
-        if ($datetimes) {
-            foreach($datetimes as $value) {
-                $values->add($value);
-            }
-        }
-
-        if ($decimals) {
-            foreach($decimals as $value) {
-                $values->add($value);
-            }
-        }
-
-        if ($ints) {
-            foreach($ints as $value) {
-                $values->add($value);
-            }
-        }
-
-        if ($texts) {
-            foreach($texts as $value) {
-                $values->add($value);
-            }
-        }
-
-        if ($varchars) {
-            foreach($varchars as $value) {
-                $values->add($value);
-            }
-        }
-
-        return $values;
-    }
-
-    /**
-     * @param $key
-     * @param $value
-     * @return $this
-     */
-    public function set($key, $value)
-    {
-        $vars = get_object_vars($this);
-        if (array_key_exists($key, $vars)) {
-            $this->$key = $value;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param $data
-     * @return $this
-     */
-    public function fromArray($data)
-    {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
-        return $this;
     }
 
     /**

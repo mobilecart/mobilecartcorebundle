@@ -11,6 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\WebhookLogRepository")
  */
 class WebhookLog
+    extends AbstractCartEntity
+    implements CartEntityInterface
 {
     /**
      * @var int
@@ -19,66 +21,99 @@ class WebhookLog
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
      *
      * @ORM\Column(name="source_ip", type="string", length=128, nullable=true)
      */
-    private $source_ip;
+    protected $source_ip;
 
     /**
      * @var string
      *
      * @ORM\Column(name="request_body", type="text")
      */
-    private $request_body;
+    protected $request_body;
 
     /**
      * @var string
      *
      * @ORM\Column(name="request_method", type="string", length=8, nullable=true)
      */
-    private $request_method;
+    protected $request_method;
 
     /**
      * @var string
      *
      * @ORM\Column(name="service", type="string", length=64, nullable=true)
      */
-    private $service;
+    protected $service;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime", nullable=true)
      */
-    private $created_at;
+    protected $created_at;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="updated_at", type="datetime", nullable=true)
      */
-    private $updated_at;
+    protected $updated_at;
 
     /**
      * @var bool
      *
      * @ORM\Column(name="is_processed", type="boolean", nullable=true)
      */
-    private $is_processed;
+    protected $is_processed;
 
 
     /**
-     * Get id
-     *
-     * @return integer 
+     * @return int|null
      */
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getObjectTypeKey()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::WEBHOOK_LOG;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBaseData()
+    {
+        return [
+            'id' => $this->getId(),
+            'source_ip' => $this->getSourceIp(),
+            'request_body' => $this->getRequestBody(),
+            'request_method' => $this->getRequestMethod(),
+            'service' => $this->getService(),
+            'created_at' => $this->getCreatedAt(),
+            'updated_at' => $this->getUpdatedAt(),
+            'is_processed' => $this->getIsProcessed(),
+        ];
     }
 
     /**

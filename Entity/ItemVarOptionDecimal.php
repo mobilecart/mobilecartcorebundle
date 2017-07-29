@@ -11,6 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\ItemVarOptionDecimalRepository")
  */
 class ItemVarOptionDecimal
+    extends AbstractCartEntity
+    implements CartEntityInterface, CartEntityVarOptionInterface
 {
     /**
      * @var integer $id
@@ -19,14 +21,14 @@ class ItemVarOptionDecimal
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var integer $old_id
      *
      * @ORM\Column(name="old_id", type="integer", nullable=true)
      */
-    private $old_id;
+    protected $old_id;
     
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVar
@@ -36,137 +38,72 @@ class ItemVarOptionDecimal
      *   @ORM\JoinColumn(name="item_var_id", referencedColumnName="id")
      * })
      */
-    private $item_var;
+    protected $item_var;
 
     /**
      * @var string $value
      *
      * @ORM\Column(name="value", type="decimal", precision=12, scale=4)
      */
-    private $value;
+    protected $value;
 
     /**
      * @var string $url_value
      *
      * @ORM\Column(name="url_value", type="string", length=128)
      */
-    private $url_value;
+    protected $url_value;
     
     /**
      * @var boolean $is_in_stock
      *
      * @ORM\Column(name="is_in_stock", type="boolean", nullable=true)
      */
-    private $is_in_stock;
+    protected $is_in_stock;
 
     /**
      * @var float $additional_price
      *
      * @ORM\Column(name="additional_price", type="decimal", nullable=true)
      */
-    private $additional_price;
+    protected $additional_price;
 
     /**
      * @var integer $sort_order
      *
      * @ORM\Column(name="sort_order", type="integer", nullable=true)
      */
-    private $sort_order;
+    protected $sort_order;
+
+    public function __construct()
+    {
+
+    }
 
     /**
-     * @param $key
-     * @param $value
+     * @return string
+     */
+    public function getObjectTypeKey()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::ITEM_VAR_OPTION_DECIMAL;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param $id
      * @return $this
      */
-    public function set($key, $value)
+    public function setId($id)
     {
-        $vars = get_object_vars($this);
-        if (array_key_exists($key, $vars)) {
-            $this->$key = $value;
-        }
-
+        $this->id = $id;
         return $this;
-    }
-
-    /**
-     * @param $data
-     * @return $this
-     */
-    public function fromArray($data)
-    {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Lazy-loading getter
-     *  ideal for usage in the View layer
-     *
-     * @param $key
-     * @return mixed|null
-     */
-    public function get($key)
-    {
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
-
-        $data = $this->getBaseData();
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        $data = $this->getData();
-        if (isset($data[$key])) {
-
-            if (is_array($data[$key])) {
-                return implode(',', $data[$key]);
-            }
-
-            return $data[$key];
-        }
-
-        return '';
-    }
-
-    /**
-     * Getter , after fully loading
-     *  use only if necessary, and avoid calling multiple times
-     *
-     * @param string $key
-     * @return array|null
-     */
-    public function getData($key = '')
-    {
-        $data = $this->getBaseData();
-
-        if (strlen($key) > 0) {
-
-            return isset($data[$key])
-                ? $data[$key]
-                : null;
-        }
-
-        return $data;
-    }
-
-    /**
-     * @return array
-     */
-    public function getLuceneVarValuesData()
-    {
-        // Note:
-        // be careful with adding foreign relationships here
-        // since it will add 1 query every time an item is loaded
-
-        return $this->getBaseData();
     }
 
     /**
@@ -185,16 +122,6 @@ class ItemVarOptionDecimal
             'additional_price' => $this->getAdditionalPrice(),
             'sort_order' => $this->getSortOrder(),
         ];
-    }
-
-    /**
-     * Get id
-     *
-     * @return integer 
-     */
-    public function getId()
-    {
-        return $this->id;
     }
 
     /**

@@ -22,7 +22,7 @@ class ProductTierPrice
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Product
@@ -32,28 +32,28 @@ class ProductTierPrice
      *   @ORM\JoinColumn(name="product_id", referencedColumnName="id", nullable=false)
      * })
      */
-    private $product;
+    protected $product;
 
     /**
      * @var int
      *
      * @ORM\Column(name="qty", type="integer")
      */
-    private $qty;
+    protected $qty;
 
     /**
      * @var float $price
      *
      * @ORM\Column(name="price", type="decimal", precision=12, scale=4)
      */
-    private $price;
+    protected $price;
 
     /**
      * @var string $currency
      *
      * @ORM\Column(name="currency", type="string", length=8)
      */
-    private $currency;
+    protected $currency;
 
     public function __construct()
     {
@@ -62,17 +62,33 @@ class ProductTierPrice
 
     public function __toString()
     {
-        return ''. $this->price;
+        return '' . $this->price;
     }
 
+    /**
+     * @return string
+     */
     public function getObjectTypeKey()
     {
         return EntityConstants::PRODUCT_TIER_PRICE;
     }
 
+    /**
+     * @return int|null
+     */
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
     }
 
     public function getBaseData()

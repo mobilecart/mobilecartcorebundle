@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  */
 class CategoryVarValueText
+    implements CartEntityVarValueInterface
 {
     /**
      * @var integer $id
@@ -19,14 +20,14 @@ class CategoryVarValueText
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string $value
      *
      * @ORM\Column(name="value", type="text")
      */
-    private $value;
+    protected $value;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVar
@@ -36,7 +37,7 @@ class CategoryVarValueText
      *   @ORM\JoinColumn(name="item_var_id", referencedColumnName="id", nullable=false)
      * })
      */
-    private $item_var;
+    protected $item_var;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarOptionText
@@ -46,7 +47,7 @@ class CategoryVarValueText
      *   @ORM\JoinColumn(name="item_var_option_id", referencedColumnName="id", nullable=true)
      * })
      */
-    private $item_var_option;
+    protected $item_var_option;
     
     /**
      * @var \MobileCart\CoreBundle\Entity\Category
@@ -56,7 +57,7 @@ class CategoryVarValueText
      *   @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      */
-    private $parent;
+    protected $parent;
 
     public function __toString()
     {
@@ -138,10 +139,10 @@ class CategoryVarValueText
     }
 
     /**
-     * @param Category $parent
+     * @param CartEntityEAVInterface $parent
      * @return $this
      */
-    public function setParent(Category $parent)
+    public function setParent(CartEntityEAVInterface $parent)
     {
         $this->parent = $parent;
         return $this;
@@ -150,7 +151,7 @@ class CategoryVarValueText
     /**
      * Get parent
      *
-     * @return \MobileCart\CoreBundle\Entity\Category
+     * @return \MobileCart\CoreBundle\Entity\CartEntityEAVInterface
      */
     public function getParent()
     {

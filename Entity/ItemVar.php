@@ -16,6 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\ItemVarRepository")
  */
 class ItemVar
+    extends AbstractCartEntity
     implements CartEntityInterface
 {
     const TYPE_DATETIME = 'datetime';
@@ -48,133 +49,133 @@ class ItemVar
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var integer $old_id
      *
      * @ORM\Column(name="old_id", type="integer", nullable=true)
      */
-    private $old_id;
+    protected $old_id;
 
     /**
      * @var string $name
      *
      * @ORM\Column(name="name", type="string", length=255)
      */
-    private $name;
+    protected $name;
 
     /**
      * @var string $code
      *
      * @ORM\Column(name="code", type="string", length=255)
      */
-    private $code;
+    protected $code;
 
     /**
      * @var string $url_token
      *
      * @ORM\Column(name="url_token", type="string", length=32)
      */
-    private $url_token;
+    protected $url_token;
 
     /**
      * @var string $datatype
      *
      * @ORM\Column(name="datatype", type="string", length=32)
      */
-    private $datatype;
+    protected $datatype;
 
     /**
      * @var string $form_input
      *
      * @ORM\Column(name="form_input", type="string", length=255, nullable=true)
      */
-    private $form_input;
+    protected $form_input;
 
     /**
      * @var boolean $is_required
      *
      * @ORM\Column(name="is_required", type="boolean", nullable=true)
      */
-    private $is_required;
+    protected $is_required;
 
     /**
      * @var boolean $is_displayed
      *
      * @ORM\Column(name="is_displayed", type="boolean", nullable=true)
      */
-    private $is_displayed;
+    protected $is_displayed;
 
     /**
      * @var integer
      *
      * @ORM\Column(name="sort_order", type="integer", nullable=true)
      */
-    private $sort_order;
+    protected $sort_order;
 
     /**
      * @var boolean $is_facet
      *
      * @ORM\Column(name="is_facet", type="boolean", nullable=true)
      */
-    private $is_facet;
+    protected $is_facet;
 
     /**
      * @var boolean $is_sortable
      *
      * @ORM\Column(name="is_sortable", type="boolean", nullable=true)
      */
-    private $is_sortable;
+    protected $is_sortable;
 
     /**
      * @var boolean $is_searchable
      *
      * @ORM\Column(name="is_searchable", type="boolean", nullable=true)
      */
-    private $is_searchable;
+    protected $is_searchable;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarSetVar $item_var_set_vars
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\ItemVarSetVar", mappedBy="item_var")
      */
-    private $item_var_set_vars;
+    protected $item_var_set_vars;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarOptionDatetime
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\ItemVarOptionDatetime", mappedBy="item_var")
      */
-    private $item_var_options_datetime;
+    protected $item_var_options_datetime;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarOptionDecimal
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\ItemVarOptionDecimal", mappedBy="item_var")
      */
-    private $item_var_options_decimal;
+    protected $item_var_options_decimal;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarOptionInt
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\ItemVarOptionInt", mappedBy="item_var")
      */
-    private $item_var_options_int;
+    protected $item_var_options_int;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarOptionText
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\ItemVarOptionText", mappedBy="item_var")
      */
-    private $item_var_options_text;
+    protected $item_var_options_text;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarOptionVarchar
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\ItemVarOptionVarchar", mappedBy="item_var")
      */
-    private $item_var_options_varchar;
+    protected $item_var_options_varchar;
 
     public function __toString()
     {
@@ -191,105 +192,30 @@ class ItemVar
         $this->item_var_options_varchar = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
+    /**
+     * @return int|null
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::ITEM_VAR;
-    }
-
-    /**
-     * @param $key
-     * @param $value
-     * @return $this
-     */
-    public function set($key, $value)
-    {
-        $vars = get_object_vars($this);
-        if (array_key_exists($key, $vars)) {
-            $this->$key = $value;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param $data
-     * @return $this
-     */
-    public function fromArray($data)
-    {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Lazy-loading getter
-     *  ideal for usage in the View layer
-     *
-     * @param $key
-     * @return mixed|null
-     */
-    public function get($key)
-    {
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
-
-        $data = $this->getBaseData();
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        $data = $this->getData();
-        if (isset($data[$key])) {
-
-            if (is_array($data[$key])) {
-                return implode(',', $data[$key]);
-            }
-
-            return $data[$key];
-        }
-
-        return '';
-    }
-
-    /**
-     * Getter , after fully loading
-     *  use only if necessary, and avoid calling multiple times
-     *
-     * @param string $key
-     * @return array|null
-     */
-    public function getData($key = '')
-    {
-        $data = $this->getBaseData();
-
-        if (strlen($key) > 0) {
-
-            return isset($data[$key])
-                ? $data[$key]
-                : null;
-        }
-
-        return $data;
-    }
-
-    /**
-     * @return array
-     */
-    public function getLuceneVarValuesData()
-    {
-        // Note:
-        // be careful with adding foreign relationships here
-        // since it will add 1 query every time an item is loaded
-
-        return $this->getBaseData();
     }
 
     /**
@@ -312,16 +238,6 @@ class ItemVar
             'is_sortable' => $this->getIsSortable(),
             'is_searchable' => $this->getIsSearchable(),
         ];
-    }
-
-    /**
-     * Get id
-     *
-     * @return integer 
-     */
-    public function getId()
-    {
-        return $this->id;
     }
 
     /**

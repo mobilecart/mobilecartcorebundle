@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  */
 class CustomerVarValueVarchar
+    implements CartEntityVarValueInterface
 {
     /**
      * @var integer $id
@@ -19,14 +20,14 @@ class CustomerVarValueVarchar
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string $value
      *
      * @ORM\Column(name="value", type="string", length=255)
      */
-    private $value;
+    protected $value;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVar
@@ -36,7 +37,7 @@ class CustomerVarValueVarchar
      *   @ORM\JoinColumn(name="item_var_id", referencedColumnName="id", nullable=false)
      * })
      */
-    private $item_var;
+    protected $item_var;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarOptionVarchar
@@ -46,7 +47,7 @@ class CustomerVarValueVarchar
      *   @ORM\JoinColumn(name="item_var_option_id", referencedColumnName="id", nullable=true)
      * })
      */
-    private $item_var_option;
+    protected $item_var_option;
     
     /**
      * @var \MobileCart\CoreBundle\Entity\Customer
@@ -56,7 +57,7 @@ class CustomerVarValueVarchar
      *   @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      */
-    private $parent;
+    protected $parent;
 
     public function __toString()
     {
@@ -114,7 +115,7 @@ class CustomerVarValueVarchar
     }
 
     /**
-     * @param ItemVarOption $itemVarOption
+     * @param $itemVarOption
      * @return $this
      */
     public function setItemVarOption($itemVarOption)
@@ -134,10 +135,10 @@ class CustomerVarValueVarchar
     }
 
     /**
-     * @param Customer $parent
+     * @param CartEntityEAVInterface $parent
      * @return $this
      */
-    public function setParent(Customer $parent)
+    public function setParent(CartEntityEAVInterface $parent)
     {
         $this->parent = $parent;
         return $this;
@@ -146,7 +147,7 @@ class CustomerVarValueVarchar
     /**
      * Get parent
      *
-     * @return \MobileCart\CoreBundle\Entity\Customer
+     * @return \MobileCart\CoreBundle\Entity\CartEntityEAVInterface
      */
     public function getParent()
     {

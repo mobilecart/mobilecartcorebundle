@@ -13,7 +13,8 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\ProductRepository")
  */
 class Product
-    implements CartEntityEAVInterface
+    extends AbstractCartEntityEAV
+    implements CartEntityEAVInterface, CartEntityImageParentInterface
 {
     // todo : add indexes to columns
 
@@ -37,112 +38,112 @@ class Product
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime", nullable=true)
      */
-    private $created_at;
+    protected $created_at;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="updated_at", type="datetime", nullable=true)
      */
-    private $updated_at;
+    protected $updated_at;
 
     /**
      * @var integer $old_id
      *
      * @ORM\Column(name="old_id", type="integer", nullable=true)
      */
-    private $old_id;
+    protected $old_id;
 
     /**
      * @var integer $sort_order
      *
      * @ORM\Column(name="sort_order", type="integer", nullable=true)
      */
-    private $sort_order;
+    protected $sort_order;
 
     /**
      * @var boolean $is_public
      *
      * @ORM\Column(name="is_public", type="boolean", nullable=true)
      */
-    private $is_public;
+    protected $is_public;
 
     /**
      * @var boolean $is_searchable
      *
      * @ORM\Column(name="is_searchable", type="boolean", nullable=true)
      */
-    private $is_searchable;
+    protected $is_searchable;
 
     /**
      * @var string $custom_template
      *
      * @ORM\Column(name="custom_template", type="string", length=255, nullable=true)
      */
-    private $custom_template;
+    protected $custom_template;
 
     /**
      * @var string
      *
      * @ORM\Column(name="page_title", type="text", nullable=true)
      */
-    private $page_title;
+    protected $page_title;
 
     /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255)
      */
-    private $name;
+    protected $name;
 
     /**
      * @var string
      *
      * @ORM\Column(name="slug", type="string", length=255, unique=true)
      */
-    private $slug;
+    protected $slug;
 
     /**
      * @var string
      *
      * @ORM\Column(name="content", type="text", nullable=true)
      */
-    private $content;
+    protected $content;
 
     /**
      * @var string $meta_description
      *
      * @ORM\Column(name="meta_description", type="text", nullable=true)
      */
-    private $meta_description;
+    protected $meta_description;
 
     /**
      * @var string $meta_keywords
      *
      * @ORM\Column(name="meta_keywords", type="text", nullable=true)
      */
-    private $meta_keywords;
+    protected $meta_keywords;
 
     /**
      * @var string $meta_title
      *
      * @ORM\Column(name="meta_title", type="text", nullable=true)
      */
-    private $meta_title;
+    protected $meta_title;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ProductImage
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\ProductImage", mappedBy="parent")
      */
-    private $images;
+    protected $images;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarSet
@@ -152,287 +153,287 @@ class Product
      *   @ORM\JoinColumn(name="item_var_set_id", referencedColumnName="id")
      * })
      */
-    private $item_var_set;
+    protected $item_var_set;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ProductVarValueDatetime
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\ProductVarValueDatetime", mappedBy="parent")
      */
-    private $var_values_datetime;
+    protected $var_values_datetime;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ProductVarValueDecimal
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\ProductVarValueDecimal", mappedBy="parent")
      */
-    private $var_values_decimal;
+    protected $var_values_decimal;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ProductVarValueInt
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\ProductVarValueInt", mappedBy="parent")
      */
-    private $var_values_int;
+    protected $var_values_int;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ProductVarValueText
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\ProductVarValueText", mappedBy="parent")
      */
-    private $var_values_text;
+    protected $var_values_text;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ProductVarValueVarchar
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\ProductVarValueVarchar", mappedBy="parent")
      */
-    private $var_values_varchar;
+    protected $var_values_varchar;
 
     /**
      * @var integer $type
      *
      * @ORM\Column(name="type", type="integer", nullable=true)
      */
-    private $type;
+    protected $type;
 
     /**
      * @var string $config
      *
      * @ORM\Column(name="config", type="text", nullable=true)
      */
-    private $config;
+    protected $config;
 
     /**
      * @var integer $visibility
      *
      * @ORM\Column(name="visibility", type="integer", nullable=true)
      */
-    private $visibility;
+    protected $visibility;
 
     /**
      * @var boolean $is_enabled
      *
      * @ORM\Column(name="is_enabled", type="boolean", nullable=true)
      */
-    private $is_enabled;
+    protected $is_enabled;
 
     /**
      * @var string $sku
      *
      * @ORM\Column(name="sku", type="string", length=255, unique=true)
      */
-    private $sku;
+    protected $sku;
 
     /**
      * @var string $short_description
      *
      * @ORM\Column(name="short_description", type="text", nullable=true)
      */
-    private $short_description;
+    protected $short_description;
 
     /**
      * @var float $price
      *
      * @ORM\Column(name="price", type="decimal", precision=12, scale=4)
      */
-    private $price;
+    protected $price;
 
     /**
      * @var float $special_price
      *
      * @ORM\Column(name="special_price", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $special_price;
+    protected $special_price;
 
     /**
      * @var float $cost
      *
      * @ORM\Column(name="cost", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $cost;
+    protected $cost;
 
     /**
      * @var string $currency
      *
      * @ORM\Column(name="currency", type="string", length=8)
      */
-    private $currency;
+    protected $currency;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\CustomerGroupProductPrice
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\CustomerGroupProductPrice", mappedBy="product")
      */
-    private $group_prices;
+    protected $group_prices;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ProductTierPrice
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\ProductTierPrice", mappedBy="product")
      */
-    private $tier_prices;
+    protected $tier_prices;
 
     /**
      * @var boolean $is_flat_shipping
      *
      * @ORM\Column(name="is_flat_shipping", type="boolean", nullable=true)
      */
-    private $is_flat_shipping;
+    protected $is_flat_shipping;
 
     /**
      * @var float $flat_shipping_price
      *
      * @ORM\Column(name="flat_shipping_price", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $flat_shipping_price;
+    protected $flat_shipping_price;
 
     /**
      * @var float $weight
      *
      * @ORM\Column(name="weight", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $weight;
+    protected $weight;
 
     /**
      * @var string $weight_unit
      *
      * @ORM\Column(name="weight_unit", type="string", length=8, nullable=true)
      */
-    private $weight_unit;
+    protected $weight_unit;
 
     /**
      * @var float $width
      *
      * @ORM\Column(name="width", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $width;
+    protected $width;
 
     /**
      * @var float $height
      *
      * @ORM\Column(name="height", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $height;
+    protected $height;
 
     /**
      * @var float $length
      *
      * @ORM\Column(name="length", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $length;
+    protected $length;
 
     /**
      * @var string $measure_unit
      *
      * @ORM\Column(name="measure_unit", type="string", length=8, nullable=true)
      */
-    private $measure_unit;
+    protected $measure_unit;
 
     /**
      * @var boolean $is_taxable
      *
      * @ORM\Column(name="is_taxable", type="boolean", nullable=true)
      */
-    private $is_taxable;
+    protected $is_taxable;
 
     /**
      * @var boolean $is_discountable
      *
      * @ORM\Column(name="is_discountable", type="boolean", nullable=true)
      */
-    private $is_discountable;
+    protected $is_discountable;
 
     /**
      * @var boolean $is_in_stock
      *
      * @ORM\Column(name="is_in_stock", type="boolean", nullable=true)
      */
-    private $is_in_stock;
+    protected $is_in_stock;
 
     /**
      * @var boolean $is_qty_managed
      *
      * @ORM\Column(name="is_qty_managed", type="boolean", nullable=true)
      */
-    private $is_qty_managed;
+    protected $is_qty_managed;
 
     /**
      * @var integer $stock_type
      *
      * @ORM\Column(name="stock_type", type="integer", nullable=true)
      */
-    private $stock_type;
+    protected $stock_type;
 
     /**
      * @var string
      *
      * @ORM\Column(name="source_address_key", type="string", length=255, nullable=true)
      */
-    private $source_address_key;
+    protected $source_address_key;
 
     /**
      * @var string
      *
      * @ORM\Column(name="upc", type="string", length=255, nullable=true)
      */
-    private $upc;
+    protected $upc;
 
     /**
      * @var boolean $can_backorder
      *
      * @ORM\Column(name="can_backorder", type="boolean", nullable=true)
      */
-    private $can_backorder;
+    protected $can_backorder;
 
     /**
      * @var integer $qty
      *
      * @ORM\Column(name="qty", type="integer")
      */
-    private $qty;
+    protected $qty;
 
     /**
      * @var string $qty_unit
      *
      * @ORM\Column(name="qty_unit", type="string", length=32, nullable=true)
      */
-    private $qty_unit;
+    protected $qty_unit;
 
     /**
      * @var integer $min_qty
      *
      * @ORM\Column(name="min_qty", type="integer", nullable=true)
      */
-    private $min_qty;
+    protected $min_qty;
 
     /**
      * @var string $fulltext_search
      *
      * @ORM\Column(name="fulltext_search", type="text", nullable=true)
      */
-    private $fulltext_search;
+    protected $fulltext_search;
 
     /**
      * @var string $custom_search
      *
      * @ORM\Column(name="custom_search", type="text", nullable=true)
      */
-    private $custom_search;
+    protected $custom_search;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\CategoryProduct $category_products
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\CategoryProduct", mappedBy="product")
      */
-    private $category_products;
+    protected $category_products;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ProductConfig
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\ProductConfig", mappedBy="product")
      */
-    private $product_configs;
+    protected $product_configs;
 
     public function __construct()
     {
@@ -453,58 +454,29 @@ class Product
         return $this->getSku();
     }
 
-    public function getId()
-    {
-        return $this->id;
-    }
-
+    /**
+     * @return string
+     */
     public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::PRODUCT;
     }
 
     /**
-     * @param $key
-     * @param $value
-     * @return Product
+     * @return int|null
      */
-    public function set($key, $value)
+    public function getId()
     {
-        $vars = get_object_vars($this);
-        if (array_key_exists($key, $vars)) {
-            $this->$key = $value;
-        }
-
-        return $this;
-    }
-
-    public function setData(array $data)
-    {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
-        return $this;
+        return $this->id;
     }
 
     /**
-     * @param $data
-     * @return Product
+     * @param $id
+     * @return $this
      */
-    public function fromArray($data)
+    public function setId($id)
     {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
+        $this->id = $id;
         return $this;
     }
 
@@ -556,61 +528,6 @@ class Product
             'fulltext_search' => $this->getFulltextSearch(),
             'custom_search' => $this->getCustomSearch(),
         ];
-    }
-
-    /**
-     * Lazy-loading getter
-     *  ideal for usage in the View layer
-     *
-     * @param $key
-     * @return mixed|null
-     */
-    public function get($key)
-    {
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
-
-        $data = $this->getBaseData();
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        $data = $this->getData();
-        if (isset($data[$key])) {
-
-            if (is_array($data[$key])) {
-                return implode(',', $data[$key]);
-            }
-
-            return $data[$key];
-        }
-
-        return '';
-    }
-
-    /**
-     * Get All Data or specific key of data
-     *
-     * @param string $key
-     * @return array|null
-     */
-    public function getData($key = '')
-    {
-        if (strlen($key) > 0) {
-
-            $data = $this->getBaseData();
-            if (isset($data[$key])) {
-                return $data[$key];
-            }
-
-            $data = $this->getVarValuesData();
-            return isset($data[$key])
-                ? $data[$key]
-                : null;
-        }
-
-        return array_merge($this->getVarValuesData(), $this->getBaseData());
     }
 
     /**
@@ -686,7 +603,7 @@ class Product
             : null;
 
         $data = $this->getBaseData();
-        $data['var_set_id'] = $varSetId;
+        $data['item_var_set_id'] = $varSetId;
 
         $varValues = $this->getVarValues();
         if (!$varValues) {
@@ -730,52 +647,6 @@ class Product
         }
 
         return $data;
-    }
-
-    /**
-     *
-     * @return array
-     */
-    public function getVarValues()
-    {
-        $values = new ArrayCollection();
-        $datetimes = $this->getVarValuesDatetime();
-        $decimals = $this->getVarValuesDecimal();
-        $ints = $this->getVarValuesInt();
-        $texts = $this->getVarValuesText();
-        $varchars = $this->getVarValuesVarchar();
-
-        if ($datetimes) {
-            foreach($datetimes as $value) {
-                $values->add($value);
-            }
-        }
-
-        if ($decimals) {
-            foreach($decimals as $value) {
-                $values->add($value);
-            }
-        }
-
-        if ($ints) {
-            foreach($ints as $value) {
-                $values->add($value);
-            }
-        }
-
-        if ($texts) {
-            foreach($texts as $value) {
-                $values->add($value);
-            }
-        }
-
-        if ($varchars) {
-            foreach($varchars as $value) {
-                $values->add($value);
-            }
-        }
-
-        return $values;
     }
 
     /**
@@ -2104,10 +1975,10 @@ class Product
     }
 
     /**
-     * @param ProductImage $image
-     * @return Product
+     * @param CartEntityImageInterface $image
+     * @return $this
      */
-    public function addImage(ProductImage $image)
+    public function addImage(CartEntityImageInterface $image)
     {
         $this->images[] = $image;
         return $this;
@@ -2123,10 +1994,10 @@ class Product
 
     /**
      * @param $code
-     * @param $isDefault
+     * @param bool $isDefault
      * @return string
      */
-    public function getImage($code, $isDefault = 0)
+    public function getImage($code, $isDefault = false)
     {
         $fallback = '';
         if ($this->images) {
@@ -2147,10 +2018,10 @@ class Product
 
     /**
      * @param $code
-     * @param $isDefault
+     * @param bool $isDefault
      * @return mixed
      */
-    public function getImagePath($code, $isDefault = 0)
+    public function getImagePath($code, $isDefault = false)
     {
         if ($image = $this->getImage($code, $isDefault)) {
             return $image->getPath();

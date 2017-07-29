@@ -8,9 +8,10 @@ use Doctrine\ORM\Mapping as ORM;
  * MobileCart\CoreBundle\Entity\OrderVarValueText
  *
  * @ORM\Table(name="order_var_value_text")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CommonRepository")
  */
 class OrderVarValueText
+    implements CartEntityVarValueInterface
 {
     /**
      * @var integer $id
@@ -19,14 +20,14 @@ class OrderVarValueText
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string $value
      *
      * @ORM\Column(name="value", type="text")
      */
-    private $value;
+    protected $value;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVar
@@ -36,7 +37,7 @@ class OrderVarValueText
      *   @ORM\JoinColumn(name="item_var_id", referencedColumnName="id", nullable=false)
      * })
      */
-    private $item_var;
+    protected $item_var;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarOptionText
@@ -46,7 +47,7 @@ class OrderVarValueText
      *   @ORM\JoinColumn(name="item_var_option_id", referencedColumnName="id", nullable=true)
      * })
      */
-    private $item_var_option;
+    protected $item_var_option;
     
     /**
      * @var \MobileCart\CoreBundle\Entity\Order
@@ -56,7 +57,7 @@ class OrderVarValueText
      *   @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      */
-    private $parent;
+    protected $parent;
 
     public function __toString()
     {
@@ -74,9 +75,8 @@ class OrderVarValueText
     }
 
     /**
-     * Set value
-     *
-     * @param string $value
+     * @param $value
+     * @return $this
      */
     public function setValue($value)
     {
@@ -95,9 +95,8 @@ class OrderVarValueText
     }
 
     /**
-     * Set item_var
-     *
-     * @param \MobileCart\CoreBundle\Entity\ItemVar $itemVar
+     * @param ItemVar $itemVar
+     * @return $this
      */
     public function setItemVar(ItemVar $itemVar)
     {
@@ -116,9 +115,7 @@ class OrderVarValueText
     }
 
     /**
-     * Set item_var_option
-     *
-     * @param \MobileCart\CoreBundle\Entity\ItemVarOption $itemVarOption
+     * @param $itemVarOption
      * @return $this
      */
     public function setItemVarOption($itemVarOption)
@@ -128,9 +125,7 @@ class OrderVarValueText
     }
 
     /**
-     * Get item_var_option
-     *
-     * @return \MobileCart\CoreBundle\Entity\ItemVarOption
+     * @return mixed|ItemVarOptionText
      */
     public function getItemVarOption()
     {
@@ -138,10 +133,10 @@ class OrderVarValueText
     }
 
     /**
-     * @param Order $parent
+     * @param CartEntityEAVInterface $parent
      * @return $this
      */
-    public function setParent(Order $parent)
+    public function setParent(CartEntityEAVInterface $parent)
     {
         $this->parent = $parent;
         return $this;
@@ -150,7 +145,7 @@ class OrderVarValueText
     /**
      * Get parent
      *
-     * @return \MobileCart\CoreBundle\Entity\Order
+     * @return \MobileCart\CoreBundle\Entity\CartEntityEAVInterface
      */
     public function getParent()
     {

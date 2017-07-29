@@ -16,6 +16,7 @@ use Symfony\Component\Security\Core\User\AdvancedUserInterface;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\AdminUserRepository")
  */
 class AdminUser
+    extends AbstractCartEntity
     implements AdvancedUserInterface, CartEntityInterface, \Serializable
 {
     /**
@@ -25,215 +26,135 @@ class AdminUser
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string $first_name
      *
      * @ORM\Column(name="first_name", type="string", length=255, nullable=true)
      */
-    private $first_name;
+    protected $first_name;
 
     /**
      * @var string $last_name
      *
      * @ORM\Column(name="last_name", type="string", length=255, nullable=true)
      */
-    private $last_name;
+    protected $last_name;
 
     /**
      * @var string $email
      *
      * @ORM\Column(name="email", type="string", length=255, unique=true)
      */
-    private $email;
+    protected $email;
 
     /**
      * @var string $hash
      *
      * @ORM\Column(name="hash", type="text", nullable=true)
      */
-    private $hash;
+    protected $hash;
 
     /**
      * @var string $confirm_hash
      *
      * @ORM\Column(name="confirm_hash", type="text", nullable=true)
      */
-    private $confirm_hash;
+    protected $confirm_hash;
 
     /**
      * @var int $failed_logins
      *
      * @ORM\Column(name="failed_logins", type="integer", nullable=true)
      */
-    private $failed_logins;
+    protected $failed_logins;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="locked_at", type="datetime", nullable=true)
      */
-    private $locked_at;
+    protected $locked_at;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="last_login_at", type="datetime", nullable=true)
      */
-    private $last_login_at;
+    protected $last_login_at;
 
     /**
      * @var string $api_key
      *
      * @ORM\Column(name="api_key", type="string", length=255, nullable=true)
      */
-    private $api_key;
+    protected $api_key;
 
     /**
      * @var boolean $is_enabled
      *
      * @ORM\Column(name="is_enabled", type="boolean", nullable=true)
      */
-    private $is_enabled;
+    protected $is_enabled;
 
     /**
      * @var boolean $is_expired
      *
      * @ORM\Column(name="is_expired", type="boolean", nullable=true)
      */
-    private $is_expired;
+    protected $is_expired;
 
     /**
      * @var boolean $is_locked
      *
      * @ORM\Column(name="is_locked", type="boolean", nullable=true)
      */
-    private $is_locked;
+    protected $is_locked;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="password_updated_at", type="datetime", nullable=true)
      */
-    private $password_updated_at;
+    protected $password_updated_at;
 
     /**
      * @var boolean $is_password_expired
      *
      * @ORM\Column(name="is_password_expired", type="boolean", nullable=true)
      */
-    private $is_password_expired;
+    protected $is_password_expired;
 
     public function __toString()
     {
         return $this->getFirstName() . ' ' . $this->getLastName();
     }
 
+    /**
+     * @return string
+     */
     public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::ADMIN_USER;
     }
 
+    /**
+     * @return int|null
+     */
     public function getId()
     {
         return $this->id;
     }
 
     /**
-     * @param $key
-     * @param $value
+     * @param $id
      * @return $this
      */
-    public function set($key, $value)
+    public function setId($id)
     {
-        $vars = get_object_vars($this);
-        if (array_key_exists($key, $vars)) {
-            $this->$key = $value;
-        }
-
+        $this->id = $id;
         return $this;
-    }
-
-    /**
-     * @param $data
-     * @return $this
-     */
-    public function fromArray($data)
-    {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Lazy-loading getter
-     *  ideal for usage in the View layer
-     *
-     * @param $key
-     * @return mixed|null
-     */
-    public function get($key)
-    {
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
-
-        $data = $this->getBaseData();
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        $data = $this->getData();
-        if (isset($data[$key])) {
-
-            if (is_array($data[$key])) {
-                return implode(',', $data[$key]);
-            }
-
-            return $data[$key];
-        }
-
-        return '';
-    }
-
-    /**
-     * Getter , after fully loading
-     *  use only if necessary, and avoid calling multiple times
-     *
-     * @param string $key
-     * @return array|null
-     */
-    public function getData($key = '')
-    {
-        $data = $this->getBaseData();
-
-        if (strlen($key) > 0) {
-
-            return isset($data[$key])
-                ? $data[$key]
-                : null;
-        }
-
-        return $data;
-    }
-
-    /**
-     * @return array
-     */
-    public function getLuceneVarValuesData()
-    {
-        // Note:
-        // be careful with adding foreign relationships here
-        // since it will add 1 query every time an item is loaded
-
-        return $this->getBaseData();
     }
 
     /**
@@ -271,15 +192,15 @@ class AdminUser
         return [
             'id'                  => $this->getId(),
             'email'               => $this->getEmail(),
-            // 'hash'                => $this->getHash(),
-            // 'confirm_hash'        => $this->getConfirmHash(),
+            // 'hash'                => $this->getHash(), // security risk
+            // 'confirm_hash'        => $this->getConfirmHash(), // security risk
             'name'                => $this->getName(),
             'first_name'          => $this->getFirstName(),
             'last_name'           => $this->getLastName(),
             'failed_logins'       => $this->getFailedLogins(),
             'locked_at'           => $this->getLockedAt(),
             'last_login_at'       => $this->getLastLoginAt(),
-            'api_key'             => $this->getApiKey(),
+            'api_key'             => $this->getApiKey(), // security concern. only return this after login success
             'is_enabled'          => $this->getIsEnabled(),
             'is_expired'          => $this->getIsExpired(),
             'is_locked'           => $this->getIsLocked(),

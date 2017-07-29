@@ -19,7 +19,7 @@ class ProductConfig
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Product
@@ -29,7 +29,7 @@ class ProductConfig
      *   @ORM\JoinColumn(name="product_id", referencedColumnName="id", nullable=false)
      * })
      */
-    private $product;
+    protected $product;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Product
@@ -39,7 +39,7 @@ class ProductConfig
      *   @ORM\JoinColumn(name="child_product_id", referencedColumnName="id", nullable=false)
      * })
      */
-    private $child_product;
+    protected $child_product;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVar
@@ -49,7 +49,7 @@ class ProductConfig
      *   @ORM\JoinColumn(name="item_var_id", referencedColumnName="id", nullable=false)
      * })
      */
-    private $item_var;
+    protected $item_var;
 
     public function __construct()
     {

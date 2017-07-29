@@ -10,7 +10,9 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="config_setting")
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\ConfigSettingRepository")
  */
-class ConfigSetting implements CartEntityInterface
+class ConfigSetting
+    extends AbstractCartEntity
+    implements CartEntityInterface
 {
     /**
      * @var int
@@ -19,31 +21,31 @@ class ConfigSetting implements CartEntityInterface
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
      *
      * @ORM\Column(name="code", type="string", length=255, unique=true)
      */
-    private $code;
+    protected $code;
 
     /**
      * @var string
      *
      * @ORM\Column(name="label", type="string", length=255, nullable=true)
      */
-    private $label;
+    protected $label;
 
     /**
      * @var string
      *
      * @ORM\Column(name="value", type="text")
      */
-    private $value;
+    protected $value;
 
     /**
-     * @return mixed|string
+     * @return string
      */
     public function getObjectTypeKey()
     {
@@ -51,13 +53,21 @@ class ConfigSetting implements CartEntityInterface
     }
 
     /**
-     * Get id
-     *
-     * @return int
+     * @return int|null
      */
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
     }
 
     /**
@@ -130,90 +140,6 @@ class ConfigSetting implements CartEntityInterface
     public function getValue()
     {
         return $this->value;
-    }
-
-    /**
-     * @param $key
-     * @param $value
-     * @return $this
-     */
-    public function set($key, $value)
-    {
-        $vars = get_object_vars($this);
-        if (array_key_exists($key, $vars)) {
-            $this->$key = $value;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param $data
-     * @return $this
-     */
-    public function fromArray($data)
-    {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Lazy-loading getter
-     *  ideal for usage in the View layer
-     *
-     * @param $key
-     * @return mixed|null
-     */
-    public function get($key)
-    {
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
-
-        $data = $this->getBaseData();
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        $data = $this->getData();
-        if (isset($data[$key])) {
-
-            if (is_array($data[$key])) {
-                return implode(',', $data[$key]);
-            }
-
-            return $data[$key];
-        }
-
-        return '';
-    }
-
-    /**
-     * Getter , after fully loading
-     *  use only if necessary, and avoid calling multiple times
-     *
-     * @param string $key
-     * @return array|null
-     */
-    public function getData($key = '')
-    {
-        $data = $this->getBaseData();
-
-        if (strlen($key) > 0) {
-
-            return isset($data[$key])
-                ? $data[$key]
-                : null;
-        }
-
-        return $data;
     }
 
     /**

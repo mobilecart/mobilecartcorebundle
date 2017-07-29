@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\UrlRewriteRepository")
  */
 class UrlRewrite
+    extends AbstractCartEntity
     implements CartEntityInterface
 {
     /**
@@ -20,149 +21,74 @@ class UrlRewrite
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
      *
      * @ORM\Column(name="object_type", type="string", length=32)
      */
-    private $object_type;
+    protected $object_type;
 
     /**
      * @var string
      *
      * @ORM\Column(name="object_action", type="string", length=8, nullable=true)
      */
-    private $object_action;
+    protected $object_action;
 
     /**
      * @var string
      *
      * @ORM\Column(name="request_uri", type="string", length=255)
      */
-    private $request_uri;
+    protected $request_uri;
 
     /**
      * @var string
      *
      * @ORM\Column(name="params_json", type="text", nullable=true)
      */
-    private $params_json;
+    protected $params_json;
 
     /**
      * @var boolean
      *
      * @ORM\Column(name="is_redirect", type="boolean", nullable=true)
      */
-    private $is_redirect;
+    protected $is_redirect;
 
     /**
      * @var string
      *
      * @ORM\Column(name="redirect_url", type="text", nullable=true)
      */
-    private $redirect_url;
+    protected $redirect_url;
 
+    /**
+     * @return int|null
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::URL_REWRITE;
-    }
-
-    /**
-     * @param $key
-     * @param $value
-     * @return $this
-     */
-    public function set($key, $value)
-    {
-        $vars = get_object_vars($this);
-        if (array_key_exists($key, $vars)) {
-            $this->$key = $value;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param $data
-     * @return $this
-     */
-    public function fromArray($data)
-    {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Lazy-loading getter
-     *  ideal for usage in the View layer
-     *
-     * @param $key
-     * @return mixed|null
-     */
-    public function get($key)
-    {
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
-
-        $data = $this->getBaseData();
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        $data = $this->getData();
-        if (isset($data[$key])) {
-
-            if (is_array($data[$key])) {
-                return implode(',', $data[$key]);
-            }
-
-            return $data[$key];
-        }
-
-        return '';
-    }
-
-    /**
-     * Getter , after fully loading
-     *  use only if necessary, and avoid calling multiple times
-     *
-     * @param string $key
-     * @return array|null
-     */
-    public function getData($key = '')
-    {
-        $data = $this->getBaseData();
-
-        if (strlen($key) > 0) {
-
-            return isset($data[$key])
-                ? $data[$key]
-                : null;
-        }
-
-        return $data;
-    }
-
-    /**
-     * @return array
-     */
-    public function getLuceneVarValuesData()
-    {
-        // Note:
-        // be careful with adding foreign relationships here
-        // since it will add 1 query every time an item is loaded
-
-        return $this->getBaseData();
     }
 
     /**
@@ -179,16 +105,6 @@ class UrlRewrite
             'is_redirect' => $this->getIsRedirect(),
             'redirect_url' => $this->getRedirectUrl(),
         ];
-    }
-
-    /**
-     * Get id
-     *
-     * @return integer 
-     */
-    public function getId()
-    {
-        return $this->id;
     }
 
     /**

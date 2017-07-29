@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  */
 class CustomerVarValueText
+    implements CartEntityVarValueInterface
 {
     /**
      * @var integer $id
@@ -19,14 +20,14 @@ class CustomerVarValueText
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string $value
      *
      * @ORM\Column(name="value", type="text")
      */
-    private $value;
+    protected $value;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVar
@@ -36,7 +37,7 @@ class CustomerVarValueText
      *   @ORM\JoinColumn(name="item_var_id", referencedColumnName="id", nullable=false)
      * })
      */
-    private $item_var;
+    protected $item_var;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\ItemVarOptionText
@@ -46,7 +47,7 @@ class CustomerVarValueText
      *   @ORM\JoinColumn(name="item_var_option_id", referencedColumnName="id", nullable=true)
      * })
      */
-    private $item_var_option;
+    protected $item_var_option;
     
     /**
      * @var \MobileCart\CoreBundle\Entity\Customer
@@ -56,7 +57,7 @@ class CustomerVarValueText
      *   @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      */
-    private $parent;
+    protected $parent;
 
     public function __toString()
     {
@@ -74,9 +75,8 @@ class CustomerVarValueText
     }
 
     /**
-     * Set value
-     *
-     * @param string $value
+     * @param $value
+     * @return $this
      */
     public function setValue($value)
     {
@@ -95,9 +95,8 @@ class CustomerVarValueText
     }
 
     /**
-     * Set item_var
-     *
-     * @param \MobileCart\CoreBundle\Entity\ItemVar $itemVar
+     * @param ItemVar $itemVar
+     * @return $this
      */
     public function setItemVar(ItemVar $itemVar)
     {
@@ -116,9 +115,7 @@ class CustomerVarValueText
     }
 
     /**
-     * Set item_var_option
-     *
-     * @param \MobileCart\CoreBundle\Entity\ItemVarOption $itemVarOption
+     * @param $itemVarOption
      * @return $this
      */
     public function setItemVarOption($itemVarOption)
@@ -138,10 +135,10 @@ class CustomerVarValueText
     }
 
     /**
-     * @param Customer $parent
+     * @param CartEntityEAVInterface $parent
      * @return $this
      */
-    public function setParent(Customer $parent)
+    public function setParent(CartEntityEAVInterface $parent)
     {
         $this->parent = $parent;
         return $this;
@@ -150,7 +147,7 @@ class CustomerVarValueText
     /**
      * Get parent
      *
-     * @return \MobileCart\CoreBundle\Entity\Customer
+     * @return \MobileCart\CoreBundle\Entity\CartEntityEAVInterface
      */
     public function getParent()
     {

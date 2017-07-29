@@ -113,6 +113,7 @@ class EntityConstants
     const CUSTOMER_GROUP_PRODUCT_PRICE = 'customer_group_product_price';
     const CUSTOMER_TOKEN = 'customer_token';
     const DISCOUNT = 'discount';
+    const OBJECT_LOG = 'object_log';
     const ORDER = 'order';
     const ORDER_ITEM = 'order_item';
     const ORDER_SHIPMENT = 'order_shipment';

@@ -11,6 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CustomerGroupRepository")
  */
 class CustomerGroup
+    extends AbstractCartEntity
+    implements CartEntityInterface
 {
     /**
      * @var integer
@@ -19,21 +21,21 @@ class CustomerGroup
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255)
      */
-    private $name;
+    protected $name;
 
     /**
      * @var integer
      *
      * @ORM\Column(name="position", type="integer")
      */
-    private $position;
+    protected $position;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Customer $customers
@@ -48,19 +50,23 @@ class CustomerGroup
      *   }
      * )
      */
-    private $customers;
+    protected $customers;
 
     public function __construct()
     {
         $this->customers = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
-
+    /**
+     * @return string
+     */
+    public function getObjectTypeKey()
+    {
+        return \MobileCart\CoreBundle\Constants\EntityConstants::CUSTOMER_GROUP;
+    }
 
     /**
-     * Get id
-     *
-     * @return integer 
+     * @return int|null
      */
     public function getId()
     {
@@ -68,99 +74,13 @@ class CustomerGroup
     }
 
     /**
-     * @param $key
-     * @param $value
+     * @param $id
      * @return $this
      */
-    public function set($key, $value)
+    public function setId($id)
     {
-        $vars = get_object_vars($this);
-        if (array_key_exists($key, $vars)) {
-            $this->$key = $value;
-        }
-
+        $this->id = $id;
         return $this;
-    }
-
-    /**
-     * @param $data
-     * @return $this
-     */
-    public function fromArray($data)
-    {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Lazy-loading getter
-     *  ideal for usage in the View layer
-     *
-     * @param $key
-     * @return mixed|null
-     */
-    public function get($key)
-    {
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
-
-        $data = $this->getBaseData();
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        $data = $this->getData();
-        if (isset($data[$key])) {
-
-            if (is_array($data[$key])) {
-                return implode(',', $data[$key]);
-            }
-
-            return $data[$key];
-        }
-
-        return '';
-    }
-
-    /**
-     * Getter , after fully loading
-     *  use only if necessary, and avoid calling multiple times
-     *
-     * @param string $key
-     * @return array|null
-     */
-    public function getData($key = '')
-    {
-        $data = array_merge($this->getVarValuesData(), $this->getBaseData());
-
-        if (strlen($key) > 0) {
-
-            return isset($data[$key])
-                ? $data[$key]
-                : null;
-        }
-
-        return $data;
-    }
-
-    /**
-     * @return array
-     */
-    public function getLuceneVarValuesData()
-    {
-        // Note:
-        // be careful with adding foreign relationships here
-        // since it will add 1 query every time an item is loaded
-
-        return $this->getBaseData();
     }
 
     /**
@@ -169,7 +89,8 @@ class CustomerGroup
     public function getBaseData()
     {
         return [
-
+            'id' => $this->getId(),
+            'name' => $this->getName(),
         ];
     }
 

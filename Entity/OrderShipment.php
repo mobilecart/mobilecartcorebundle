@@ -8,9 +8,10 @@ use Doctrine\ORM\Mapping as ORM;
  * OrderShipment
  *
  * @ORM\Table(name="order_shipment")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CommonRepository")
  */
 class OrderShipment
+    extends AbstractCartEntity
     implements CartEntityInterface
 {
     /**
@@ -20,42 +21,42 @@ class OrderShipment
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime", nullable=true)
      */
-    private $created_at;
+    protected $created_at;
 
     /**
      * @var string
      *
      * @ORM\Column(name="source_address_key", type="string", length=255, nullable=true)
      */
-    private $source_address_key;
+    protected $source_address_key;
 
     /**
      * @var string
      *
      * @ORM\Column(name="company", type="string", length=255)
      */
-    private $company;
+    protected $company;
 
     /**
      * @var string
      *
      * @ORM\Column(name="method", type="string", length=255)
      */
-    private $method;
+    protected $method;
 
     /**
      * @var string
      *
      * @ORM\Column(name="tracking", type="text", nullable=true)
      */
-    private $tracking;
+    protected $tracking;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Order
@@ -65,154 +66,154 @@ class OrderShipment
      *   @ORM\JoinColumn(name="order_id", referencedColumnName="id")
      * })
      */
-    private $order;
+    protected $order;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\OrderItem
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\OrderItem", mappedBy="shipment")
      */
-    private $items;
+    protected $items;
 
     /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=true)
      */
-    private $name;
+    protected $name;
 
     /**
      * @var string
      *
      * @ORM\Column(name="company_name", type="string", length=255, nullable=true)
      */
-    private $company_name;
+    protected $company_name;
 
     /**
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=24, nullable=true)
      */
-    private $phone;
+    protected $phone;
 
     /**
      * @var string
      *
      * @ORM\Column(name="street", type="string", length=255, nullable=true)
      */
-    private $street;
+    protected $street;
 
     /**
      * @var string
      *
      * @ORM\Column(name="street2", type="string", length=255, nullable=true)
      */
-    private $street2;
+    protected $street2;
 
     /**
      * @var string
      *
      * @ORM\Column(name="city", type="string", length=255, nullable=true)
      */
-    private $city;
+    protected $city;
 
     /**
      * @var string
      *
      * @ORM\Column(name="region", type="string", length=255, nullable=true)
      */
-    private $region;
+    protected $region;
 
     /**
      * @var string
      *
      * @ORM\Column(name="postcode", type="string", length=16, nullable=true)
      */
-    private $postcode;
+    protected $postcode;
 
     /**
      * @var string
      *
      * @ORM\Column(name="country_id", type="string", length=2, nullable=true)
      */
-    private $country_id;
+    protected $country_id;
 
     /**
      * @var integer $id
      *
      * @ORM\Column(name="shipping_method_id", type="integer", nullable=true)
      */
-    private $shipping_method_id;
+    protected $shipping_method_id;
 
     /**
      * @var float $price
      *
      * @ORM\Column(name="price", type="decimal", precision=12, scale=4)
      */
-    private $price;
+    protected $price;
 
     /**
      * @var float $cost
      *
      * @ORM\Column(name="cost", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $cost;
+    protected $cost;
 
     /**
      * @var float $tax
      *
      * @ORM\Column(name="tax", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $tax;
+    protected $tax;
 
     /**
      * @var float $discount
      *
      * @ORM\Column(name="discount", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $discount;
+    protected $discount;
 
     /**
      * @var string $currency
      *
      * @ORM\Column(name="currency", type="string", length=8)
      */
-    private $currency;
+    protected $currency;
 
     /**
      * @var float $base_price
      *
      * @ORM\Column(name="base_price", type="decimal", precision=12, scale=4)
      */
-    private $base_price;
+    protected $base_price;
 
     /**
      * @var float $base_cost
      *
      * @ORM\Column(name="base_cost", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $base_cost;
+    protected $base_cost;
 
     /**
      * @var float $base_tax
      *
      * @ORM\Column(name="base_tax", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $base_tax;
+    protected $base_tax;
 
     /**
      * @var float $base_discount
      *
      * @ORM\Column(name="base_discount", type="decimal", precision=12, scale=4, nullable=true)
      */
-    private $base_discount;
+    protected $base_discount;
 
     /**
      * @var string $base_currency
      *
      * @ORM\Column(name="base_currency", type="string", length=8)
      */
-    private $base_currency;
+    protected $base_currency;
 
     public function __construct()
     {
@@ -220,114 +221,29 @@ class OrderShipment
     }
 
     /**
-     * Get id
-     *
-     * @return integer 
+     * @return int|null
      */
     public function getId()
     {
         return $this->id;
     }
 
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::ORDER_SHIPMENT;
-    }
-
-    /**
-     * @param $key
-     * @param $value
-     * @return $this
-     */
-    public function set($key, $value)
-    {
-        $vars = get_object_vars($this);
-        if (array_key_exists($key, $vars)) {
-            $this->$key = $value;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param $data
-     * @return $this
-     */
-    public function fromArray($data)
-    {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Lazy-loading getter
-     *  ideal for usage in the View layer
-     *
-     * @param $key
-     * @return mixed|null
-     */
-    public function get($key)
-    {
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
-
-        $data = $this->getBaseData();
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        $data = $this->getData();
-        if (isset($data[$key])) {
-
-            if (is_array($data[$key])) {
-                return implode(',', $data[$key]);
-            }
-
-            return $data[$key];
-        }
-
-        return '';
-    }
-
-    /**
-     * Getter , after fully loading
-     *  use only if necessary, and avoid calling multiple times
-     *
-     * @param string $key
-     * @return array|null
-     */
-    public function getData($key = '')
-    {
-        $data = $this->getBaseData();
-
-        if (strlen($key) > 0) {
-
-            return isset($data[$key])
-                ? $data[$key]
-                : null;
-        }
-
-        return $data;
-    }
-
-    /**
-     * @return array
-     */
-    public function getLuceneVarValuesData()
-    {
-        // Note:
-        // be careful with adding foreign relationships here
-        // since it will add 1 query every time an item is loaded
-
-        return $this->getBaseData();
     }
 
     /**

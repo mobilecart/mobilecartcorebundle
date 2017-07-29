@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CustomerAddressRepository")
  */
 class CustomerAddress
+    extends AbstractCartEntity
     implements CartEntityInterface
 {
     /**
@@ -20,7 +21,7 @@ class CustomerAddress
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Customer
@@ -30,138 +31,95 @@ class CustomerAddress
      *   @ORM\JoinColumn(name="customer_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      */
-    private $customer;
+    protected $customer;
 
     /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255, nullable=true)
      */
-    private $name;
+    protected $name;
 
     /**
      * @var string
      *
      * @ORM\Column(name="company", type="string", length=255, nullable=true)
      */
-    private $company;
+    protected $company;
 
     /**
      * @var string
      *
      * @ORM\Column(name="phone", type="string", length=24, nullable=true)
      */
-    private $phone;
+    protected $phone;
 
     /**
      * @var string
      *
      * @ORM\Column(name="street", type="string", length=255)
      */
-    private $street;
+    protected $street;
 
     /**
      * @var string
      *
      * @ORM\Column(name="street2", type="string", length=255, nullable=true)
      */
-    private $street2;
+    protected $street2;
 
     /**
      * @var string
      *
      * @ORM\Column(name="city", type="string", length=255)
      */
-    private $city;
+    protected $city;
 
     /**
      * @var string
      *
      * @ORM\Column(name="region", type="string", length=255)
      */
-    private $region;
+    protected $region;
 
     /**
      * @var string
      *
      * @ORM\Column(name="postcode", type="string", length=16, nullable=true)
      */
-    private $postcode;
+    protected $postcode;
 
     /**
      * @var string
      *
      * @ORM\Column(name="country_id", type="string", length=2, nullable=true)
      */
-    private $country_id;
-
+    protected $country_id;
 
     /**
-     * Get id
-     *
-     * @return integer 
+     * @return int|null
      */
     public function getId()
     {
         return $this->id;
     }
 
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::CUSTOMER_ADDRESS;
-    }
-
-    /**
-     * @param $key
-     * @param $value
-     * @return $this
-     */
-    public function set($key, $value)
-    {
-        $vars = get_object_vars($this);
-        if (array_key_exists($key, $vars)) {
-            $this->$key = $value;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param $data
-     * @return $this
-     */
-    public function fromArray($data)
-    {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Lazy-loading getter
-     *  ideal for usage in the View layer
-     *
-     * @param $key
-     * @return mixed|null
-     */
-    public function get($key)
-    {
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
-
-        $data = $this->getBaseData();
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        return '';
     }
 
     /**
@@ -175,16 +133,16 @@ class CustomerAddress
     {
         $data = $this->getBaseData();
 
+        $data['customer_id'] = $this->getCustomer()
+            ? $this->getCustomer()->getId()
+            : null;
+
         if (strlen($key) > 0) {
 
             return isset($data[$key])
                 ? $data[$key]
                 : null;
         }
-
-        $data['customer_id'] = $this->getCustomer()
-            ? $this->getCustomer()->getId()
-            : null;
 
         return $data;
     }
@@ -200,7 +158,7 @@ class CustomerAddress
             'company'    => $this->getCompany(),
             'phone'      => $this->getPhone(),
             'street'     => $this->getStreet(),
-            'street2'     => $this->getStreet2(),
+            'street2'    => $this->getStreet2(),
             'city'       => $this->getCity(),
             'region'     => $this->getRegion(),
             'postcode'   => $this->getPostcode(),

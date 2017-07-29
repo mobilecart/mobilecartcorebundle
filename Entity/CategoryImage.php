@@ -8,10 +8,11 @@ use Doctrine\ORM\Mapping as ORM;
  * CategoryImage
  *
  * @ORM\Table(name="category_image")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CommonRepository")
  */
 class CategoryImage
-    implements CartEntityInterface
+    extends AbstractCartEntity
+    implements CartEntityInterface, CartEntityImageInterface
 {
     /**
      * @var integer
@@ -20,77 +21,77 @@ class CategoryImage
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var boolean $is_default
      *
      * @ORM\Column(name="is_default", type="boolean", nullable=true)
      */
-    private $is_default;
+    protected $is_default;
 
     /**
      * @var boolean $is_featured
      *
      * @ORM\Column(name="is_featured", type="boolean", nullable=true)
      */
-    private $is_featured;
+    protected $is_featured;
 
     /**
      * @var integer
      *
      * @ORM\Column(name="sort_order", type="integer", nullable=true)
      */
-    private $sort_order;
+    protected $sort_order;
 
     /**
      * @var string $code an Identifier
      *
      * @ORM\Column(name="code", type="string", length=64)
      */
-    private $code;
+    protected $code;
 
     /**
      * @var string
      *
      * @ORM\Column(name="size", type="string", length=16, nullable=true)
      */
-    private $size;
+    protected $size;
 
     /**
      * @var integer
      *
      * @ORM\Column(name="width", type="integer", nullable=true)
      */
-    private $width;
+    protected $width;
 
     /**
      * @var integer
      *
      * @ORM\Column(name="height", type="integer", nullable=true)
      */
-    private $height;
+    protected $height;
 
     /**
      * @var string
      *
      * @ORM\Column(name="url", type="text", nullable=true)
      */
-    private $url;
+    protected $url;
 
     /**
      * @var string
      *
      * @ORM\Column(name="path", type="text", nullable=true)
      */
-    private $path;
+    protected $path;
 
     /**
      * @var string
      *
      * @ORM\Column(name="alt_text", type="string", length=255, nullable=true)
      */
-    private $alt_text;
+    protected $alt_text;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Category
@@ -100,117 +101,32 @@ class CategoryImage
      *   @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=true)
      * })
      */
-    private $parent;
+    protected $parent;
 
     /**
-     * Get id
-     *
-     * @return integer 
+     * @return int|null
      */
     public function getId()
     {
         return $this->id;
     }
 
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getObjectTypeKey()
     {
         return \MobileCart\CoreBundle\Constants\EntityConstants::CATEGORY_IMAGE;
-    }
-
-    /**
-     * @param $key
-     * @param $value
-     * @return $this
-     */
-    public function set($key, $value)
-    {
-        $vars = get_object_vars($this);
-        if (array_key_exists($key, $vars)) {
-            $this->$key = $value;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param $data
-     * @return $this
-     */
-    public function fromArray($data)
-    {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Lazy-loading getter
-     *  ideal for usage in the View layer
-     *
-     * @param $key
-     * @return mixed|null
-     */
-    public function get($key)
-    {
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
-
-        $data = $this->getBaseData();
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        $data = $this->getData();
-        if (isset($data[$key])) {
-
-            if (is_array($data[$key])) {
-                return implode(',', $data[$key]);
-            }
-
-            return $data[$key];
-        }
-
-        return '';
-    }
-
-    /**
-     * Getter , after fully loading
-     *  use only if necessary, and avoid calling multiple times
-     *
-     * @param string $key
-     * @return array|null
-     */
-    public function getData($key = '')
-    {
-        $data = $this->getBaseData();
-
-        if (strlen($key) > 0) {
-
-            return isset($data[$key])
-                ? $data[$key]
-                : null;
-        }
-
-        return $data;
-    }
-
-    /**
-     * @return array
-     */
-    public function getLuceneVarValuesData()
-    {
-        // Note:
-        // be careful with adding foreign relationships here
-        // since it will add 1 query every time an item is loaded
-
-        return $this->getBaseData();
     }
 
     /**
@@ -280,7 +196,7 @@ class CategoryImage
     /**
      * Set sort_order
      *
-     * @param integer $sortOrder
+     * @param int $sortOrder
      * @return $this
      */
     public function setSortOrder($sortOrder)
@@ -292,7 +208,7 @@ class CategoryImage
     /**
      * Get sort_order
      *
-     * @return integer
+     * @return int
      */
     public function getSortOrder()
     {
@@ -340,7 +256,7 @@ class CategoryImage
     }
 
     /**
-     * @param $height
+     * @param int $height
      * @return $this
      */
     public function setHeight($height)
@@ -359,7 +275,7 @@ class CategoryImage
 
     /**
      * @param $code
-     * @return ItemImage
+     * @return CategoryImage
      */
     public function setCode($code)
     {
@@ -379,7 +295,7 @@ class CategoryImage
      * Set url
      *
      * @param string $url
-     * @return ItemImage
+     * @return CategoryImage
      */
     public function setUrl($url)
     {
@@ -438,21 +354,17 @@ class CategoryImage
     }
 
     /**
-     * Set parent
-     *
-     * @param \MobileCart\CoreBundle\Entity\Category $parent
-     * @return $this;
+     * @param CartEntityImageParentInterface $parent
+     * @return $this
      */
-    public function setParent(Category $parent)
+    public function setParent(CartEntityImageParentInterface $parent)
     {
         $this->parent = $parent;
         return $this;
     }
 
     /**
-     * Get parent
-     *
-     * @return \MobileCart\CoreBundle\Entity\Category
+     * @return CartEntityImageParentInterface
      */
     public function getParent()
     {

@@ -19,35 +19,35 @@ class PaymentMethod
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string $company
      *
      * @ORM\Column(name="company", type="string", length=255, nullable=true)
      */
-    private $company;
+    protected $company;
 
     /**
      * @var string $title
      *
      * @ORM\Column(name="title", type="string", length=255)
      */
-    private $title;
+    protected $title;
 
     /**
      * @var string $method
      *
      * @ORM\Column(name="method", type="string", length=255)
      */
-    private $method;
+    protected $method;
 
     /**
      * @var string $pre_conditions
      *
      * @ORM\Column(name="pre_conditions", type="text", nullable=true)
      */
-    private $pre_conditions;
+    protected $pre_conditions;
 
     /**
      * @param $key

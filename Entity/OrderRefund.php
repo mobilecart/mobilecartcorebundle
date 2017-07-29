@@ -8,9 +8,11 @@ use Doctrine\ORM\Mapping as ORM;
  * OrderRefund
  *
  * @ORM\Table(name="order_refund")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CommonRepository")
  */
 class OrderRefund
+    extends AbstractCartEntity
+    implements CartEntityInterface
 {
     /**
      * @var integer
@@ -19,7 +21,7 @@ class OrderRefund
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Order
@@ -29,63 +31,63 @@ class OrderRefund
      *   @ORM\JoinColumn(name="order_id", referencedColumnName="id")
      * })
      */
-    private $order;
+    protected $order;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\OrderPayment
      *
      * @ORM\OneToMany(targetEntity="MobileCart\CoreBundle\Entity\OrderPayment", mappedBy="invoice")
      */
-    private $payments;
+    protected $payments;
 
     /**
      * @var string $currency
      *
      * @ORM\Column(name="currency", type="string", length=8)
      */
-    private $currency;
+    protected $currency;
 
     /**
      * @var float $amount_due
      *
      * @ORM\Column(name="amount_due", type="decimal", precision=12, scale=4)
      */
-    private $amount_due;
+    protected $amount_due;
 
     /**
      * @var float $amount_paid
      *
      * @ORM\Column(name="amount_paid", type="decimal", precision=12, scale=4)
      */
-    private $amount_paid;
+    protected $amount_paid;
 
     /**
      * @var string $base_currency
      *
      * @ORM\Column(name="base_currency", type="string", length=8)
      */
-    private $base_currency;
+    protected $base_currency;
 
     /**
      * @var float $base_amount_due
      *
      * @ORM\Column(name="base_amount_due", type="decimal", precision=12, scale=4)
      */
-    private $base_amount_due;
+    protected $base_amount_due;
 
     /**
      * @var float $base_amount_paid
      *
      * @ORM\Column(name="base_amount_paid", type="decimal", precision=12, scale=4)
      */
-    private $base_amount_paid;
+    protected $base_amount_paid;
 
     /**
      * @var boolean $is_paid
      *
      * @ORM\Column(name="is_paid", type="boolean", nullable=true)
      */
-    private $is_paid;
+    protected $is_paid;
 
     public function __construct()
     {
@@ -93,9 +95,7 @@ class OrderRefund
     }
 
     /**
-     * Get id
-     *
-     * @return integer 
+     * @return int|null
      */
     public function getId()
     {
@@ -103,99 +103,21 @@ class OrderRefund
     }
 
     /**
-     * @param $key
-     * @param $value
+     * @param $id
      * @return $this
      */
-    public function set($key, $value)
+    public function setId($id)
     {
-        $vars = get_object_vars($this);
-        if (array_key_exists($key, $vars)) {
-            $this->$key = $value;
-        }
-
+        $this->id = $id;
         return $this;
     }
 
     /**
-     * @param $data
-     * @return $this
+     * @return string
      */
-    public function fromArray($data)
+    public function getObjectTypeKey()
     {
-        if (!$data) {
-            return $this;
-        }
-
-        foreach($data as $key => $value) {
-            $this->set($key, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Lazy-loading getter
-     *  ideal for usage in the View layer
-     *
-     * @param $key
-     * @return mixed|null
-     */
-    public function get($key)
-    {
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
-
-        $data = $this->getBaseData();
-        if (isset($data[$key])) {
-            return $data[$key];
-        }
-
-        $data = $this->getData();
-        if (isset($data[$key])) {
-
-            if (is_array($data[$key])) {
-                return implode(',', $data[$key]);
-            }
-
-            return $data[$key];
-        }
-
-        return '';
-    }
-
-    /**
-     * Getter , after fully loading
-     *  use only if necessary, and avoid calling multiple times
-     *
-     * @param string $key
-     * @return array|null
-     */
-    public function getData($key = '')
-    {
-        $data = $this->getBaseData();
-
-        if (strlen($key) > 0) {
-
-            return isset($data[$key])
-                ? $data[$key]
-                : null;
-        }
-
-        return $data;
-    }
-
-    /**
-     * @return array
-     */
-    public function getLuceneVarValuesData()
-    {
-        // Note:
-        // be careful with adding foreign relationships here
-        // since it will add 1 query every time an item is loaded
-
-        return $this->getBaseData();
+        return \MobileCart\CoreBundle\Constants\EntityConstants::ORDER_REFUND;
     }
 
     /**

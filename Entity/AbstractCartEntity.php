@@ -4,7 +4,6 @@ namespace MobileCart\CoreBundle\Entity;
 
 abstract class AbstractCartEntity
 {
-
     /**
      * @param $key
      * @param $value
@@ -52,6 +51,22 @@ abstract class AbstractCartEntity
     }
 
     /**
+     * @param $param1
+     * @param null $param2
+     * @return $this
+     */
+    public function setData($param1, $param2 = null)
+    {
+        if (is_array($param1)) {
+            return $this->fromArray($param1);
+        } elseif (is_scalar($param1)) {
+            return $this->set($param1, $param2);
+        }
+
+        return $this;
+    }
+
+    /**
      * Get All Data or specific key of data
      *
      * @param string $key
@@ -70,10 +85,10 @@ abstract class AbstractCartEntity
     }
 
     /**
-     * @param $data
+     * @param array $data
      * @return $this
      */
-    public function fromArray($data)
+    public function fromArray(array $data)
     {
         if (!$data) {
             return $this;
@@ -84,6 +99,16 @@ abstract class AbstractCartEntity
         }
 
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getLuceneVarValuesData()
+    {
+        // todo : loop on data and adjust \DateTime object values
+        // todo : rename to getLuceneData() and re-implement
+        return $this->getBaseData();
     }
 
     abstract function getBaseData();
