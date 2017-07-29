@@ -19,6 +19,9 @@ use MobileCart\CoreBundle\Event\CoreEvents;
 
 class ProductController extends Controller
 {
+    /**
+     * @var string
+     */
     protected $objectType = EntityConstants::PRODUCT;
 
     public function viewAction(Request $request)
@@ -61,20 +64,14 @@ class ProductController extends Controller
         $searchParam = $this->container->getParameter('cart.search.frontend');
         $search = $this->container->get($searchParam);
 
-        $searchEvent = new CoreEvent();
-        $searchEvent->setRequest($request)
+        $event = new CoreEvent();
+        $event->setRequest($request)
             ->setSearch($search)
             ->setObjectType($this->objectType)
             ->setSection(CoreEvent::SECTION_FRONTEND);
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::PRODUCT_SEARCH, $searchEvent);
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setReturnData($searchEvent->getReturnData())
-            ->setSection(CoreEvent::SECTION_FRONTEND);
+            ->dispatch(CoreEvents::PRODUCT_SEARCH, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::PRODUCT_LIST, $event);
@@ -98,8 +95,8 @@ class ProductController extends Controller
             throw $this->createNotFoundException('Unable to find Category entity.');
         }
 
-        $searchEvent = new CoreEvent();
-        $searchEvent->setRequest($request)
+        $event = new CoreEvent();
+        $event->setRequest($request)
             ->setSearch($search)
             ->setCategory($category)
             ->setObjectType($this->objectType)
@@ -110,15 +107,8 @@ class ProductController extends Controller
             // don't need to search for products if we're not displaying any
 
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::PRODUCT_SEARCH, $searchEvent);
+                ->dispatch(CoreEvents::PRODUCT_SEARCH, $event);
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setReturnData($searchEvent->getReturnData())
-            ->setCategory($category)
-            ->setSection(CoreEvent::SECTION_FRONTEND);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::PRODUCT_LIST, $event);

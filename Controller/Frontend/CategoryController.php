@@ -19,6 +19,9 @@ use MobileCart\CoreBundle\Event\CoreEvents;
 
 class CategoryController extends Controller
 {
+    /**
+     * @var string
+     */
     protected $objectType = EntityConstants::CATEGORY;
 
     public function indexAction(Request $request)
@@ -26,20 +29,14 @@ class CategoryController extends Controller
         $searchParam = $this->container->getParameter('cart.search.frontend');
         $search = $this->container->get($searchParam);
 
-        $searchEvent = new CoreEvent();
-        $searchEvent->setRequest($request)
+        $event = new CoreEvent();
+        $event->setRequest($request)
             ->setSearch($search)
             ->setObjectType($this->objectType)
             ->setSection(CoreEvent::SECTION_FRONTEND);
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CATEGORY_SEARCH, $searchEvent);
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setReturnData($searchEvent->getReturnData())
-            ->setSection(CoreEvent::SECTION_FRONTEND);
+            ->dispatch(CoreEvents::CATEGORY_SEARCH, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CATEGORY_LIST, $event);
