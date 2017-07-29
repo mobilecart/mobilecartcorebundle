@@ -33,7 +33,9 @@ use MobileCart\CoreBundle\Shipping\RateRequest;
  */
 class ShippingMethodController extends Controller
 {
-
+    /**
+     * @var string
+     */
     protected $objectType = EntityConstants::SHIPPING_METHOD;
 
     /**

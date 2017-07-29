@@ -53,6 +53,16 @@ class CoreEvent extends Event
     protected $return_data = [];
 
     /**
+     * @var mixed
+     */
+    protected $request;
+
+    /**
+     * @var \Symfony\Component\HttpFoundation\Response
+     */
+    protected $response;
+
+    /**
      * @var array
      */
     protected $messages = [];
@@ -288,6 +298,42 @@ class CoreEvent extends Event
     public function getReturnData()
     {
         return $this->return_data;
+    }
+
+    /**
+     * @param $request
+     * @return $this
+     */
+    public function setRequest($request)
+    {
+        $this->request = $request;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Response $response
+     * @return $this
+     */
+    public function setResponse(\Symfony\Component\HttpFoundation\Response $response)
+    {
+        $this->response = $response;
+        return $this;
+    }
+
+    /**
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function getResponse()
+    {
+        return $this->response;
     }
 
     /**

@@ -40,6 +40,7 @@ class ContentSlotSearch
     {
         $this->setEvent($event);
         $returnData = $event->getReturnData();
+        $request = $event->getRequest();
 
         $search = $event->getSearch()
             ->setObjectType($event->getObjectType()) // Important: set this first
@@ -47,6 +48,11 @@ class ContentSlotSearch
 
         $returnData['search'] = $search;
         $returnData['result'] = $search->search();
+
+        if (in_array($search->getFormat(), ['', 'html'])) {
+            // for storing the last grid filters in the url ; used in back links
+            $request->getSession()->set('cart_admin_content_slot', $request->getQueryString());
+        }
 
         $event->setReturnData($returnData);
     }

@@ -1651,14 +1651,11 @@ abstract class AbstractSearchService
         $this->limit = (int) $this->getRequest()->get($this->limitParam, 30);
 
         // HANDLE SORT
-        // listeners should call addSortable() before calling parseRequest()
         $this->addSortable($repo->getSortableFields());
-        $sortBy = $this->getRequest()->get($this->sortByParam, '');
-        if ($sortBy && isset($this->sortable[$sortBy])) {
-            $this->sortBy = $sortBy;
-            $this->sortDir = $this->getRequest()->get($this->sortDirParam, '');
-        }
-
+        // we will validate the sortBy in search(), so don't validate it yet
+        //  because a listener may call addSortable() after this executes
+        $this->sortBy = $this->getRequest()->get($this->sortByParam, '');
+        $this->sortDir = $this->getRequest()->get($this->sortDirParam, '');
         if ($this->sortDir != 'desc') {
             $this->sortDir = 'asc';
         }
@@ -1679,12 +1676,13 @@ abstract class AbstractSearchService
         }
 
         // frontend sorting options, more user-friendly
+        // todo : implement interface
         if (method_exists($repo, 'getAdvSortableFields')) {
             $this->advSortable = $repo->getAdvSortableFields();
         }
 
         // HANDLE FILTERS
-        // listeners should call addFilterable() before calling parseRequest()
+        // NOTE:  listeners should call addFilterable() before calling parseRequest()
         $this->addFilterable($repo->getFilterableFields());
         $this->setIsEAV($repo->isEAV());
         $this->searchField = $repo->getSearchField(); // handle array of fields

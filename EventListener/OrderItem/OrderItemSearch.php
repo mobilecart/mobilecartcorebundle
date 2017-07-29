@@ -40,8 +40,9 @@ class OrderItemSearch
     {
         $this->setEvent($event);
         $returnData = $event->getReturnData();
+        $request = $event->getRequest();
 
-        $event->getSearch()
+        $search = $event->getSearch()
             ->setObjectType($event->getObjectType()) // Important: set this first
             ->setDefaultSort('id', 'desc')
             ->parseRequest($event->getRequest())
@@ -50,9 +51,20 @@ class OrderItemSearch
             ->addColumn('order_sale.created_at', 'order_created_at')
             ->addJoin('left', 'order_shipment', 'id', 'order_shipment_id')
             ->addColumn('order_shipment.method', 'shipping_method')
-            ->search()
-        ;
+            ->addSortable([
+                'reference_nbr' => 'Order Reference',
+                'order_created_at' => 'Order Timestamp',
+                'shipping_method' => 'Shipping Method',
+            ]);
+
+        $returnData['search'] = $search;
+        $returnData['result'] = $search->search();
 
         $event->setReturnData($returnData);
+
+        if (in_array($search->getFormat(), ['', 'html'])) {
+            // for storing the last grid filters in the url ; used in back links
+            $request->getSession()->set('cart_admin_order_item', $request->getQueryString());
+        }
     }
 }

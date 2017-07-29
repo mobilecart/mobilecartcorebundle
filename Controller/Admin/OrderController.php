@@ -32,7 +32,9 @@ use MobileCart\CoreBundle\Event\CoreEvent;
  */
 class OrderController extends Controller
 {
-
+    /**
+     * @var string
+     */
     protected $objectType = EntityConstants::ORDER;
 
     /**
@@ -60,28 +62,6 @@ class OrderController extends Controller
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ORDER_SEARCH, $event);
-
-        $search = $event->getSearch();
-
-        if (in_array($search->getFormat(), ['', 'html'])) {
-            // for storing the last grid filters in the url ; used in back links
-            $request->getSession()->set('cart_admin_order', $request->getQueryString());
-        }
-
-        // Data for Template, etc
-        $returnData = [
-            'search' => $search,
-            'result' => $search->getResult(),
-        ];
-
-        // Observe Event :
-        //  populate grid columns and mass actions,
-        //  continue building return data
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setReturnData($returnData);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ORDER_LIST, $event);

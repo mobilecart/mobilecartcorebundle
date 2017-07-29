@@ -31,7 +31,9 @@ use MobileCart\CoreBundle\Event\CoreEvent;
  */
 class ProductController extends Controller
 {
-
+    /**
+     * @var string
+     */
     protected $objectType = EntityConstants::PRODUCT;
 
     /**
@@ -59,30 +61,6 @@ class ProductController extends Controller
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::PRODUCT_SEARCH, $event);
-
-        $search = $event->getSearch();
-
-        if (in_array($search->getFormat(), ['', 'html'])) {
-            // for storing the last grid filters in the url ; used in back links
-            $request->getSession()->set('cart_admin_product', $request->getQueryString());
-        }
-
-        // Data for Template, etc
-        $returnData = array_merge(
-            $event->getReturnData(), [
-            'search' => $search,
-            'result' => $search->getResult(),
-        ]);
-
-        // Observe Event :
-        //  populate grid columns and mass actions,
-        //  continue building return data
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setReturnData($returnData)
-            ->setSection(CoreEvent::SECTION_BACKEND);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::PRODUCT_LIST, $event);
