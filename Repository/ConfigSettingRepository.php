@@ -34,6 +34,7 @@ class ConfigSettingRepository
     public function getSortableFields()
     {
         return [
+            'id' => 'ID',
             'code' => 'Code',
             'label' => 'Label',
             'value' => 'Value'

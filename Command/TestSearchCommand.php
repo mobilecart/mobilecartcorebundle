@@ -44,7 +44,6 @@ EOF
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $productIds = [1,2,3,4,5];
-        $request = new ArrayWrapper();
         $result = $this->getContainer()->get('cart.search')
             ->init('product')
             ->addAdvFilter(['field' => 'id', 'op' => 'in', 'value' => $productIds])

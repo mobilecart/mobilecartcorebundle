@@ -63,7 +63,8 @@ class ProductController extends Controller
 
     public function indexAction(Request $request)
     {
-        // slightly meta - get service id from config parameter and load search service
+        // slightly meta - get a service id from a config parameter and load the service
+        //  doing it this way because replacing a parameter in your own bundle is very easy
         $searchParam = $this->container->getParameter('cart.search.frontend');
         $search = $this->container->get($searchParam)
             ->setObjectType($this->objectType);
@@ -82,7 +83,8 @@ class ProductController extends Controller
 
     public function categoryAction(Request $request)
     {
-        // slightly meta - get service id from config parameter and load search service
+        // slightly meta - get a service id from a config parameter and load the service
+        //  doing it this way because replacing a parameter in your own bundle is very easy
         $searchParam = $this->container->getParameter('cart.search.frontend');
         $search = $this->container->get($searchParam)
             ->setObjectType($this->objectType);

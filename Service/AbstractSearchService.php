@@ -536,10 +536,10 @@ abstract class AbstractSearchService
      * Set HTTP Request
      * This is required for creating Facet add/remove URLs
      *
-     * @param Request|ArrayWrapper $request
+     * @param Request $request
      * @return $this
      */
-    public function setRequest($request)
+    public function setRequest(Request $request)
     {
         $this->request = $request;
         return $this;

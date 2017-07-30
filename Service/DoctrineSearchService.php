@@ -15,7 +15,9 @@ use Doctrine\ORM\Query;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Repository\CartRepositoryInterface;
 
-class DoctrineSearchService extends AbstractSearchService
+class DoctrineSearchService
+    extends AbstractSearchService
+    implements SearchServiceInterface
 {
     /**
      * @var string
@@ -678,8 +680,7 @@ class DoctrineSearchService extends AbstractSearchService
         $repo = $this->getEntityService()->getRepository($this->getObjectType());
         $offset = $this->getOffset();
 
-        // main filter execution
-        //  sets $this->filteredIds
+        // assemble SQL strings
         $this->assembleQueries();
 
         // optional : get facetCounts based on existing filters
