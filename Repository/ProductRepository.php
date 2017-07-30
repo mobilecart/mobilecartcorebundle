@@ -13,7 +13,7 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
  */
 class ProductRepository
     extends EntityRepository
-    implements CartRepositoryInterface
+    implements CartRepositoryInterface, AdvSortableInterface
 {
     /**
      * @return bool

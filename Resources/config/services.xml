@@ -1657,7 +1657,7 @@
 
         <!-- Event Listener: Product Listing : for frontend, not for APIs -->
         <service id="cart.listener.product.list" lazy="true" class="%cart.listener.product.list.class%">
-            <tag name="kernel.event_listener" event="product.list" method="onProductList" priority="50" />
+            <tag name="kernel.event_listener" event="product.search" method="onProductList" priority="40" />
             <call method="setRouter">
                 <argument type="service" id="router"/>
             </call>
@@ -1768,7 +1768,7 @@
             <tag name="kernel.event_listener" event="category.search" method="onCategorySearch" priority="50" />
         </service>
         <service id="cart.listener.category.list" lazy="true" class="%cart.listener.category.list.class%">
-            <tag name="kernel.event_listener" event="category.list" method="onCategoryList" priority="50" />
+            <tag name="kernel.event_listener" event="category.search" method="onCategoryList" priority="40" />
             <call method="setRouter">
                 <argument type="service" id="router"/>
             </call>
@@ -1854,7 +1854,7 @@
             <tag name="kernel.event_listener" event="config_setting.search" method="onConfigSettingSearch" priority="50" />
         </service>
         <service id="cart.listener.config_setting.list" lazy="true" class="%cart.listener.config_setting.list.class%">
-            <tag name="kernel.event_listener" event="config_setting.list" method="onConfigSettingList" priority="50" />
+            <tag name="kernel.event_listener" event="config_setting.search" method="onConfigSettingList" priority="40" />
             <call method="setRouter">
                 <argument type="service" id="router"/>
             </call>
@@ -1977,7 +1977,7 @@
             <tag name="kernel.event_listener" event="content.search" method="onContentSearch" priority="50" />
         </service>
         <service id="cart.listener.content.list" lazy="true" class="%cart.listener.content.list.class%">
-            <tag name="kernel.event_listener" event="content.list" method="onContentList" priority="50" />
+            <tag name="kernel.event_listener" event="content.search" method="onContentList" priority="40" />
             <call method="setRouter">
                 <argument type="service" id="router"/>
             </call>
@@ -2075,7 +2075,7 @@
             <tag name="kernel.event_listener" event="content_slot.search" method="onContentSlotSearch" priority="50" />
         </service>
         <service id="cart.listener.content_slot.list" lazy="true" class="%cart.listener.content_slot.list.class%">
-            <tag name="kernel.event_listener" event="content_slot.list" method="onContentSlotList" priority="50" />
+            <tag name="kernel.event_listener" event="content_slot.search" method="onContentSlotList" priority="40" />
             <call method="setRouter">
                 <argument type="service" id="router"/>
             </call>
@@ -2161,7 +2161,7 @@
             <tag name="kernel.event_listener" event="customer.search" method="onCustomerSearch" priority="50" />
         </service>
         <service id="cart.listener.customer.list" lazy="true" class="%cart.listener.customer.list.class%">
-            <tag name="kernel.event_listener" event="customer.list" method="onCustomerList" priority="50" />
+            <tag name="kernel.event_listener" event="customer.search" method="onCustomerList" priority="40" />
             <call method="setRouter">
                 <argument type="service" id="router"/>
             </call>
@@ -2537,17 +2537,17 @@
         </service>
 
         <!-- Event Listeners : Customer Address -->
+        <service id="cart.listener.customer_address.search" lazy="true" class="%cart.listener.customer_address.search.class%">
+            <tag name="kernel.event_listener" event="customer_address.search" method="onCustomerAddressSearch" priority="50" />
+        </service>
         <service id="cart.listener.customer_address.list" lazy="true" class="%cart.listener.customer_address.list.class%">
-            <tag name="kernel.event_listener" event="customer_address.list" method="onCustomerAddressList" priority="50" />
+            <tag name="kernel.event_listener" event="customer_address.search" method="onCustomerAddressList" priority="40" />
             <call method="setRouter">
                 <argument type="service" id="router"/>
             </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme"/>
             </call>
-        </service>
-        <service id="cart.listener.customer_address.search" lazy="true" class="%cart.listener.customer_address.search.class%">
-            <tag name="kernel.event_listener" event="customer_address.search" method="onCustomerAddressSearch" priority="50" />
         </service>
         <service id="cart.listener.customer_address.new.return" lazy="true" class="%cart.listener.customer_address.new.return.class%">
             <tag name="kernel.event_listener" event="customer_address.new.return" method="onCustomerAddressNewReturn" priority="50" />
@@ -2644,7 +2644,7 @@
             <tag name="kernel.event_listener" event="discount.search" method="onDiscountSearch" priority="50" />
         </service>
         <service id="cart.listener.discount.list" lazy="true" class="%cart.listener.discount.list.class%">
-            <tag name="kernel.event_listener" event="discount.list" method="onDiscountList" priority="50" />
+            <tag name="kernel.event_listener" event="discount.search" method="onDiscountList" priority="40" />
             <call method="setRouter">
                 <argument type="service" id="router"/>
             </call>
@@ -2721,7 +2721,7 @@
             <tag name="kernel.event_listener" event="item_var.search" method="onItemVarSearch" priority="50" />
         </service>
         <service id="cart.listener.item_var.list" lazy="true" class="%cart.listener.item_var.list.class%">
-            <tag name="kernel.event_listener" event="item_var.list" method="onItemVarList" priority="50" />
+            <tag name="kernel.event_listener" event="item_var.search" method="onItemVarList" priority="40" />
             <call method="setRouter">
                 <argument type="service" id="router"/>
             </call>
@@ -2798,7 +2798,7 @@
             <tag name="kernel.event_listener" event="item_var_option.search" method="onItemVarOptionSearch" priority="50" />
         </service>
         <service id="cart.listener.item_var_option.list" lazy="true" class="%cart.listener.item_var_option.list.class%">
-            <tag name="kernel.event_listener" event="item_var_option.list" method="onItemVarOptionList" priority="50" />
+            <tag name="kernel.event_listener" event="item_var_option.search" method="onItemVarOptionList" priority="40" />
             <call method="setRouter">
                 <argument type="service" id="router"/>
             </call>
@@ -2875,7 +2875,7 @@
             <tag name="kernel.event_listener" event="item_var_set.search" method="onItemVarSetSearch" priority="50" />
         </service>
         <service id="cart.listener.item_var_set.list" lazy="true" class="%cart.listener.item_var_set.list.class%">
-            <tag name="kernel.event_listener" event="item_var_set.list" method="onItemVarSetList" priority="50" />
+            <tag name="kernel.event_listener" event="item_var_set.search" method="onItemVarSetList" priority="40" />
             <call method="setRouter">
                 <argument type="service" id="router"/>
             </call>
@@ -2952,7 +2952,7 @@
             <tag name="kernel.event_listener" event="item_var_set_var.search" method="onItemVarSetVarSearch" priority="50" />
         </service>
         <service id="cart.listener.item_var_set_var.list" lazy="true" class="%cart.listener.item_var_set_var.list.class%">
-            <tag name="kernel.event_listener" event="item_var_set_var.list" method="onItemVarSetVarList" priority="50" />
+            <tag name="kernel.event_listener" event="item_var_set_var.search" method="onItemVarSetVarList" priority="40" />
             <call method="setRouter">
                 <argument type="service" id="router"/>
             </call>
@@ -3029,7 +3029,7 @@
             <tag name="kernel.event_listener" event="order.search" method="onOrderSearch" priority="50" />
         </service>
         <service id="cart.listener.order.list" lazy="true" class="%cart.listener.order.list.class%">
-            <tag name="kernel.event_listener" event="order.list" method="onOrderList" priority="50" />
+            <tag name="kernel.event_listener" event="order.search" method="onOrderList" priority="40" />
             <call method="setRouter">
                 <argument type="service" id="router"/>
             </call>
@@ -3234,7 +3234,7 @@
             <tag name="kernel.event_listener" event="order_item.search" method="onOrderItemSearch" priority="50" />
         </service>
         <service id="cart.listener.order_item.list" lazy="true" class="%cart.listener.order_item.list.class%">
-            <tag name="kernel.event_listener" event="order_item.list" method="onOrderItemList" priority="50" />
+            <tag name="kernel.event_listener" event="order_item.search" method="onOrderItemList" priority="40" />
             <call method="setRouter">
                 <argument type="service" id="router"/>
             </call>
@@ -3248,7 +3248,7 @@
             <tag name="kernel.event_listener" event="shipping_method.search" method="onShippingMethodSearch" priority="50" />
         </service>
         <service id="cart.listener.shipping_method.list" lazy="true" class="%cart.listener.shipping_method.list.class%">
-            <tag name="kernel.event_listener" event="shipping_method.list" method="onShippingMethodList" priority="50" />
+            <tag name="kernel.event_listener" event="shipping_method.search" method="onShippingMethodList" priority="40" />
             <call method="setRouter">
                 <argument type="service" id="router"/>
             </call>
@@ -3317,12 +3317,12 @@
             </call>
         </service>
 
-        <!-- UrlRewrite -->
+        <!-- UrlRewrite Services and Listeners : Note : the routing service is incomplete -->
         <service id="cart.listener.url_rewrite.search" lazy="true" class="%cart.listener.url_rewrite.search.class%">
             <tag name="kernel.event_listener" event="url_rewrite.search" method="onUrlRewriteSearch" priority="50" />
         </service>
         <service id="cart.listener.url_rewrite.list" lazy="true" class="%cart.listener.url_rewrite.list.class%">
-            <tag name="kernel.event_listener" event="url_rewrite.list" method="onUrlRewriteList" priority="50" />
+            <tag name="kernel.event_listener" event="url_rewrite.search" method="onUrlRewriteList" priority="40" />
             <call method="setRouter">
                 <argument type="service" id="router"/>
             </call>

@@ -3,40 +3,19 @@
 namespace MobileCart\CoreBundle\EventListener\Content;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
-use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\Event\CoreEvent;
 
+/**
+ * Class ContentSearch
+ * @package MobileCart\CoreBundle\EventListener\Content
+ */
 class ContentSearch
 {
     /**
-     * @var Event
+     * @param CoreEvent $event
      */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
+    public function onContentSearch(CoreEvent $event)
     {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
-
-    /**
-     * @param Event $event
-     */
-    public function onContentSearch(Event $event)
-    {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
         $request = $event->getRequest();
 
@@ -61,10 +40,8 @@ class ContentSearch
         }
 
         $search = $event->getSearch()
-            ->setObjectType($event->getObjectType()) // Important: set this first
             ->parseRequest($event->getRequest())
-            ->addFilters($filters)
-        ;
+            ->addFilters($filters);
 
         $returnData['search'] = $search;
         $returnData['result'] = $search->search();

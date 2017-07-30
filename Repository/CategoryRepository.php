@@ -12,7 +12,7 @@ use Doctrine\ORM\EntityRepository;
  */
 class CategoryRepository
     extends EntityRepository
-    implements CartRepositoryInterface
+    implements CartRepositoryInterface, AdvSortableInterface
 {
 
     /**
@@ -52,9 +52,9 @@ class CategoryRepository
     {
         return [
             'sort_order' => [
-                'label' => 'Parent Category',
+                'label' => 'Sort Order',
                 'active' => 0,
-                'value' => 'parent_category_id',
+                'value' => 'sort_order',
                 'dir' => 'asc',
             ],
             'name_az' => [
@@ -68,6 +68,12 @@ class CategoryRepository
                 'active' => 0,
                 'value' => 'name',
                 'dir' => 'desc',
+            ],
+            'parent_category' => [
+                'label' => 'Parent Category',
+                'active' => 0,
+                'value' => 'parent_category_id',
+                'dir' => 'asc',
             ],
         ];
     }

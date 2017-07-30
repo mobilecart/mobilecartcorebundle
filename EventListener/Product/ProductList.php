@@ -74,9 +74,9 @@ class ProductList
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onProductList(Event $event)
+    public function onProductList(CoreEvent $event)
     {
         $this->setEvent($event);
         $returnData = $event->getReturnData();

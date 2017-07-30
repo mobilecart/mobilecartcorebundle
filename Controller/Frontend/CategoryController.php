@@ -27,7 +27,8 @@ class CategoryController extends Controller
     public function indexAction(Request $request)
     {
         $searchParam = $this->container->getParameter('cart.search.frontend');
-        $search = $this->container->get($searchParam);
+        $search = $this->container->get($searchParam)
+            ->setObjectType($this->objectType);
 
         $event = new CoreEvent();
         $event->setRequest($request)
@@ -37,9 +38,6 @@ class CategoryController extends Controller
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CATEGORY_SEARCH, $event);
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CATEGORY_LIST, $event);
 
         return $event->getResponse();
     }

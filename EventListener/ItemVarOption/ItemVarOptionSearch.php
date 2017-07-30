@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\ItemVarOption;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class ItemVarOptionSearch
@@ -11,47 +11,18 @@ use Symfony\Component\EventDispatcher\Event;
 class ItemVarOptionSearch
 {
     /**
-     * @var Event
+     * @param CoreEvent $event
      */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
+    public function onItemVarOptionSearch(CoreEvent $event)
     {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
-
-    /**
-     * @param Event $event
-     */
-    public function onItemVarOptionSearch(Event $event)
-    {
-        $this->setEvent($event);
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
-
         $search = $event->getSearch()
-            ->setObjectType($event->getObjectType()) // Important: set this first
             ->parseRequest($event->getRequest())
             ->addJoin('inner', 'item_var', 'id', 'item_var_id')
             ->addColumn('item_var.name', 'item_var_name');
 
-        $returnData['search'] = $search;
-        $returnData['result'] = $search->search();
-
-        $event->setReturnData($returnData);
+        $event->setReturnData('search', $search);
+        $event->setReturnData('result', $search->search());
 
         if (in_array($search->getFormat(), ['', 'html'])) {
             // for storing the last grid filters in the url ; used in back links

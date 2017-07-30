@@ -49,7 +49,8 @@ class OrderController extends Controller
         // The service parameter is stored in the service configuration as a parameter ; (slightly meta)
         // This service could use either MySQL or ElasticSearch, etc for retrieving item data
         $searchParam = $this->container->getParameter('cart.load.admin');
-        $search = $this->container->get($searchParam);
+        $search = $this->container->get($searchParam)
+            ->setObjectType($this->objectType);
 
         // Observe Event :
         //  perform custom logic, post-processing
@@ -62,9 +63,6 @@ class OrderController extends Controller
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ORDER_SEARCH, $event);
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::ORDER_LIST, $event);
 
         return $event->getResponse();
     }

@@ -1638,9 +1638,9 @@ abstract class AbstractSearchService
             $this->setFormat($format);
         }
 
-        $filterFields = $request->get('filter_field', []);
-        $filterOps = $request->get('filter_op', []);
-        $filterVals = $request->get('filter_val', []);
+        $requestedFilters = $request->get('filter_field', []);
+        $requestedFilterOps = $request->get('filter_op', []);
+        $requestedFilterVals = $request->get('filter_val', []);
 
         $categoryId = $this->getRequest()->get($this->categoryIdParam, '');
 
@@ -1658,21 +1658,6 @@ abstract class AbstractSearchService
         $this->sortDir = $this->getRequest()->get($this->sortDirParam, '');
         if ($this->sortDir != 'desc') {
             $this->sortDir = 'asc';
-        }
-
-        // transform array to be similar to filterable array
-        if ($this->sortable) {
-            foreach($this->sortable as $code => $label) {
-                $this->sortable[$code] = [
-                    'code' => $code,
-                    'label' => $label,
-                ];
-                $isActive = (int) ($this->getSortBy() == $code);
-                $this->sortable[$code]['isActive'] = $isActive;
-                if ($isActive) {
-                    $this->sortable[$code]['direction'] = $this->getSortDir();
-                }
-            }
         }
 
         // frontend sorting options, more user-friendly
@@ -1756,8 +1741,8 @@ abstract class AbstractSearchService
         // build advanced filters: [field operator value]
         $advFilters = [];
         $validOps = $this->getFilterOps();
-        if ($filterVals) {
-            foreach($filterVals as $idx => $filterVal) {
+        if ($requestedFilterVals) {
+            foreach($requestedFilterVals as $idx => $filterVal) {
 
                 $filterVal = trim($filterVal);
                 if (!strlen($filterVal)) {
@@ -1765,16 +1750,16 @@ abstract class AbstractSearchService
                 }
 
                 // todo : have it check advFilterOps
-                if (!isset($filterFields[$idx]) || !isset($filterOps[$idx])) {
+                if (!isset($requestedFilters[$idx]) || !isset($requestedFilterOps[$idx])) {
                     continue;
                 }
 
-                $op = $filterOps[$idx];
+                $op = $requestedFilterOps[$idx];
                 if (!isset($validOps[$op])) {
                     continue;
                 }
 
-                $field = $filterFields[$idx];
+                $field = $requestedFilters[$idx];
 
                 $aFilter = [
                     'field' => $field,
@@ -1928,9 +1913,9 @@ abstract class AbstractSearchService
 
         $urlParams = [];
 
-        // create remove link if facet is active
-        // basically, unset the facet code from the active facet array
-        // and rebuild the url
+        // if facet is active, create remove link
+        //  basically, unset the facet code from the active facet array
+        //  and rebuild the url
 
         $newValues = array_flip($urlValues); // eg array('bla' => 0, 'foo' => 1)
         unset($newValues[$urlFacetValue]);

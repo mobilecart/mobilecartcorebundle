@@ -26,8 +26,10 @@ class ProductController extends Controller
 
     public function viewAction(Request $request)
     {
+        // slightly meta - get service id from config parameter and load entity service
         $entityServiceParam = $this->container->getParameter('cart.load.frontend');
-        $entityService = $this->container->get($entityServiceParam);
+        $entityService = $this->container->get($entityServiceParam)
+            ->setObjectType($this->objectType);
 
         $entity = $entityService->findOneBy(EntityConstants::PRODUCT, [
             'slug' => $request->get('slug', ''),
@@ -61,8 +63,10 @@ class ProductController extends Controller
 
     public function indexAction(Request $request)
     {
+        // slightly meta - get service id from config parameter and load search service
         $searchParam = $this->container->getParameter('cart.search.frontend');
-        $search = $this->container->get($searchParam);
+        $search = $this->container->get($searchParam)
+            ->setObjectType($this->objectType);
 
         $event = new CoreEvent();
         $event->setRequest($request)
@@ -73,16 +77,15 @@ class ProductController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::PRODUCT_SEARCH, $event);
 
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::PRODUCT_LIST, $event);
-
         return $event->getResponse();
     }
 
     public function categoryAction(Request $request)
     {
+        // slightly meta - get service id from config parameter and load search service
         $searchParam = $this->container->getParameter('cart.search.frontend');
-        $search = $this->container->get($searchParam);
+        $search = $this->container->get($searchParam)
+            ->setObjectType($this->objectType);
 
         $entityServiceParam = $this->container->getParameter('cart.load.frontend');
         $entityService = $this->container->get($entityServiceParam);
@@ -102,16 +105,10 @@ class ProductController extends Controller
             ->setObjectType($this->objectType)
             ->setSection(CoreEvent::SECTION_FRONTEND);
 
-        if ($category->getDisplayMode() != EntityConstants::DISPLAY_TEMPLATE) {
-
-            // don't need to search for products if we're not displaying any
-
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::PRODUCT_SEARCH, $event);
-        }
+        // todo : look into current display modes, make sure it's all enabled
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::PRODUCT_LIST, $event);
+            ->dispatch(CoreEvents::PRODUCT_SEARCH, $event);
 
         return $event->getResponse();
     }

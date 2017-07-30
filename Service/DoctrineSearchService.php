@@ -153,7 +153,7 @@ class DoctrineSearchService extends AbstractSearchService
      *
      * @return array
      */
-    protected function executeFilters()
+    protected function assembleQueries()
     {
         if ($this->getExecutedFilters()) {
             return $this;
@@ -193,12 +193,14 @@ class DoctrineSearchService extends AbstractSearchService
                                 $rangeMin = (float) $rangeMin;
                                 $rangeMax = (float) $rangeMax;
 
+                                // minimum
                                 $this->addAdvFilter([
                                     'field' => $field,
                                     'op' => 'gte',
                                     'value' => $rangeMin,
                                 ]);
 
+                                // maximum
                                 $this->addAdvFilter([
                                     'field' => $field,
                                     'op' => 'lt',
@@ -287,8 +289,6 @@ class DoctrineSearchService extends AbstractSearchService
 
                     $fields = $this->getSearchField();
                     $searchField = $fields[0];
-
-                    $tbl = 'main';
                     if (is_array($searchField)) {
                         if (isset($searchField['table']) && isset($searchField['column'])) {
                             $tbl = $searchField['table'];
@@ -411,6 +411,7 @@ class DoctrineSearchService extends AbstractSearchService
                         $advFilterParams[] = $value;
                         $whereConditions[] = "{$table}.{$field} != ?";
                         break;
+// todo: this is messing up the counter, but it should be implemented
 //                    case 'null':
 //                        $advFilterParams[] = 'NULL';
 //                        $whereConditions[] = "{$table}.{$field} IS ?";
@@ -514,15 +515,18 @@ class DoctrineSearchService extends AbstractSearchService
             }
         }
 
+        // assemble where conditions
         $conditionsSql = implode(' AND ', $whereConditions);
         if (!$conditionsSql) {
             $conditionsSql = '1=1';
         }
 
+        // assemble group by
         $groupSql = $this->getGroupBy()
             ? 'group by ' . implode(', ', $this->getGroupBy())
             : '';
 
+        // assemble select columns
         $colSql = '';
         if ($this->getColumns()) {
             $cols = [];
@@ -539,6 +543,7 @@ class DoctrineSearchService extends AbstractSearchService
             $colSql = ',' . implode(',', $cols);
         }
 
+        // assemble joins
         $joinSql = '';
         if ($this->getJoins()) {
             $joins = [];
@@ -553,8 +558,11 @@ class DoctrineSearchService extends AbstractSearchService
             $joinSql = implode(' ', $joins);
         }
 
+        // main data query without sorting and grouping
         $this->filtersSql = "select distinct(main.id) from {$mainTable} main {$joinSql} where {$conditionsSql}";
+        // main data query
         $this->mainSql = "select distinct(main.id), main.* {$colSql} from {$mainTable} main {$joinSql} where {$conditionsSql} {$groupSql}";
+        // main count query, for all rows, not just the current page
         $this->countSql = "select count(distinct(main.id)) as count from {$mainTable} main {$joinSql} where {$conditionsSql} {$groupSql}";
         $this->bindTypes = $bindTypes;
         $this->filterParams = $filterParams;
@@ -580,7 +588,7 @@ class DoctrineSearchService extends AbstractSearchService
         }
 
         if (!$this->getExecutedFilters()) {
-            $this->executeFilters();
+            $this->assembleQueries();
         }
 
         $facetCounts = [];
@@ -668,20 +676,18 @@ class DoctrineSearchService extends AbstractSearchService
         /** @var \Doctrine\ORM\EntityManager $em */
         $em = $this->getEntityService()->getDoctrine()->getManager();
         $repo = $this->getEntityService()->getRepository($this->getObjectType());
-        //$sortable = $repo->getSortableFields();
         $offset = $this->getOffset();
 
         // main filter execution
         //  sets $this->filteredIds
-        $this->executeFilters();
+        $this->assembleQueries();
 
         // optional : get facetCounts based on existing filters
         $facetCounts = $this->getEnableFacetCounts()
             ? $this->executeFacetCounts()
             : [];
 
-        // execute count sql
-
+        // get count of all rows, before executing main query
         $countStmt = $em->getConnection()->prepare($this->countSql);
         $this->bindStatement($countStmt, $this->bindTypes, $this->filterParams, $this->advFilterParams, $this->facetFilterParams);
         $countStmt->execute();
@@ -691,7 +697,7 @@ class DoctrineSearchService extends AbstractSearchService
             ? $countRow['count']
             : 0;
 
-        // get main rows
+        // prepare main query
         $mainSql = $this->mainSql;
 
         // sort
@@ -705,6 +711,7 @@ class DoctrineSearchService extends AbstractSearchService
             $mainSql .= " order by main.id asc";
         }
 
+        // paging
         $mainSql .= " limit {$offset},{$this->getLimit()}";
 
         $entities = [];
@@ -738,6 +745,23 @@ class DoctrineSearchService extends AbstractSearchService
             'offset'       => $offset,
             //'searchQuery'  => $mainSql,
         ];
+
+        // apply state to sorting, similar to filters
+        if ($this->sortable) {
+            foreach($this->sortable as $code => $label) {
+
+                $this->sortable[$code] = [
+                    'code' => $code,
+                    'label' => $label,
+                ];
+
+                $isActive = (int) ($this->getSortBy() == $code);
+                $this->sortable[$code]['isActive'] = $isActive;
+                if ($isActive) {
+                    $this->sortable[$code]['direction'] = $this->getSortDir();
+                }
+            }
+        }
 
         return $this->getResult();
     }

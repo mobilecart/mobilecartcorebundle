@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\ContentSlot;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class ContentSlotSearch
@@ -11,49 +11,20 @@ use Symfony\Component\EventDispatcher\Event;
 class ContentSlotSearch
 {
     /**
-     * @var Event
+     * @param CoreEvent $event
      */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
+    public function onContentSlotSearch(CoreEvent $event)
     {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
-
-    /**
-     * @param Event $event
-     */
-    public function onContentSlotSearch(Event $event)
-    {
-        $this->setEvent($event);
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
-
         $search = $event->getSearch()
-            ->setObjectType($event->getObjectType()) // Important: set this first
-            ->parseRequest($event->getRequest());
+            ->parseRequest($request);
 
-        $returnData['search'] = $search;
-        $returnData['result'] = $search->search();
+        $event->setReturnData('search', $search);
+        $event->setReturnData('result', $search->search());
 
         if (in_array($search->getFormat(), ['', 'html'])) {
             // for storing the last grid filters in the url ; used in back links
             $request->getSession()->set('cart_admin_content_slot', $request->getQueryString());
         }
-
-        $event->setReturnData($returnData);
     }
 }

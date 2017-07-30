@@ -2,7 +2,6 @@
 
 namespace MobileCart\CoreBundle\EventListener\Product;
 
-use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
@@ -12,36 +11,10 @@ use MobileCart\CoreBundle\Event\CoreEvent;
 class ProductSearch
 {
     /**
-     * @var Event
+     * @param CoreEvent $event
      */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
+    public function onProductSearch(CoreEvent $event)
     {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
-
-    /**
-     * @param Event $event
-     */
-    public function onProductSearch(Event $event)
-    {
-        $this->setEvent($event);
-        $returnData = $event->getReturnData();
-
         $request = $event->getRequest();
 
         // custom logic . tweak as needed
@@ -78,29 +51,25 @@ class ProductSearch
         }
 
         $search = $event->getSearch()
-            ->setObjectType($event->getObjectType()) // Important: set this first
             ->setCategoryId($categoryId)
-            ->setPopulateVarValues($loadVarValues);
+            ->setPopulateVarValues($loadVarValues)
+            ->parseRequest($request)
+            ->addFilters($filters);
 
         if ($event->getSection() == CoreEvent::SECTION_FRONTEND) {
             $search->setDefaultSort('sort_order', 'asc');
         }
 
-        $search->parseRequest($event->getRequest())
-            ->addFilters($filters);
-
-        $returnData['search'] = $search;
-        $returnData['result'] = $search->search();
+        $event->setReturnData('search', $search);
+        $event->setReturnData('result', $search->search());
 
         if ($event->getCategory()) {
-            $returnData['category'] = $event->getCategory();
+            $event->setReturnData('category', $event->getCategory());
         }
 
         if (in_array($search->getFormat(), ['', 'html'])) {
             // for storing the last grid filters in the url ; used in back links
             $request->getSession()->set('cart_admin_product', $request->getQueryString());
         }
-
-        $event->setReturnData($returnData);
     }
 }
