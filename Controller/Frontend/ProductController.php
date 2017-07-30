@@ -26,10 +26,15 @@ class ProductController extends Controller
 
     public function viewAction(Request $request)
     {
+        // slightly meta - get a service id from a config parameter and load the service
+        //  doing it this way because replacing a parameter in your own bundle is very easy
+        $searchParam = $this->container->getParameter('cart.search.frontend');
+        $search = $this->container->get($searchParam)
+            ->setObjectType($this->objectType);
+
         // slightly meta - get service id from config parameter and load entity service
         $entityServiceParam = $this->container->getParameter('cart.load.frontend');
-        $entityService = $this->container->get($entityServiceParam)
-            ->setObjectType($this->objectType);
+        $entityService = $this->container->get($entityServiceParam);
 
         $entity = $entityService->findOneBy(EntityConstants::PRODUCT, [
             'slug' => $request->get('slug', ''),
@@ -49,6 +54,7 @@ class ProductController extends Controller
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
+            ->setSearch($search)
             ->setRequest($request)
             ->setReturnData($formEvent->getReturnData())
             ->setEntity($entity)

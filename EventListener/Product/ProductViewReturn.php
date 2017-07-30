@@ -138,6 +138,7 @@ class ProductViewReturn
 
                 $returnData['config_data'] = @ (array) json_decode($entity->getConfig());
                 $returnData['form'] = $form->createView();
+                $returnData['search'] = $event->getSearch();
 
                 $customTpl = $event->getCustomTemplate();
                 if (!$customTpl && $event->getEntity()->getCustomTemplate()) {
