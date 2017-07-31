@@ -413,6 +413,9 @@
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>
+            <call method="setSearchService">
+                <argument type="service" id="cart.search" />
+            </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme" />
             </call>

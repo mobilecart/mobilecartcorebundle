@@ -19,6 +19,9 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
 
 class CustomerController extends Controller
 {
+    /**
+     * @var string
+     */
     protected $objectType = EntityConstants::CUSTOMER;
 
     public function registerAction(Request $request)

@@ -1002,6 +1002,9 @@ class CartSessionService
             $addresses = $this->getCart()->getCustomer()->getAddresses();
             if ($addresses) {
                 foreach($addresses as $address) {
+                    if (is_object($address)) {
+                        $address = get_object_vars($address);
+                    }
                     $postcodes[] = $address['postcode'];
                 }
             }

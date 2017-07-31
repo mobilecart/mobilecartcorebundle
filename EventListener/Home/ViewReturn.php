@@ -17,6 +17,11 @@ class ViewReturn
     protected $entityService;
 
     /**
+     * @var \MobileCart\CoreBundle\Service\SearchServiceInterface
+     */
+    protected $searchService;
+
+    /**
      * @var \MobileCart\CoreBundle\Service\CartSessionService
      */
     protected $cartSessionService;
@@ -86,6 +91,24 @@ class ViewReturn
     }
 
     /**
+     * @param \MobileCart\CoreBundle\Service\SearchServiceInterface $search
+     * @return $this
+     */
+    public function setSearchService(\MobileCart\CoreBundle\Service\SearchServiceInterface $search)
+    {
+        $this->searchService = $search;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\SearchServiceInterface
+     */
+    public function getSearchService()
+    {
+        return $this->searchService;
+    }
+
+    /**
      * @param $cartSessionService
      * @return $this
      */
@@ -113,6 +136,7 @@ class ViewReturn
 
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
+        $returnData['search'] = $this->getSearchService();
 
         $response = '';
         switch($format) {

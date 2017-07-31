@@ -33,19 +33,4 @@ class HomeController extends Controller
 
         return $event->getResponse();
     }
-
-    public function testAction(Request $request)
-    {
-        $order = $this->get('cart.entity')->find('order', 1);
-
-        $returnData = [
-            'shop_url' => 'shop.com',
-            'shop_name' => 'Test Shop',
-            'shop_email' => 'test@shop.com',
-            'shop_logo' => '/bundles/mobilecartcore/uploads/cart_item/yoda.jpeg',
-            'entity' => $order,
-        ];
-
-        return $this->get('cart.theme')->render('frontend', 'Order:confirmation.html.twig', $returnData);
-    }
 }

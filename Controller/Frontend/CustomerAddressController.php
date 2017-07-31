@@ -20,38 +20,33 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
 
 class CustomerAddressController extends Controller
 {
+    /**
+     * @var string
+     */
     protected $objectType = EntityConstants::CUSTOMER_ADDRESS;
 
     public function indexAction(Request $request)
     {
         $searchParam = $this->container->getParameter('cart.search.frontend');
-        $search = $this->container->get($searchParam);
+        $search = $this->container->get($searchParam)->setObjectType($this->objectType);
 
         $event = new CoreEvent();
         $event->setSearch($search)
             ->setRequest($request)
             ->setUser($this->getUser())
-            ->setObjectType($this->objectType);
+            ->setObjectType($this->objectType)
+            ->setCurrentRoute('customer_addresses');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CUSTOMER_NAVIGATION, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_ADDRESS_SEARCH, $event);
 
-        $nav = new CoreEvent();
-        $nav->setReturnData($event->getReturnData())
-            ->setCurrentRoute('customer_addresses');
-
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_NAVIGATION, $nav);
+            ->dispatch(CoreEvents::CUSTOMER_ADDRESS_LIST, $event);
 
-        $listEvent = new CoreEvent();
-        $listEvent->setRequest($request)
-            ->setUser($this->getUser())
-            ->setReturnData($nav->getReturnData());
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_ADDRESS_LIST, $listEvent);
-
-        return $listEvent->getResponse();
+        return $event->getResponse();
     }
 
     public function newAction(Request $request)
