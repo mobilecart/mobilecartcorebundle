@@ -109,7 +109,7 @@ class ContentViewReturn
 
         $entity = $event->getEntity();
 
-        $request = $event->get('request');
+        $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
         $response = '';
