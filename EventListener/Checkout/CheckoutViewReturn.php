@@ -245,11 +245,11 @@ class CheckoutViewReturn
             $returnData['javascripts'] = [];
         }
 
-        $response = $event->getDisableRender()
-            ? ''
-            : $this->getThemeService()->render($this->getLayout(), $this->getTemplate(), $returnData);
+        if (!$event->getDisableRender()) {
+            $response = $this->getThemeService()->render($this->getLayout(), $this->getTemplate(), $returnData);
+            $event->setResponse($response);
+        }
 
-        $event->setResponse($response)
-            ->setReturnData($returnData);
+        $event->setReturnData($returnData);
     }
 }
