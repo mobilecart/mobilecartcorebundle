@@ -3,7 +3,6 @@
 namespace MobileCart\CoreBundle\EventListener\CustomerAddress;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
-use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Class CustomerAddressInsert
@@ -17,32 +16,9 @@ class CustomerAddressInsert
     protected $entityService;
 
     /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
      * @var \MobileCart\CoreBundle\Service\CartSessionService
      */
     protected $cartSessionService;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -81,11 +57,10 @@ class CustomerAddressInsert
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCustomerAddressInsert(Event $event)
+    public function onCustomerAddressInsert(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
         $request = $event->getRequest();
         $entity = $event->getEntity();

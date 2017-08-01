@@ -2,9 +2,13 @@
 
 namespace MobileCart\CoreBundle\EventListener\ConfigSetting;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
+/**
+ * Class ConfigSettingEditReturn
+ * @package MobileCart\CoreBundle\EventListener\ConfigSetting
+ */
 class ConfigSettingEditReturn
 {
     /**
@@ -21,29 +25,6 @@ class ConfigSettingEditReturn
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -100,13 +81,11 @@ class ConfigSettingEditReturn
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onConfigSettingEditReturn(Event $event)
+    public function onConfigSettingEditReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
 
         $typeSections = [];
@@ -122,7 +101,7 @@ class ConfigSettingEditReturn
         $response = $this->getThemeService()
             ->render('admin', 'ConfigSetting:edit.html.twig', $returnData);
 
-        $event->setReturnData($returnData);
-        $event->setResponse($response);
+        $event->setReturnData($returnData)
+            ->setResponse($response);
     }
 }

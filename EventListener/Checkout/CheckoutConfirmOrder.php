@@ -2,8 +2,12 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
+/**
+ * Class CheckoutConfirmOrder
+ * @package MobileCart\CoreBundle\EventListener\Checkout
+ */
 class CheckoutConfirmOrder
 {
     /**
@@ -25,11 +29,6 @@ class CheckoutConfirmOrder
      * @var string
      */
     protected $defaultTemplate = 'Checkout:confirm_order.html.twig';
-
-    /**
-     * @var Event
-     */
-    protected $event;
 
     /**
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
@@ -55,24 +54,6 @@ class CheckoutConfirmOrder
     }
 
     /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
-
-    /**
      * @param $tpl
      * @return $this
      */
@@ -88,16 +69,6 @@ class CheckoutConfirmOrder
     public function getDefaultTemplate()
     {
         return $this->defaultTemplate;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTemplate()
-    {
-        return $this->getEvent()->getTemplate()
-            ? $this->getEvent()->getTemplate()
-            : $this->defaultTemplate;
     }
 
     /**
@@ -163,11 +134,10 @@ class CheckoutConfirmOrder
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCheckoutConfirmOrder(Event $event)
+    public function onCheckoutConfirmOrder(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $cart = $this->getCartSession()
@@ -180,8 +150,12 @@ class CheckoutConfirmOrder
             ->getShippingService()
             ->getIsShippingEnabled();
 
+        $template = $event->getTemplate()
+            ? $event->getTemplate()
+            : $this->defaultTemplate;
+
         $response = $this->getThemeService()
-            ->render($this->getLayout(), $this->getTemplate(), $returnData);
+            ->render($this->getLayout(), $template, $returnData);
 
         $event->setResponse($response)
             ->setReturnData($returnData);

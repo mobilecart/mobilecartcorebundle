@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Customer;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class CustomerRegisterCheckEmailReturn
@@ -19,29 +19,6 @@ class CustomerRegisterCheckEmailReturn
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $themeService
@@ -80,13 +57,11 @@ class CustomerRegisterCheckEmailReturn
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCustomerRegisterCheckEmailReturn(Event $event)
+    public function onCustomerRegisterCheckEmailReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $typeSections = [];
         $returnData['template_sections'] = $typeSections;
 
@@ -99,7 +74,7 @@ class CustomerRegisterCheckEmailReturn
         $response = $this->getThemeService()
             ->render('frontend', 'Customer:register_check_email.html.twig', $returnData);
 
-        $event->setResponse($response);
-        $event->setReturnData($returnData);
+        $event->setResponse($response)
+            ->setReturnData($returnData);
     }
 }

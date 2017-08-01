@@ -3,15 +3,15 @@
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ * Class CheckoutUpdateShippingAddress
+ * @package MobileCart\CoreBundle\EventListener\Checkout
+ */
 class CheckoutUpdateShippingAddress
 {
-    /**
-     * @var Event
-     */
-    protected $event;
 
     protected $formFactory;
 
@@ -31,24 +31,6 @@ class CheckoutUpdateShippingAddress
      * @var \Psr\Log\LoggerInterface
      */
     protected $logger;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    public function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    public function getEvent()
-    {
-        return $this->event;
-    }
 
     public function setFormFactory($formFactory)
     {
@@ -127,23 +109,20 @@ class CheckoutUpdateShippingAddress
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      * @return bool
      */
-    public function onCheckoutUpdateShippingAddress(Event $event)
+    public function onCheckoutUpdateShippingAddress(CoreEvent $event)
     {
         if (!$this->getCheckoutSessionService()->getCartSessionService()->getShippingService()->getIsShippingEnabled()) {
             return false;
         }
 
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $request = $event->getRequest();
         $formType = $event->getForm();
-        $entity = $event->getUser(); // we should always have a user here
-            //? $event->getUser()
-            //: $event->getEntity();
+        $entity = $event->getUser();
 
         $cartCustomer = $this->getCheckoutSessionService()
             ->getCartSessionService()

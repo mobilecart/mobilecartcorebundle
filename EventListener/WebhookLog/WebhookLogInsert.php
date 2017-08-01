@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\WebhookLog;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
@@ -15,29 +15,6 @@ class WebhookLogInsert
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -58,13 +35,11 @@ class WebhookLogInsert
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onWebhookLogInsert(Event $event)
+    public function onWebhookLogInsert(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $request = $event->getRequest();
         $input = $event->getInput();
         $entity = $event->getEntity();

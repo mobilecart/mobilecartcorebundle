@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\CustomerAddress;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -15,29 +15,6 @@ class CustomerAddressUpdateReturn
     protected $router;
 
     protected $session;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     public function setRouter($router)
     {
@@ -62,14 +39,11 @@ class CustomerAddressUpdateReturn
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCustomerAddressUpdateReturn(Event $event)
+    public function onCustomerAddressUpdateReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
-        $response = '';
         $entity = $event->getEntity();
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
@@ -79,6 +53,7 @@ class CustomerAddressUpdateReturn
         $route = 'customer_address_edit';
         $url = $this->getRouter()->generate($route, $params);
 
+        $response = '';
         switch($format) {
             case 'json':
                 $returnData = [
@@ -100,7 +75,7 @@ class CustomerAddressUpdateReturn
                 break;
         }
 
-        $event->setReturnData($returnData);
-        $event->setResponse($response);
+        $event->setReturnData($returnData)
+            ->setResponse($response);
     }
 }

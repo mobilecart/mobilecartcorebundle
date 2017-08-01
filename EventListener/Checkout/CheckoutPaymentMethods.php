@@ -4,11 +4,15 @@ namespace MobileCart\CoreBundle\EventListener\Checkout;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Payment\PaymentMethodServiceInterface;
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Form\CheckoutType;
 use MobileCart\CoreBundle\Payment\CollectPaymentMethodRequest;
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
 
+/**
+ * Class CheckoutPaymentMethods
+ * @package MobileCart\CoreBundle\EventListener\Checkout
+ */
 class CheckoutPaymentMethods
 {
     /**
@@ -44,11 +48,6 @@ class CheckoutPaymentMethods
      * @var string
      */
     protected $theme = 'frontend';
-
-    /**
-     * @var Event
-     */
-    protected $event;
 
     /**
      * @param $entityService
@@ -196,28 +195,10 @@ class CheckoutPaymentMethods
     }
 
     /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
-
-    /**
-     * @param Event $event
+     * @param CoreEvent $event
      * @return bool
      */
-    public function onCheckoutForm(Event $event)
+    public function onCheckoutForm(CoreEvent $event)
     {
         if ($event->getSingleStep()
             && $event->getSingleStep() != CheckoutConstants::STEP_PAYMENT_METHODS) {
@@ -225,7 +206,6 @@ class CheckoutPaymentMethods
             return false;
         }
 
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         // sections are combined with other listeners/observer

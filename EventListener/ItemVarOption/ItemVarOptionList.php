@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\ItemVarOption;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
@@ -18,29 +18,6 @@ class ItemVarOptionList
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $themeService
@@ -72,16 +49,14 @@ class ItemVarOptionList
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onItemVarOptionList(Event $event)
+    public function onItemVarOptionList(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $response = '';
+
         $returnData['mass_actions'] =
         [
             [
@@ -122,13 +97,11 @@ class ItemVarOptionList
             ],
         ];
 
+        $response = '';
         switch($format) {
             case 'json':
                 $response = new JsonResponse($returnData);
                 break;
-            //case 'xml':
-            //
-            //    break;
             default:
 
                 $response = $this->getThemeService()
@@ -137,7 +110,7 @@ class ItemVarOptionList
                 break;
         }
 
-        $event->setReturnData($returnData);
-        $event->setResponse($response);
+        $event->setReturnData($returnData)
+            ->setResponse($response);
     }
 }

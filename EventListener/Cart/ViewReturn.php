@@ -3,9 +3,13 @@
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ * Class ViewReturn
+ * @package MobileCart\CoreBundle\EventListener\Cart
+ */
 class ViewReturn
 {
     /**
@@ -17,29 +21,6 @@ class ViewReturn
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $themeService
@@ -78,11 +59,10 @@ class ViewReturn
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCartViewReturn(Event $event)
+    public function onCartViewReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $request = $event->getRequest();
@@ -150,9 +130,7 @@ class ViewReturn
         $response = '';
         switch($format) {
             case 'json':
-
                 $response = new JsonResponse($returnData);
-
                 break;
             default:
 

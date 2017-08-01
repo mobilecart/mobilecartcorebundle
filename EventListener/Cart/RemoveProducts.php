@@ -2,11 +2,15 @@
 
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
+/**
+ * Class RemoveProducts
+ * @package MobileCart\CoreBundle\EventListener\Cart
+ */
 class RemoveProducts
 {
     /**
@@ -20,29 +24,6 @@ class RemoveProducts
     protected $entityService;
 
     protected $router;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -92,11 +73,10 @@ class RemoveProducts
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCartRemoveProducts(Event $event)
+    public function onCartRemoveProducts(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $cartSession = $this->getCartSessionService();
@@ -164,7 +144,7 @@ class RemoveProducts
                 break;
         }
 
-        $event->setReturnData($returnData);
-        $event->setResponse($response);
+        $event->setReturnData($returnData)
+            ->setResponse($response);
     }
 }

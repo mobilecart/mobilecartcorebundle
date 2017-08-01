@@ -2,43 +2,23 @@
 
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\CartComponent\Total;
 
+/**
+ * Class GrandTotal
+ * @package MobileCart\CoreBundle\EventListener\Cart
+ */
 class GrandTotal extends Total
 {
     const KEY = 'grand_total';
     const LABEL = 'Grand Total';
 
     /**
-     * @var Event
+     * @param CoreEvent $event
      */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
+    public function onCartTotalCollect(CoreEvent $event)
     {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
-
-    /**
-     * @param Event $event
-     */
-    public function onCartTotalCollect(Event $event)
-    {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $grandTotal = 0;
@@ -63,7 +43,6 @@ class GrandTotal extends Total
             ->setIsAdd(0); // subtract
 
         $event->addTotal($this);
-
         $event->setReturnData($returnData);
     }
 }

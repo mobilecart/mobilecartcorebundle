@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\ItemVarSetVar;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
@@ -15,29 +15,6 @@ class ItemVarSetVarDelete
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -58,13 +35,11 @@ class ItemVarSetVarDelete
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onItemVarSetVarDelete(Event $event)
+    public function onItemVarSetVarDelete(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
         $this->getEntityService()->remove($entity, EntityConstants::ITEM_VAR_SET_VAR);
 

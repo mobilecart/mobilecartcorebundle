@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Discount;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
@@ -17,29 +17,6 @@ class DiscountList
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $themeService
@@ -71,16 +48,14 @@ class DiscountList
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onDiscountList(Event $event)
+    public function onDiscountList(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $response = '';
+
         $returnData['mass_actions'] =
         [
             [
@@ -111,6 +86,7 @@ class DiscountList
             ],
         ];
 
+        $response = '';
         switch($format) {
             case 'json':
                 $response = new JsonResponse($returnData);
@@ -123,7 +99,7 @@ class DiscountList
                 break;
         }
 
-        $event->setReturnData($returnData);
-        $event->setResponse($response);
+        $event->setReturnData($returnData)
+            ->setResponse($response);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Customer;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class CustomerRegisterConfirm
@@ -15,11 +15,6 @@ class CustomerRegisterConfirm
      */
     protected $entityService;
 
-    /**
-     * @var Event
-     */
-    protected $event;
-
     protected $mailer;
 
     /**
@@ -31,24 +26,6 @@ class CustomerRegisterConfirm
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -116,13 +93,11 @@ class CustomerRegisterConfirm
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCustomerRegisterConfirm(Event $event)
+    public function onCustomerRegisterConfirm(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $request = $event->getRequest();
         $id = $request->get('id', 0);
         $hash = $request->get('hash', '');

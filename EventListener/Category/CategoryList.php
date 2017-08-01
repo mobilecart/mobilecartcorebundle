@@ -3,9 +3,12 @@
 namespace MobileCart\CoreBundle\EventListener\Category;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
-use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ * Class CategoryList
+ * @package MobileCart\CoreBundle\EventListener\Category
+ */
 class CategoryList
 {
 
@@ -15,29 +18,6 @@ class CategoryList
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $themeService
@@ -69,11 +49,10 @@ class CategoryList
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCategoryList(Event $event)
+    public function onCategoryList(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $request = $event->getRequest();
@@ -155,7 +134,7 @@ class CategoryList
                 break;
         }
 
-        $event->setReturnData($returnData);
-        $event->setResponse($response);
+        $event->setReturnData($returnData)
+            ->setResponse($response);
     }
 }

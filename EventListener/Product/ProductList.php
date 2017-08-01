@@ -4,7 +4,6 @@ namespace MobileCart\CoreBundle\EventListener\Product;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
-use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
@@ -20,29 +19,6 @@ class ProductList
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $themeService
@@ -78,12 +54,9 @@ class ProductList
      */
     public function onProductList(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $response = '';
 
         $returnData['columns'] = [
             [
@@ -143,6 +116,7 @@ class ProductList
             }
         }
 
+        $response = '';
         switch($event->getSection()) {
             case ($format == 'json'):
             case CoreEvent::SECTION_API:
@@ -261,7 +235,7 @@ class ProductList
                 break;
         }
 
-        $event->setReturnData($returnData);
-        $event->setResponse($response);
+        $event->setReturnData($returnData)
+            ->setResponse($response);
     }
 }

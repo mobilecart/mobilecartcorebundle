@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\ShippingMethod;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class ShippingMethodSearch
@@ -11,34 +11,10 @@ use Symfony\Component\EventDispatcher\Event;
 class ShippingMethodSearch
 {
     /**
-     * @var Event
+     * @param CoreEvent $event
      */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
+    public function onShippingMethodSearch(CoreEvent $event)
     {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
-
-    /**
-     * @param Event $event
-     */
-    public function onShippingMethodSearch(Event $event)
-    {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $event->getSearch()

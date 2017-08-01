@@ -3,7 +3,7 @@
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class CheckoutTotalsDiscountsViewReturn
@@ -37,29 +37,6 @@ class CheckoutTotalsDiscountsViewReturn
     protected $defaultTemplate = 'Checkout:totals_discounts.html.twig';
 
     /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
-
-    /**
      * @param $tpl
      * @return $this
      */
@@ -75,16 +52,6 @@ class CheckoutTotalsDiscountsViewReturn
     public function getDefaultTemplate()
     {
         return $this->defaultTemplate;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTemplate()
-    {
-        return $this->getEvent()->getTemplate()
-            ? $this->getEvent()->getTemplate()
-            : $this->defaultTemplate;
     }
 
     /**
@@ -168,11 +135,10 @@ class CheckoutTotalsDiscountsViewReturn
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCheckoutTotalsDiscounts(Event $event)
+    public function onCheckoutTotalsDiscounts(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
         $request = $event->getRequest();
 
@@ -226,8 +192,12 @@ class CheckoutTotalsDiscountsViewReturn
 
         $returnData['addresses'] = $addressOptions;
 
+        $template = $event->getTemplate()
+            ? $event->getTemplate()
+            : $this->defaultTemplate;
+
         $response = $this->getThemeService()
-            ->render($this->getLayout(), $this->getTemplate(), $returnData);
+            ->render($this->getLayout(), $template, $returnData);
 
         $event->setResponse($response)
             ->setReturnData($returnData);

@@ -3,7 +3,6 @@
 namespace MobileCart\CoreBundle\EventListener\CustomerAddress;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
-use Symfony\Component\EventDispatcher\Event;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
@@ -18,32 +17,9 @@ class CustomerAddressDelete
     protected $entityService;
 
     /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
      * @var \MobileCart\CoreBundle\Service\CartSessionService
      */
     protected $cartSessionService;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -82,13 +58,11 @@ class CustomerAddressDelete
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCustomerAddressDelete(Event $event)
+    public function onCustomerAddressDelete(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
         $this->getEntityService()->remove($entity, EntityConstants::CUSTOMER);
 

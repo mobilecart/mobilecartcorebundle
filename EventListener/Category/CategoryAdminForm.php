@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Category;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Form\CategoryType;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
@@ -23,36 +23,6 @@ class CategoryAdminForm
      * @var \MobileCart\CoreBundle\Service\ThemeConfig
      */
     protected $themeConfig;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
-
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
 
     /**
      * @param $entityService
@@ -102,13 +72,11 @@ class CategoryAdminForm
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCategoryAdminForm(Event $event)
+    public function onCategoryAdminForm(CoreEvent $event)
     {
-        $this->setEvent($event);
-        $returnData = $this->getReturnData();
-
+        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
 
         $formType = new CategoryType();
@@ -149,6 +117,7 @@ class CategoryAdminForm
         $vars = $varSet
             ? $varSet->getItemVars()
             : [];
+
         $varValues = $entity->getVarValues();
 
         if ($varSet && $vars) {

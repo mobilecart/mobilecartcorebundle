@@ -2,11 +2,14 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
-use Symfony\Component\EventDispatcher\Event;
-
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
+/**
+ * Class CheckoutViewReturn
+ * @package MobileCart\CoreBundle\EventListener\Checkout
+ */
 class CheckoutViewReturn
 {
     /**
@@ -39,30 +42,7 @@ class CheckoutViewReturn
      */
     protected $defaultTemplate = 'Checkout:index.html.twig';
 
-    /**
-     * @var Event
-     */
-    protected $event;
-
     protected $router;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $tpl
@@ -80,16 +60,6 @@ class CheckoutViewReturn
     public function getDefaultTemplate()
     {
         return $this->defaultTemplate;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTemplate()
-    {
-        return $this->getEvent()->getTemplate()
-            ? $this->getEvent()->getTemplate()
-            : $this->defaultTemplate;
     }
 
     /**
@@ -194,11 +164,10 @@ class CheckoutViewReturn
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCheckoutViewReturn(Event $event)
+    public function onCheckoutViewReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $cart = $this->getCartSession()
@@ -246,7 +215,12 @@ class CheckoutViewReturn
         }
 
         if (!$event->getDisableRender()) {
-            $response = $this->getThemeService()->render($this->getLayout(), $this->getTemplate(), $returnData);
+
+            $template = $event->getTemplate()
+                ? $event->getTemplate()
+                : $this->defaultTemplate;
+
+            $response = $this->getThemeService()->render($this->getLayout(), $template, $returnData);
             $event->setResponse($response);
         }
 

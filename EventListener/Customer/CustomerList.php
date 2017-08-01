@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Customer;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
@@ -18,29 +18,6 @@ class CustomerList
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $themeService
@@ -72,16 +49,14 @@ class CustomerList
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCustomerList(Event $event)
+    public function onCustomerList(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $response = '';
+
         $returnData['mass_actions'] =
         [
             [
@@ -142,6 +117,7 @@ class CustomerList
             }
         }
 
+        $response = '';
         switch($format) {
             case 'json':
                 $response = new JsonResponse($returnData);
@@ -160,7 +136,7 @@ class CustomerList
                 break;
         }
 
-        $event->setReturnData($returnData);
-        $event->setResponse($response);
+        $event->setReturnData($returnData)
+            ->setResponse($response);
     }
 }

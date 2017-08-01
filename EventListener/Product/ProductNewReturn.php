@@ -3,7 +3,7 @@
 namespace MobileCart\CoreBundle\EventListener\Product;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Entity\Product;
 
 /**
@@ -26,29 +26,6 @@ class ProductNewReturn
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $themeService
@@ -105,11 +82,10 @@ class ProductNewReturn
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onProductNewReturn(Event $event)
+    public function onProductNewReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
         $product = $event->getEntity();
         $request = $event->getRequest();
@@ -189,7 +165,7 @@ class ProductNewReturn
         $response = $this->getThemeService()
             ->render('admin', 'Product:new.html.twig', $returnData);
 
-        $event->setResponse($response);
-        $event->setReturnData($returnData);
+        $event->setResponse($response)
+            ->setReturnData($returnData);
     }
 }

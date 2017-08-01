@@ -2,9 +2,8 @@
 
 namespace MobileCart\CoreBundle\EventListener\Order;
 
-use Symfony\Component\EventDispatcher\Event;
-use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\CartComponent\Cart;
 
 /**
@@ -32,29 +31,6 @@ class OrderInsert
      * @var \MobileCart\CoreBundle\Service\CartSessionService
      */
     protected $cartSessionService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -129,13 +105,11 @@ class OrderInsert
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onOrderInsert(Event $event)
+    public function onOrderInsert(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
         $formData = $event->getFormData();
         $request = $event->getRequest();

@@ -2,39 +2,20 @@
 
 namespace MobileCart\CoreBundle\EventListener\ConfigSetting;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
+/**
+ * Class ConfigSettingUpdateReturn
+ * @package MobileCart\CoreBundle\EventListener\ConfigSetting
+ */
 class ConfigSettingUpdateReturn
 {
     protected $router;
 
     protected $session;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     public function setRouter($router)
     {
@@ -59,11 +40,10 @@ class ConfigSettingUpdateReturn
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onConfigSettingUpdateReturn(Event $event)
+    public function onConfigSettingUpdateReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $response = '';
@@ -97,7 +77,7 @@ class ConfigSettingUpdateReturn
                 break;
         }
 
-        $event->setReturnData($returnData);
-        $event->setResponse($response);
+        $event->setReturnData($returnData)
+            ->setResponse($response);
     }
 }

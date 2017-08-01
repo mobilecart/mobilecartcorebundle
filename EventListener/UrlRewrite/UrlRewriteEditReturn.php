@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\UrlRewrite;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class UrlRewriteEditReturn
@@ -19,29 +19,6 @@ class UrlRewriteEditReturn
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $themeService
@@ -80,13 +57,11 @@ class UrlRewriteEditReturn
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onUrlRewriteEditReturn(Event $event)
+    public function onUrlRewriteEditReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
         $typeSections = [];
 
@@ -99,7 +74,7 @@ class UrlRewriteEditReturn
         $response = $this->getThemeService()
             ->render('admin', 'UrlRewrite:edit.html.twig', $returnData);
 
-        $event->setReturnData($returnData);
-        $event->setResponse($response);
+        $event->setReturnData($returnData)
+            ->setResponse($response);
     }
 }

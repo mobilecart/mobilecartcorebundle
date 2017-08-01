@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\CustomerAddress;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class CustomerAddressNewReturn
@@ -19,29 +19,6 @@ class CustomerAddressNewReturn
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $themeService
@@ -79,11 +56,12 @@ class CustomerAddressNewReturn
         return $this->entityService;
     }
 
-    public function onCustomerAddressNewReturn(Event $event)
+    /**
+     * @param CoreEvent $event
+     */
+    public function onCustomerAddressNewReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
         $objectType = $event->getObjectType();
 
@@ -103,7 +81,7 @@ class CustomerAddressNewReturn
         $response = $this->getThemeService()
             ->render('frontend', 'CustomerAddress:new.html.twig', $returnData);
 
-        $event->setResponse($response);
-        $event->setReturnData($returnData);
+        $event->setResponse($response)
+            ->setReturnData($returnData);
     }
 }

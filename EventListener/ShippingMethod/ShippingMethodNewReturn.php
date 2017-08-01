@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\ShippingMethod;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class ShippingMethodNewReturn
@@ -19,29 +19,6 @@ class ShippingMethodNewReturn
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -80,13 +57,11 @@ class ShippingMethodNewReturn
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onShippingMethodNewReturn(Event $event)
+    public function onShippingMethodNewReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
         $returnData['template_sections'] = [];
 
@@ -97,7 +72,7 @@ class ShippingMethodNewReturn
         $response = $this->getThemeService()
             ->render('admin', 'ShippingMethod:new.html.twig', $returnData);
 
-        $event->setResponse($response);
-        $event->setReturnData($returnData);
+        $event->setResponse($response)
+            ->setReturnData($returnData);
     }
 }

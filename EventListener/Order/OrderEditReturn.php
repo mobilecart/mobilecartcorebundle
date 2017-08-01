@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Order;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\CartComponent\Cart;
 use MobileCart\CoreBundle\Payment\CollectPaymentMethodRequest;
 
@@ -41,29 +41,6 @@ class OrderEditReturn
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -174,13 +151,11 @@ class OrderEditReturn
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onOrderEditReturn(Event $event)
+    public function onOrderEditReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $order = $event->getEntity();
         $returnData['order'] = $order;
 
@@ -310,7 +285,7 @@ class OrderEditReturn
         $response = $this->getThemeService()
             ->render('admin', 'Order:edit.html.twig', $returnData);
 
-        $event->setReturnData($returnData);
-        $event->setResponse($response);
+        $event->setReturnData($returnData)
+            ->setResponse($response);
     }
 }

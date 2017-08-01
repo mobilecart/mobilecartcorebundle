@@ -2,43 +2,23 @@
 
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\CartComponent\Total;
 
+/**
+ * Class ItemTotal
+ * @package MobileCart\CoreBundle\EventListener\Cart
+ */
 class ItemTotal extends Total
 {
     const KEY = 'items';
     const LABEL = 'Items';
 
     /**
-     * @var Event
+     * @param CoreEvent $event
      */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
+    public function onCartTotalCollect(CoreEvent $event)
     {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
-
-    /**
-     * @param Event $event
-     */
-    public function onCartTotalCollect(Event $event)
-    {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $itemTotal = $event->getCart()->getCalculator()

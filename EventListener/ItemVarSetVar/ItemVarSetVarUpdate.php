@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\ItemVarSetVar;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class ItemVarSetVarUpdate
@@ -14,29 +14,6 @@ class ItemVarSetVarUpdate
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -57,13 +34,11 @@ class ItemVarSetVarUpdate
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onItemVarSetVarUpdate(Event $event)
+    public function onItemVarSetVarUpdate(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
         $this->getEntityService()->persist($entity);
 

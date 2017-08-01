@@ -3,14 +3,14 @@
 namespace MobileCart\CoreBundle\EventListener\Category;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
+/**
+ * Class CategoryNewReturn
+ * @package MobileCart\CoreBundle\EventListener\Category
+ */
 class CategoryNewReturn
 {
-    protected $request;
-
-    protected $varSet;
-
     /**
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
@@ -25,29 +25,6 @@ class CategoryNewReturn
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $themeService
@@ -103,38 +80,13 @@ class CategoryNewReturn
         return $this->imageService;
     }
 
-    public function setRequest($request)
-    {
-        $this->request = $request;
-        return $this;
-    }
-
-    public function getRequest()
-    {
-        return $this->request;
-    }
-
-    public function setVarSet($varSet)
-    {
-        $this->varSet = $varSet;
-        return $this;
-    }
-
-    public function getVarSet()
-    {
-        return $this->varSet;
-    }
-
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCategoryNewReturn(Event $event)
+    public function onCategoryNewReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
-        $varSet = $this->getVarSet();
 
         $objectType = EntityConstants::CATEGORY;
 
@@ -157,7 +109,7 @@ class CategoryNewReturn
         $response = $this->getThemeService()
             ->render('admin', 'Category:new.html.twig', $returnData);
 
-        $event->setResponse($response);
-        $event->setReturnData($returnData);
+        $event->setResponse($response)
+            ->setReturnData($returnData);
     }
 }

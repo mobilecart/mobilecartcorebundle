@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Customer;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\Intl\Intl;
 use MobileCart\CoreBundle\Form\CustomerProfileType;
 
@@ -28,29 +28,6 @@ class CustomerProfileForm
      * @var \MobileCart\CoreBundle\Service\CartService
      */
     protected $cartService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $cartService
@@ -118,13 +95,11 @@ class CustomerProfileForm
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCustomerProfileForm(Event $event)
+    public function onCustomerProfileForm(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
 
         $allCountries = Intl::getRegionBundle()->getCountryNames();

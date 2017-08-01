@@ -4,7 +4,8 @@ namespace MobileCart\CoreBundle\EventListener\Payment;
 
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\Constants\EntityConstants;
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
+use MobileCart\CoreBundle\Event\Payment\FilterPaymentMethodCollectEvent;
 
 /**
  * Class PaymentMethodHandler
@@ -99,10 +100,10 @@ class PaymentMethodHandler
      * Event Listener : top-level logic happens here
      *  build a request, handle the request, handle the response
      *
-     * @param Event $event
+     * @param FilterPaymentMethodCollectEvent $event
      * @return mixed
      */
-    public function onPaymentMethodCollect(Event $event)
+    public function onPaymentMethodCollect(FilterPaymentMethodCollectEvent $event)
     {
         if (!$this->getIsEnabled()) {
             return false;

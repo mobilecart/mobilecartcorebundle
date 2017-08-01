@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Discount;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Form\DiscountType;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
@@ -18,29 +18,6 @@ class DiscountAdminForm
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     public function setFormFactory($formFactory)
     {
@@ -72,13 +49,11 @@ class DiscountAdminForm
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onDiscountAdminForm(Event $event)
+    public function onDiscountAdminForm(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
 
         $form = $this->getFormFactory()->create(new DiscountType(), $entity, [

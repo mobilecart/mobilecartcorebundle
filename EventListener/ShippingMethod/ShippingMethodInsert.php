@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\ShippingMethod;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class ShippingMethodInsert
@@ -14,29 +14,6 @@ class ShippingMethodInsert
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -57,13 +34,11 @@ class ShippingMethodInsert
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onShippingMethodInsert(Event $event)
+    public function onShippingMethodInsert(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
         $this->getEntityService()->persist($entity);
 

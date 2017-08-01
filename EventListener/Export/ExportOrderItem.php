@@ -4,7 +4,7 @@ namespace MobileCart\CoreBundle\EventListener\Export;
 
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\Constants\EntityConstants;
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 class ExportOrderItem
 {
@@ -12,11 +12,6 @@ class ExportOrderItem
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
 
     /**
      * @var string
@@ -27,24 +22,6 @@ class ExportOrderItem
      * @var string
      */
     protected $exportOptionLabel = 'Export Order Items';
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -65,9 +42,9 @@ class ExportOrderItem
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onExportOptionsCollect(Event $event)
+    public function onExportOptionsCollect(CoreEvent $event)
     {
         if ($event->getRunExport()) {
             if ($event->getExportOptionKey() == $this->exportOptionKey) {

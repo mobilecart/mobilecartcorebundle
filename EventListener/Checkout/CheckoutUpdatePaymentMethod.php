@@ -2,15 +2,15 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ * Class CheckoutUpdatePaymentMethod
+ * @package MobileCart\CoreBundle\EventListener\Checkout
+ */
 class CheckoutUpdatePaymentMethod
 {
-    /**
-     * @var Event
-     */
-    protected $event;
 
     /**
      * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
@@ -21,24 +21,6 @@ class CheckoutUpdatePaymentMethod
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    public function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    public function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -77,11 +59,10 @@ class CheckoutUpdatePaymentMethod
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCheckoutUpdatePaymentMethod(Event $event)
+    public function onCheckoutUpdatePaymentMethod(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $isValid = 0;

@@ -3,15 +3,15 @@
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ * Class CheckoutUpdateBillingAddress
+ * @package MobileCart\CoreBundle\EventListener\Checkout
+ */
 class CheckoutUpdateBillingAddress
 {
-    /**
-     * @var Event
-     */
-    protected $event;
 
     protected $formFactory;
 
@@ -50,24 +50,6 @@ class CheckoutUpdateBillingAddress
     public function getEntityService()
     {
         return $this->entityService;
-    }
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    public function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    public function getEvent()
-    {
-        return $this->event;
     }
 
     public function setFormFactory($formFactory)
@@ -140,11 +122,10 @@ class CheckoutUpdateBillingAddress
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCheckoutUpdateBillingAddress(Event $event)
+    public function onCheckoutUpdateBillingAddress(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $request = $event->getRequest();

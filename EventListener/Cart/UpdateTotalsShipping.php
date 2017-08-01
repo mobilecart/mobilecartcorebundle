@@ -3,7 +3,7 @@
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class UpdateTotalsShipping
@@ -24,32 +24,9 @@ class UpdateTotalsShipping
     protected $router;
 
     /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
      * @var \Psr\Log\LoggerInterface
      */
     protected $logger;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     public function setRouter($router)
     {
@@ -117,9 +94,9 @@ class UpdateTotalsShipping
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onUpdateTotalsShipping(Event $event)
+    public function onUpdateTotalsShipping(CoreEvent $event)
     {
         $currencyService = $this->getCartSessionService()->getCurrencyService();
         $cartItems = $this->getCartSessionService()->getCart()->getItems();

@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\ItemVarOption;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Form\ItemVarOptionType;
 
 /**
@@ -24,29 +24,6 @@ class ItemVarOptionAdminForm
     protected $formFactory;
 
     protected $router;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -107,13 +84,11 @@ class ItemVarOptionAdminForm
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onItemVarOptionAdminForm(Event $event)
+    public function onItemVarOptionAdminForm(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
 
         $formType = new ItemVarOptionType();

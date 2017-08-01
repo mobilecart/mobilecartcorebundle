@@ -2,9 +2,13 @@
 
 namespace MobileCart\CoreBundle\EventListener\Contact;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
+/**
+ * Class ContactFormPost
+ * @package MobileCart\CoreBundle\EventListener\Contact
+ */
 class ContactFormPost
 {
     /**
@@ -28,29 +32,6 @@ class ContactFormPost
     protected $themeService;
 
     protected $router;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     public function setRouter($router)
     {
@@ -128,9 +109,8 @@ class ContactFormPost
         return $this->mailer;
     }
 
-    public function onContactFormPost(Event $event)
+    public function onContactFormPost(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
         $request = $event->getRequest();
         $formData = $event->getFormData();

@@ -2,31 +2,19 @@
 
 namespace MobileCart\CoreBundle\EventListener\Category;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
+/**
+ * Class CategoryDelete
+ * @package MobileCart\CoreBundle\EventListener\Category
+ */
 class CategoryDelete
 {
     /**
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -47,11 +35,10 @@ class CategoryDelete
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCategoryDelete(Event $event)
+    public function onCategoryDelete(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $entity = $event->getEntity();

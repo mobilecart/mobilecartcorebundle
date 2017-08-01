@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\ItemVarSet;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class ItemVarSetInsert
@@ -14,29 +14,6 @@ class ItemVarSetInsert
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -57,11 +34,10 @@ class ItemVarSetInsert
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onItemVarSetInsert(Event $event)
+    public function onItemVarSetInsert(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
         $entity = $event->getEntity();
         $this->getEntityService()->persist($entity);

@@ -2,12 +2,9 @@
 
 namespace MobileCart\CoreBundle\EventListener\Product;
 
-use Symfony\Component\EventDispatcher\Event;
-use Symfony\Component\HttpFoundation\JsonResponse;
-
-use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\Entity\Product;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
  * Class ProductViewReturn
@@ -29,29 +26,6 @@ class ProductViewReturn
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -108,13 +82,11 @@ class ProductViewReturn
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onProductViewReturn(Event $event)
+    public function onProductViewReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
         $form = $event->getForm();
         $returnData['entity'] = $entity;

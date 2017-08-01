@@ -2,34 +2,15 @@
 
 namespace MobileCart\CoreBundle\EventListener\Customer;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
+/**
+ * Class CustomerNavigation
+ * @package MobileCart\CoreBundle\EventListener\Customer
+ */
 class CustomerNavigation
 {
     protected $router;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     public function setRouter($router)
     {
@@ -43,11 +24,10 @@ class CustomerNavigation
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCustomerNavigation(Event $event)
+    public function onCustomerNavigation(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $returnData['navigation'] = [

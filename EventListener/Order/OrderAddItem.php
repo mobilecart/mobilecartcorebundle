@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Order;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -25,29 +25,6 @@ class OrderAddItem
      * @var \MobileCart\CoreBundle\Service\DiscountService
      */
     protected $discountService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $cartSession
@@ -104,13 +81,11 @@ class OrderAddItem
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onOrderAddItem(Event $event)
+    public function onOrderAddItem(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $request = $event->getRequest();
 
         // set shipment method on cart
@@ -128,8 +103,7 @@ class OrderAddItem
             $this->getCartSession()
                 ->setProductQty($productId, $qty);
 
-        } else if ($productId) {
-
+        } elseif ($productId) {
             $this->getCartSession()->addItem($item);
         }
 

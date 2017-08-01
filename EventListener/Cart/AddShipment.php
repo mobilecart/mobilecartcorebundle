@@ -3,12 +3,16 @@
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
 use MobileCart\CoreBundle\CartComponent\Shipment;
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+/**
+ * Class AddShipment
+ * @package MobileCart\CoreBundle\EventListener\Cart
+ */
 class AddShipment
 {
     /**
@@ -27,29 +31,6 @@ class AddShipment
     public $shippingService;
 
     protected $router;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     public function setRouter($router)
     {
@@ -117,11 +98,10 @@ class AddShipment
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCartAddShipment(Event $event)
+    public function onCartAddShipment(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $shippingService = $this->getShippingService();

@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Content;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
@@ -18,29 +18,6 @@ class ContentList
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $themeService
@@ -72,11 +49,10 @@ class ContentList
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onContentList(Event $event)
+    public function onContentList(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $request = $event->getRequest();
@@ -130,7 +106,7 @@ class ContentList
                 break;
         }
 
-        $event->setReturnData($returnData);
-        $event->setResponse($response);
+        $event->setReturnData($returnData)
+            ->setResponse($response);
     }
 }

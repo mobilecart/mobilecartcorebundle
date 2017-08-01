@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\ItemVarSet;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Form\ItemVarSetType;
 
 /**
@@ -24,29 +24,6 @@ class ItemVarSetAdminForm
     protected $formFactory;
 
     protected $router;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -107,15 +84,12 @@ class ItemVarSetAdminForm
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onItemVarSetAdminForm(Event $event)
+    public function onItemVarSetAdminForm(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
-
         $formType = new ItemVarSetType();
         $form = $this->getFormFactory()->create($formType, $entity, [
             'action' => $event->getAction(),

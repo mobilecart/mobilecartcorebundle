@@ -3,7 +3,7 @@
 namespace MobileCart\CoreBundle\EventListener\Customer;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class CustomerRegister
@@ -11,10 +11,6 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class CustomerRegister
 {
-    /**
-     * @var Event
-     */
-    protected $event;
 
     protected $mailer;
 
@@ -36,24 +32,6 @@ class CustomerRegister
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    public function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    public function getEvent()
-    {
-        return $this->event;
-    }
 
     public function setMailer($mailer)
     {
@@ -143,11 +121,10 @@ class CustomerRegister
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCustomerRegister(Event $event)
+    public function onCustomerRegister(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $entity = $event->getEntity();

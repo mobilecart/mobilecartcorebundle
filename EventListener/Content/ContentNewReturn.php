@@ -2,14 +2,14 @@
 
 namespace MobileCart\CoreBundle\EventListener\Content;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
+/**
+ * Class ContentNewReturn
+ * @package MobileCart\CoreBundle\EventListener\Content
+ */
 class ContentNewReturn
 {
-    protected $request;
-
-    protected $varSet;
-
     /**
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
@@ -24,29 +24,6 @@ class ContentNewReturn
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $themeService
@@ -103,11 +80,10 @@ class ContentNewReturn
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onContentNewReturn(Event $event)
+    public function onContentNewReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $entity = $event->getEntity();
@@ -143,7 +119,7 @@ class ContentNewReturn
         $response = $this->getThemeService()
             ->render('admin', 'Content:new.html.twig', $returnData);
 
-        $event->setResponse($response);
-        $event->setReturnData($returnData);
+        $event->setResponse($response)
+            ->setReturnData($returnData);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Order;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\CartComponent\Discount;
 
 /**
@@ -25,29 +25,6 @@ class OrderAddDiscount
      * @var \MobileCart\CoreBundle\Service\DiscountService
      */
     protected $discountService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $cartSession
@@ -104,13 +81,11 @@ class OrderAddDiscount
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onOrderAddDiscount(Event $event)
+    public function onOrderAddDiscount(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $request = $event->getRequest();
 
         // set shipment method on cart

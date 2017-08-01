@@ -6,9 +6,13 @@ use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\CartComponent\Shipment;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Shipping\Rate;
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Shipping\RateRequest;
 
+/**
+ * Class UpdateMultiShipment
+ * @package MobileCart\CoreBundle\EventListener\Cart
+ */
 class UpdateMultiShipment
 {
     /**
@@ -25,29 +29,6 @@ class UpdateMultiShipment
      * @var \MobileCart\CoreBundle\Service\ShippingService
      */
     protected $shippingService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $cartSessionService
@@ -112,10 +93,10 @@ class UpdateMultiShipment
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      * @throws \Exception
      */
-    public function onCartUpdateMultiShipment(Event $event)
+    public function onCartUpdateMultiShipment(CoreEvent $event)
     {
         $request = $event->getRequest();
         $products = $request->get('product_address', []);

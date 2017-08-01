@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Content;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Form\ContentType;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
@@ -23,29 +23,6 @@ class ContentAdminForm
      * @var \MobileCart\CoreBundle\Service\ThemeConfig
      */
     protected $themeConfig;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -95,11 +72,10 @@ class ContentAdminForm
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onContentAdminForm(Event $event)
+    public function onContentAdminForm(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $entity = $event->getEntity();

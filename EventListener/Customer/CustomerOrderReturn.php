@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Customer;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -22,30 +22,7 @@ class CustomerOrderReturn
      */
     protected $themeService;
 
-    /**
-     * @var Event
-     */
-    protected $event;
-
     protected $router;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     public function setRouter($router)
     {
@@ -95,11 +72,10 @@ class CustomerOrderReturn
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCustomerOrderReturn(Event $event)
+    public function onCustomerOrderReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
         $request = $event->getRequest();
 

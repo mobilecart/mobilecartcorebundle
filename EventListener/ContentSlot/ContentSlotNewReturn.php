@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\ContentSlot;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class ContentSlotNewReturn
@@ -24,29 +24,6 @@ class ContentSlotNewReturn
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $themeService
@@ -103,12 +80,11 @@ class ContentSlotNewReturn
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onContentSlotNewReturn(Event $event)
+    public function onContentSlotNewReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $entity = $event->getEntity();
         $typeSections = [];
@@ -119,11 +95,6 @@ class ContentSlotNewReturn
         $returnData['form'] = $form->createView();
         $returnData['entity'] = $entity;
 
-        //$response = $this->getThemeService()
-        //    ->render('admin', 'Content:new.html.twig', $returnData);
-
-        $response = null;
-        $event->setResponse($response);
         $event->setReturnData($returnData);
     }
 }

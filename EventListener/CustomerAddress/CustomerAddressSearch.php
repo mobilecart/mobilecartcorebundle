@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\CustomerAddress;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class CustomerAddressSearch
@@ -11,34 +11,10 @@ use Symfony\Component\EventDispatcher\Event;
 class CustomerAddressSearch
 {
     /**
-     * @var Event
+     * @param CoreEvent $event
      */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
+    public function onCustomerAddressSearch(CoreEvent $event)
     {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
-
-    /**
-     * @param Event $event
-     */
-    public function onCustomerAddressSearch(Event $event)
-    {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $search = $event->getSearch()

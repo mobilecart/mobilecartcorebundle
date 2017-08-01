@@ -2,15 +2,15 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Payment\CollectPaymentMethodRequest;
 
+/**
+ * Class CheckoutUpdatePaymentMethods
+ * @package MobileCart\CoreBundle\EventListener\Checkout
+ */
 class CheckoutUpdatePaymentMethods
 {
-    /**
-     * @var Event
-     */
-    protected $event;
 
     protected $formFactory;
 
@@ -47,24 +47,6 @@ class CheckoutUpdatePaymentMethods
         return $this->entityService;
     }
 
-    /**
-     * @param $event
-     * @return $this
-     */
-    public function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    public function getEvent()
-    {
-        return $this->event;
-    }
-
     public function setFormFactory($formFactory)
     {
         $this->formFactory = $formFactory;
@@ -74,13 +56,6 @@ class CheckoutUpdatePaymentMethods
     public function getFormFactory()
     {
         return $this->formFactory;
-    }
-
-    public function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
     }
 
     /**
@@ -120,15 +95,12 @@ class CheckoutUpdatePaymentMethods
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCheckoutUpdateBillingAddress(Event $event)
+    public function onCheckoutUpdateBillingAddress(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $checkoutSession = $this->getCheckoutSessionService();
-
         $cartCustomer = $checkoutSession->getCartSessionService()->getCustomer();
 
         if ($checkoutSession->getIsValidBillingAddress()) {

@@ -4,12 +4,15 @@ namespace MobileCart\CoreBundle\EventListener\Cart;
 
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\Event\CoreEvent;
-use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
+/**
+ * Class AddProduct
+ * @package MobileCart\CoreBundle\EventListener\Cart
+ */
 class AddProduct
 {
     /**
@@ -28,11 +31,6 @@ class AddProduct
     protected $redirectToCart = 1;
 
     protected $router;
-
-    /**
-     * @var Event
-     */
-    protected $event;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Cart
@@ -98,24 +96,6 @@ class AddProduct
      * @var int
      */
     protected $success = 0;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     public function setRouter($router)
     {
@@ -716,13 +696,13 @@ class AddProduct
     }
 
     /**
+     * @param $event
      * @param $cartItem
      * @param array $recollectShipping
      * @return $this
      */
-    public function collectAddresses(&$cartItem, array &$recollectShipping)
+    public function collectAddresses($event, &$cartItem, array &$recollectShipping)
     {
-        $event = $this->getEvent();
         $productId = $cartItem->getProductId();
         $request = $event->getRequest();
         $productAddresses = $request->get('product_address', []);
@@ -781,11 +761,10 @@ class AddProduct
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCartAddProduct(Event $event)
+    public function onCartAddProduct(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $this->setCartItem(null); // preventing a strange "bug"
@@ -876,8 +855,7 @@ class AddProduct
             ->setCartEntity($cartEntity)
             ->setQty($qty);
 
-        $this->setEvent($event)
-            ->setProductId($productId)
+        $this->setProductId($productId)
             ->setQty($qty)
             ->setIsAdd($event->getIsAdd());
 
@@ -903,7 +881,7 @@ class AddProduct
                 $this->updateTierPrice($cartItem);
 
                 // update shipping address
-                $this->collectAddresses($cartItem, $recollectShipping);
+                $this->collectAddresses($event, $cartItem, $recollectShipping);
 
                 // update cart item and totals
                 $this->setCartItem($cartItem)->saveCartItem();
@@ -933,7 +911,7 @@ class AddProduct
                 $this->getCartSessionService()->addItem($cartItem, $qty);
 
                 // update shipping address
-                $this->collectAddresses($cartItem, $recollectShipping);
+                $this->collectAddresses($event, $cartItem, $recollectShipping);
 
                 // update cart totals
                 $this->setCartItem($cartItem)->saveCartItem();
@@ -1004,7 +982,7 @@ class AddProduct
                 break;
         }
 
-        $event->setReturnData($returnData);
-        $event->setResponse($response);
+        $event->setReturnData($returnData)
+            ->setResponse($response);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Order;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\Intl\Intl;
 use MobileCart\CoreBundle\Form\OrderType;
 use MobileCart\CoreBundle\Constants\EntityConstants;
@@ -36,29 +36,6 @@ class OrderAdminForm
      * @var \MobileCart\CoreBundle\Service\OrderService
      */
     protected $orderService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -155,13 +132,11 @@ class OrderAdminForm
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onOrderAdminForm(Event $event)
+    public function onOrderAdminForm(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
 
         $allCountries = Intl::getRegionBundle()->getCountryNames();
@@ -194,6 +169,7 @@ class OrderAdminForm
         $vars = $varSet
             ? $varSet->getItemVars()
             : [];
+
         $varValues = $entity->getVarValues();
 
         if ($varSet && $vars) {

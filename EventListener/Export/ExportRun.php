@@ -2,8 +2,12 @@
 
 namespace MobileCart\CoreBundle\EventListener\Export;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
+/**
+ * Class ExportRun
+ * @package MobileCart\CoreBundle\EventListener\Export
+ */
 class ExportRun
 {
     /**
@@ -19,29 +23,6 @@ class ExportRun
     protected $formFactory;
 
     protected $router;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $exportService
@@ -108,9 +89,8 @@ class ExportRun
         return $this->router;
     }
 
-    public function onExportRun(Event $event)
+    public function onExportRun(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
         $request = $event->getRequest();
 
@@ -122,8 +102,6 @@ class ExportRun
             'action' => $url,
             'method' => 'POST',
         ]);
-
-        $response = '';
 
         if ($form->handleRequest($request)->isValid()) {
             $formData = $request->request->get('export_options');
@@ -142,10 +120,10 @@ class ExportRun
 
             if ($export->getResponse()) {
                 $response = $export->getResponse();
+                $event->setResponse($response);
             }
         }
 
         $event->setReturnData($returnData);
-        $event->setResponse($response);
     }
 }

@@ -2,35 +2,16 @@
 
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
+/**
+ * Class ProductAddToCartForm
+ * @package MobileCart\CoreBundle\EventListener\Cart
+ */
 class ProductAddToCartForm
 {
 
     protected $formFactory;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     public function setFormFactory($formFactory)
     {
@@ -44,11 +25,10 @@ class ProductAddToCartForm
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onProductAddToCartForm(Event $event)
+    public function onProductAddToCartForm(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $data = [

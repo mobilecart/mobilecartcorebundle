@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
 
@@ -12,11 +12,6 @@ use MobileCart\CoreBundle\Constants\CheckoutConstants;
  */
 class CheckoutSubmitOrder
 {
-    /**
-     * @var Event
-     */
-    protected $event;
-
     /**
      * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
      */
@@ -28,24 +23,6 @@ class CheckoutSubmitOrder
     protected $orderService;
 
     protected $router;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    public function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    public function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $checkoutSessionService
@@ -102,12 +79,11 @@ class CheckoutSubmitOrder
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      * @return bool
      */
-    public function onCheckoutSubmitOrder(Event $event)
+    public function onCheckoutSubmitOrder(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $isValid = 0;

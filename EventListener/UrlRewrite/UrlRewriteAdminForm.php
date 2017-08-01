@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\UrlRewrite;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Form\UrlRewriteType;
 
 /**
@@ -24,29 +24,6 @@ class UrlRewriteAdminForm
     protected $formFactory;
 
     protected $router;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -107,15 +84,12 @@ class UrlRewriteAdminForm
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onUrlRewriteAdminForm(Event $event)
+    public function onUrlRewriteAdminForm(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
-
         $formType = new UrlRewriteType();
         $form = $this->getFormFactory()->create($formType, $entity, [
             'action' => $event->getAction(),

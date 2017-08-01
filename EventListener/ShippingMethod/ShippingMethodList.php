@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\ShippingMethod;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Shipping\RateRequest;
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 
@@ -18,29 +18,6 @@ class ShippingMethodList
      * @var \MobileCart\CoreBundle\Service\ShippingService
      */
     protected $shippingService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     public function setRouter($router)
     {
@@ -72,11 +49,10 @@ class ShippingMethodList
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onShippingMethodList(Event $event)
+    public function onShippingMethodList(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $search = new ArrayWrapper([

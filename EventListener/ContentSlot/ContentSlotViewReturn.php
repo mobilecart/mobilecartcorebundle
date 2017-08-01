@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\ContentSlot;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class ContentSlotViewReturn
@@ -14,29 +14,6 @@ class ContentSlotViewReturn
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $themeService
@@ -57,16 +34,15 @@ class ContentSlotViewReturn
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onContentSlotViewReturn(Event $event)
+    public function onContentSlotViewReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
+
         $returnData = $event->getReturnData();
 
-        $response = null;
+        // nothing for now
 
         $event->setReturnData($returnData);
-        $event->setResponse($response);
     }
 }

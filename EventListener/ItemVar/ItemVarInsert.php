@@ -2,37 +2,18 @@
 
 namespace MobileCart\CoreBundle\EventListener\ItemVar;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
+/**
+ * Class ItemVarInsert
+ * @package MobileCart\CoreBundle\EventListener\ItemVar
+ */
 class ItemVarInsert
 {
     /**
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -53,13 +34,11 @@ class ItemVarInsert
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onItemVarInsert(Event $event)
+    public function onItemVarInsert(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
         $entity->setUrlToken($this->getEntityService()->slugify($entity->getUrlToken()));
         $entity->setCode($this->getEntityService()->slugify($entity->getCode()));

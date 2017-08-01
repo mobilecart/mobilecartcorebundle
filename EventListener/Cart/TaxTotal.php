@@ -2,41 +2,22 @@
 
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\CartComponent\Total;
 
+/**
+ * Class TaxTotal
+ * @package MobileCart\CoreBundle\EventListener\Cart
+ */
 class TaxTotal extends Total
 {
     const KEY = 'tax';
     const LABEL = 'Tax';
 
     /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
      * @var \MobileCart\CoreBundle\Service\TaxService
      */
     protected $taxService;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $taxService
@@ -57,17 +38,16 @@ class TaxTotal extends Total
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      * @return bool
      */
-    public function onCartTotalCollect(Event $event)
+    public function onCartTotalCollect(CoreEvent $event)
     {
         if (!$event->getIsTaxEnabled()) {
             return false;
         }
 
-        $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        $returnData = $event->getReturnData();
 
         $cart = $event->getCart();
         $cart->setIncludeTax(1);

@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\ShippingMethod;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Form\ShippingMethodType;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
@@ -23,29 +23,6 @@ class ShippingMethodAdminForm
     protected $currencyService;
 
     protected $formFactory;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -95,13 +72,11 @@ class ShippingMethodAdminForm
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onShippingMethodAdminForm(Event $event)
+    public function onShippingMethodAdminForm(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
 
         $formType = new ShippingMethodType();

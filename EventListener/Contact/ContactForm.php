@@ -3,8 +3,12 @@
 namespace MobileCart\CoreBundle\EventListener\Contact;
 
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
+/**
+ * Class ContactForm
+ * @package MobileCart\CoreBundle\EventListener\Contact
+ */
 class ContactForm
 {
     /**
@@ -19,30 +23,7 @@ class ContactForm
      */
     protected $recaptchaKey;
 
-    /**
-     * @var Event
-     */
-    protected $event;
-
     protected $router;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     public function setFormTypeClass($formTypeClass)
     {
@@ -88,9 +69,8 @@ class ContactForm
         return $this->router;
     }
 
-    public function onContactForm(Event $event)
+    public function onContactForm(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $route = 'cart_contact_post';

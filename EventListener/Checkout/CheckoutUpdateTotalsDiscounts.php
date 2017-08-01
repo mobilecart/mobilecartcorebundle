@@ -2,9 +2,13 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ * Class CheckoutUpdateTotalsDiscounts
+ * @package MobileCart\CoreBundle\EventListener\Checkout
+ */
 class CheckoutUpdateTotalsDiscounts
 {
     /**
@@ -16,11 +20,6 @@ class CheckoutUpdateTotalsDiscounts
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
 
     protected $router;
 
@@ -60,24 +59,6 @@ class CheckoutUpdateTotalsDiscounts
         return $this->entityService;
     }
 
-    /**
-     * @param $event
-     * @return $this
-     */
-    public function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    public function getEvent()
-    {
-        return $this->event;
-    }
-
     public function setRouter($router)
     {
         $this->router = $router;
@@ -90,13 +71,11 @@ class CheckoutUpdateTotalsDiscounts
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCheckoutUpdateTotalsDiscounts(Event $event)
+    public function onCheckoutUpdateTotalsDiscounts(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $isValid = 1;
 
         // todo : validation

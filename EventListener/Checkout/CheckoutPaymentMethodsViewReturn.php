@@ -3,7 +3,7 @@
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Payment\CollectPaymentMethodRequest;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -43,30 +43,7 @@ class CheckoutPaymentMethodsViewReturn
      */
     protected $defaultTemplate = 'Checkout:payment_methods_full.html.twig';
 
-    /**
-     * @var Event
-     */
-    protected $event;
-
     protected $router;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $tpl
@@ -84,16 +61,6 @@ class CheckoutPaymentMethodsViewReturn
     public function getDefaultTemplate()
     {
         return $this->defaultTemplate;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTemplate()
-    {
-        return $this->getEvent()->getTemplate()
-            ? $this->getEvent()->getTemplate()
-            : $this->defaultTemplate;
     }
 
     /**
@@ -213,11 +180,10 @@ class CheckoutPaymentMethodsViewReturn
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCheckoutPaymentMethodsViewReturn(Event $event)
+    public function onCheckoutPaymentMethodsViewReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
         $request = $event->getRequest();
 
@@ -260,8 +226,12 @@ class CheckoutPaymentMethodsViewReturn
             'section' => CheckoutConstants::STEP_PAYMENT_METHODS,
         ]);
 
+        $template = $event->getTemplate()
+            ? $event->getTemplate()
+            : $this->defaultTemplate;
+
         $response = $this->getThemeService()
-            ->render($this->getLayout(), $this->getTemplate(), $returnData);
+            ->render($this->getLayout(), $template, $returnData);
 
         $event->setResponse($response)
             ->setReturnData($returnData);

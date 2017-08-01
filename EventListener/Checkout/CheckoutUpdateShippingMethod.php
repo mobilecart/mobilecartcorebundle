@@ -2,15 +2,15 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ * Class CheckoutUpdateShippingMethod
+ * @package MobileCart\CoreBundle\EventListener\Checkout
+ */
 class CheckoutUpdateShippingMethod
 {
-    /**
-     * @var Event
-     */
-    protected $event;
 
     protected $formFactory;
 
@@ -18,24 +18,6 @@ class CheckoutUpdateShippingMethod
      * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
      */
     protected $checkoutSessionService;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    public function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    public function getEvent()
-    {
-        return $this->event;
-    }
 
     public function setFormFactory($formFactory)
     {
@@ -67,16 +49,15 @@ class CheckoutUpdateShippingMethod
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      * @return bool
      */
-    public function onCheckoutUpdateShippingMethod(Event $event)
+    public function onCheckoutUpdateShippingMethod(CoreEvent $event)
     {
         if (!$this->getCheckoutSessionService()->getCartSessionService()->getShippingService()->getIsShippingEnabled()) {
             return false;
         }
 
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $request = $event->getRequest();

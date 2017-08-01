@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
@@ -12,11 +12,6 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
  */
 class CheckoutSuccessReturn
 {
-    /**
-     * @var Event
-     */
-    protected $event;
-
     /**
      * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
      */
@@ -33,24 +28,6 @@ class CheckoutSuccessReturn
     protected $entityService;
 
     protected $router;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    public function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    public function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $checkoutSessionService
@@ -118,10 +95,10 @@ class CheckoutSuccessReturn
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      * @return bool
      */
-    public function onCheckoutSuccessReturn(Event $event)
+    public function onCheckoutSuccessReturn(CoreEvent $event)
     {
         $orderId = $this->getCheckoutSessionService()->getCartSessionService()->getSession()->get('order_id', 0);
         if (!$orderId) {
@@ -132,7 +109,6 @@ class CheckoutSuccessReturn
             return false;
         }
 
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         // get cart customer

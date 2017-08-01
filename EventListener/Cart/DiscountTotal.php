@@ -3,9 +3,13 @@
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\CartComponent\Total;
 
+/**
+ * Class DiscountTotal
+ * @package MobileCart\CoreBundle\EventListener\Cart
+ */
 class DiscountTotal extends Total
 {
     const KEY = 'discounts';
@@ -20,29 +24,6 @@ class DiscountTotal extends Total
      * @var \MobileCart\CoreBundle\Service\DiscountService
      */
     protected $discountService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $discounts
@@ -81,9 +62,9 @@ class DiscountTotal extends Total
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCartTotalCollect(Event $event)
+    public function onCartTotalCollect(CoreEvent $event)
     {
         // this includes both pre-tax and post-tax discounts
         //  if needed, this class can be split into 2 Totals
@@ -91,7 +72,6 @@ class DiscountTotal extends Total
         //  call $cart->getCalculator():
         // getPreTaxDiscountTotal() and getPostTaxDiscountTotal()
 
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $cart = $event->getCart();

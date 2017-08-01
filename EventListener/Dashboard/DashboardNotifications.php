@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Dashboard;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class DashboardNotifications
@@ -19,29 +19,6 @@ class DashboardNotifications
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -80,13 +57,11 @@ class DashboardNotifications
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onDashboardViewReturn(Event $event)
+    public function onDashboardViewReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $sections = [];
 
         $sections['notifications'] = [

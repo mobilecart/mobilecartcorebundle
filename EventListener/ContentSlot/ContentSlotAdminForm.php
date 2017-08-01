@@ -2,9 +2,8 @@
 
 namespace MobileCart\CoreBundle\EventListener\ContentSlot;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Form\ContentSlotType;
-use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
  * Class ContentSlotAdminForm
@@ -23,29 +22,6 @@ class ContentSlotAdminForm
      * @var \MobileCart\CoreBundle\Service\ThemeConfig
      */
     protected $themeConfig;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -95,13 +71,11 @@ class ContentSlotAdminForm
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onContentSlotAdminForm(Event $event)
+    public function onContentSlotAdminForm(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
 
         $formType = new ContentSlotType();

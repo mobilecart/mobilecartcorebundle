@@ -2,7 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\UrlRewrite;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
@@ -15,29 +15,6 @@ class UrlRewriteDelete
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -58,13 +35,11 @@ class UrlRewriteDelete
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onUrlRewriteDelete(Event $event)
+    public function onUrlRewriteDelete(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
         $this->getEntityService()->remove($entity, EntityConstants::URL_REWRITE);
 

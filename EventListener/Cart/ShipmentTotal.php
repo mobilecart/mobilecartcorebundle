@@ -2,48 +2,28 @@
 
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\CartComponent\Total;
 
+/**
+ * Class ShipmentTotal
+ * @package MobileCart\CoreBundle\EventListener\Cart
+ */
 class ShipmentTotal extends Total
 {
     const KEY = 'shipments';
     const LABEL = 'Shipments';
 
     /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
-
-    /**
-     * @param Event $event
+     * @param CoreEvent $event
      * @return bool
      */
-    public function onCartTotalCollect(Event $event)
+    public function onCartTotalCollect(CoreEvent $event)
     {
         if (!$event->getIsShippingEnabled()) {
             return false;
         }
 
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         $shipmentTotal = $event->getCart()->getCalculator()
@@ -55,7 +35,6 @@ class ShipmentTotal extends Total
             ->setIsAdd(1);
 
         $event->addTotal($this);
-
         $event->setReturnData($returnData);
     }
 }

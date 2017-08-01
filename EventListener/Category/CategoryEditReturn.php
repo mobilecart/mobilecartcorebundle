@@ -3,8 +3,12 @@
 namespace MobileCart\CoreBundle\EventListener\Category;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
+/**
+ * Class CategoryEditReturn
+ * @package MobileCart\CoreBundle\EventListener\Category
+ */
 class CategoryEditReturn
 {
     /**
@@ -21,29 +25,6 @@ class CategoryEditReturn
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -100,13 +81,11 @@ class CategoryEditReturn
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onCategoryEditReturn(Event $event)
+    public function onCategoryEditReturn(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
 
         $objectType = EntityConstants::CATEGORY;
@@ -131,7 +110,7 @@ class CategoryEditReturn
         $response = $this->getThemeService()
             ->render('admin', 'Category:edit.html.twig', $returnData);
 
-        $event->setReturnData($returnData);
-        $event->setResponse($response);
+        $event->setReturnData($returnData)
+            ->setResponse($response);
     }
 }

@@ -2,18 +2,17 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\Intl\Intl;
-
 use MobileCart\CoreBundle\Form\CheckoutShippingAddressType;
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
 
+/**
+ * Class CheckoutShippingAddressForm
+ * @package MobileCart\CoreBundle\EventListener\Checkout
+ */
 class CheckoutShippingAddressForm
 {
-    /**
-     * @var Event
-     */
-    protected $event;
 
     protected $router;
 
@@ -26,24 +25,6 @@ class CheckoutShippingAddressForm
      * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
      */
     protected $checkoutSessionService;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $themeService
@@ -100,10 +81,10 @@ class CheckoutShippingAddressForm
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      * @return bool
      */
-    public function onCheckoutForm(Event $event)
+    public function onCheckoutForm(CoreEvent $event)
     {
         if ($event->getSingleStep()
             && $event->getSingleStep() != CheckoutConstants::STEP_SHIPPING_ADDRESS) {
@@ -115,7 +96,6 @@ class CheckoutShippingAddressForm
             return false;
         }
 
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
 
         // sections are combined with other listeners/observer

@@ -2,38 +2,19 @@
 
 namespace MobileCart\CoreBundle\EventListener\Content;
 
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
+/**
+ * Class ContentDelete
+ * @package MobileCart\CoreBundle\EventListener\Content
+ */
 class ContentDelete
 {
     /**
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
-
-    /**
-     * @var Event
-     */
-    protected $event;
-
-    /**
-     * @param $event
-     * @return $this
-     */
-    protected function setEvent($event)
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    /**
-     * @return Event
-     */
-    protected function getEvent()
-    {
-        return $this->event;
-    }
 
     /**
      * @param $entityService
@@ -54,13 +35,11 @@ class ContentDelete
     }
 
     /**
-     * @param Event $event
+     * @param CoreEvent $event
      */
-    public function onContentDelete(Event $event)
+    public function onContentDelete(CoreEvent $event)
     {
-        $this->setEvent($event);
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
         $this->getEntityService()->remove($entity, EntityConstants::CONTENT);
 
