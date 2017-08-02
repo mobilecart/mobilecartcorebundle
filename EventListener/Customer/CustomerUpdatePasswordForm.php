@@ -16,7 +16,15 @@ class CustomerUpdatePasswordForm
      */
     protected $entityService;
 
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
     protected $formFactory;
+
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
+    protected $router;
 
     /**
      * @param $entityService
@@ -36,15 +44,40 @@ class CustomerUpdatePasswordForm
         return $this->entityService;
     }
 
-    public function setFormFactory($formFactory)
+    /**
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @return $this
+     */
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
     {
         $this->formFactory = $formFactory;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
     public function getFormFactory()
     {
         return $this->formFactory;
+    }
+
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
+    {
+        $this->router = $router;
+        return $this;
+    }
+
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
+    public function getRouter()
+    {
+        return $this->router;
     }
 
     /**
@@ -52,16 +85,19 @@ class CustomerUpdatePasswordForm
      */
     public function onCustomerUpdatePasswordForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $entity = $event->getEntity();
-
         $formType = new CustomerUpdatePasswordType();
-        $form = $this->getFormFactory()->create($formType, $entity, [
-            'action' => $event->getAction(),
-            'method' => $event->getMethod(),
+
+        $action = $this->getRouter()->generate('customer_update_password_post', [
+            'id' => $event->getEntity()->getId(),
+            'hash' => $event->getEntity()->getConfirmHash()
         ]);
 
-        $formSections = [
+        $event->setReturnData('form', $this->getFormFactory()->create($formType, $event->getEntity(), [
+            'action' => $action,
+            'method' => 'POST',
+        ]));
+
+        $event->setReturnData('form_sections', [
             'general' => [
                 'label' => 'General',
                 'id' => 'general',
@@ -69,11 +105,6 @@ class CustomerUpdatePasswordForm
                     'password',
                 ],
             ],
-        ];
-
-        $returnData['form_sections'] = $formSections;
-        $returnData['form'] = $form;
-        $event->setForm($form);
-        $event->setReturnData($returnData);
+        ]);
     }
 }

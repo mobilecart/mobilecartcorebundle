@@ -62,9 +62,11 @@ class CustomerRegisterReturn
     public function onCustomerRegisterReturn(CoreEvent $event)
     {
         $returnData = $event->getReturnData();
-
         $typeSections = [];
         $returnData['template_sections'] = $typeSections;
+
+        $form = $returnData['form'];
+        $returnData['form'] = $form->createView();
 
         if ($messages = $event->getMessages()) {
             foreach($messages as $code => $message) {

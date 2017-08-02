@@ -76,47 +76,42 @@ class CustomerUpdatePasswordPostReturn
      */
     public function onCustomerUpdatePasswordPostReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $response = '';
+
         switch($format) {
             case 'json':
-
-                if (!isset($returnData['success'])
-                    || $returnData['success'] != 1
-                ) {
-                    $returnData['success'] = 0; // being explicit
-                }
-
-                $response = new JsonResponse($returnData);
-
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
 
-                // todo : add message to session
+                if ($event->getReturnData('success')) {
 
-                if (isset($returnData['success']) && $returnData['success'] == 1) {
+                    $event->addSuccessMessage('Password Successfully Updated!');
 
                     $params = [];
                     $route = 'login_route';
                     $url = $this->getRouter()->generate($route, $params);
-                    $response = new RedirectResponse($url);
+                    $event->setResponse(new RedirectResponse($url));
 
                 } else {
+
+                    $event->addErrorMessage('Invalid Request Submitted');
 
                     $params = [];
                     $route = 'customer_forgot_password';
                     $url = $this->getRouter()->generate($route, $params);
-                    $response = new RedirectResponse($url);
+                    $event->setResponse(new RedirectResponse($url));
 
+                }
+
+                if ($messages = $event->getMessages()) {
+                    foreach($messages as $code => $message) {
+                        $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                    }
                 }
 
                 break;
         }
-
-        $event->setResponse($response)
-            ->setReturnData($returnData);
     }
 }

@@ -79,9 +79,9 @@ class CartController extends Controller
 
                     $event = new CoreEvent();
                     $event->setRequest($request)
+                        ->setIsMassUpdate(true)
                         ->setUser($this->getUser())
                         ->setProductId($productId)
-                        ->setIsMassUpdate(1)
                         ->setIsMultiShippingEnabled($this->getParameter('cart.shipping.multi.enabled'))
                     ;
 
@@ -96,11 +96,11 @@ class CartController extends Controller
 
                     $event = new CoreEvent();
                     $event->setRequest($request)
+                        ->setIsMassUpdate(true)
                         ->setProductId($productId)
                         ->setQty($qty)
                         ->setIsAdd(0)
                         ->setUser($this->getUser())
-                        ->setIsMassUpdate(1)
                         ->setIsMultiShippingEnabled($this->getParameter('cart.shipping.multi.enabled'))
                     ;
 
@@ -110,7 +110,6 @@ class CartController extends Controller
                     if (!$event->getSuccess()) {
                         $success = false;
                     }
-
                 }
             }
         }

@@ -70,6 +70,11 @@ class CoreEvent extends Event
     /**
      * @var string
      */
+    protected $objectType;
+
+    /**
+     * @var string
+     */
     protected $section = '';
 
     /**
@@ -293,10 +298,17 @@ class CoreEvent extends Event
     }
 
     /**
+     * @param string $key
      * @return array
      */
-    public function getReturnData()
+    public function getReturnData($key = '')
     {
+        if (strlen($key)) {
+
+            return isset($this->return_data[$key])
+                ? $this->return_data[$key]
+                : null;
+        }
         return $this->return_data;
     }
 
@@ -437,6 +449,24 @@ class CoreEvent extends Event
     public function fromJson($json)
     {
         return $this->fromArray((array) json_decode($json));
+    }
+
+    /**
+     * @param $objectType
+     * @return $this
+     */
+    public function setObjectType($objectType)
+    {
+        $this->objectType = $objectType;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getObjectType()
+    {
+        return $this->objectType;
     }
 
     /**

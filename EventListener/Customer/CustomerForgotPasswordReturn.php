@@ -3,7 +3,6 @@
 namespace MobileCart\CoreBundle\EventListener\Customer;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * Class CustomerForgotPasswordReturn
@@ -62,33 +61,14 @@ class CustomerForgotPasswordReturn
      */
     public function onCustomerForgotPasswordReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $response = '';
-        switch($format) {
-            case 'json':
+        $form = $event->getReturnData('form');
+        $form = $form->createView();
+        $event->setReturnData('form', $form);
 
-                $returnData = [
-                    'success' => 1
-                ];
-
-                $response = new JsonResponse($returnData);
-
-                break;
-            default:
-
-                $form = $returnData['form'];
-                $form = $form->createView();
-                $returnData['form'] = $form;
-
-                $response = $this->getThemeService()
-                    ->render('frontend', 'Customer:forgot_password.html.twig', $returnData);
-
-                break;
-        }
-
-        $event->setResponse($response)
-            ->setReturnData($returnData);
+        $event->setResponse($this->getThemeService()->render(
+            'frontend',
+            'Customer:forgot_password.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

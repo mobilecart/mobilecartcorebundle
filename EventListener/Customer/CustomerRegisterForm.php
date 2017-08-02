@@ -21,8 +21,14 @@ class CustomerRegisterForm
      */
     protected $currencyService;
 
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
     protected $formFactory;
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -61,23 +67,37 @@ class CustomerRegisterForm
         return $this->currencyService;
     }
 
-    public function setFormFactory($formFactory)
+    /**
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @return $this
+     */
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
     {
         $this->formFactory = $formFactory;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
     public function getFormFactory()
     {
         return $this->formFactory;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -90,10 +110,15 @@ class CustomerRegisterForm
     {
         $returnData = $event->getReturnData();
         $entity = $event->getEntity();
+
+        $params = [];
+        $route = 'customer_register_post';
+        $action = $this->getRouter()->generate($route, $params);
+
         $formType = new CustomerRegisterType();
         $form = $this->getFormFactory()->create($formType, $entity, [
-            'action' => $event->getAction(),
-            'method' => $event->getMethod(),
+            'action' => $action,
+            'method' => 'POST',
         ]);
 
         $formSections = [
@@ -105,14 +130,13 @@ class CustomerRegisterForm
                     'last_name',
                     'email',
                     'password',
-                    //'password2',
                 ],
             ],
         ];
 
         $returnData['form_sections'] = $formSections;
+        $returnData['form'] = $form;
 
-        $event->setForm($form);
         $event->setReturnData($returnData);
     }
 }

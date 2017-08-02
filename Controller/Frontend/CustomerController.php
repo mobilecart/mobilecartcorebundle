@@ -28,27 +28,12 @@ class CustomerController extends Controller
     {
         $entity = $this->get('cart.entity')->getInstance($this->objectType);
         $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('customer_register_post'))
-            ->setMethod('POST');
+        $event->setRequest($request)
+            ->setObjectType($this->objectType)
+            ->setEntity($entity);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_REGISTER_FORM, $event);
-
-        $form = $event->getForm();
-
-        $returnData = array_merge(
-            $event->getReturnData(),
-            ['form' => $form->createView()]
-        );
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setReturnData($returnData);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_REGISTER_RETURN, $event);
@@ -62,51 +47,25 @@ class CustomerController extends Controller
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('customer_register_post'))
-            ->setMethod('POST');
+            ->setRequest($request);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_REGISTER_FORM, $event);
 
-        $form = $event->getForm();
-
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
-
-            $event = new CoreEvent();
-            $event->setObjectType($this->objectType)
-                ->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData);
+            $event->setFormData($formData);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CUSTOMER_REGISTER, $event);
-
-            $entity = $event->getEntity();
-
-            $event = new CoreEvent();
-            $event->setObjectType($this->objectType)
-                ->setEntity($entity)
-                ->setRequest($request);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CUSTOMER_REGISTER_POST_RETURN, $event);
 
             return $event->getResponse();
         }
-
-        $returnData = array_merge(
-            $event->getReturnData(),
-            ['form' => $form->createView()]
-        );
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setReturnData($returnData);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_REGISTER_RETURN, $event);
@@ -135,60 +94,37 @@ class CustomerController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_REGISTER_CONFIRM, $event);
 
-        $entity = $event->getEntity();
-        $success = $event->getSuccess();
-
-        $returnEvent = new CoreEvent();
-        $returnEvent->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setSuccess($success)
-            ->setEntity($entity)
-            ->setReturnData($event->getReturnData());
-
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_REGISTER_CONFIRM_RETURN, $returnEvent);
+            ->dispatch(CoreEvents::CUSTOMER_REGISTER_CONFIRM_RETURN, $event);
 
-        return $returnEvent->getResponse();
+        return $event->getResponse();
     }
 
     public function forgotPasswordAction(Request $request)
     {
-        //check if customer is authenticated, redirect to profile page if they are
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('customer_forgot_password'))
-            ->setMethod('POST');
+            ->setRequest($request);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_FORGOT_PASSWORD_FORM, $event);
 
-        $returnEvent = new CoreEvent();
-        $returnEvent->setObjectType($this->objectType)
-            ->setReturnData($event->getReturnData())
-            ->setRequest($request);
-
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_FORGOT_PASSWORD_RETURN, $returnEvent);
+            ->dispatch(CoreEvents::CUSTOMER_FORGOT_PASSWORD_RETURN, $event);
 
-        return $returnEvent->getResponse();
+        return $event->getResponse();
     }
 
     public function forgotPasswordPostAction(Request $request)
     {
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('customer_forgot_password'))
-            ->setMethod('POST');
+            ->setRequest($request);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_FORGOT_PASSWORD_FORM, $event);
 
-        $form = $event->getForm();
-        $returnData = $event->getReturnData();
-
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $form->getData();
@@ -199,32 +135,19 @@ class CustomerController extends Controller
 
             if ($entity) {
 
-                $event = new CoreEvent();
-                $event->setObjectType($this->objectType)
-                    ->setEntity($entity)
-                    ->setRequest($request);
+                $event->setEntity($entity);
 
                 $this->get('event_dispatcher')
                     ->dispatch(CoreEvents::CUSTOMER_FORGOT_PASSWORD, $event);
-
-                $event = new CoreEvent();
-                $event->setObjectType($this->objectType)
-                    ->setEntity($entity)
-                    ->setRequest($request);
 
                 $this->get('event_dispatcher')
                     ->dispatch(CoreEvents::CUSTOMER_FORGOT_PASSWORD_POST_RETURN, $event);
 
                 return $event->getResponse();
-            } else {
-                $returnData['error'] = 1;
             }
         }
 
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setReturnData($returnData)
-            ->setRequest($request);
+        $event->setReturnData('error', 1);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_FORGOT_PASSWORD_RETURN, $event);
@@ -248,8 +171,6 @@ class CustomerController extends Controller
     {
         $customerId = $request->get('id', 0);
         $confirmHash = $request->get('hash', '');
-        $form = null;
-        $returnData = [];
 
         $entity = $this->get('cart.entity')
             ->findOneBy($this->objectType, [
@@ -257,27 +178,18 @@ class CustomerController extends Controller
                 'confirm_hash' => $confirmHash,
             ]);
 
-        if ($entity) {
-
-            $formEvent = new CoreEvent();
-            $formEvent->setObjectType($this->objectType)
-                ->setRequest($request)
-                ->setAction($this->generateUrl('customer_update_password_post', ['id' => $customerId, 'hash' => $confirmHash]))
-                ->setMethod('POST');
-
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD_FORM, $formEvent);
-
-            $form = $formEvent->getForm();
-            $returnData = $formEvent->getReturnData();
-        }
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setRequest($request)
-            ->setForm($form)
-            ->setEntity($entity)
-            ->setReturnData($returnData);
+            ->setEntity($entity);
+
+        if ($entity) {
+
+            $this->get('event_dispatcher')
+                ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD_FORM, $event);
+        } else {
+            $event->setReturnData('form', null);
+        }
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD_RETURN, $event);
@@ -289,8 +201,6 @@ class CustomerController extends Controller
     {
         $customerId = $request->get('id', 0);
         $confirmHash = $request->get('hash', '');
-        $form = null;
-        $returnData = [];
 
         $entity = $this->get('cart.entity')
             ->findOneBy($this->objectType, [
@@ -298,20 +208,17 @@ class CustomerController extends Controller
                 'confirm_hash' => $confirmHash,
             ]);
 
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
+            ->setRequest($request)
+            ->setEntity($entity);
+
         if ($entity) {
 
-            $formEvent = new CoreEvent();
-            $formEvent->setObjectType($this->objectType)
-                ->setRequest($request)
-                ->setAction($this->generateUrl('customer_update_password_post'))
-                ->setMethod('POST');
-
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD_FORM, $formEvent);
+                ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD_FORM, $event);
 
-            $form = $formEvent->getForm();
-            $returnData = $formEvent->getReturnData();
-
+            $form = $event->getReturnData('form');
             if ($form->handleRequest($request)->isValid()) {
 
                 $plaintext = $form->get('password')->getData();
@@ -319,29 +226,19 @@ class CustomerController extends Controller
                     'password' => $plaintext,
                 ];
 
-                $event = new CoreEvent();
-                $event->setObjectType($this->objectType)
-                    ->setEntity($entity)
-                    ->setRequest($request)
-                    ->setFormData($formData);
+                $event->setFormData($formData);
 
                 $this->get('event_dispatcher')
                     ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD, $event);
 
-                $returnData['success'] = 1;
+                $event->setReturnData('success', true);
 
             } else {
-                $returnData['error'] = 1;
+                $event->setReturnData('success', false);
             }
         } else {
-            $returnData['error'] = 1;
+            $event->setReturnData('success', false);
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setReturnData($returnData);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD_POST_RETURN, $event);

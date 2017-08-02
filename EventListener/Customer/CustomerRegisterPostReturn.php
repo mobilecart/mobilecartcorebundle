@@ -57,11 +57,7 @@ class CustomerRegisterPostReturn
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
         $customer = $event->getEntity();
-
-        $objectType = $event->getObjectType();
-
         $typeSections = [];
-
         $returnData['template_sections'] = $typeSections;
 
         $response = '';

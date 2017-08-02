@@ -19,6 +19,9 @@ use MobileCart\CoreBundle\Event\CoreEvents;
 
 class ContentController extends Controller
 {
+    /**
+     * @var string
+     */
     protected $objectType = EntityConstants::CONTENT;
 
     public function viewAction(Request $request)

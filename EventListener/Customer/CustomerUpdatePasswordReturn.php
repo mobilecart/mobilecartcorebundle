@@ -62,43 +62,47 @@ class CustomerUpdatePasswordReturn
      */
     public function onCustomerUpdatePasswordReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
-        $response = '';
         switch($format) {
             case 'json':
 
-                $returnData = [
-                    'success' => 1
-                ];
-
-                $response = new JsonResponse($returnData);
+                // be careful to not return _too much_ data
+                $event->setResponse(new JsonResponse([
+                    'success' => $event->getEntity() ? true : false
+                ]));
 
                 break;
             default:
 
                 if ($event->getEntity()) {
 
-                    $form = $event->getForm();
+                    $form = $event->getReturnData('form');
                     $form = $form->createView();
-                    $returnData['form'] = $form;
+                    $event->setReturnData('form', $form);
 
-                    $response = $this->getThemeService()
-                        ->render('frontend', 'Customer:update_password.html.twig', $returnData);
-
+                    $event->setResponse($this->getThemeService()->render(
+                        'frontend',
+                        'Customer:update_password.html.twig',
+                        $event->getReturnData()
+                    ));
                 } else {
 
-                    $response = $this->getThemeService()
-                        ->render('frontend', 'Customer:update_password_notfound.html.twig', $returnData);
+                    $event->setResponse($this->getThemeService()->render(
+                        'frontend',
+                        'Customer:update_password_notfound.html.twig',
+                        $event->getReturnData()
+                    ));
+                }
 
+                if ($messages = $event->getMessages()) {
+                    foreach($messages as $code => $message) {
+                        $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                    }
                 }
 
                 break;
         }
-
-        $event->setResponse($response)
-            ->setReturnData($returnData);
     }
 }

@@ -2227,6 +2227,9 @@
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
             </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
         </service>
 
         <!-- Event Listener : Create Admin Form -->
@@ -2397,6 +2400,9 @@
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
             </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
         </service>
 
         <service id="cart.listener.customer.forgotpassword" lazy="true" class="%cart.listener.customer.forgotpassword.class%">
@@ -2459,6 +2465,9 @@
             </call>
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
             </call>
         </service>
 

@@ -16,7 +16,15 @@ class CustomerForgotPasswordForm
      */
     protected $entityService;
 
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
     protected $formFactory;
+
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
+    protected $router;
 
     /**
      * @param $entityService
@@ -36,15 +44,40 @@ class CustomerForgotPasswordForm
         return $this->entityService;
     }
 
-    public function setFormFactory($formFactory)
+    /**
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @return $this
+     */
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
     {
         $this->formFactory = $formFactory;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
     public function getFormFactory()
     {
         return $this->formFactory;
+    }
+
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
+    {
+        $this->router = $router;
+        return $this;
+    }
+
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
+    public function getRouter()
+    {
+        return $this->router;
     }
 
     /**
@@ -53,13 +86,16 @@ class CustomerForgotPasswordForm
     public function onCustomerForgotPasswordForm(CoreEvent $event)
     {
         $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
+
+        $params = [];
+        $route = 'customer_forgot_password';
+        $action = $this->getRouter()->generate($route, $params);
 
         $formType = new CustomerForgotPasswordType();
         $form = $this->getFormFactory()->create($formType, $entity, [
-            'action' => $event->getAction(),
-            'method' => $event->getMethod(),
+            'action' => $action,
+            'method' => 'POST',
         ]);
 
         $formSections = [
@@ -74,7 +110,6 @@ class CustomerForgotPasswordForm
 
         $returnData['form_sections'] = $formSections;
         $returnData['form'] = $form;
-        $event->setForm($form);
         $event->setReturnData($returnData);
     }
 }

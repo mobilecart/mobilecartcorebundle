@@ -43,9 +43,6 @@ class CustomerAddressController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_ADDRESS_SEARCH, $event);
 
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_ADDRESS_LIST, $event);
-
         return $event->getResponse();
     }
 
