@@ -132,13 +132,6 @@ class CustomerUpdatePassword
 
         $this->getEntityService()->persist($entity);
 
-        if ($request->getSession()) {
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Password Updated!'
-            );
-        }
-
         $event->setReturnData($returnData);
     }
 }
