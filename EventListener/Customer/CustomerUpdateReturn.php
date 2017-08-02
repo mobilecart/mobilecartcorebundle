@@ -53,6 +53,17 @@ class CustomerUpdateReturn
         $route = 'cart_admin_customer_edit';
         $url = $this->getRouter()->generate($route, $params);
 
+        if ($codeMessages = $event->getMessages()) {
+            foreach($codeMessages as $code => $messages) {
+                if (!$messages) {
+                    continue;
+                }
+                foreach($messages as $message) {
+                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                }
+            }
+        }
+
         $response = '';
         switch($format) {
             case 'json':
@@ -64,12 +75,6 @@ class CustomerUpdateReturn
                 $response = new JsonResponse($returnData);
                 break;
             default:
-
-                if ($messages = $event->getMessages()) {
-                    foreach($messages as $code => $message) {
-                        $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                    }
-                }
 
                 $response = new RedirectResponse($url);
                 break;

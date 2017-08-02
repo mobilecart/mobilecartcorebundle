@@ -79,9 +79,24 @@ class CustomerUpdatePasswordPostReturn
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
+        if ($codeMessages = $event->getMessages()) {
+            foreach($codeMessages as $code => $messages) {
+                if (!$messages) {
+                    continue;
+                }
+                foreach($messages as $message) {
+                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                }
+            }
+        }
+
         switch($format) {
             case 'json':
-                $event->setResponse(new JsonResponse($event->getReturnData()));
+
+                // security risk . be careful what we return here
+                $event->setResponse(new JsonResponse([
+                    'success' => $event->getReturnData('success') ? true : false
+                ]));
                 break;
             default:
 
@@ -103,12 +118,6 @@ class CustomerUpdatePasswordPostReturn
                     $url = $this->getRouter()->generate($route, $params);
                     $event->setResponse(new RedirectResponse($url));
 
-                }
-
-                if ($messages = $event->getMessages()) {
-                    foreach($messages as $code => $message) {
-                        $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                    }
                 }
 
                 break;

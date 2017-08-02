@@ -65,6 +65,17 @@ class CustomerUpdatePasswordReturn
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
+        if ($codeMessages = $event->getMessages()) {
+            foreach($codeMessages as $code => $messages) {
+                if (!$messages) {
+                    continue;
+                }
+                foreach($messages as $message) {
+                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                }
+            }
+        }
+
         switch($format) {
             case 'json':
 
@@ -94,12 +105,6 @@ class CustomerUpdatePasswordReturn
                         'Customer:update_password_notfound.html.twig',
                         $event->getReturnData()
                     ));
-                }
-
-                if ($messages = $event->getMessages()) {
-                    foreach($messages as $code => $message) {
-                        $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                    }
                 }
 
                 break;

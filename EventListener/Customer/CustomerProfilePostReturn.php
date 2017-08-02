@@ -82,6 +82,17 @@ class CustomerProfilePostReturn
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
+        if ($codeMessages = $event->getMessages()) {
+            foreach($codeMessages as $code => $messages) {
+                if (!$messages) {
+                    continue;
+                }
+                foreach($messages as $message) {
+                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                }
+            }
+        }
+
         $response = '';
         switch($format) {
             case 'json':
@@ -114,12 +125,6 @@ class CustomerProfilePostReturn
 
                 $typeSections = [];
                 $returnData['template_sections'] = $typeSections;
-
-                if ($messages = $event->getMessages()) {
-                    foreach($messages as $code => $message) {
-                        $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                    }
-                }
 
                 $response = new RedirectResponse($this->getRouter()->generate('customer_profile', []));
 

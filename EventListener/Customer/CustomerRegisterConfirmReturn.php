@@ -77,9 +77,14 @@ class CustomerRegisterConfirmReturn
             $returnData = array_merge($returnData, $entity->getData());
         }
 
-        if ($messages = $event->getMessages()) {
-            foreach($messages as $code => $message) {
-                $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+        if ($codeMessages = $event->getMessages()) {
+            foreach($codeMessages as $code => $messages) {
+                if (!$messages) {
+                    continue;
+                }
+                foreach($messages as $message) {
+                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                }
             }
         }
 

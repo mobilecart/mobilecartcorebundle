@@ -103,12 +103,7 @@ class CustomerUpdate
 
         }
 
-        if ($entity && $request->getSession()) {
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Customer Updated!'
-            );
-        }
+        $event->addSuccessMessage('Customer Updated!');
 
         $event->setReturnData($returnData);
     }
