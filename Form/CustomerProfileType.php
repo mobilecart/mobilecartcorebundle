@@ -7,22 +7,34 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Intl\Intl;
 
 class CustomerProfileType extends AbstractType
 {
     /**
-     * @var array
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $countries = [];
+    protected $cartService;
 
     /**
-     * @param array $countries
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
      * @return $this
      */
-    public function setCountries(array $countries)
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
     {
-        $this->countries = $countries;
+        $this->cartService = $cartService;
         return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->cartService;
     }
 
     /**
@@ -30,7 +42,15 @@ class CustomerProfileType extends AbstractType
      */
     public function getCountries()
     {
-        return $this->countries;
+        $allCountries = Intl::getRegionBundle()->getCountryNames();
+        $allowedCountries = $this->getCartService()->getAllowedCountryIds();
+
+        $countries = [];
+        foreach($allowedCountries as $countryId) {
+            $countries[$countryId] = $allCountries[$countryId];
+        }
+
+        return $countries;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -38,100 +58,100 @@ class CustomerProfileType extends AbstractType
         $builder
             ->add('first_name')
             ->add('last_name')
-            ->add('email', 'text', [
-                'required' => 1,
+            ->add('email', TextType::class, [
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('billing_name', 'text', [
+            ->add('billing_name', TextType::class, [
                 'attr' => [
                     'class' => 'billing-input',
                 ]
             ])
-            ->add('billing_company', 'text', [
+            ->add('billing_company', TextType::class, [
                 'attr' => [
                     'class' => 'billing-input',
                 ]
             ])
-            ->add('billing_phone', 'text', [
+            ->add('billing_phone', TextType::class, [
                 'attr' => [
                     'class' => 'billing-input',
                 ]
             ])
-            ->add('billing_street', 'text', [
+            ->add('billing_street', TextType::class, [
                 'attr' => [
                     'class' => 'billing-input',
                 ]
             ])
-            ->add('billing_street2', 'text', [
+            ->add('billing_street2', TextType::class, [
                 'attr' => [
                     'class' => 'billing-input',
                 ]
             ])
-            ->add('billing_city', 'text', [
+            ->add('billing_city', TextType::class, [
                 'attr' => [
                     'class' => 'billing-input',
                 ]
             ])
-            ->add('billing_region', 'text', [
+            ->add('billing_region', TextType::class, [
                 'attr' => [
                     'class' => 'region-input billing-input',
                 ],
             ])
-            ->add('billing_postcode', 'text', [
+            ->add('billing_postcode', TextType::class, [
                 'attr' => [
                     'class' => 'billing-input',
                 ]
             ])
-            ->add('billing_country_id', 'choice', [
+            ->add('billing_country_id', ChoiceType::class, [
                 'choices' => $this->getCountries(),
                 'attr' => [
                     'class' => 'country-input billing-input',
                 ],
             ])
-            ->add('is_shipping_same')
-            ->add('shipping_name', 'text', [
+            ->add('is_shipping_same', CheckboxType::class)
+            ->add('shipping_name', TextType::class, [
                 'attr' => [
                     'class' => 'shipping-input',
                 ]
             ])
-            ->add('shipping_company', 'text', [
+            ->add('shipping_company', TextType::class, [
                 'attr' => [
                     'class' => 'shipping-input',
                 ]
             ])
-            ->add('shipping_phone', 'text', [
+            ->add('shipping_phone', TextType::class, [
                 'attr' => [
                     'class' => 'shipping-input',
                 ]
             ])
-            ->add('shipping_street', 'text', [
+            ->add('shipping_street', TextType::class, [
                 'attr' => [
                     'class' => 'shipping-input',
                 ]
             ])
-            ->add('shipping_street2', 'text', [
+            ->add('shipping_street2', TextType::class, [
                 'attr' => [
                     'class' => 'shipping-input',
                 ]
             ])
-            ->add('shipping_city', 'text', [
+            ->add('shipping_city', TextType::class, [
                 'attr' => [
                     'class' => 'shipping-input',
                 ]
             ])
-            ->add('shipping_region', 'text', [
+            ->add('shipping_region', TextType::class, [
                 'attr' => [
                     'class' => 'region-input shipping-input',
                 ],
             ])
-            ->add('shipping_postcode', 'text', [
+            ->add('shipping_postcode', TextType::class, [
                 'attr' => [
                     'class' => 'shipping-input',
                 ]
             ])
-            ->add('shipping_country_id', 'choice', [
+            ->add('shipping_country_id', ChoiceType::class, [
                 'choices' => $this->getCountries(),
                 'attr' => [
                     'class' => 'country-input shipping-input',
@@ -140,16 +160,21 @@ class CustomerProfileType extends AbstractType
             ->add('password', RepeatedType::class, array(
                 'type' => PasswordType::class,
                 'invalid_message' => 'The password fields must match.',
-                'options' => array('attr' => array('class' => 'password-field')),
+                'options' => ['attr' => ['class' => 'password-field']],
                 'required' => false,
-                'first_options'  => array('label' => 'Password'),
-                'second_options' => array('label' => 'Repeat Password'),
+                'first_options'  => ['label' => 'Password'],
+                'second_options' => ['label' => 'Repeat Password'],
                 'mapped' => false,
             ));
         ;
     }
 
     public function getName()
+    {
+        return 'customer_profile';
+    }
+
+    public function getBlockPrefix()
     {
         return 'customer_profile';
     }

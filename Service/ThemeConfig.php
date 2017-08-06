@@ -160,7 +160,7 @@ class ThemeConfig
      */
     public function getAdminAssetDir()
     {
-        return $this->getAssetDir($this->getFrontendTheme());
+        return $this->getAssetDir($this->getAdminTheme());
     }
 
     /**

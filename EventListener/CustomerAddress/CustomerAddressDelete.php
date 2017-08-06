@@ -4,6 +4,8 @@ namespace MobileCart\CoreBundle\EventListener\CustomerAddress;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Constants\EntityConstants;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Class CustomerAddressDelete
@@ -20,6 +22,29 @@ class CustomerAddressDelete
      * @var \MobileCart\CoreBundle\Service\CartSessionService
      */
     protected $cartSessionService;
+
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
+    protected $router;
+
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
+    {
+        $this->router = $router;
+        return $this;
+    }
+
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
+    public function getRouter()
+    {
+        return $this->router;
+    }
 
     /**
      * @param $entityService
@@ -62,25 +87,46 @@ class CustomerAddressDelete
      */
     public function onCustomerAddressDelete(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
+        $request = $event->getRequest();
+        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
+
         $this->getEntityService()->remove($entity, EntityConstants::CUSTOMER);
 
         if ($event->getSection() == CoreEvent::SECTION_FRONTEND) {
-            // update session info
 
+            // update session info
             $this->getCartSessionService()
                 ->setCustomerEntity($event->getCustomer());
         }
 
-        if ($entity && $event->getRequest()->getSession()) {
+        $url = $this->getRouter()->generate('customer_addresses', []);
 
-            $event->getRequest()->getSession()->getFlashBag()->add(
-                'success',
-                'Customer Address Deleted!'
-            );
+        $event->addSuccessMessage('Customer Address Deleted!');
+
+        if ($event->getRequest()->getSession() && $event->getMessages()) {
+            foreach($event->getMessages() as $code => $messages) {
+                if (!$messages) {
+                    continue;
+                }
+                foreach($messages as $message) {
+                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                }
+            }
         }
 
-        $event->setReturnData($returnData);
+        switch($format) {
+            case 'json':
+                $event->setResponse(new JsonResponse([
+                    'success' => true,
+                    'entity' => $entity->getData(),
+                    'redirect_url' => $url,
+                    'messages' => $event->getMessages(),
+                ]));
+                break;
+            default:
+                $event->setResponse(new RedirectResponse($url));
+                break;
+        }
     }
 }

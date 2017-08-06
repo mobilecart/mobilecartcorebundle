@@ -51,8 +51,6 @@ class CustomerInsert
      */
     public function onCustomerInsert(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $request = $event->getRequest();
         $entity = $event->getEntity();
         $formData = $event->getFormData();
 
@@ -84,13 +82,11 @@ class CustomerInsert
 
         }
 
-        if ($entity && $request->getSession()) {
-            $request->getSession()->getFlashBag()->add(
+        if ($entity && $event->getRequest()->getSession()) {
+            $event->getRequest()->getSession()->getFlashBag()->add(
                 'success',
                 'Customer Created!'
             );
         }
-
-        $event->setReturnData($returnData);
     }
 }

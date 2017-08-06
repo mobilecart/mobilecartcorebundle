@@ -61,24 +61,17 @@ class CustomerRegisterConfirmReturn
      */
     public function onCustomerRegisterConfirmReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $objectType = $event->getObjectType();
         $entity = $event->getEntity();
+        $event->setReturnData('template_sections', []);
 
-        $typeSections = [];
-
-        $returnData['template_sections'] = $typeSections;
-
-        $tpl = $event->getSuccess()
-            ? 'Customer:register_confirm_success.html.twig'
-            : 'Customer:register_confirm_error.html.twig';
-
-        if ($event->getSuccess()) {
-            $returnData = array_merge($returnData, $entity->getData());
+        $tpl = 'Customer:register_confirm_error.html.twig';
+        if ($event->getReturnData('success')) {
+            $tpl = 'Customer:register_confirm_success.html.twig';
+            $event->addReturnData($entity->getData());
         }
 
-        if ($codeMessages = $event->getMessages()) {
-            foreach($codeMessages as $code => $messages) {
+        if ($event->getRequest()->getSession() && $event->getMessages()) {
+            foreach($event->getMessages() as $code => $messages) {
                 if (!$messages) {
                     continue;
                 }
@@ -88,10 +81,10 @@ class CustomerRegisterConfirmReturn
             }
         }
 
-        $response = $this->getThemeService()
-            ->render('frontend', $tpl, $returnData);
-
-        $event->setResponse($response)
-            ->setReturnData($returnData);
+        $event->setResponse($this->getThemeService()->render(
+            'frontend',
+            $tpl,
+            $event->getReturnData()
+        ));
     }
 }

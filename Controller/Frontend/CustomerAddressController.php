@@ -18,6 +18,10 @@ use MobileCart\CoreBundle\Event\CoreEvents;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
+/**
+ * Class CustomerAddressController
+ * @package MobileCart\CoreBundle\Controller\Frontend
+ */
 class CustomerAddressController extends Controller
 {
     /**
@@ -25,20 +29,17 @@ class CustomerAddressController extends Controller
      */
     protected $objectType = EntityConstants::CUSTOMER_ADDRESS;
 
+    /**
+     * List and search CustomerAddress entities
+     */
     public function indexAction(Request $request)
     {
-        $searchParam = $this->container->getParameter('cart.search.frontend');
-        $search = $this->container->get($searchParam)->setObjectType($this->objectType);
-
         $event = new CoreEvent();
-        $event->setSearch($search)
-            ->setRequest($request)
-            ->setUser($this->getUser())
+        $event->setRequest($request)
             ->setObjectType($this->objectType)
+            ->setSection(CoreEvent::SECTION_FRONTEND)
+            ->setUser($this->getUser())
             ->setCurrentRoute('customer_addresses');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_NAVIGATION, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_ADDRESS_SEARCH, $event);
@@ -46,32 +47,25 @@ class CustomerAddressController extends Controller
         return $event->getResponse();
     }
 
+    /**
+     * Display Form for CustomerAddress
+     */
     public function newAction(Request $request)
     {
         $entity = $this->get('cart.entity')->getInstance($this->objectType);
-
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('customer_address_create'))
-            ->setMethod('POST');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_ADDRESS_FORM, $formEvent);
-
-        $nav = new CoreEvent();
-        $nav->setReturnData($formEvent->getReturnData())
-            ->setCurrentRoute('customer_addresses');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_NAVIGATION, $nav);
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($nav->getReturnData());
+            ->setFormAction($this->generateUrl('customer_address_create'))
+            ->setFormMethod('POST')
+            ->setSection(CoreEvent::SECTION_FRONTEND)
+            ->setCustomer($this->getUser())
+            ->setCurrentRoute('customer_addresses');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CUSTOMER_ADDRESS_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_ADDRESS_NEW_RETURN, $event);
@@ -79,52 +73,45 @@ class CustomerAddressController extends Controller
         return $event->getResponse();
     }
 
+    /**
+     * Handle Form Submission for CustomerAddress
+     */
     public function createAction(Request $request)
     {
         $entity = $this->get('cart.entity')->getInstance($this->objectType);
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setAction($this->generateUrl('customer_address_create'))
-            ->setMethod('POST');
+            ->setFormAction($this->generateUrl('customer_address_create'))
+            ->setFormMethod('POST')
+            ->setSection(CoreEvent::SECTION_FRONTEND)
+            ->setCustomer($this->getUser())
+            ->setCurrentRoute('customer_addresses');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_ADDRESS_FORM, $formEvent);
+            ->dispatch(CoreEvents::CUSTOMER_ADDRESS_FORM, $event);
 
-        $form = $formEvent->getForm();
-
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
 
-            // observe event
-            //  add customer to indexes, etc
-            $event = new CoreEvent();
-            $event->setEntity($entity)
-                ->setCustomer($this->getUser())
-                ->setRequest($request)
-                ->setFormData($formData)
-                ->setSection(CoreEvent::SECTION_FRONTEND);
+            $event->setFormData($formData);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CUSTOMER_ADDRESS_INSERT, $event);
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CUSTOMER_ADDRESS_CREATE_RETURN, $returnEvent);
+                ->dispatch(CoreEvents::CUSTOMER_ADDRESS_CREATE_RETURN, $event);
 
-            return $returnEvent->getResponse();
+            return $event->getResponse();
         }
 
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
             $invalid = [];
-            $messages = [];
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {
@@ -135,20 +122,12 @@ class CustomerAddressController extends Controller
                 }
             }
 
-            $returnData = [
-                'success' => 0,
+            return new JsonResponse([
+                'success' => false,
                 'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+                'messages' => $event->getMessages(),
+            ]);
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setEntity($entity)
-            ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_NEW_RETURN, $event);
@@ -156,115 +135,34 @@ class CustomerAddressController extends Controller
         return $event->getResponse();
     }
 
+    /**
+     * Display Form for CustomerAddress
+     */
     public function editAction(Request $request)
     {
-        $entityServiceParam = $this->container->getParameter('cart.load.frontend');
-        $entityService = $this->container->get($entityServiceParam);
+        $addressId = (int) $request->get('id', 0);
 
-        $user = $this->getUser();
-        $addressId = $request->get('id', 0);
-
-        $entity = $entityService->find($this->objectType, $addressId);
-        if (!$entity || $entity->getCustomer()->getId() != $user->getId()) {
-            throw $this->createNotFoundException('Unable to find Address');
-        }
-
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('customer_address_update', ['id' => $addressId]))
-            ->setMethod('PUT');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_ADDRESS_FORM, $formEvent);
-
-        $nav = new CoreEvent();
-        $nav->setReturnData($formEvent->getReturnData())
-            ->setCurrentRoute('customer_addresses');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_NAVIGATION, $nav);
-
-        $event = new CoreEvent();
-        $event->setRequest($request)
-            ->setUser($user)
-            ->setEntity($entity)
-            ->setReturnData($nav->getReturnData());
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_ADDRESS_EDIT_RETURN, $event);
-
-        return $event->getResponse();
-    }
-
-    public function updateAction(Request $request)
-    {
-        $entityServiceParam = $this->container->getParameter('cart.load.frontend');
-        $entityService = $this->container->get($entityServiceParam);
-
-        $user = $this->getUser();
-        $addressId = $request->get('id', 0);
-
-        $entity = $entityService->findOneBy($this->objectType, [
+        $entity = $this->get('cart.entity')->findOneBy($this->objectType, [
             'id' => $addressId,
-            'customer' => $user,
+            'customer' => $this->getUser(),
         ]);
 
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find Address');
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setAction($this->generateUrl('customer_address_update', ['id' => $addressId]))
-            ->setMethod('PUT');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_ADDRESS_FORM, $formEvent);
-
-        $form = $formEvent->getForm();
-
-        if ($form->handleRequest($request)->isValid()) {
-
-            $formData = $request->request->get($form->getName());
-
-            // observe event
-            // update entity via command bus
-            $event = new CoreEvent();
-            $event->setObjectType($this->objectType)
-                ->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData)
-                ->setSection(CoreEvent::SECTION_FRONTEND);
-
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CUSTOMER_ADDRESS_UPDATE, $event);
-
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CUSTOMER_ADDRESS_UPDATE_RETURN, $returnEvent);
-
-            return $returnEvent->getResponse();
-        }
-
-        $nav = new CoreEvent();
-        $nav->setReturnData($formEvent->getReturnData())
+            ->setFormAction($this->generateUrl('customer_address_update', ['id' => $addressId]))
+            ->setFormMethod('PUT')
+            ->setSection(CoreEvent::SECTION_FRONTEND)
+            ->setCustomer($this->getUser())
             ->setCurrentRoute('customer_addresses');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_NAVIGATION, $nav);
-
-        $event = new CoreEvent();
-        $event->setRequest($request)
-            ->setUser($user)
-            ->setEntity($entity)
-            ->setReturnData($nav->getReturnData());
+            ->dispatch(CoreEvents::CUSTOMER_ADDRESS_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_ADDRESS_EDIT_RETURN, $event);
@@ -272,17 +170,67 @@ class CustomerAddressController extends Controller
         return $event->getResponse();
     }
 
+    /**
+     * Display Form for CustomerAddress
+     */
+    public function updateAction(Request $request)
+    {
+        $addressId = (int) $request->get('id', 0);
+
+        $entity = $this->get('cart.entity')->findOneBy($this->objectType, [
+            'id' => $addressId,
+            'customer' => $this->getUser(),
+        ]);
+
+        if (!$entity) {
+            throw $this->createNotFoundException('Unable to find Address');
+        }
+
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
+            ->setEntity($entity)
+            ->setRequest($request)
+            ->setFormAction($this->generateUrl('customer_address_update', ['id' => $addressId]))
+            ->setFormMethod('PUT')
+            ->setSection(CoreEvent::SECTION_FRONTEND)
+            ->setCustomer($this->getUser())
+            ->setCurrentRoute('customer_addresses');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CUSTOMER_ADDRESS_FORM, $event);
+
+        $form = $event->getReturnData('form');
+        if ($form->handleRequest($request)->isValid()) {
+
+            $formData = $request->request->get($form->getName());
+
+            $event->setFormData($formData);
+
+            $this->get('event_dispatcher')
+                ->dispatch(CoreEvents::CUSTOMER_ADDRESS_UPDATE, $event);
+
+            $this->get('event_dispatcher')
+                ->dispatch(CoreEvents::CUSTOMER_ADDRESS_UPDATE_RETURN, $event);
+
+            return $event->getResponse();
+        }
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CUSTOMER_ADDRESS_EDIT_RETURN, $event);
+
+        return $event->getResponse();
+    }
+
+    /**
+     * Handle Delete for CustomerAddress
+     */
     public function deleteAction(Request $request)
     {
-        $entityServiceParam = $this->container->getParameter('cart.load.frontend');
-        $entityService = $this->container->get($entityServiceParam);
-
-        $user = $this->getUser();
         $addressId = $request->get('id', 0);
 
-        $entity = $entityService->findOneBy($this->objectType, [
+        $entity = $this->get('cart.entity')->findOneBy($this->objectType, [
             'id' => $addressId,
-            'customer' => $user,
+            'customer' => $this->getUser(),
         ]);
 
         if (!$entity) {
@@ -297,6 +245,6 @@ class CustomerAddressController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_ADDRESS_DELETE, $event);
 
-        return $this->redirect($this->generateUrl('customer_addresses', []));
+        return $event->getResponse();
     }
 }

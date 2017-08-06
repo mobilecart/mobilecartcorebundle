@@ -23,9 +23,15 @@ class CustomerAdminForm
      */
     protected $currencyService;
 
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
     protected $formFactory;
 
-    protected $router;
+    /**
+     * @var string
+     */
+    protected $formTypeClass = '';
 
     /**
      * @var \MobileCart\CoreBundle\Service\CartService
@@ -68,26 +74,40 @@ class CustomerAdminForm
         return $this->currencyService;
     }
 
-    public function setFormFactory($formFactory)
+    /**
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @return $this
+     */
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
     {
         $this->formFactory = $formFactory;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
     public function getFormFactory()
     {
         return $this->formFactory;
     }
 
-    public function setRouter($router)
+    /**
+     * @param string $formTypeClass
+     * @return $this
+     */
+    public function setFormTypeClass($formTypeClass)
     {
-        $this->router = $router;
+        $this->formTypeClass = $formTypeClass;
         return $this;
     }
 
-    public function getRouter()
+    /**
+     * @return string
+     */
+    public function getFormTypeClass()
     {
-        return $this->router;
+        return $this->formTypeClass;
     }
 
     /**
@@ -113,23 +133,11 @@ class CustomerAdminForm
      */
     public function onCustomerAdminForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
 
-        $allCountries = Intl::getRegionBundle()->getCountryNames();
-        $allowedCountries = $this->getCartService()->getAllowedCountryIds();
-
-        $countries = [];
-        foreach($allowedCountries as $countryId) {
-            $countries[$countryId] = $allCountries[$countryId];
-        }
-
-        $formType = new CustomerType();
-        $formType->setCountries($countries);
-
-        $form = $this->getFormFactory()->create($formType, $entity, [
-            'action' => $event->getAction(),
-            'method' => $event->getMethod(),
+        $form = $this->getFormFactory()->create($this->getFormTypeClass(), $entity, [
+            'action' => $event->getFormAction(),
+            'method' => $event->getFormMethod(),
         ]);
 
         $formSections = [
@@ -148,13 +156,13 @@ class CustomerAdminForm
                 'id' => 'billing',
                 'fields' => [
                     'billing_name',
-                    'billing_phone',
                     'billing_street',
                     'billing_street2',
                     'billing_city',
                     'billing_region',
                     'billing_postcode',
                     'billing_country_id',
+                    'billing_phone',
                 ],
             ],
             'shipping' => [
@@ -163,13 +171,13 @@ class CustomerAdminForm
                 'fields' => [
                     'is_shipping_same',
                     'shipping_name',
-                    'shipping_phone',
                     'shipping_street',
                     'shipping_street2',
                     'shipping_city',
                     'shipping_region',
                     'shipping_postcode',
                     'shipping_country_id',
+                    'shipping_phone',
                 ],
             ],
             'security' => [
@@ -190,6 +198,7 @@ class CustomerAdminForm
         $vars = $varSet
             ? $varSet->getItemVars()
             : [];
+
         $varValues = $entity->getVarValues();
 
         if ($varSet && $vars) {
@@ -288,11 +297,8 @@ class CustomerAdminForm
             ];
         }
 
-        $returnData['country_regions'] = $this->getCartService()->getCountryRegions();
-        $returnData['form_sections'] = $formSections;
-        $returnData['form'] = $form;
-
-        $event->setForm($form);
-        $event->setReturnData($returnData);
+        $event->setReturnData('country_regions', $this->getCartService()->getCountryRegions());
+        $event->setReturnData('form_sections', $formSections);
+        $event->setReturnData('form', $form);
     }
 }

@@ -62,21 +62,17 @@ class CustomerOrdersReturn
      */
     public function onCustomerOrdersReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $customer = $event->getCustomer();
-        $typeSections = [];
-        $returnData['template_sections'] = $typeSections;
-
         $orders = $this->getEntityService()->findBy(EntityConstants::ORDER,[
-            'customer' => $customer->getId(),
+            'customer' => $event->getCustomer()->getId(),
         ]);
 
-        $returnData['orders'] = $orders;
+        $event->setReturnData('orders', $orders);
+        $event->setReturnData('template_sections', []);
 
-        $response = $this->getThemeService()
-            ->render('frontend', 'Customer:orders.html.twig', $returnData);
-
-        $event->setResponse($response)
-            ->setReturnData($returnData);
+        $event->setResponse($this->getThemeService()->render(
+            'frontend',
+            'Customer:orders.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

@@ -61,9 +61,7 @@ class CustomerRegisterCheckEmailReturn
      */
     public function onCustomerRegisterCheckEmailReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $typeSections = [];
-        $returnData['template_sections'] = $typeSections;
+        $event->setReturnData('template_sections', []);
 
         if ($codeMessages = $event->getMessages()) {
             foreach($codeMessages as $code => $messages) {
@@ -76,10 +74,10 @@ class CustomerRegisterCheckEmailReturn
             }
         }
 
-        $response = $this->getThemeService()
-            ->render('frontend', 'Customer:register_check_email.html.twig', $returnData);
-
-        $event->setResponse($response)
-            ->setReturnData($returnData);
+        $event->setResponse($this->getThemeService()->render(
+            'frontend',
+            'Customer:register_check_email.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

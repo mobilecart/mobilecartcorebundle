@@ -61,27 +61,25 @@ class CustomerAddressNewReturn
      */
     public function onCustomerAddressNewReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $entity = $event->getEntity();
-        $objectType = $event->getObjectType();
+        $event->setReturnData('entity', $event->getEntity());
+        $event->setReturnData('template_sections', []);
+        $event->setReturnData('form', $event->getReturnData('form')->createView());
 
-        $typeSections = [];
-        $returnData['template_sections'] = $typeSections;
-
-        $form = $returnData['form'];
-        $returnData['form'] = $form->createView();
-        $returnData['entity'] = $entity;
-
-        if ($messages = $event->getMessages()) {
-            foreach($messages as $code => $message) {
-                $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+        if ($event->getRequest()->getSession() && $event->getMessages()) {
+            foreach($event->getMessages() as $code => $messages) {
+                if (!$messages) {
+                    continue;
+                }
+                foreach($messages as $message) {
+                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                }
             }
         }
 
-        $response = $this->getThemeService()
-            ->render('frontend', 'CustomerAddress:new.html.twig', $returnData);
-
-        $event->setResponse($response)
-            ->setReturnData($returnData);
+        $event->setResponse($this->getThemeService()->render(
+            'frontend',
+            'CustomerAddress:new.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

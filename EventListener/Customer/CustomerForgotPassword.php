@@ -14,6 +14,9 @@ class CustomerForgotPassword
 
     protected $mailer;
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -42,12 +45,19 @@ class CustomerForgotPassword
         return $this->mailer;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -119,11 +129,7 @@ class CustomerForgotPassword
      */
     public function onCustomerForgotPassword(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
-        $request = $event->getRequest();
-
         $confirmHash = md5(microtime());
         $plaintext = substr($confirmHash, 0, 8);
 
@@ -194,7 +200,5 @@ class CustomerForgotPassword
                 // todo : handle error
             }
         }
-
-        $event->setReturnData($returnData);
     }
 }

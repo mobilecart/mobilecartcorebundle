@@ -74,11 +74,8 @@ class CustomerUpdate
      */
     public function onCustomerUpdate(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
         $formData = $event->getFormData();
-        $request = $event->getRequest();
 
         if (isset($formData['is_shipping_same']) && $formData['is_shipping_same']) {
             $entity->setIsShippingSame(true);
@@ -104,7 +101,5 @@ class CustomerUpdate
         }
 
         $event->addSuccessMessage('Customer Updated!');
-
-        $event->setReturnData($returnData);
     }
 }

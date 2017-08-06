@@ -7,7 +7,7 @@
     },
     "type": "symfony-bundle",
     "description": "E-Commerce Shopping Cart built on Symfony",
-    "keywords": ["shopping", "cart", "e-commerce"],
+    "keywords": ["shopping", "cart", "e-commerce", "symfony"],
     "homepage": "http://mobilecart.io",
     "license": "BSD-3-Clause",
     "authors": [
@@ -21,6 +21,7 @@
         "symfony/framework-bundle": "~2.8",
         "doctrine/orm": "2.*",
         "doctrine/doctrine-bundle": "1.*",
-        "omnipay/common": "2.*"
+        "omnipay/common": "2.*",
+        "knplabs/knp-menu-bundle": "^2.0"
     }
 }

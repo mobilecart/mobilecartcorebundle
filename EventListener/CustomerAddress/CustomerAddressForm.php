@@ -134,36 +134,29 @@ class CustomerAddressForm
      */
     public function onCustomerAddressForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
-        $form = $this->getFormFactory()->create($this->getFormTypeClass(), $event->getEntity(), [
-            'action' => $event->getAction(),
-            'method' => $event->getMethod(),
-        ]);
-
-        $formSections = [
+        $event->setReturnData('form_sections', [
             'general' => [
                 'label' => 'General',
                 'id' => 'general',
                 'fields' => [
                     'name',
                     'company',
-                    'phone',
                     'street',
                     'street2',
                     'city',
                     'region',
                     'postcode',
-                    'country_id'
+                    'country_id',
+                    'phone',
                 ],
             ],
-        ];
+        ]);
 
-        $returnData['country_regions'] = $this->getCartService()->getCountryRegions();
-        $returnData['form_sections'] = $formSections;
-        $returnData['form'] = $form;
+        $event->setReturnData('form', $this->getFormFactory()->create($this->getFormTypeClass(), $event->getEntity(), [
+            'action' => $event->getFormAction(),
+            'method' => $event->getFormMethod(),
+        ]));
 
-        $event->setForm($form);
-        $event->setReturnData($returnData);
+        $event->setReturnData('country_regions', $this->getCartService()->getCountryRegions());
     }
 }

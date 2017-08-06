@@ -61,24 +61,25 @@ class CustomerAddressEditReturn
      */
     public function onCustomerAddressEditReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $entity = $event->getEntity();
+        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('entity', $event->getEntity());
+        $event->setReturnData('template_sections', []);
 
-        $returnData['template_sections'] = [];
-        $form = $returnData['form'];
-        $returnData['form'] = $form->createView();
-        $returnData['entity'] = $entity;
-
-        if ($messages = $event->getMessages()) {
-            foreach($messages as $code => $message) {
-                $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+        if ($event->getRequest()->getSession() && $event->getMessages()) {
+            foreach($event->getMessages() as $code => $messages) {
+                if (!$messages) {
+                    continue;
+                }
+                foreach($messages as $message) {
+                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                }
             }
         }
 
-        $response = $this->getThemeService()
-            ->render('frontend', 'CustomerAddress:edit.html.twig', $returnData);
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
+        $event->setResponse($this->getThemeService()->render(
+            'frontend',
+            'CustomerAddress:edit.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

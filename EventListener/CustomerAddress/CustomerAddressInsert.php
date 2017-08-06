@@ -61,29 +61,17 @@ class CustomerAddressInsert
      */
     public function onCustomerAddressInsert(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $request = $event->getRequest();
         $entity = $event->getEntity();
-        $formData = $event->getFormData();
-
         $entity->setCustomer($event->getCustomer());
-
         $this->getEntityService()->persist($entity);
 
         if ($event->getSection() == CoreEvent::SECTION_FRONTEND) {
-            // update session info
 
+            // update session info
             $this->getCartSessionService()
                 ->setCustomerEntity($event->getCustomer());
         }
 
-        if ($entity && $request->getSession()) {
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Customer Address Created!'
-            );
-        }
-
-        $event->setReturnData($returnData);
+        $event->addSuccessMessage('Customer Address Created!');
     }
 }

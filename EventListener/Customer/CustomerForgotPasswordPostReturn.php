@@ -22,14 +22,24 @@ class CustomerForgotPasswordPostReturn
      */
     protected $entityService;
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -76,31 +86,21 @@ class CustomerForgotPasswordPostReturn
      */
     public function onCustomerForgotPasswordPostReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $response = '';
+
         switch($format) {
             case 'json':
-
-                $returnData = [
-                    'success' => 1,
-                ];
-
-                $response = new JsonResponse($returnData);
-
+                $event->setResponse(new JsonResponse([
+                    'success' => true,
+                ]));
                 break;
             default:
-
-                $params = [];
-                $route = 'customer_forgot_password_success';
-                $url = $this->getRouter()->generate($route, $params);
-                $response = new RedirectResponse($url);
-
+                $event->setResponse(new RedirectResponse($this->getRouter()->generate(
+                    'customer_forgot_password_success',
+                    []
+                )));
                 break;
         }
-
-        $event->setResponse($response)
-            ->setReturnData($returnData);
     }
 }

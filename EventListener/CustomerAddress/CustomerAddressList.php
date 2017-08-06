@@ -11,6 +11,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 class CustomerAddressList
 {
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -36,12 +39,19 @@ class CustomerAddressList
         return $this->themeService;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -52,13 +62,11 @@ class CustomerAddressList
      */
     public function onCustomerAddressList(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
         $url = $this->getRouter()->generate('cart_admin_customer_mass_delete');
 
-        $returnData['mass_actions'] =
-        [
+        $event->setReturnData('mass_actions', [
             [
                 'label'         => 'Delete Addresses',
                 'input_label'   => 'Confirm Mass-Delete ?',
@@ -71,10 +79,9 @@ class CustomerAddressList
                 'url'      => $url,
                 'external' => 0,
             ],
-        ];
+        ]);
 
-        $returnData['columns'] =
-        [
+        $event->setReturnData('columns', [
             [
                 'key' => 'id',
                 'label' => 'ID',
@@ -100,28 +107,19 @@ class CustomerAddressList
                 'label' => 'Country',
                 'sort' => 1,
             ],
-        ];
+        ]);
 
-        $response = '';
         switch($format) {
             case 'json':
-                $response = new JsonResponse($returnData);
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
-
-                if ($messages = $event->getMessages()) {
-                    foreach($messages as $code => $message) {
-                        $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                    }
-                }
-
-                $response = $this->getThemeService()
-                    ->render('frontend', 'CustomerAddress:index.html.twig', $returnData);
-
+                $event->setResponse($this->getThemeService()->render(
+                    'frontend',
+                    'CustomerAddress:index.html.twig',
+                    $event->getReturnData()
+                ));
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

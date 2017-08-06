@@ -65,8 +65,8 @@ class CustomerUpdatePasswordReturn
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
-        if ($codeMessages = $event->getMessages()) {
-            foreach($codeMessages as $code => $messages) {
+        if ($event->getRequest()->getSession() && $event->getMessages()) {
+            foreach($event->getMessages() as $code => $messages) {
                 if (!$messages) {
                     continue;
                 }

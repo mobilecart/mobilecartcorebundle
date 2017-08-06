@@ -117,31 +117,30 @@ class CustomerList
             }
         }
 
-        $response = '';
+        if ($event->getRequest()->getSession() && $event->getMessages()) {
+            foreach($event->getMessages() as $code => $messages) {
+                if (!$messages) {
+                    continue;
+                }
+                foreach($messages as $message) {
+                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                }
+            }
+        }
+
         switch($format) {
             case 'json':
-                $response = new JsonResponse($returnData);
+                $event->setResponse(new JsonResponse($returnData));
                 break;
             default:
-
-                if ($codeMessages = $event->getMessages()) {
-                    foreach($codeMessages as $code => $messages) {
-                        if (!$messages) {
-                            continue;
-                        }
-                        foreach($messages as $message) {
-                            $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                        }
-                    }
-                }
-
-                $response = $this->getThemeService()
-                    ->render('admin', 'Customer:index.html.twig', $returnData);
-
+                $event->setResponse($this->getThemeService()->render(
+                    'admin',
+                    'Customer:index.html.twig',
+                    $returnData
+                ));
                 break;
         }
 
-        $event->setReturnData($returnData)
-            ->setResponse($response);
+        $event->setReturnData($returnData);
     }
 }

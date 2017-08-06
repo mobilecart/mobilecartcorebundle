@@ -64,9 +64,14 @@ class FrontendExtension extends \Twig_Extension
     protected $currencyService;
 
     /**
-     * @var
+     * @var \MobileCart\CoreBundle\Service\ThemeConfig
      */
     protected $themeConfig;
+
+    /**
+     * @var \MobileCart\CoreBundle\Service\MenuService
+     */
+    protected $menuService;
 
     /**
      * {@inheritdoc}
@@ -95,6 +100,7 @@ class FrontendExtension extends \Twig_Extension
             'getPages' => new \Twig_SimpleFunction('getPages', [$this, 'getPages'], array('is_safe' => array('html'))),
             'getRedirect' => new \Twig_SimpleFunction('getRedirect', [$this, 'getRedirect'], array('is_safe' => array('html'))),
             'cart' => new \Twig_SimpleFunction('cart', [$this, 'getCart'], array('is_safe' => array('html'))),
+            'cartMenu' => new \Twig_SimpleFunction('cartMenu', [$this, 'cartMenu'], ['is_safe' => ['html']]),
             'renderGridField' => new \Twig_SimpleFunction('renderGridField', [$this, 'renderGridField'], array('is_safe' => array('html'))),
             'renderGridBackUrl' => new \Twig_SimpleFunction('renderGridBackUrl', [$this, 'renderGridBackUrl'], array('is_safe' => array('html'))),
             //'categoryList' => new \Twig_SimpleFunction('getCategories', [$this, 'getCategories'], array('is_safe' => array('html'))),
@@ -374,6 +380,24 @@ class FrontendExtension extends \Twig_Extension
     }
 
     /**
+     * @param $menuService
+     * @return $this
+     */
+    public function setMenuService($menuService)
+    {
+        $this->menuService = $menuService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\MenuService
+     */
+    public function getMenuService()
+    {
+        return $this->menuService;
+    }
+
+    /**
      * @param $currencyService
      * @return $this
      */
@@ -480,6 +504,15 @@ class FrontendExtension extends \Twig_Extension
     public function getRouter()
     {
         return $this->router;
+    }
+
+    /**
+     * @param $alias
+     * @return \Knp\Menu\MenuItem
+     */
+    public function cartMenu($alias)
+    {
+        return $this->menuService->createMenu($alias);
     }
 
     /**

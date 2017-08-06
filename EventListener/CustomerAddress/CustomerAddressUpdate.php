@@ -61,27 +61,17 @@ class CustomerAddressUpdate
      */
     public function onCustomerAddressUpdate(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
-        $formData = $event->getFormData();
-        $request = $event->getRequest();
 
         $this->getEntityService()->persist($entity);
 
         if ($event->getSection() == CoreEvent::SECTION_FRONTEND) {
+
             // update session info
-
             $this->getCartSessionService()
-                ->setCustomerEntity($entity->getCustomer());
+                ->setCustomerEntity($event->getCustomer());
         }
 
-        if ($entity && $request->getSession()) {
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Customer Address Updated!'
-            );
-        }
-
-        $event->setReturnData($returnData);
+        $event->addSuccessMessage('Customer Address Updated!');
     }
 }

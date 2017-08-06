@@ -61,17 +61,12 @@ class CustomerEditReturn
      */
     public function onCustomerEditReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
+        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('entity', $event->getEntity());
+        $event->setReturnData('template_sections', []);
 
-        $entity = $event->getEntity();
-
-        $returnData['template_sections'] = [];
-        $form = $returnData['form'];
-        $returnData['form'] = $form->createView();
-        $returnData['entity'] = $entity;
-
-        if ($codeMessages = $event->getMessages()) {
-            foreach($codeMessages as $code => $messages) {
+        if ($event->getRequest()->getSession() && $event->getMessages()) {
+            foreach($event->getMessages() as $code => $messages) {
                 if (!$messages) {
                     continue;
                 }
@@ -81,10 +76,10 @@ class CustomerEditReturn
             }
         }
 
-        $response = $this->getThemeService()
-            ->render('admin', 'Customer:edit.html.twig', $returnData);
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
+        $event->setResponse($this->getThemeService()->render(
+            'admin',
+            'Customer:edit.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

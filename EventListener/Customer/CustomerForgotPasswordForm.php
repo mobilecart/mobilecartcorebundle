@@ -85,16 +85,10 @@ class CustomerForgotPasswordForm
      */
     public function onCustomerForgotPasswordForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
-
-        $params = [];
-        $route = 'customer_forgot_password';
-        $action = $this->getRouter()->generate($route, $params);
-
         $formType = new CustomerForgotPasswordType();
         $form = $this->getFormFactory()->create($formType, $entity, [
-            'action' => $action,
+            'action' => $this->getRouter()->generate('customer_forgot_password', []),
             'method' => 'POST',
         ]);
 
@@ -108,8 +102,7 @@ class CustomerForgotPasswordForm
             ],
         ];
 
-        $returnData['form_sections'] = $formSections;
-        $returnData['form'] = $form;
-        $event->setReturnData($returnData);
+        $event->setReturnData('form_sections', $formSections);
+        $event->setReturnData('form', $form);
     }
 }

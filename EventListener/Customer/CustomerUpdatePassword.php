@@ -14,6 +14,9 @@ class CustomerUpdatePassword
 
     protected $mailer;
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -42,12 +45,19 @@ class CustomerUpdatePassword
         return $this->mailer;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -119,19 +129,15 @@ class CustomerUpdatePassword
      */
     public function onCustomerUpdatePassword(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
-        $request = $event->getRequest();
         $formData = $event->getFormData();
+        $plaintext = $formData['password'];
+        $encoded = $this->getSecurityPasswordEncoder()
+            ->encodePassword($entity, $plaintext);
 
-        $plaintext = $formData['password'];;
-        $encoder = $this->getSecurityPasswordEncoder();
-        $encoded = $encoder->encodePassword($entity, $plaintext);
-        $entity->setHash($encoded);
+        $entity->setHash($encoded)
+            ->setConfirmHash('');
 
         $this->getEntityService()->persist($entity);
-
-        $event->setReturnData($returnData);
     }
 }

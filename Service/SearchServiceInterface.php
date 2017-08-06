@@ -2,8 +2,18 @@
 
 namespace MobileCart\CoreBundle\Service;
 
+/**
+ * Interface SearchServiceInterface
+ * @package MobileCart\CoreBundle\Service
+ */
 interface SearchServiceInterface
 {
+    /**
+     * @param string $objectType
+     * @return mixed
+     */
+    public function setObjectType($objectType);
+
     /**
      * Parse Request , set filters, sort, and paginator parameters
      *

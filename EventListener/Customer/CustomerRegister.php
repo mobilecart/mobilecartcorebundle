@@ -19,6 +19,9 @@ class CustomerRegister
      */
     protected $fromEmail = '';
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     protected $passwordEncoder;
@@ -62,12 +65,19 @@ class CustomerRegister
         return $this->fromEmail;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -125,8 +135,6 @@ class CustomerRegister
      */
     public function onCustomerRegister(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
         $formData = $event->getFormData();
 
@@ -135,10 +143,7 @@ class CustomerRegister
         ]);
 
         if ($existing) {
-            $event->getRequest()->getSession()->getFlashBag()->add(
-                'danger',
-                'Customer Already Registered. Did you forget your password ?'
-            );
+            $event->addErrorMessage('Customer Already Registered. Did you forget your password ?');
             return;
         }
 
@@ -204,7 +209,5 @@ class CustomerRegister
                 // todo : handle error
             }
         }
-
-        $event->setReturnData($returnData);
     }
 }

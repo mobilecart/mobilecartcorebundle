@@ -22,14 +22,24 @@ class CustomerProfilePostReturn
      */
     protected $themeService;
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -76,14 +86,12 @@ class CustomerProfilePostReturn
      */
     public function onCustomerProfilePostReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $customer = $event->getEntity();
-
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
-        if ($codeMessages = $event->getMessages()) {
-            foreach($codeMessages as $code => $messages) {
+        if ($event->getMessages() && $event->getRequest()->getSession()) {
+            foreach($event->getMessages() as $code => $messages) {
                 if (!$messages) {
                     continue;
                 }
@@ -93,14 +101,13 @@ class CustomerProfilePostReturn
             }
         }
 
-        $response = '';
         switch($format) {
             case 'json':
 
                 $isValid = (int) $event->getIsValid();
                 $invalid = [];
                 if (!$isValid) {
-                    $form = $event->getForm();
+                    $form = $event->getReturnData('form');
                     foreach($form->all() as $childKey => $child) {
                         $errors = $child->getErrors();
                         if ($errors->count()) {
@@ -112,26 +119,22 @@ class CustomerProfilePostReturn
                     }
                 }
 
-                $returnData = [
+                $event->setResponse(new JsonResponse([
                     'success' => $event->getIsValid(),
                     'entity' => $customer->getData(),
                     'redirect_url' => $this->getRouter()->generate('customer_profile', []),
                     'invalid' => $invalid,
-                ];
+                    'messages' => $event->getMessages(),
+                ]));
 
-                $response = new JsonResponse($returnData);
                 break;
             default:
 
-                $typeSections = [];
-                $returnData['template_sections'] = $typeSections;
-
-                $response = new RedirectResponse($this->getRouter()->generate('customer_profile', []));
-
+                $event->setResponse(new RedirectResponse($this->getRouter()->generate(
+                    'customer_profile',
+                    []
+                )));
                 break;
         }
-
-        $event->setResponse($response)
-            ->setReturnData($returnData);
     }
 }

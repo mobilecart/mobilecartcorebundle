@@ -37,12 +37,19 @@ class CustomerRegisterPostReturn
         return $this->entityService;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -53,48 +60,35 @@ class CustomerRegisterPostReturn
      */
     public function onCustomerRegisterPostReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
         $customer = $event->getEntity();
-        $typeSections = [];
-        $returnData['template_sections'] = $typeSections;
+        $event->setReturnData('template_sections', []);
 
-        $response = '';
-        switch($format) {
-            case 'json':
-                $keep = ['id', 'email', 'first_name', 'last_name', 'name'];
-                $customerData = $customer->getData();
-                foreach($customerData as $k => $v) {
-                    if (!in_array($k, $keep)) {
-                        unset($customerData[$k]);
-                    }
+        if ($event->getRequest()->getSession() && $event->getMessages()) {
+            foreach($event->getMessages() as $code => $messages) {
+                if (!$messages) {
+                    continue;
                 }
-                $customerData['success'] = 1;
-
-                $response = new JsonResponse($customerData);
-                break;
-            default:
-
-                if ($codeMessages = $event->getMessages()) {
-                    foreach($codeMessages as $code => $messages) {
-                        if (!$messages) {
-                            continue;
-                        }
-                        foreach($messages as $message) {
-                            $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                        }
-                    }
+                foreach($messages as $message) {
+                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
                 }
-
-                $params = [];
-                $route = 'customer_check_email';
-                $url = $this->getRouter()->generate($route, $params);
-                $response = new RedirectResponse($url);
-                break;
+            }
         }
 
-        $event->setResponse($response)
-            ->setReturnData($returnData);
+        switch($format) {
+            case 'json':
+                $event->setResponse(new JsonResponse([
+                    'success' => true,
+                    'email' => $customer->getEmail(),
+                    'first_name' => $customer->getFirstName(),
+                    'last_name' => $customer->getLastName(),
+                    'messages' => $event->getMessages(),
+                ]));
+                break;
+            default:
+                $event->setResponse(new RedirectResponse($this->getRouter()->generate('customer_check_email', [])));
+                break;
+        }
     }
 }

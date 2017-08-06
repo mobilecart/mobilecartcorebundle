@@ -108,20 +108,13 @@ class CustomerRegisterForm
      */
     public function onCustomerRegisterForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $entity = $event->getEntity();
-
-        $params = [];
-        $route = 'customer_register_post';
-        $action = $this->getRouter()->generate($route, $params);
-
         $formType = new CustomerRegisterType();
-        $form = $this->getFormFactory()->create($formType, $entity, [
-            'action' => $action,
+        $form = $this->getFormFactory()->create($formType, $event->getEntity(), [
+            'action' => $this->getRouter()->generate('customer_register_post', []),
             'method' => 'POST',
         ]);
 
-        $formSections = [
+        $event->setReturnData('form_sections', [
             'general' => [
                 'label' => 'Register',
                 'id' => 'general',
@@ -132,11 +125,8 @@ class CustomerRegisterForm
                     'password',
                 ],
             ],
-        ];
+        ]);
 
-        $returnData['form_sections'] = $formSections;
-        $returnData['form'] = $form;
-
-        $event->setReturnData($returnData);
+        $event->setReturnData('form', $form);
     }
 }

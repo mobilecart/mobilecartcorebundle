@@ -61,9 +61,7 @@ class CustomerForgotPasswordReturn
      */
     public function onCustomerForgotPasswordReturn(CoreEvent $event)
     {
-        $form = $event->getReturnData('form');
-        $form = $form->createView();
-        $event->setReturnData('form', $form);
+        $event->setReturnData('form', $event->getReturnData('form')->createView());
 
         $event->setResponse($this->getThemeService()->render(
             'frontend',

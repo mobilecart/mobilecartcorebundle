@@ -61,15 +61,11 @@ class CustomerRegisterReturn
      */
     public function onCustomerRegisterReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $typeSections = [];
-        $returnData['template_sections'] = $typeSections;
+        $event->setReturnData('template_sections', []);
+        $event->setReturnData('form', $event->getReturnData('form')->createView());
 
-        $form = $returnData['form'];
-        $returnData['form'] = $form->createView();
-
-        if ($codeMessages = $event->getMessages()) {
-            foreach($codeMessages as $code => $messages) {
+        if ($event->getRequest()->getSession() && $event->getMessages()) {
+            foreach($event->getMessages() as $code => $messages) {
                 if (!$messages) {
                     continue;
                 }
@@ -79,10 +75,10 @@ class CustomerRegisterReturn
             }
         }
 
-        $response = $this->getThemeService()
-            ->render('frontend', 'Customer:register.html.twig', $returnData);
-
-        $event->setResponse($response)
-            ->setReturnData($returnData);
+        $event->setResponse($this->getThemeService()->render(
+            'frontend',
+            'Customer:register.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

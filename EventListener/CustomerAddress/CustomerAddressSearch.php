@@ -11,20 +11,50 @@ use MobileCart\CoreBundle\Event\CoreEvent;
 class CustomerAddressSearch
 {
     /**
+     * @var \MobileCart\CoreBundle\Service\SearchServiceInterface
+     */
+    protected $search;
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\SearchServiceInterface $search
+     * @param $objectType
+     * @return $this
+     */
+    public function setSearch(\MobileCart\CoreBundle\Service\SearchServiceInterface $search, $objectType)
+    {
+        $this->search = $search->setObjectType($objectType);
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\SearchServiceInterface
+     */
+    public function getSearch()
+    {
+        return $this->search;
+    }
+
+    /**
      * @param CoreEvent $event
      */
     public function onCustomerAddressSearch(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
+        $search = $this->getSearch()
+            ->parseRequest($event->getRequest());
 
-        $search = $event->getSearch()
-            ->setObjectType($event->getObjectType()) // Important: set this first
-            ->parseRequest($event->getRequest())
-            ->addFilter('customer_id', $event->getUser()->getId());
+        switch($event->getSection()) {
+            case CoreEvent::SECTION_FRONTEND:
+                $search->addFilter('customer_id', $event->getUser()->getId());
+                break;
+            case CoreEvent::SECTION_BACKEND:
 
-        $returnData['search'] = $search;
-        $returnData['result'] = $search->search();
+                break;
+            default:
 
-        $event->setReturnData($returnData);
+                break;
+        }
+
+        $event->setReturnData('search', $search);
+        $event->setReturnData('result', $search->search());
     }
 }

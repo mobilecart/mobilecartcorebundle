@@ -12,30 +12,27 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
  */
 class CustomerUpdateReturn
 {
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
-    protected $session;
-
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
-    }
-
-    public function setSession($session)
-    {
-        $this->session = $session;
-        return $this;
-    }
-
-    public function getSession()
-    {
-        return $this->session;
     }
 
     /**
@@ -43,18 +40,15 @@ class CustomerUpdateReturn
      */
     public function onCustomerUpdateReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
         //$contentType = $request->headers->get('Accept');
 
-        $params = ['id' => $entity->getId()];
-        $route = 'cart_admin_customer_edit';
-        $url = $this->getRouter()->generate($route, $params);
+        $url = $this->getRouter()->generate('cart_admin_customer_edit', ['id' => $entity->getId()]);
 
-        if ($codeMessages = $event->getMessages()) {
-            foreach($codeMessages as $code => $messages) {
+        if ($event->getRequest()->getSession() && $event->getMessages()) {
+            foreach($event->getMessages() as $code => $messages) {
                 if (!$messages) {
                     continue;
                 }
@@ -64,23 +58,17 @@ class CustomerUpdateReturn
             }
         }
 
-        $response = '';
         switch($format) {
             case 'json':
-                $returnData = [
-                    'success' => 1,
+                $event->setResponse(new JsonResponse([
+                    'success' => true,
                     'entity' => $entity->getData(),
                     'redirect_url' => $url,
-                ];
-                $response = new JsonResponse($returnData);
+                ]));
                 break;
             default:
-
-                $response = new RedirectResponse($url);
+                $event->setResponse(new RedirectResponse($url));
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

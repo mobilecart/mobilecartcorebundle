@@ -78,6 +78,16 @@ class CoreEvent extends Event
     protected $section = '';
 
     /**
+     * @var string
+     */
+    protected $form_action = '';
+
+    /**
+     * @var
+     */
+    protected $form_method = '';
+
+    /**
      * @var bool
      */
     protected $is_mass_update = false;
@@ -86,6 +96,11 @@ class CoreEvent extends Event
      * @var bool
      */
     protected $is_api = false;
+
+    /**
+     * @var \MobileCart\CoreBundle\Entity\CartEntityInterface
+     */
+    protected $entity;
 
     public function __construct(array $data = [])
     {
@@ -470,7 +485,62 @@ class CoreEvent extends Event
     }
 
     /**
+     * @param \MobileCart\CoreBundle\Entity\CartEntityInterface $entity
+     * @return $this
+     */
+    public function setEntity(\MobileCart\CoreBundle\Entity\CartEntityInterface $entity)
+    {
+        $this->entity = $entity;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Entity\CartEntityInterface
+     */
+    public function getEntity()
+    {
+        return $this->entity;
+    }
+
+    /**
+     * @param $method
+     * @return $this
+     */
+    public function setFormMethod($method)
+    {
+        $this->form_method = $method;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormMethod()
+    {
+        return $this->form_method;
+    }
+
+    /**
+     * @param $action
+     * @return $this
+     */
+    public function setFormAction($action)
+    {
+        $this->form_action = $action;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormAction()
+    {
+        return $this->form_action;
+    }
+
+    /**
      * @param $section
+     * @return $this
      * @throws \Exception
      */
     public function setSection($section)
@@ -480,6 +550,7 @@ class CoreEvent extends Event
         }
 
         $this->section = $section;
+        return $this;
     }
 
     /**

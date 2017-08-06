@@ -22,7 +22,20 @@ class CustomerProfileForm
      */
     protected $currencyService;
 
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
     protected $formFactory;
+
+    /**
+     * @var string
+     */
+    protected $formTypeClass = '';
+
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
+    protected $router;
 
     /**
      * @var \MobileCart\CoreBundle\Service\CartService
@@ -83,15 +96,58 @@ class CustomerProfileForm
         return $this->currencyService;
     }
 
-    public function setFormFactory($formFactory)
+    /**
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @return $this
+     */
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
     {
         $this->formFactory = $formFactory;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
     public function getFormFactory()
     {
         return $this->formFactory;
+    }
+
+    /**
+     * @param string $formTypeClass
+     * @return $this
+     */
+    public function setFormTypeClass($formTypeClass)
+    {
+        $this->formTypeClass = $formTypeClass;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormTypeClass()
+    {
+        return $this->formTypeClass;
+    }
+
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
+    {
+        $this->router = $router;
+        return $this;
+    }
+
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
+    public function getRouter()
+    {
+        return $this->router;
     }
 
     /**
@@ -99,27 +155,15 @@ class CustomerProfileForm
      */
     public function onCustomerProfileForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
-
-        $allCountries = Intl::getRegionBundle()->getCountryNames();
-        $allowedCountries = $this->getCartService()->getAllowedCountryIds();
-
-        $countries = [];
-        foreach($allowedCountries as $countryId) {
-            $countries[$countryId] = $allCountries[$countryId];
-        }
-
-        $formType = new CustomerProfileType();
-        $formType->setCountries($countries);
 
         if (!is_bool($entity->getIsShippingSame())) {
             $entity->setIsShippingSame((bool) $entity->getIsShippingSame());
         }
 
-        $form = $this->getFormFactory()->create($formType, $entity, [
-            'action' => $event->getAction(),
-            'method' => $event->getMethod(),
+        $form = $this->getFormFactory()->create($this->getFormTypeClass(), $entity, [
+            'action' => $this->getRouter()->generate('customer_update', []),
+            'method' => 'PUT',
         ]);
 
         $formSections = [
@@ -132,13 +176,13 @@ class CustomerProfileForm
                     'email',
                     'billing_name',
                     'billing_company',
-                    'billing_phone',
                     'billing_street',
                     'billing_street2',
                     'billing_city',
                     'billing_region',
                     'billing_postcode',
                     'billing_country_id',
+                    'billing_phone',
                 ],
             ],
             'shipping' => [
@@ -148,13 +192,13 @@ class CustomerProfileForm
                     'is_shipping_same',
                     'shipping_name',
                     'shipping_company',
-                    'shipping_phone',
                     'shipping_street',
                     'shipping_street2',
                     'shipping_city',
                     'shipping_region',
                     'shipping_postcode',
                     'shipping_country_id',
+                    'shipping_phone',
                 ],
             ],
             'password' => [
@@ -256,13 +300,10 @@ class CustomerProfileForm
                 'id' => 'custom',
                 'fields' => $customFields,
             ];
-
         }
 
-        $returnData['form_sections'] = $formSections;
-        $returnData['country_regions'] = $this->getCartService()->getCountryRegions();
-
-        $event->setForm($form)
-            ->setReturnData($returnData);
+        $event->setReturnData('form', $form);
+        $event->setReturnData('form_sections', $formSections);
+        $event->setReturnData('country_regions', $this->getCartService()->getCountryRegions());
     }
 }

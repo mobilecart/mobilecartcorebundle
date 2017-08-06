@@ -11,23 +11,16 @@
 
 namespace MobileCart\CoreBundle\Controller\Admin;
 
-use MobileCart\CoreBundle\Constants\EntityConstants;
-
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
 
 /**
- * Customer controller.
- *
- * @Route("/admin/customer")
+ * Class CustomerController
+ * @package MobileCart\CoreBundle\Controller\Admin
  */
 class CustomerController extends Controller
 {
@@ -37,26 +30,12 @@ class CustomerController extends Controller
     protected $objectType = EntityConstants::CUSTOMER;
 
     /**
-     * Lists Customer entities.
-     *
-     * @Route("/", name="cart_admin_customer")
-     * @Method("GET")
+     * List and search Customer entities
      */
     public function indexAction(Request $request)
     {
-        // Load a service; which extends Search\SearchAbstract
-        // The service parameter is stored in the service configuration as a parameter ; (slightly meta)
-        // This service could use either MySQL or ElasticSearch, etc for retrieving item data
-        $searchParam = $this->container->getParameter('cart.load.admin');
-        $search = $this->container->get($searchParam)
-            ->setObjectType($this->objectType);
-
-        // Observe Event :
-        //  perform custom logic, post-processing
-
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setSearch($search)
             ->setObjectType($this->objectType)
             ->setSection(CoreEvent::SECTION_BACKEND);
 
@@ -67,105 +46,7 @@ class CustomerController extends Controller
     }
 
     /**
-     * Creates a new Customer entity.
-     *
-     * @Route("/", name="cart_admin_customer_create")
-     * @Method("POST")
-     */
-    public function createAction(Request $request)
-    {
-        $varSet = '';
-        if ($varSetId = $request->get('var_set_id', '')) {
-            $varSet = $this->get('cart.entity')->getVarSet($varSetId);
-        } else {
-            $varSets = $this->get('cart.entity')->getVarSets($this->objectType);
-            if ($varSets) {
-                $varSet = $varSets[0];
-            }
-        }
-
-        $entity = $this->get('cart.entity')->getInstance($this->objectType);
-        if ($varSet) {
-            $entity->setItemVarSet($varSet);
-        }
-
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_customer_create'))
-            ->setMethod('POST');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_ADMIN_FORM, $formEvent);
-
-        $form = $formEvent->getForm();
-
-        if ($form->handleRequest($request)->isValid()) {
-
-            $formData = $request->request->get($form->getName());
-
-            // observe event
-            //  add customer to indexes, etc
-            $event = new CoreEvent();
-            $event->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData);
-
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CUSTOMER_INSERT, $event);
-
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CUSTOMER_CREATE_RETURN, $returnEvent);
-
-            return $returnEvent->getResponse();
-        }
-
-        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
-
-            $invalid = [];
-            $messages = [];
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            $returnData = [
-                'success' => 0,
-                'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
-        }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setEntity($entity)
-            ->setVarSet($varSet)
-            ->setReturnData($formEvent->getReturnData());
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_NEW_RETURN, $event);
-
-        return $event->getResponse();
-    }
-
-    /**
-     * Displays a form to create a new Customer entity.
-     *
-     * @Route("/new", name="cart_admin_customer_new")
-     * @Method("GET")
+     * Displays a form to create a new Customer entity
      */
     public function newAction(Request $request)
     {
@@ -184,22 +65,16 @@ class CustomerController extends Controller
             $entity->setItemVarSet($varSet);
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_customer_create'))
-            ->setMethod('POST');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_ADMIN_FORM, $formEvent);
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setVarSet($varSet)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_customer_create', []))
+            ->setFormMethod('POST')
+            ->setVarSet($varSet);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CUSTOMER_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_NEW_RETURN, $event);
@@ -208,10 +83,78 @@ class CustomerController extends Controller
     }
 
     /**
-     * Finds and displays a Customer entity.
-     *
-     * @Route("/{id}", name="cart_admin_customer_show")
-     * @Method("GET")
+     * Creates a new Customer entity.
+     */
+    public function createAction(Request $request)
+    {
+        $varSet = '';
+        if ($varSetId = $request->get('var_set_id', '')) {
+            $varSet = $this->get('cart.entity')->getVarSet($varSetId);
+        } else {
+            $varSets = $this->get('cart.entity')->getVarSets($this->objectType);
+            if ($varSets) {
+                $varSet = $varSets[0];
+            }
+        }
+
+        $entity = $this->get('cart.entity')->getInstance($this->objectType);
+        if ($varSet) {
+            $entity->setItemVarSet($varSet);
+        }
+
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
+            ->setEntity($entity)
+            ->setRequest($request)
+            ->setFormAction($this->generateUrl('cart_admin_customer_create', []))
+            ->setFormMethod('POST')
+            ->setVarSet($varSet);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CUSTOMER_ADMIN_FORM, $event);
+
+        $form = $event->getReturnData('form');
+        if ($form->handleRequest($request)->isValid()) {
+
+            $event->setFormData($request->request->get($form->getName()));
+
+            $this->get('event_dispatcher')
+                ->dispatch(CoreEvents::CUSTOMER_INSERT, $event);
+
+            $this->get('event_dispatcher')
+                ->dispatch(CoreEvents::CUSTOMER_CREATE_RETURN, $event);
+
+            return $event->getResponse();
+        }
+
+        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
+
+            $invalid = [];
+            foreach($form->all() as $childKey => $child) {
+                $errors = $child->getErrors();
+                if ($errors->count()) {
+                    $invalid[$childKey] = [];
+                    foreach($errors as $error) {
+                        $invalid[$childKey][] = $error->getMessage();
+                    }
+                }
+            }
+
+            return new JsonResponse([
+                'success' => false,
+                'invalid' => $invalid,
+                'messages' => $event->getMessages(),
+            ]);
+        }
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CUSTOMER_NEW_RETURN, $event);
+
+        return $event->getResponse();
+    }
+
+    /**
+     * Finds and displays a Customer entity
      */
     public function showAction(Request $request, $id)
     {
@@ -224,34 +167,24 @@ class CustomerController extends Controller
     }
 
     /**
-     * Displays a form to edit an existing Customer entity.
-     *
-     * @Route("/{id}/edit", name="cart_admin_customer_edit")
-     * @Method("GET")
+     * Displays a form to edit an existing Customer entity
      */
     public function editAction(Request $request, $id)
     {
         $entity = $this->get('cart.entity')->find($this->objectType, $id);
-
         if (!$entity) {
             throw $this->createNotFoundException("Unable to find entity with ID: {$id}");
         }
-
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_customer_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_ADMIN_FORM, $formEvent);
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_customer_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CUSTOMER_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_EDIT_RETURN, $event);
@@ -260,10 +193,7 @@ class CustomerController extends Controller
     }
 
     /**
-     * Edits an existing Customer entity.
-     *
-     * @Route("/{id}", name="cart_admin_customer_update")
-     * @Method("PUT")
+     * Updates an existing Customer entity
      */
     public function updateAction(Request $request, $id)
     {
@@ -272,47 +202,33 @@ class CustomerController extends Controller
             throw $this->createNotFoundException('Unable to find Customer entity.');
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_customer_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT');
+            ->setFormAction($this->generateUrl('cart_admin_customer_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_ADMIN_FORM, $formEvent);
+            ->dispatch(CoreEvents::CUSTOMER_ADMIN_FORM, $event);
 
-        $form = $formEvent->getForm();
-
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
-            $formData = $request->request->get($form->getName());
-
-            // observe event
-            // update entity via command bus
-            $event = new CoreEvent();
-            $event->setObjectType($this->objectType)
-                ->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData);
+            $event->setFormData($request->request->get($form->getName()));
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CUSTOMER_UPDATE, $event);
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CUSTOMER_UPDATE_RETURN, $returnEvent);
+                ->dispatch(CoreEvents::CUSTOMER_UPDATE_RETURN, $event);
 
-            return $returnEvent->getResponse();
+            return $event->getResponse();
         }
 
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
             $invalid = [];
-            $messages = [];
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {
@@ -323,20 +239,12 @@ class CustomerController extends Controller
                 }
             }
 
-            $returnData = [
-                'success' => 0,
+            return new JsonResponse([
+                'success' => false,
                 'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+                'messages' => $event->getMessages(),
+            ]);
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_EDIT_RETURN, $event);
@@ -345,21 +253,17 @@ class CustomerController extends Controller
     }
 
     /**
-     * Deletes a Customer entity.
-     *
-     * @Route("/{id}", name="cart_admin_customer_delete")
-     * @Method("DELETE")
+     * Deletes a Customer entity
      */
     public function deleteAction(Request $request, $id)
     {
-        $form = $this->createDeleteForm($id);
-        $form->handleRequest($request);
+        $entity = $this->get('cart.entity')->find($this->objectType, $id);
+        if (!$entity) {
+            throw $this->createNotFoundException('Unable to find Customer entity.');
+        }
 
-        if ($form->isValid()) {
-            $entity = $this->get('cart.entity')->find($this->objectType, $id);
-            if (!$entity) {
-                throw $this->createNotFoundException('Unable to find Customer entity.');
-            }
+        $form = $this->createDeleteForm($id);
+        if ($form->handleRequest($request)->isValid()) {
 
             $event = new CoreEvent();
             $event->setObjectType($this->objectType)
@@ -379,10 +283,7 @@ class CustomerController extends Controller
     }
 
     /**
-     * Mass-Delete Categories
-     *
-     * @Route("/mass_delete", name="cart_admin_customer_mass_delete")
-     * @Method("POST")
+     * Mass-Delete Category entities
      */
     public function massDeleteAction(Request $request)
     {
@@ -422,12 +323,12 @@ class CustomerController extends Controller
      *
      * @param mixed $id The entity id
      *
-     * @return \Symfony\Component\Form\Form The form
+     * @return \Symfony\Component\Form\Form
      */
     protected function createDeleteForm($id)
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('cart_admin_customer_delete', array('id' => $id)))
+            ->setAction($this->generateUrl('cart_admin_customer_delete', ['id' => $id]))
             ->setMethod('DELETE')
             ->add('submit', 'submit', ['label' => 'Delete'])
             ->getForm();

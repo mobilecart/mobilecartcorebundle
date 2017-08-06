@@ -10,14 +10,24 @@ use MobileCart\CoreBundle\Event\CoreEvent;
  */
 class CustomerNavigation
 {
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -28,27 +38,21 @@ class CustomerNavigation
      */
     public function onCustomerNavigation(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
+        $event->get('menu')->setChildrenAttribute('class', 'side-menu nav');
 
-        $returnData['navigation'] = [
-            'customer_profile' => [
-                'label' => 'Customer Account',
-                'url'   => $this->getRouter()->generate('customer_profile', []),
-            ],
-            'customer_addresses' => [
-                'label' => 'Shipping Addresses',
-                'url'   => $this->getRouter()->generate('customer_addresses', []),
-            ],
-            'customer_orders' => [
-                'label' => 'Orders',
-                'url'   => $this->getRouter()->generate('customer_orders', []),
-            ],
-        ];
+        $event->get('menu')->addChild('My Account', [
+            'route' => 'customer_profile',
+            'uri'   => $this->getRouter()->generate('customer_profile', []),
+        ]);
 
-        if ($active = $event->getCurrentRoute()) {
-            $returnData[$active]['active'] = 1;
-        }
+        $event->get('menu')->addChild('Addresses', [
+            'route' => 'customer_addresses',
+            'uri'   => $this->getRouter()->generate('customer_addresses', []),
+        ]);
 
-        $event->setReturnData($returnData);
+        $event->get('menu')->addChild('Orders', [
+            'route' => 'customer_orders',
+            'uri'   => $this->getRouter()->generate('customer_orders', []),
+        ]);
     }
 }

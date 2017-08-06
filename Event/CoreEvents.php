@@ -231,6 +231,8 @@ final class CoreEvents
     const ITEM_VAR_SET_VAR_UPDATE_RETURN = 'item_var_set_var.update.return';
     const ITEM_VAR_SET_VAR_ADMIN_FORM = 'item_var_set_var.admin.form';
 
+    const MENU_BUILD = 'menu.build';
+
     const ORDER_LIST = 'order.list';
     const ORDER_SEARCH = 'order.search';
     const ORDER_UPDATE = 'order.update';

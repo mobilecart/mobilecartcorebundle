@@ -97,7 +97,6 @@ class CustomerRegisterConfirm
      */
     public function onCustomerRegisterConfirm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
         $id = $request->get('id', 0);
         $hash = $request->get('hash', '');
@@ -112,18 +111,18 @@ class CustomerRegisterConfirm
             && $entity->getConfirmHash() == $hash) {
 
             $entity->setConfirmHash('')
-                ->setIsEnabled(1)
-                ->setIsLocked(0)
+                ->setIsEnabled(true)
+                ->setIsLocked(false)
                 ->setFailedLogins(0)
-                ->setPasswordUpdatedAt(new \DateTime('now'))
-            ;
+                ->setPasswordUpdatedAt(new \DateTime('now'));
 
             if (!$entity->getApiKey()) {
                 $entity->setApiKey(sha1(microtime()));
             }
 
             $this->getEntityService()->persist($entity);
-            $event->setSuccess(1);
+
+            $event->setReturnData('success', true);
             $event->setEntity($entity);
 
             $recipient = $event->getRecipient()
@@ -171,9 +170,7 @@ class CustomerRegisterConfirm
                 $event->setEntity($entity);
             }
 
-            $event->setSuccess(0);
+            $event->setReturnData('success', false);
         }
-
-        $event->setReturnData($returnData);
     }
 }

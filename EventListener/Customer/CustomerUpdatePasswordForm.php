@@ -85,13 +85,12 @@ class CustomerUpdatePasswordForm
      */
     public function onCustomerUpdatePasswordForm(CoreEvent $event)
     {
-        $formType = new CustomerUpdatePasswordType();
-
         $action = $this->getRouter()->generate('customer_update_password_post', [
             'id' => $event->getEntity()->getId(),
             'hash' => $event->getEntity()->getConfirmHash()
         ]);
 
+        $formType = new CustomerUpdatePasswordType();
         $event->setReturnData('form', $this->getFormFactory()->create($formType, $event->getEntity(), [
             'action' => $action,
             'method' => 'POST',

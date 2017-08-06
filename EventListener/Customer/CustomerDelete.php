@@ -39,18 +39,13 @@ class CustomerDelete
      */
     public function onCustomerDelete(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
         $this->getEntityService()->remove($entity, EntityConstants::CUSTOMER);
-
         if ($entity && $event->getRequest()->getSession()) {
             $event->getRequest()->getSession()->getFlashBag()->add(
                 'success',
                 'Customer Deleted!'
             );
         }
-
-        $event->setReturnData($returnData);
     }
 }

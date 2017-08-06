@@ -22,14 +22,24 @@ class CustomerOrderReturn
      */
     protected $themeService;
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -76,13 +86,10 @@ class CustomerOrderReturn
      */
     public function onCustomerOrderReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
-
         $orderId = $request->get('id', 0);
         $customer = $event->getCustomer();
-        $typeSections = [];
-        $returnData['template_sections'] = $typeSections;
+        $event->setReturnData('template_sections', []);
 
         $order = $this->getEntityService()->find(EntityConstants::ORDER, $orderId);
         if (!$order
@@ -96,12 +103,12 @@ class CustomerOrderReturn
             return;
         }
 
-        $returnData['order'] = $order;
+        $event->setReturnData('order', $order);
 
-        $response = $this->getThemeService()
-            ->render('frontend', 'Customer:order.html.twig', $returnData);
-
-        $event->setResponse($response)
-            ->setReturnData($returnData);
+        $event->setResponse($this->getThemeService()->render(
+            'frontend',
+            'Customer:order.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

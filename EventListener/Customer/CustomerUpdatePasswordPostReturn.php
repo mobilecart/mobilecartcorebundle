@@ -22,14 +22,24 @@ class CustomerUpdatePasswordPostReturn
      */
     protected $entityService;
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -79,9 +89,19 @@ class CustomerUpdatePasswordPostReturn
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
+        if ($event->getRequest()->getSession() && $event->getMessages()) {
+            foreach($event->getMessages() as $code => $messages) {
+                if (!$messages) {
+                    continue;
+                }
+                foreach($messages as $message) {
+                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                }
+            }
+        }
+
         switch($format) {
             case 'json':
-
                 // security risk . be careful what we return here
                 $event->setResponse(new JsonResponse([
                     'success' => $event->getReturnData('success') ? true : false
@@ -92,34 +112,12 @@ class CustomerUpdatePasswordPostReturn
                 if ($event->getReturnData('success')) {
 
                     $event->addSuccessMessage('Password Successfully Updated!');
-
-                    $params = [];
-                    $route = 'login_route';
-                    $url = $this->getRouter()->generate($route, $params);
-                    $event->setResponse(new RedirectResponse($url));
-
+                    $event->setResponse(new RedirectResponse($this->getRouter()->generate('login_route', [])));
                 } else {
 
                     $event->addErrorMessage('Invalid Request Submitted');
-
-                    $params = [];
-                    $route = 'customer_forgot_password';
-                    $url = $this->getRouter()->generate($route, $params);
-                    $event->setResponse(new RedirectResponse($url));
-
+                    $event->setResponse(new RedirectResponse($this->getRouter()->generate('customer_forgot_password', [])));
                 }
-
-                if ($codeMessages = $event->getMessages()) {
-                    foreach($codeMessages as $code => $messages) {
-                        if (!$messages) {
-                            continue;
-                        }
-                        foreach($messages as $message) {
-                            $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                        }
-                    }
-                }
-
                 break;
         }
     }

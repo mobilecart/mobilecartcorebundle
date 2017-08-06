@@ -9,22 +9,38 @@ use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Intl\Intl;
 
+/**
+ * Class CustomerType
+ * @package MobileCart\CoreBundle\Form
+ */
 class CustomerType extends AbstractType
 {
     /**
-     * @var array
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $countries = [];
+    protected $cartService;
 
     /**
-     * @param array $countries
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
      * @return $this
      */
-    public function setCountries(array $countries)
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
     {
-        $this->countries = $countries;
+        $this->cartService = $cartService;
         return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->cartService;
     }
 
     /**
@@ -32,87 +48,95 @@ class CustomerType extends AbstractType
      */
     public function getCountries()
     {
-        return $this->countries;
+        $allCountries = Intl::getRegionBundle()->getCountryNames();
+        $allowedCountries = $this->getCartService()->getAllowedCountryIds();
+
+        $countries = [];
+        foreach($allowedCountries as $countryId) {
+            $countries[$countryId] = $allCountries[$countryId];
+        }
+
+        return $countries;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('is_enabled', 'checkbox', [
+            ->add('is_enabled', CheckboxType::class, [
                 'required' => false
             ])
-            ->add('first_name', 'text')
-            ->add('last_name', 'text')
-            ->add('email', 'text',[
-                'required' => 1,
+            ->add('first_name', TextType::class)
+            ->add('last_name', TextType::class)
+            ->add('email', TextType::class,[
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('billing_name', 'text')
+            ->add('billing_name', TextType::class)
             ->add('billing_phone')
-            ->add('billing_street', 'text')
-            ->add('billing_street2', 'text')
-            ->add('billing_city', 'text')
-            ->add('billing_region', 'text', [
+            ->add('billing_street', TextType::class)
+            ->add('billing_street2', TextType::class)
+            ->add('billing_city', TextType::class)
+            ->add('billing_region', TextType::class, [
                 'attr' => [
                     'class' => 'region-input',
                 ],
             ])
-            ->add('billing_postcode', 'text')
-            ->add('billing_country_id', 'choice', [
+            ->add('billing_postcode', TextType::class)
+            ->add('billing_country_id', ChoiceType::class, [
                 'choices' => $this->getCountries(),
                 'attr' => [
                     'class' => 'country-input',
                 ],
             ])
-            ->add('is_shipping_same')
-            ->add('shipping_name', 'text', [
-                'required' => 0,
+            ->add('is_shipping_same', CheckboxType::class)
+            ->add('shipping_name', TextType::class, [
+                'required' => false,
                 'attr' => ['class' => 'shipping-input'],
             ])
-            ->add('shipping_phone', 'text', [
-                'required' => 0,
+            ->add('shipping_phone', TextType::class, [
+                'required' => false,
                 'attr' => ['class' => 'shipping-input'],
             ])
-            ->add('shipping_street', 'text', [
-                'required' => 0,
+            ->add('shipping_street', TextType::class, [
+                'required' => false,
                 'attr' => ['class' => 'shipping-input'],
             ])
-            ->add('shipping_street2', 'text', [
-                'required' => 0,
+            ->add('shipping_street2', TextType::class, [
+                'required' => false,
                 'attr' => ['class' => 'shipping-input'],
             ])
-            ->add('shipping_city', 'text', [
-                'required' => 0,
+            ->add('shipping_city', TextType::class, [
+                'required' => false,
                 'attr' => ['class' => 'shipping-input'],
             ])
-            ->add('shipping_region', 'text', [
-                'required' => 0,
+            ->add('shipping_region', TextType::class, [
+                'required' => false,
                 'attr' => ['class' => 'shipping-input region-input'],
             ])
-            ->add('shipping_postcode', 'text', [
-                'required' => 0,
+            ->add('shipping_postcode', TextType::class, [
+                'required' => false,
                 'attr' => ['class' => 'shipping-input'],
             ])
-            ->add('shipping_country_id', 'choice', [
+            ->add('shipping_country_id', ChoiceType::class, [
                 'choices' => $this->getCountries(),
-                'required' => 0,
+                'required' => false,
                 'attr' => [
                     'class' => 'country-input',
                 ],
             ])
-            ->add('is_locked', 'checkbox', [
-                'required' => 0,
+            ->add('is_locked', CheckboxType::class, [
+                'required' => false,
             ])
-            ->add('is_password_expired', 'checkbox', [
-                'required' => 0,
+            ->add('is_password_expired', CheckboxType::class, [
+                'required' => false,
             ])
-            ->add('is_expired', 'checkbox', [
-                'required' => 0,
+            ->add('is_expired', CheckboxType::class, [
+                'required' => false,
             ])
-            ->add('api_key', 'text', [
-                'required' => 0,
+            ->add('api_key', TextType::class, [
+                'required' => false,
             ])
         ;
 
@@ -154,6 +178,11 @@ class CustomerType extends AbstractType
     }
 
     public function getName()
+    {
+        return 'customer';
+    }
+
+    public function getBlockPrefix()
     {
         return 'customer';
     }
