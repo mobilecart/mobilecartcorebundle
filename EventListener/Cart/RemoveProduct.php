@@ -24,6 +24,9 @@ class RemoveProduct
      */
     protected $cartSessionService;
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -44,12 +47,19 @@ class RemoveProduct
         return $this->entityService;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -78,10 +88,8 @@ class RemoveProduct
      */
     public function onCartRemoveProduct(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $recollectShipping = [];
-        $success = 0;
+        $success = false;
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
@@ -164,32 +172,23 @@ class RemoveProduct
                 $this->getCartSessionService()->removeShippingMethods($customerAddressId, $srcAddressKey);
             }
 
-            $success = 1;
+            $success = true;
             $this->getCartSessionService()->collectTotals();
 
         } else {
-
-            // todo: display error message
-
+            $event->addErrorMessage("Specified item is not in your cart");
         }
 
-        $returnData['cart'] = $cart;
-        $returnData['success'] = $success;
+        $event->setReturnData('cart', $cart);
+        $event->setReturnData('success', $success);
 
-        $response = '';
         switch($format) {
             case 'json':
-                $response = new JsonResponse($returnData);
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
-                $params = [];
-                $route = 'cart_view';
-                $url = $this->getRouter()->generate($route, $params);
-                $response = new RedirectResponse($url);
+                $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_view', [])));
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

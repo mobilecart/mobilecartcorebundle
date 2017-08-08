@@ -47,8 +47,6 @@ class TaxTotal extends Total
             return false;
         }
 
-        $returnData = $event->getReturnData();
-
         $cart = $event->getCart();
         $cart->setIncludeTax(1);
         $currency = $cart->getCurrency() ? $cart->getCurrency() : 'USD';
@@ -65,6 +63,8 @@ class TaxTotal extends Total
         $rate = $this->getTaxService()->getRate($currency, $countryId, $region);
         if ($rate !== false) {
             $cart->setTaxRate($rate['rate']);
+        } else {
+            $cart->setTaxRate(0);
         }
 
         $taxTotal = $event->getCart()->getCalculator()
@@ -76,6 +76,5 @@ class TaxTotal extends Total
             ->setIsAdd(1);
 
         $event->addTotal($this);
-        $event->setReturnData($returnData);
     }
 }

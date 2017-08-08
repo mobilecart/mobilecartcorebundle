@@ -23,6 +23,9 @@ class RemoveProducts
      */
     protected $entityService;
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -43,12 +46,19 @@ class RemoveProducts
         return $this->entityService;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -77,8 +87,6 @@ class RemoveProducts
      */
     public function onCartRemoveProducts(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $cartSession = $this->getCartSessionService();
         $cart = $cartSession->getCart();
         $cartId = $cart->getId();
@@ -128,23 +136,16 @@ class RemoveProducts
             ->collectTotals()
             ->getCart();
 
-        $returnData['cart'] = $cart;
-        $returnData['success'] = 1;
+        $event->setReturnData('cart', $cart);
+        $event->setReturnData('success', true);
 
-        $response = '';
         switch($format) {
             case 'json':
-                $response = new JsonResponse($returnData);
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
-                $params = [];
-                $route = 'cart_view';
-                $url = $this->getRouter()->generate($route, $params);
-                $response = new RedirectResponse($url);
+                $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_view', [])));
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

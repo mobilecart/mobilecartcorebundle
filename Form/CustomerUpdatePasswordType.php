@@ -9,6 +9,10 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 
+/**
+ * Class CustomerUpdatePasswordType
+ * @package MobileCart\CoreBundle\Form
+ */
 class CustomerUpdatePasswordType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -29,7 +33,7 @@ class CustomerUpdatePasswordType extends AbstractType
 
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'customer_update_password';
     }

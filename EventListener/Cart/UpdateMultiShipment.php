@@ -2,12 +2,10 @@
 
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
-use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\CartComponent\Shipment;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Shipping\Rate;
 use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\Shipping\RateRequest;
 
 /**
  * Class UpdateMultiShipment

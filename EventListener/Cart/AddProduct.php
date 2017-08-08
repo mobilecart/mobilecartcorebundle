@@ -30,6 +30,9 @@ class AddProduct
      */
     protected $redirectToCart = 1;
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -97,12 +100,19 @@ class AddProduct
      */
     protected $success = 0;
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -162,6 +172,9 @@ class AddProduct
         return $this->redirectToCart;
     }
 
+    /**
+     * @return $this
+     */
     public function initCartEntity()
     {
         $cart = $this->getCartSessionService()->getCart();
@@ -765,9 +778,7 @@ class AddProduct
      */
     public function onCartAddProduct(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
-        $this->setCartItem(null); // preventing a strange "bug"
+        $this->setCartItem(null); // need to reset, because this is a Singleton
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
         $recollectShipping = []; // r = [object, object] , object:{'customer_address_id':'','source_address_key':''}
@@ -921,14 +932,14 @@ class AddProduct
         $event->setRecollectShipping($recollectShipping);
         $event->setCartItemEntity($this->getCartItemEntity());
         $event->setSuccess($this->getSuccess());
-        $returnData['cart'] = $this->getCartSessionService()->getCart();
-        $returnData['success'] = $this->getSuccess();
-        $returnData['errors'] = $this->getErrors();
 
-        $response = '';
+        $event->setReturnData('cart', $this->getCartSessionService()->getCart());
+        $event->setReturnData('success', (bool) $this->getSuccess());
+        $event->setReturnData('errors', $this->getErrors());
+
         switch($format) {
             case 'json':
-                $response = new JsonResponse($returnData);
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
 
@@ -936,11 +947,9 @@ class AddProduct
                 $params = [];
 
                 if ($errors) {
+
                     foreach($errors as $error) {
-                        $request->getSession()->getFlashBag()->add(
-                            CoreEvent::MSG_ERROR,
-                            $error
-                        );
+                        $event->addErrorMessage($error);
                     }
 
                     if ($slug && $event->getIsAdd()) {
@@ -951,10 +960,7 @@ class AddProduct
                     && !$event->getIsMassUpdate()
                 ) {
 
-                    $request->getSession()->getFlashBag()->add(
-                        'success',
-                        'Product Added to Cart'
-                    );
+                    $event->addSuccessMessage('Product Added to Cart');
                 }
 
                 if (!$this->getRedirectToCart()
@@ -977,12 +983,8 @@ class AddProduct
                     }
                 }
 
-                $url = $this->getRouter()->generate($route, $params);
-                $response = new RedirectResponse($url);
+                $event->setResponse(new RedirectResponse($this->getRouter()->generate($route, $params)));
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

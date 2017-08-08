@@ -72,8 +72,6 @@ class DiscountTotal extends Total
         //  call $cart->getCalculator():
         // getPreTaxDiscountTotal() and getPostTaxDiscountTotal()
 
-        $returnData = $event->getReturnData();
-
         $cart = $event->getCart();
 
         if ($event->getApplyAutoDiscounts()) {
@@ -137,7 +135,5 @@ class DiscountTotal extends Total
             ->setIsAdd(0); // subtract
 
         $event->addTotal($this);
-
-        $event->setReturnData($returnData);
     }
 }

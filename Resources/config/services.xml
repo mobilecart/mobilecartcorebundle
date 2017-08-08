@@ -56,7 +56,10 @@
         <!-- Forms -->
         <parameter key="cart.form.type.contact.class">MobileCart\CoreBundle\Form\ContactFormType</parameter>
         <parameter key="cart.form.type.customer.class">MobileCart\CoreBundle\Form\CustomerType</parameter>
+        <parameter key="cart.form.type.customer.forgotpassword.class">MobileCart\CoreBundle\Form\CustomerForgotPasswordType</parameter>
+        <parameter key="cart.form.type.customer.login.class">MobileCart\CoreBundle\Form\CustomerLoginType</parameter>
         <parameter key="cart.form.type.customer.profile.class">MobileCart\CoreBundle\Form\CustomerProfileType</parameter>
+        <parameter key="cart.form.type.customer.register.class">MobileCart\CoreBundle\Form\CustomerRegisterType</parameter>
         <parameter key="cart.form.type.customer_address.class">MobileCart\CoreBundle\Form\CustomerAddressType</parameter>
         <parameter key="cart.form.type.export_options.class">MobileCart\CoreBundle\Form\ExportOptionsType</parameter>
         <!-- Services -->
@@ -2255,6 +2258,9 @@
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
             </call>
+            <call method="setFormTypeClass">
+                <argument type="string">%cart.form.type.customer.register.class%</argument>
+            </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
@@ -2446,7 +2452,7 @@
             </call>
         </service>
 
-        <!-- Event Listener : Customer Forgot Password -->
+        <!-- Event Listener : Customer Forgot Password Form -->
         <service id="cart.listener.customer.forgotpassword.form" lazy="true" class="%cart.listener.customer.forgotpassword.form.class%">
             <tag name="kernel.event_listener" event="customer.forgotpassword.form" method="onCustomerForgotPasswordForm" priority="50" />
             <call method="setEntityService">
@@ -2458,8 +2464,12 @@
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
+            <call method="setFormTypeClass">
+                <argument type="string">%cart.form.type.customer.forgotpassword.class%</argument>
+            </call>
         </service>
 
+        <!-- Event Listener : Handle Forgot Password Form Submission -->
         <service id="cart.listener.customer.forgotpassword" lazy="true" class="%cart.listener.customer.forgotpassword.class%">
             <tag name="kernel.event_listener" event="customer.forgotpassword" method="onCustomerForgotPassword" priority="50" />
             <call method="setEntityService">
@@ -2482,6 +2492,7 @@
             </call>
         </service>
 
+        <!-- Event Listener : Display Forgot Password Form -->
         <service id="cart.listener.customer.forgotpassword.return" lazy="true" class="%cart.listener.customer.forgotpassword.return.class%">
             <tag name="kernel.event_listener" event="customer.forgotpassword.return" method="onCustomerForgotPasswordReturn" priority="50" />
             <call method="setEntityService">
@@ -2492,6 +2503,7 @@
             </call>
         </service>
 
+        <!-- Event Listener : Return from Forgot Password Form Submission -->
         <service id="cart.listener.customer.forgotpassword.post.return" lazy="true" class="%cart.listener.customer.forgotpassword.post.return.class%">
             <tag name="kernel.event_listener" event="customer.forgotpassword.post.return" method="onCustomerForgotPasswordPostReturn" priority="50" />
             <call method="setEntityService">

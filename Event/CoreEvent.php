@@ -83,7 +83,7 @@ class CoreEvent extends Event
     protected $form_action = '';
 
     /**
-     * @var
+     * @var string
      */
     protected $form_method = '';
 

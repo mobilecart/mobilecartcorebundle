@@ -27,6 +27,11 @@ class CustomerForgotPasswordForm
     protected $router;
 
     /**
+     * @var string
+     */
+    protected $formTypeClass = '';
+
+    /**
      * @param $entityService
      * @return $this
      */
@@ -81,13 +86,29 @@ class CustomerForgotPasswordForm
     }
 
     /**
+     * @param $formTypeClass
+     * @return $this
+     */
+    public function setFormTypeClass($formTypeClass)
+    {
+        $this->formTypeClass = $formTypeClass;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormTypeClass()
+    {
+        return $this->formTypeClass;
+    }
+
+    /**
      * @param CoreEvent $event
      */
     public function onCustomerForgotPasswordForm(CoreEvent $event)
     {
-        $entity = $event->getEntity();
-        $formType = new CustomerForgotPasswordType();
-        $form = $this->getFormFactory()->create($formType, $entity, [
+        $form = $this->getFormFactory()->create($this->getFormTypeClass(), $event->getEntity(), [
             'action' => $this->getRouter()->generate('customer_forgot_password', []),
             'method' => 'POST',
         ]);

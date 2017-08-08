@@ -30,14 +30,24 @@ class AddShipment
      */
     public $shippingService;
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -102,8 +112,6 @@ class AddShipment
      */
     public function onCartAddShipment(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $shippingService = $this->getShippingService();
         $cartSession = $this->getCartSessionService(); //->initCart()->collectShippingMethods();
 
@@ -119,6 +127,7 @@ class AddShipment
             ? $this->getEntityService()->find(EntityConstants::CART, $cartId)
             : $this->getEntityService()->getInstance(EntityConstants::CART);
 
+        // save new cart and get ID
         if (!$cartId) {
 
             $cartEntity->setJson($cart->toJson())
@@ -139,10 +148,11 @@ class AddShipment
             $cart->setId($cartId);
         }
 
-        $success = 0;
+        $success = false;
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
+        // handle multiple shipments, if necessary
         if ($shippingService->getIsMultiShippingEnabled()) {
 
             $codes = $request->get('shipping_methods', []); // r[source_address_key][customer_address_id] = $code
@@ -181,7 +191,7 @@ class AddShipment
                                 ->addShipment($shipment, $anAddressId, $productIds, $srcAddressKey)
                                 ->collectTotals();
 
-                            $success = 1;
+                            $success = true;
                         }
                     }
 
@@ -192,6 +202,7 @@ class AddShipment
             }
 
         } else {
+        // otherwise, assume a single shipment and shipping method
 
             $code = $request->get('shipping_method', ''); // single shipping method
             if ($cart->hasShippingMethodCode($code)) {
@@ -206,7 +217,7 @@ class AddShipment
                     ->addShipment($shipment, 'main', $productIds)
                     ->collectTotals();
 
-                $success = 1;
+                $success = true;
             }
 
         }
@@ -280,23 +291,16 @@ class AddShipment
             $event->setCartEntity($cartEntity);
         }
 
-        $returnData['cart'] = $cart;
-        $returnData['success'] = $success;
+        $event->setReturnData('cart', $cart);
+        $event->setReturnData('success', $success);
 
-        $response = '';
         switch($format) {
             case 'json':
-                $response = new JsonResponse($returnData);
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
-                $params = [];
-                $route = 'cart_view';
-                $url = $this->getRouter()->generate($route, $params);
-                $response = new RedirectResponse($url);
+                $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_view', [])));
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

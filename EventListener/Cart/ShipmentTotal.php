@@ -24,8 +24,6 @@ class ShipmentTotal extends Total
             return false;
         }
 
-        $returnData = $event->getReturnData();
-
         $shipmentTotal = $event->getCart()->getCalculator()
             ->getShipmentTotal();
 
@@ -35,6 +33,5 @@ class ShipmentTotal extends Total
             ->setIsAdd(1);
 
         $event->addTotal($this);
-        $event->setReturnData($returnData);
     }
 }

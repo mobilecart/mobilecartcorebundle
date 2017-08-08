@@ -12,6 +12,10 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Intl\Intl;
 
+/**
+ * Class CustomerProfileType
+ * @package MobileCart\CoreBundle\Form
+ */
 class CustomerProfileType extends AbstractType
 {
     /**
@@ -56,8 +60,8 @@ class CustomerProfileType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('first_name')
-            ->add('last_name')
+            ->add('first_name', TextType::class)
+            ->add('last_name', TextType::class)
             ->add('email', TextType::class, [
                 'required' => true,
                 'constraints' => [
@@ -167,11 +171,6 @@ class CustomerProfileType extends AbstractType
                 'mapped' => false,
             ));
         ;
-    }
-
-    public function getName()
-    {
-        return 'customer_profile';
     }
 
     public function getBlockPrefix()

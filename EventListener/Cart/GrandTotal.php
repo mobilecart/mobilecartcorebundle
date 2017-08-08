@@ -19,8 +19,6 @@ class GrandTotal extends Total
      */
     public function onCartTotalCollect(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $grandTotal = 0;
         if ($event->getTotals()) {
             foreach($event->getTotals() as $total) {
@@ -43,6 +41,5 @@ class GrandTotal extends Total
             ->setIsAdd(0); // subtract
 
         $event->addTotal($this);
-        $event->setReturnData($returnData);
     }
 }

@@ -35,6 +35,7 @@ class CustomerController extends Controller
     public function registerAction(Request $request)
     {
         $entity = $this->get('cart.entity')->getInstance($this->objectType);
+
         $event = new CoreEvent();
         $event->setRequest($request)
             ->setObjectType($this->objectType)
@@ -55,6 +56,7 @@ class CustomerController extends Controller
     public function registerPostAction(Request $request)
     {
         $entity = $this->get('cart.entity')->getInstance($this->objectType);
+
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
@@ -66,8 +68,7 @@ class CustomerController extends Controller
         $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
-            $formData = $request->request->get($form->getName());
-            $event->setFormData($formData);
+            $event->setFormData($request->request->get($form->getName()));
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CUSTOMER_REGISTER, $event);
@@ -170,7 +171,7 @@ class CustomerController extends Controller
             }
         }
 
-        $event->setReturnData('error', 1);
+        $event->setReturnData('error', true);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_FORGOT_PASSWORD_RETURN, $event);
@@ -289,10 +290,6 @@ class CustomerController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_PROFILE_FORM, $event);
 
-        /*
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_NAVIGATION, $event); //*/
-
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_PROFILE_RETURN, $event);
 
@@ -304,12 +301,11 @@ class CustomerController extends Controller
      */
     public function updateAction(Request $request)
     {
-        $entity = $this->getUser();
-
         $event = new CoreEvent();
         $event->setRequest($request)
             ->setObjectType($this->objectType)
-            ->setEntity($entity)
+            ->setEntity($this->getUser())
+            ->setSection(CoreEvent::SECTION_FRONTEND)
             ->setCurrentRoute('customer_profile');
 
         $this->get('event_dispatcher')
@@ -318,10 +314,7 @@ class CustomerController extends Controller
         $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
-            $formData = $request->request->get($form->getName());
-
-            $event->setFormData($formData)
-                ->setSection(CoreEvent::SECTION_FRONTEND);
+            $event->setFormData($request->request->get($form->getName()));
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CUSTOMER_UPDATE, $event);
@@ -337,7 +330,6 @@ class CustomerController extends Controller
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
             $invalid = [];
-            $messages = [];
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {
@@ -348,17 +340,12 @@ class CustomerController extends Controller
                 }
             }
 
-            $returnData = [
+            return new JsonResponse([
                 'success' => false,
                 'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+                'messages' => $event->getMessages(),
+            ]);
         }
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_NAVIGATION, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_PROFILE_RETURN, $event);
@@ -378,9 +365,6 @@ class CustomerController extends Controller
             ->setCurrentRoute('customer_orders');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_NAVIGATION, $event);
-
-        $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_ORDERS_RETURN, $event);
 
         return $event->getResponse();
@@ -396,9 +380,6 @@ class CustomerController extends Controller
             ->setRequest($request)
             ->setCustomer($this->getUser())
             ->setCurrentRoute('customer_profile');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_NAVIGATION, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_ORDER_RETURN, $event);

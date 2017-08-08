@@ -51,7 +51,7 @@ class ContactController extends Controller
                 }
             }
 
-            $formData = $request->request->get('contact');
+            $formData = $request->request->get($form->getName());
 
             $emailEvent = new CoreEvent();
             $emailEvent->setFormData($formData)

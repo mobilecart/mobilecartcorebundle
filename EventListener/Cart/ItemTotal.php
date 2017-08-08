@@ -19,9 +19,8 @@ class ItemTotal extends Total
      */
     public function onCartTotalCollect(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
-        $itemTotal = $event->getCart()->getCalculator()
+        $itemTotal = $event->getCart()
+            ->getCalculator()
             ->getItemTotal();
 
         $this->setKey(self::KEY)
@@ -30,6 +29,5 @@ class ItemTotal extends Total
             ->setIsAdd(1);
 
         $event->addTotal($this);
-        $event->setReturnData($returnData);
     }
 }

@@ -30,14 +30,24 @@ class AddDiscount
      */
     public $shippingService;
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -102,8 +112,6 @@ class AddDiscount
      */
     public function onCartAddDiscount(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
         $code = $request->get('code', '');
@@ -128,7 +136,6 @@ class AddDiscount
             $discount->fromArray($discountEntity->getData());
 
             $isValid = $discount->reapplyIfValid($cart);
-
             if ($isValid && $discount->hasPromoSkus()) {
                 foreach($discount->getPromoSkus() as $sku => $qty) {
 
@@ -192,31 +199,21 @@ class AddDiscount
                 ->getCart();
         }
 
-        $returnData['cart'] = $cart;
-        $returnData['is_valid_code'] = $isValid;
-        $returnData['success'] = $isValid;
+        $event->setReturnData('cart', $cart);
+        $event->setReturnData('is_valid_code', $isValid);
+        $event->setReturnData('success', $isValid);
 
-        if ($isValid && $request->getSession()) {
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Discount Successfully Added!'
-            );
+        if ($isValid) {
+            $event->addSuccessMessage('Discount Successfully Added!');
         }
 
-        $response = '';
         switch($format) {
             case 'json':
-                $response = new JsonResponse($returnData);
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
-                $params = [];
-                $route = 'cart_view';
-                $url = $this->getRouter()->generate($route, $params);
-                $response = new RedirectResponse($url);
+                $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_view', [])));
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

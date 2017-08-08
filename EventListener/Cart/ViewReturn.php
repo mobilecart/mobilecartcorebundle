@@ -63,23 +63,16 @@ class ViewReturn
      */
     public function onCartViewReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
         $cart = $this->getCartSessionService()->getCart();
 
-        $returnData['cart'] = $cart;
-        $returnData['is_shipping_enabled'] = $this->getCartSessionService()
-            ->getShippingService()
-            ->getIsShippingEnabled();
-
-        $returnData['is_multi_shipping_enabled'] = $this->getCartSessionService()
-            ->getShippingService()
-            ->getIsMultiShippingEnabled();
+        $event->setReturnData('cart', $cart);
+        $event->setReturnData('is_shipping_enabled', $this->getCartSessionService()->getShippingService()->getIsShippingEnabled());
+        $event->setReturnData('is_multi_shipping_enabled', $this->getCartSessionService()->getShippingService()->getIsMultiShippingEnabled());
 
         $addressOptions = [];
-        if ($returnData['is_multi_shipping_enabled']
+        if ($event->getReturnData('is_multi_shipping_enabled')
             && $cart->getCustomer()->getId()
         ) {
 
@@ -121,26 +114,20 @@ class ViewReturn
             }
         }
 
-        $returnData['addresses'] = $addressOptions;
+        $event->setReturnData('addresses', $addressOptions);
+        $event->setReturnData('is_discount_enabled', $this->getCartSessionService()->getDiscountService()->getIsDiscountEnabled());
 
-        $returnData['is_discount_enabled'] = $this->getCartSessionService()
-            ->getDiscountService()
-            ->getIsDiscountEnabled();
-
-        $response = '';
         switch($format) {
             case 'json':
-                $response = new JsonResponse($returnData);
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
-
-                $response = $this->getThemeService()
-                    ->render('frontend', 'Cart:index.html.twig', $returnData);
-
+                $event->setResponse($this->getThemeService()->render(
+                    'frontend',
+                    'Cart:index.html.twig',
+                    $event->getReturnData()
+                ));
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

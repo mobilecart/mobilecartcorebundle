@@ -9,6 +9,10 @@ use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
+/**
+ * Class CustomerRegisterType
+ * @package MobileCart\CoreBundle\Form
+ */
 class CustomerRegisterType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -40,7 +44,7 @@ class CustomerRegisterType extends AbstractType
             ));
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'customer_register';
     }

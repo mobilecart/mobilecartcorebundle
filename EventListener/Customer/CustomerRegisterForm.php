@@ -27,6 +27,11 @@ class CustomerRegisterForm
     protected $formFactory;
 
     /**
+     * @var string
+     */
+    protected $formTypeClass = '';
+
+    /**
      * @var \Symfony\Component\Routing\RouterInterface
      */
     protected $router;
@@ -86,6 +91,24 @@ class CustomerRegisterForm
     }
 
     /**
+     * @param $formTypeClass
+     * @return $this
+     */
+    public function setFormTypeClass($formTypeClass)
+    {
+        $this->formTypeClass = $formTypeClass;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormTypeClass()
+    {
+        return $this->formTypeClass;
+    }
+
+    /**
      * @param \Symfony\Component\Routing\RouterInterface $router
      * @return $this
      */
@@ -108,8 +131,7 @@ class CustomerRegisterForm
      */
     public function onCustomerRegisterForm(CoreEvent $event)
     {
-        $formType = new CustomerRegisterType();
-        $form = $this->getFormFactory()->create($formType, $event->getEntity(), [
+        $form = $this->getFormFactory()->create($this->getFormTypeClass(), $event->getEntity(), [
             'action' => $this->getRouter()->generate('customer_register_post', []),
             'method' => 'POST',
         ]);
