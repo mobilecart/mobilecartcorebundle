@@ -139,5 +139,7 @@ class CustomerUpdatePassword
             ->setConfirmHash('');
 
         $this->getEntityService()->persist($entity);
+
+        $event->addSuccessMessage('Password Updated!');
     }
 }

@@ -22,6 +22,11 @@ class CustomerUpdatePasswordForm
     protected $formFactory;
 
     /**
+     * @var string
+     */
+    protected $formTypeClass = '';
+
+    /**
      * @var \Symfony\Component\Routing\RouterInterface
      */
     protected $router;
@@ -81,6 +86,24 @@ class CustomerUpdatePasswordForm
     }
 
     /**
+     * @param $formTypeClass
+     * @return $this
+     */
+    public function setFormTypeClass($formTypeClass)
+    {
+        $this->formTypeClass = $formTypeClass;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormTypeClass()
+    {
+        return $this->formTypeClass;
+    }
+
+    /**
      * @param CoreEvent $event
      */
     public function onCustomerUpdatePasswordForm(CoreEvent $event)
@@ -90,8 +113,7 @@ class CustomerUpdatePasswordForm
             'hash' => $event->getEntity()->getConfirmHash()
         ]);
 
-        $formType = new CustomerUpdatePasswordType();
-        $event->setReturnData('form', $this->getFormFactory()->create($formType, $event->getEntity(), [
+        $event->setReturnData('form', $this->getFormFactory()->create($this->getFormTypeClass(), $event->getEntity(), [
             'action' => $action,
             'method' => 'POST',
         ]));

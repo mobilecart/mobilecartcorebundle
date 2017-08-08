@@ -57,6 +57,7 @@
         <parameter key="cart.form.type.contact.class">MobileCart\CoreBundle\Form\ContactFormType</parameter>
         <parameter key="cart.form.type.customer.class">MobileCart\CoreBundle\Form\CustomerType</parameter>
         <parameter key="cart.form.type.customer.forgotpassword.class">MobileCart\CoreBundle\Form\CustomerForgotPasswordType</parameter>
+        <parameter key="cart.form.type.customer.updatepassword.class">MobileCart\CoreBundle\Form\CustomerUpdatePasswordType</parameter>
         <parameter key="cart.form.type.customer.login.class">MobileCart\CoreBundle\Form\CustomerLoginType</parameter>
         <parameter key="cart.form.type.customer.profile.class">MobileCart\CoreBundle\Form\CustomerProfileType</parameter>
         <parameter key="cart.form.type.customer.register.class">MobileCart\CoreBundle\Form\CustomerRegisterType</parameter>
@@ -2535,6 +2536,9 @@
             </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
+            </call>
+            <call method="setFormTypeClass">
+                <argument type="string">%cart.form.type.customer.updatepassword.class%</argument>
             </call>
         </service>
 

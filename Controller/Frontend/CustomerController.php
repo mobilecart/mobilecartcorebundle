@@ -206,6 +206,7 @@ class CustomerController extends Controller
             ->findOneBy($this->objectType, [
                 'id' => $customerId,
                 'confirm_hash' => $confirmHash,
+                'is_enabled' => 1,
             ]);
 
         $event = new CoreEvent();
@@ -239,6 +240,7 @@ class CustomerController extends Controller
             ->findOneBy($this->objectType, [
                 'id' => $customerId,
                 'confirm_hash' => $confirmHash,
+                'is_enabled' => 1,
             ]);
 
         $event = new CoreEvent();
