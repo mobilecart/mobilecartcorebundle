@@ -108,6 +108,10 @@ class UpdateTotalsShipping
      */
     public function onUpdateTotalsShipping(CoreEvent $event)
     {
+        if (!$event->getReturnData('success')) {
+            return;
+        }
+
         $currencyService = $this->getCartSessionService()->getCurrencyService();
         $cartItems = $this->getCartSessionService()->getCart()->getItems();
 
@@ -168,7 +172,10 @@ class UpdateTotalsShipping
             ? $cart->getCurrency()
             : $baseCurrency;
 
-        $cartEntity = $this->getEntityService()->find(EntityConstants::CART, $cart->getId());
+        $cartEntity = $event->get('cart_entity')
+            ? $event->get('cart_entity')
+            : $this->getEntityService()->find(EntityConstants::CART, $cart->getId());
+
         $customerId = $cart->getCustomer()->getId();
         $customerEntity = $this->getEntityService()->find(EntityConstants::CUSTOMER, $customerId);
 

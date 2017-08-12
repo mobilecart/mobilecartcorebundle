@@ -24,42 +24,28 @@ class ProductController extends Controller
      */
     protected $objectType = EntityConstants::PRODUCT;
 
+    /**
+     * View product detail page
+     */
     public function viewAction(Request $request)
     {
-        // slightly meta - get a service id from a config parameter and load the service
-        //  doing it this way because replacing a parameter in your own bundle is very easy
-        $searchParam = $this->container->getParameter('cart.search.frontend');
-        $search = $this->container->get($searchParam)
-            ->setObjectType($this->objectType);
-
-        // slightly meta - get service id from config parameter and load entity service
-        $entityServiceParam = $this->container->getParameter('cart.load.frontend');
-        $entityService = $this->container->get($entityServiceParam);
-
-        $entity = $entityService->findOneBy(EntityConstants::PRODUCT, [
+        $entity = $this->get('cart.entity')->findOneBy(EntityConstants::PRODUCT, [
             'slug' => $request->get('slug', ''),
         ]);
 
         $isAdmin = ($this->getUser() && in_array('ROLE_ADMIN', $this->getUser()->getRoles()));
-
         if (!$entity || (!$entity->getIsPublic() && !$isAdmin)) {
             throw $this->createNotFoundException('Unable to find Product');
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setEntity($entity);
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::PRODUCT_ADDTOCART_FORM, $formEvent);
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setSearch($search)
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData())
             ->setEntity($entity)
-            ->setForm($formEvent->getForm())
             ->setSection(CoreEvent::SECTION_FRONTEND);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::PRODUCT_ADDTOCART_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::PRODUCT_VIEW_RETURN, $event);
@@ -67,17 +53,13 @@ class ProductController extends Controller
         return $event->getResponse();
     }
 
+    /**
+     * Search and list products
+     */
     public function indexAction(Request $request)
     {
-        // slightly meta - get a service id from a config parameter and load the service
-        //  doing it this way because replacing a parameter in your own bundle is very easy
-        $searchParam = $this->container->getParameter('cart.search.frontend');
-        $search = $this->container->get($searchParam)
-            ->setObjectType($this->objectType);
-
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setSearch($search)
             ->setObjectType($this->objectType)
             ->setSection(CoreEvent::SECTION_FRONTEND);
 
@@ -87,18 +69,12 @@ class ProductController extends Controller
         return $event->getResponse();
     }
 
+    /**
+     * Search and list products within a category
+     */
     public function categoryAction(Request $request)
     {
-        // slightly meta - get a service id from a config parameter and load the service
-        //  doing it this way because replacing a parameter in your own bundle is very easy
-        $searchParam = $this->container->getParameter('cart.search.frontend');
-        $search = $this->container->get($searchParam)
-            ->setObjectType($this->objectType);
-
-        $entityServiceParam = $this->container->getParameter('cart.load.frontend');
-        $entityService = $this->container->get($entityServiceParam);
-
-        $category = $entityService->findOneBy(EntityConstants::CATEGORY, [
+        $category = $this->get('cart.entity')->findOneBy(EntityConstants::CATEGORY, [
             'slug' => $request->get('slug', ''),
         ]);
 
@@ -108,10 +84,9 @@ class ProductController extends Controller
 
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setSearch($search)
-            ->setCategory($category)
             ->setObjectType($this->objectType)
-            ->setSection(CoreEvent::SECTION_FRONTEND);
+            ->setSection(CoreEvent::SECTION_FRONTEND)
+            ->setCategory($category);
 
         // todo : look into current display modes, make sure it's all enabled
 

@@ -86,19 +86,14 @@ class AddProduct
     protected $qty = 1;
 
     /**
-     * @var int
-     */
-    protected $totalQty = 1;
-
-    /**
      * @var array
      */
     protected $errors = [];
 
     /**
-     * @var int
+     * @var bool
      */
-    protected $success = 0;
+    protected $success = false;
 
     /**
      * @param \Symfony\Component\Routing\RouterInterface $router
@@ -181,32 +176,23 @@ class AddProduct
         $cartId = $cart->getId();
         $customerId = $cart->getCustomer()->getId();
 
-        $cartEntity = $cartId
-            ? $this->getEntityService()->find(EntityConstants::CART, $cartId)
-            : $this->getEntityService()->getInstance(EntityConstants::CART);
-
-        // more for development, testing
-        if (!$cartEntity) {
-            $cartEntity = $this->getEntityService()->getInstance(EntityConstants::CART);
+        $cartEntity = $this->getEntityService()->getInstance(EntityConstants::CART);
+        if ($cartId) {
+            $cartEntity = $this->getEntityService()->find(EntityConstants::CART, $cartId);
+            if (!$cartEntity) {
+                $cartEntity = $this->getEntityService()->getInstance(EntityConstants::CART);
+                $cartEntity->setJson($cart->toJson())
+                    ->setCreatedAt(new \DateTime('now'));
+            }
+        } else {
             $cartEntity->setJson($cart->toJson())
                 ->setCreatedAt(new \DateTime('now'));
-        }
-
-        if (!$cartId) {
-
-            $cartEntity->setJson($cart->toJson())
-                ->setCreatedAt(new \DateTime('now'));
-
         }
 
         if ($customerId) {
-
-            $customerEntity = $this->getEntityService()
-                ->find(EntityConstants::CUSTOMER, $customerId);
-
+            $customerEntity = $this->getEntityService()->find(EntityConstants::CUSTOMER, $customerId);
             if ($customerEntity) {
                 $cartEntity->setCustomer($customerEntity);
-
             }
         }
 
@@ -327,24 +313,6 @@ class AddProduct
     public function getQty()
     {
         return $this->qty;
-    }
-
-    /**
-     * @param $totalQty
-     * @return $this
-     */
-    public function setTotalQty($totalQty)
-    {
-        $this->totalQty = $totalQty;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getTotalQty()
-    {
-        return $this->totalQty;
     }
 
     /**
@@ -475,41 +443,46 @@ class AddProduct
 
     /**
      * @param $cartItem
+     * @param CoreEvent $event
      * @return bool
      */
-    public function meetsCriteria($cartItem)
+    public function meetsCriteria($cartItem, CoreEvent &$event)
     {
-        $qty = $this->getQty();
-        $errors = [];
         $minQty = (int) $cartItem->getMinQty();
         $availQty = $cartItem->getAvailQty();
         $isQtyManaged = $cartItem->getIsQtyManaged();
 
-        $newQty = $cartItem->getQty() + $qty;
+        $newQty = $this->getIsAdd()
+            ? $cartItem->getQty() + $this->getQty()
+            : $this->getQty();
+
         $minQtyMet = $minQty == 0 || ($minQty > 0 && $newQty >= $minQty);
         $maxQtyMet = !$isQtyManaged || ($isQtyManaged && $newQty < $availQty);
 
         if (!$cartItem->getIsEnabled()) {
-            $errors[] = "Product is not enabled : {$cartItem->getSku()}";
+            $event->addErrorMessage("Product is not enabled : {$cartItem->getSku()}");
+            return false;
         }
 
         if (!$cartItem->getIsInStock()) {
-            $errors[] = "Product is not in stock : {$cartItem->getSku()}";
+            $event->addErrorMessage("Product is not in stock : {$cartItem->getSku()}");
+            return false;
         }
 
         if ($this->getEnableQtyCheck()) {
 
             if (!$minQtyMet) {
-                $errors[] = "Minimum Qty is not met : {$cartItem->getSku()}, Qty: {$cartItem->getMinQty()}";
+                $event->addErrorMessage("Minimum Qty is not met : {$cartItem->getSku()}, Qty: {$cartItem->getMinQty()}");
+                return false;
             }
 
             if (!$maxQtyMet) {
-                $errors[] = "Insufficient stock level : {$cartItem->getSku()}, Available: {$cartItem->getAvailQty()}";
+                $event->addErrorMessage("Insufficient stock level : {$cartItem->getSku()}, Available: {$cartItem->getAvailQty()}");
+                return false;
             }
         }
 
-        $this->setErrors($errors);
-        return count($errors) == 0;
+        return true;
     }
 
     /**
@@ -566,16 +539,20 @@ class AddProduct
      */
     public function saveCartItem()
     {
+
+        $cartEntity = $this->initCartEntity()->getCartEntity();
         $cartItem = $this->getCartItem();
 
         $customerAddressId = $cartItem->get('customer_address_id', 'main');
         if (is_numeric($customerAddressId)) {
             $customerAddressId = (int) $customerAddressId;
-        } else if (is_int(strpos($customerAddressId, '_'))) {
+        } elseif (is_int(strpos($customerAddressId, '_'))) {
+
             $addressParts = explode('_', $cartItem->getCustomerAddressId()); // eg 'address_3'
             $customerAddressId = count($addressParts) == 2
                 ? $addressParts[1]
                 : null;
+
         } elseif ($customerAddressId == 'main') {
             $customerAddressId = null;
         }
@@ -587,15 +564,13 @@ class AddProduct
             $customerCurrency = $baseCurrency;
         }
 
-        $cartItemEntity = $this->getEntityService()
-            ->getInstance(EntityConstants::CART_ITEM);
+        $cartItemEntity = $this->getEntityService()->getInstance(EntityConstants::CART_ITEM);
 
         // get or create cartItemEntity
 
         if ($cartItem->getId()) {
 
-            $cartItemEntity = $this->getEntityService()
-                ->find(EntityConstants::CART_ITEM, $cartItem->getId());
+            $cartItemEntity = $this->getEntityService()->find(EntityConstants::CART_ITEM, $cartItem->getId());
 
             if (!$cartItemEntity) {
                 throw new \Exception("Something terrible happened.");
@@ -613,7 +588,7 @@ class AddProduct
                 : '{}';
 
             $cartItemEntity
-                ->setCart($this->getCartEntity())
+                ->setCart($cartEntity)
                 ->setCreatedAt(new \DateTime('now'))
                 ->setSku($cartItem->getSku())
                 ->setProductId($cartItem->getProductId())
@@ -630,6 +605,8 @@ class AddProduct
         }
 
         if ($cartItemEntity) {
+
+            $this->setCartItemEntity($cartItemEntity);
 
             $cartItemEntity->setQty($cartItem->getQty());
 
@@ -696,13 +673,12 @@ class AddProduct
 
             try {
                 $this->getEntityService()->persist($cartItemEntity);
-                $this->setSuccess(1);
+                $this->setSuccess(true);
+                $cartItem->setId($cartItemEntity->getId());
+                $this->setCartItemEntity($cartItemEntity);
             } catch(\Exception $e) {
 
             }
-
-            $cartItem->setId($cartItemEntity->getId());
-            $this->setCartItemEntity($cartItemEntity);
         }
 
         return $this;
@@ -721,7 +697,7 @@ class AddProduct
         $productAddresses = $request->get('product_address', []);
 
         // update shipping address
-        if ($event->getIsMultiShippingEnabled()) {
+        if ($event->get('is_multi_shipping_enabled')) {
 
             // get customer_address_id from request
             if (isset($productAddresses[$productId])) {
@@ -781,208 +757,226 @@ class AddProduct
         $this->setCartItem(null); // need to reset, because this is a Singleton
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $recollectShipping = []; // r = [object, object] , object:{'customer_address_id':'','source_address_key':''}
-
-        $errors = [];
-        $cartItemEntity = null;
-        $product = null;
-
-        $slug = '';
         $cart = $this->getCartSessionService()->getCart();
 
+        /**
+         * Strategy:
+         *
+         * 1. Get keys from Request or Event
+         * 2. Determine Product Type eg Simple, Configurable
+         * 3. Check if the sku is already in the cart
+         * 4. Handle Product Type logic
+         *
+         * Simple:
+         * 1. Ensure it exists
+         *
+         * Configurable:
+         * 1. Ensure both child and parent exist
+         * 2. Ensure they are related
+         *
+         */
+
+        // First, get keys from Request
+        $keyValue = $request->get('id', ''); // this could be a sku
+        $keyField = $request->get('key', 'product_id');
         $qty = $request->get('qty', 1);
 
-        // keyValue could be a sku
-        $keyValue = $request->get('id', '');
-        $keyField = $request->get('key', 'product_id');
-        $keyFields = ['id', 'product_id', 'sku']; // possibly allow more in the future
-        $productId = 0; // dont set productId until we know the valid value
-
-        $parentProductId = (int) $request->get('id', 0); // always the case: integer , parent product_id
-        $simpleProductId = (int) $request->get('simple_id', 0);
-        $parentOptions = [];
-
-        // check if parameters passed via Event
-        if (!$keyValue && $event->get('product_id')) {
-            $qty = $event->get('qty');
+        // Second, check Event for keys, and use them if they exist
+        if ($event->get('product_id')) {
             $keyValue = $event->get('product_id');
             $keyField = 'product_id';
+            $qty = $event->get('qty');
         }
 
-        // check if product is a child product
-        if ($simpleProductId) {
-            $keyValue = $simpleProductId;
+        // this is used in meetsCriteria()
+        $this->setQty($qty);
+        $this->setIsAdd((bool) $event->get('is_add'));
+
+        $keyFields = ['id', 'product_id', 'sku']; // product.id , cart_item.product_id, product.sku, cart_item.sku
+        if (!in_array($keyField, $keyFields)) {
             $keyField = 'product_id';
-        } else {
-            if (!in_array($keyField, $keyFields)) {
-                $keyField = 'product_id';
-            }
         }
 
-        // check if we already have the product in the cart
-        if ($item = $cart->findItem($keyField, $keyValue)) {
-            $productId = $item->getProductId();
-            $slug = $item->getSlug();
-            $this->setCartItem($item);
-        } else {
-
-            // otherwise, load the product
-            $product = $this->loadProduct($keyValue, $keyField);
-            if ($product) {
-                $productId = $product->getId();
-                $slug = $product->getSlug();
-                $this->setProduct($product);
-
-                // don't execute a query unless we have simpleProductId, and a product
-                if ($simpleProductId
-                    || $request->get('parent_product_id', 0) > 0
-                ) {
-
-                    if (!$parentProductId) {
-                        $parentProductId = $request->get('parent_product_id', 0);
-                    }
-
-                    // load product from entity service
-                    $parent = $this->loadProduct($parentProductId);
-                    if ($parent) {
-                        $parentOptions['id'] = $parent->getId();
-                        $parentOptions['sku'] = $parent->getSku();
-                        $parentOptions['slug'] = $parent->getSlug();
-                    }
-                }
-            }
-        }
-
-        // we MUST have a Product ID
-        if (!$productId) {
+        /** @var \MobileCart\CoreBundle\Entity\Product $product */
+        $product = $this->loadProduct($keyValue, $keyField);
+        if (!$product) {
+            $event->addErrorMessage('Product not found');
+            $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_view', [])));
             return;
         }
 
-        $cartEntity = $this->initCartEntity()
-            ->getCartEntity();
+        $recollectShipping = []; // r = [object, object] , object:{'customer_address_id':'','source_address_key':''}
+        switch($product->getType()) {
+            case EntityConstants::PRODUCT_TYPE_CONFIGURABLE:
 
-        $event->setProductId($productId)
-            ->setSimpleProductId($simpleProductId)
-            ->setCartEntity($cartEntity)
-            ->setQty($qty);
+                $event->set('product_type', $product->getType());
 
-        $this->setProductId($productId)
-            ->setQty($qty)
-            ->setIsAdd($event->getIsAdd());
+                $simpleProductId = (int) $request->get('simple_id', 0)
+                    ? $request->get('simple_id', 0)
+                    : $product->getId();
 
-        // we have a product, and its already in the cart
-        if ($this->getCartItem()) {
+                $item = $cart->findItem('product_id', $simpleProductId);
+                if ($item) {
+                    if ($this->meetsCriteria($item, $event)) {
 
-            if ($event->getIsAdd()) {
-                $this->setTotalQty($qty + $this->getCartItem()->getQty());
-            } else {
-                $this->setTotalQty($qty);
-            }
+                        $totalQty = $this->getIsAdd()
+                            ? $item->getQty() + $this->getQty()
+                            : $this->getQty();
 
-            // check criteria
-            if ($this->meetsCriteria($this->getCartItem())) {
+                        $item->setQty($totalQty);
 
-                $cartItem = $this->getCartItem();
+                        // update quantity
+                        $this->getCartSessionService()
+                            ->setProductQty($simpleProductId, $totalQty);
 
-                // update quantity
-                $this->getCartSessionService()
-                    ->setProductQty($productId, $this->getTotalQty());
+                        // update tier price
+                        $this->updateTierPrice($item);
 
-                // update tier price
-                $this->updateTierPrice($cartItem);
+                        // update shipping address
+                        $this->collectAddresses($event, $item, $recollectShipping);
 
-                // update shipping address
-                $this->collectAddresses($event, $cartItem, $recollectShipping);
+                        // update cart item and totals
+                        $this->setCartItem($item)->saveCartItem();
 
-                // update cart item and totals
-                $this->setCartItem($cartItem)->saveCartItem();
-            }
+                        if ($simpleProductId) {
+                            $event->setSimpleProductId($simpleProductId);
+                        }
 
-        } else {
+                        $this->setSuccess(true);
+                    }
+                } else {
 
-            // we have a product, but it's not in the cart yet
+                    $simpleProduct = $this->loadProduct($simpleProductId, 'id');
+                    $parentOptions = $simpleProduct
+                        ? [
+                            'id' => $product->getId(),
+                            'sku' => $product->getSku(),
+                            'slug' => $product->getSlug(),
+                          ]
+                        : [];
 
-            // create cart item with loaded product
-            $cartItem = $this->getCartSessionService()
-                ->createCartItem($this->getProduct(), $parentOptions)
-                ->setQty($qty)
-                ->setQtyAvail($this->getProduct()->getQty())
-                ->setIsQtyManaged((int) $this->getProduct()->getIsQtyManaged())
-                ->setCustomerAddressId('main');
+                    $itemProduct = $simpleProduct
+                        ? $simpleProduct
+                        : $product;
 
-            $this->setTotalQty($qty);
+                    $item = $this->getCartSessionService()
+                        ->createCartItem($itemProduct, $parentOptions)
+                        ->setQty(0) // this is set after meetsCriteria() passes
+                        ->setQtyAvail($itemProduct->getQty())
+                        ->setIsQtyManaged((bool) $itemProduct->getIsQtyManaged())
+                        ->setCustomerAddressId('main');
 
-            // check criteria
-            if ($this->meetsCriteria($cartItem)) {
+                    if ($this->meetsCriteria($item, $event)) {
 
-                // update tier price
-                $this->updateTierPrice($cartItem);
+                        $item->setQty($this->getQty());
 
-                // add to cart
-                $this->getCartSessionService()->addItem($cartItem, $qty);
+                        // update tier price
+                        $this->updateTierPrice($item);
 
-                // update shipping address
-                $this->collectAddresses($event, $cartItem, $recollectShipping);
+                        // add to cart
+                        $this->getCartSessionService()->addItem($item, $this->getQty());
 
-                // update cart totals
-                $this->setCartItem($cartItem)->saveCartItem();
-            }
+                        // update shipping address
+                        $this->collectAddresses($event, $item, $recollectShipping);
+
+                        // update cart totals
+                        $this->setCartItem($item)->saveCartItem();
+
+                        if ($simpleProductId) {
+                            $event->setSimpleProductId($simpleProductId);
+                        }
+
+                        $this->setSuccess(true);
+                    }
+                }
+
+                break;
+            case EntityConstants::PRODUCT_TYPE_SIMPLE:
+                $event->set('product_type', $product->getType());
+                $item = $cart->findItem('product_id', $product->getId());
+                if ($item) {
+                    if ($this->meetsCriteria($item, $event)) {
+
+                        $totalQty = $this->getIsAdd()
+                            ? $item->getQty() + $this->getQty()
+                            : $this->getQty();
+
+                        $item->setQty($totalQty);
+
+                        // update quantity
+                        $this->getCartSessionService()
+                            ->setProductQty($product->getId(), $totalQty);
+
+                        // update tier price
+                        $this->updateTierPrice($item);
+
+                        // update shipping address
+                        $this->collectAddresses($event, $item, $recollectShipping);
+
+                        // update cart item and totals
+                        $this->setCartItem($item)->saveCartItem();
+
+                        $this->setSuccess(true);
+                    }
+                } else {
+
+                    $item = $this->getCartSessionService()
+                        ->createCartItem($product, [])
+                        ->setQty(0) // this is set after meetsCriteria() passes
+                        ->setQtyAvail($product->getQty())
+                        ->setIsQtyManaged((bool) $product->getIsQtyManaged())
+                        ->setCustomerAddressId('main');
+
+                    if ($this->meetsCriteria($item, $event)) {
+
+                        $item->setQty($this->getQty());
+
+                        // update tier price
+                        $this->updateTierPrice($item);
+
+                        // add to cart
+                        $this->getCartSessionService()->addItem($item, $this->getQty());
+
+                        // update shipping address
+                        $this->collectAddresses($event, $item, $recollectShipping);
+
+                        // update cart totals
+                        $this->setCartItem($item)->saveCartItem();
+
+                        $this->setSuccess(true);
+                    }
+                }
+
+                break;
+            default:
+
+                break;
         }
 
-        $event->setRecollectShipping($recollectShipping);
-        $event->setCartItemEntity($this->getCartItemEntity());
-        $event->setSuccess($this->getSuccess());
-
-        $event->setReturnData('cart', $this->getCartSessionService()->getCart());
-        $event->setReturnData('success', (bool) $this->getSuccess());
-        $event->setReturnData('errors', $this->getErrors());
+        $event->set('product_id', $product->getId())
+            ->set('cart_entity', $this->getCartEntity())
+            ->set('recollect_shipping', $recollectShipping) // this is handled in UpdateTotalsShipping
+            ->set('cart_item_entity', $this->getCartItemEntity())
+            ->set('cart_item', $this->getCartItem())
+            ->setReturnData('cart', $this->getCartSessionService()->getCart())
+            ->setReturnData('success', (bool) $this->getSuccess());
 
         switch($format) {
             case 'json':
                 $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
-
                 $route = 'cart_view';
                 $params = [];
-
-                if ($errors) {
-
-                    foreach($errors as $error) {
-                        $event->addErrorMessage($error);
+                if (!$event->getIsMassUpdate()) {
+                    if ($this->getSuccess()) {
+                        $event->addSuccessMessage('Product Added to Cart');
                     }
-
-                    if ($slug && $event->getIsAdd()) {
+                    if (!$this->getRedirectToCart()) {
                         $route = 'cart_product_view';
-                        $params = ['slug' => $this->getCartItem()->getSlug()];
-                    }
-                } elseif ($this->getSuccess()
-                    && !$event->getIsMassUpdate()
-                ) {
-
-                    $event->addSuccessMessage('Product Added to Cart');
-                }
-
-                if (!$this->getRedirectToCart()
-                    && !$event->getIsMassUpdate()
-                    && $this->getCartItem()
-                ) {
-                    $route = 'cart_product_view';
-                    $params = ['slug' => $this->getCartItem()->getSlug()];
-                    if ($this->getCartItem()->getParentOptions()) {
-                        $parentOptions = $this->getCartItem()->getParentOptions();
-
-                        if (is_object($parentOptions)) {
-                            $parentOptions = get_object_vars($parentOptions);
-                        }
-
-                        if (isset($parentOptions['slug'])) {
-                            $slug = $parentOptions['slug'];
-                            $params = ['slug' => $slug];
-                        }
+                        $params = ['slug' => $product->getSlug()];
                     }
                 }
-
                 $event->setResponse(new RedirectResponse($this->getRouter()->generate($route, $params)));
                 break;
         }

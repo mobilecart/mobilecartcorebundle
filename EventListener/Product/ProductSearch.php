@@ -11,6 +11,30 @@ use MobileCart\CoreBundle\Event\CoreEvent;
 class ProductSearch
 {
     /**
+     * @var \MobileCart\CoreBundle\Service\SearchServiceInterface
+     */
+    protected $search;
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\SearchServiceInterface $search
+     * @param $objectType
+     * @return $this
+     */
+    public function setSearch(\MobileCart\CoreBundle\Service\SearchServiceInterface $search, $objectType)
+    {
+        $this->search = $search->setObjectType($objectType);
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\SearchServiceInterface
+     */
+    public function getSearch()
+    {
+        return $this->search;
+    }
+
+    /**
      * @param CoreEvent $event
      */
     public function onProductSearch(CoreEvent $event)
@@ -18,7 +42,7 @@ class ProductSearch
         $request = $event->getRequest();
 
         // custom logic . tweak as needed
-        $loadVarValues = 0;
+        $loadVarValues = false;
 
         $categoryId = $event->getCategory()
             ? $event->getCategory()->getId()
@@ -36,10 +60,10 @@ class ProductSearch
 
                 break;
             case CoreEvent::SECTION_BACKEND:
-                //$loadVarValues = 1;
+                //$loadVarValues = true;
                 break;
             case CoreEvent::SECTION_API:
-                $loadVarValues = 1;
+                $loadVarValues = true;
                 break;
             default:
 
@@ -50,7 +74,7 @@ class ProductSearch
             $loadVarValues = 1;
         }
 
-        $search = $event->getSearch()
+        $search = $this->getSearch()
             ->setCategoryId($categoryId)
             ->setPopulateVarValues($loadVarValues)
             ->parseRequest($request)

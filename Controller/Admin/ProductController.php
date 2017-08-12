@@ -44,19 +44,8 @@ class ProductController extends Controller
      */
     public function indexAction(Request $request)
     {
-        // Load a service; which extends Search\SearchAbstract
-        // The service parameter is stored in the service configuration as a parameter ; (slightly meta)
-        // This service could use either MySQL or ElasticSearch, etc for retrieving item data
-        $searchParam = $this->container->getParameter('cart.load.admin');
-        $search = $this->container->get($searchParam)
-            ->setObjectType($this->objectType);
-
-        // Observe Event :
-        //  perform custom logic, post-processing
-
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setSearch($search)
             ->setObjectType($this->objectType)
             ->setSection(CoreEvent::SECTION_BACKEND);
 
@@ -580,6 +569,7 @@ class ProductController extends Controller
                     $event->setObjectType($this->objectType)
                         ->setEntity($entity)
                         ->setRequest($request)
+                        ->setIsMassUpdate(true)
                         ->setFormData([]);
 
                     $this->get('event_dispatcher')

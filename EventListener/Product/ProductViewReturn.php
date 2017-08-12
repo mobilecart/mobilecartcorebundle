@@ -28,6 +28,30 @@ class ProductViewReturn
     protected $themeService;
 
     /**
+     * @var \MobileCart\CoreBundle\Service\SearchServiceInterface
+     */
+    protected $search;
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\SearchServiceInterface $search
+     * @param $objectType
+     * @return $this
+     */
+    public function setSearch(\MobileCart\CoreBundle\Service\SearchServiceInterface $search, $objectType)
+    {
+        $this->search = $search->setObjectType($objectType);
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\SearchServiceInterface
+     */
+    public function getSearch()
+    {
+        return $this->search;
+    }
+
+    /**
      * @param $entityService
      * @return $this
      */
@@ -86,31 +110,24 @@ class ProductViewReturn
      */
     public function onProductViewReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
-        $form = $event->getForm();
-        $returnData['entity'] = $entity;
-
         $request = $event->getRequest();
-
-        $typeSections = [];
-        $objectType = EntityConstants::PRODUCT;
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
-        $response = '';
         switch($format) {
             case 'json':
-
-                $returnData = [
+                $event->setResponse(new JsonResponse([
                     'entity' => $entity->getData(),
-                ];
-                $response = new JsonResponse($returnData);
+                ]));
                 break;
             default:
 
-                $returnData['config_data'] = @ (array) json_decode($entity->getConfig());
-                $returnData['form'] = $form->createView();
-                $returnData['search'] = $event->getSearch();
+                $event->setReturnData('form', $event->getReturnData('form')->createView());
+                $event->setReturnData('entity', $event->getEntity());
+                $event->setReturnData('search', $this->getSearch());
+
+                $configData = @ (array) json_decode($entity->getConfig());
+                $event->setReturnData('config_data', $configData);
 
                 $customTpl = $event->getCustomTemplate();
                 if (!$customTpl && $event->getEntity()->getCustomTemplate()) {
@@ -121,13 +138,12 @@ class ProductViewReturn
                     ? $customTpl
                     : 'Product:view.html.twig';
 
-                $response = $this->getThemeService()
-                    ->render('frontend', $template, $returnData);
-
+                $event->setResponse($this->getThemeService()->render(
+                    'frontend',
+                    $template,
+                    $event->getReturnData()
+                ));
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

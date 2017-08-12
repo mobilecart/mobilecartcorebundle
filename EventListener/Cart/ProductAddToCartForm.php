@@ -38,8 +38,6 @@ class ProductAddToCartForm
      */
     public function onProductAddToCartForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $data = [
             'id' => $event->getEntity()->getId(),
             'qty' => 1
@@ -52,7 +50,6 @@ class ProductAddToCartForm
             ->add('qty', 'text')
             ->getForm();
 
-        $event->setForm($form)
-            ->setReturnData($returnData);
+        $event->setReturnData('form', $form);
     }
 }

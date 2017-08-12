@@ -154,6 +154,12 @@ class CheckoutUpdateShippingAddress
 
         $sameInfo = true;
         foreach($cartCustomer->getData() as $k => $v) {
+
+            // don't trust user input
+            if (in_array($k, ['id', 'email'])) {
+                continue;
+            }
+
             if (array_key_exists($k, $requestData) && $requestData[$k] != $v) {
                 $sameInfo = false;
             }

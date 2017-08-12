@@ -51,6 +51,20 @@ class EntityConstants
     const CONTENT_TYPE_EMBED = 'embed';
     const CONTENT_TYPE_HTML = 'html';
 
+    const PRODUCT_TYPE_SIMPLE = 1;
+    const PRODUCT_TYPE_CONFIGURABLE = 2;
+
+    /**
+     * @return array
+     */
+    static function getProductTypes()
+    {
+        return [
+            self::PRODUCT_TYPE_SIMPLE => 'Simple',
+            self::PRODUCT_TYPE_CONFIGURABLE => 'Configurable',
+        ];
+    }
+
     /**
      * @return array
      */

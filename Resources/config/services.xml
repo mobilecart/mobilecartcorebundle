@@ -1690,6 +1690,10 @@
         <!-- Event Listener : Product Search -->
         <service id="cart.listener.product.search" lazy="true" class="%cart.listener.product.search.class%">
             <tag name="kernel.event_listener" event="product.search" method="onProductSearch" priority="50" />
+            <call method="setSearch">
+                <argument type="service" id="cart.search.frontend" />
+                <argument type="string">product</argument>
+            </call>
         </service>
 
         <!-- Event Listener: Product Listing : for frontend, not for APIs -->
@@ -1773,6 +1777,10 @@
             </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme" />
+            </call>
+            <call method="setSearch">
+                <argument type="service" id="cart.search.frontend" />
+                <argument type="string">product</argument>
             </call>
         </service>
         <service id="cart.listener.product.update" lazy="true" class="%cart.listener.product.update.class%">

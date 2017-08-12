@@ -102,6 +102,21 @@ class CoreEvent extends Event
      */
     protected $entity;
 
+    /**
+     * @var int
+     */
+    protected $count_success = 0;
+
+    /**
+     * @var int
+     */
+    protected $count_error = 0;
+
+    /**
+     * @var int
+     */
+    protected $count_warning = 0;
+
     public function __construct(array $data = [])
     {
         $this->data = $data;
@@ -439,6 +454,90 @@ class CoreEvent extends Event
         }
         $this->messages[self::MSG_ERROR][] = $message;
         return $this;
+    }
+
+    /**
+     * @param $count
+     * @return $this
+     */
+    public function setCountSuccess($count)
+    {
+        $this->count_success = $count;
+        return $this;
+    }
+
+    /**
+     * @param int $count
+     * @return $this
+     */
+    public function addCountSuccess($count = 1)
+    {
+        $this->count_success += $count;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCountSuccess()
+    {
+        return $this->count_success;
+    }
+
+    /**
+     * @param $count
+     * @return $this
+     */
+    public function setCountError($count)
+    {
+        $this->count_error = $count;
+        return $this;
+    }
+
+    /**
+     * @param int $count
+     * @return $this
+     */
+    public function addCountError($count = 1)
+    {
+        $this->count_error += $count;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCountError()
+    {
+        return $this->count_error;
+    }
+
+    /**
+     * @param $count
+     * @return $this
+     */
+    public function setCountWarning($count)
+    {
+        $this->count_warning = $count;
+        return $this;
+    }
+
+    /**
+     * @param int $count
+     * @return $this
+     */
+    public function addCountWarning($count = 1)
+    {
+        $this->count_warning += $count;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCountWarning()
+    {
+        return $this->count_warning;
     }
 
     /**
