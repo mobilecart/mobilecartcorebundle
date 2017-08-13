@@ -871,6 +871,7 @@ class OrderService
 
                     $customerToken = $this->getEntityService()->getInstance(EntityConstants::CUSTOMER_TOKEN);
                     $customerToken->fromArray($customerTokenData);
+                    $customerToken->setCreatedAt(new \DateTime('now'));
 
                     if ($customerId) {
 
@@ -957,6 +958,7 @@ class OrderService
 
                     $customerToken = $this->getEntityService()->getInstance(EntityConstants::CUSTOMER_TOKEN);
                     $customerToken->fromArray($customerTokenData);
+                    $customerToken->setCreatedAt(new \DateTime('now'));
 
                     if ($customerId) {
                         $customerToken->setCustomer($customer);
