@@ -6,6 +6,7 @@ use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\Payment\FilterPaymentMethodCollectEvent;
+use MobileCart\CoreBundle\Payment\PaymentMethodServiceInterface;
 
 /**
  * Class PaymentMethodHandler
@@ -112,30 +113,6 @@ class PaymentMethodHandler
         $methodRequest = $event->getCollectPaymentMethodRequest();
         $paymentMethodService = $this->getPaymentMethodService();
 
-        // trying to be more secure by not passing the full service into the view
-        //  so , getting the service requires a flag to be set
-        if ($event->getFindService()) {
-            if ($event->getCode() == $this->getPaymentMethodService()->getCode()) {
-                if ($methodRequest->getAction()) {
-                    $this->getPaymentMethodService()->setAction($methodRequest->getAction());
-                }
-                $event->setService($this->getPaymentMethodService());
-                return true; // makes no difference
-            }
-
-            return false;
-        }
-
-        // todo : handle is_backend, is_frontend
-
-        if ($methodRequest->getAction()) {
-            if ($paymentMethodService->supportsAction($methodRequest->getAction())) {
-                $paymentMethodService->setAction($methodRequest->getAction());
-            } else {
-                return false;
-            }
-        }
-
         $customerTokens = $this->getEntityService()->findBy(EntityConstants::CUSTOMER_TOKEN, [
             'customer' => $this->getCartSessionService()->getCustomerId(),
             'service' => $paymentMethodService->getCode(),
@@ -145,6 +122,40 @@ class PaymentMethodHandler
             $paymentMethodService->setCustomerTokens($customerTokens);
         }
 
+        if ($methodRequest->getAction()) {
+
+            if ($paymentMethodService->supportsAction($methodRequest->getAction())) {
+                $paymentMethodService->setAction($methodRequest->getAction());
+            } else {
+                return false;
+            }
+
+            $this->getPaymentMethodService()->setAction($methodRequest->getAction());
+        } else {
+
+            if ($customerTokens
+                && $this->getPaymentMethodService()->supportsAction(PaymentMethodServiceInterface::ACTION_PURCHASE_STORED_TOKEN)
+            ) {
+                $this->getPaymentMethodService()->setAction(PaymentMethodServiceInterface::ACTION_PURCHASE_STORED_TOKEN);
+            }
+        }
+
+        // trying to be more secure by not passing the full service into the view
+        //  so , getting the service requires a flag to be set
+        if ($event->getFindService()) {
+            if ($event->getCode() == $this->getPaymentMethodService()->getCode()) {
+                $event->setService($this->getPaymentMethodService());
+                return true; // makes no difference
+            }
+
+            return false;
+        }
+
+        // todo : handle is_backend, is_frontend
+
+        /**
+         * Main form builder logic
+         */
         $form = $paymentMethodService->buildForm()
             ->getForm()
             ->createView();

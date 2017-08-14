@@ -93,6 +93,10 @@ class CheckoutUpdatePaymentMethod
                 ? $requestData[$paymentMethod]
                 : $requestData;
 
+            if (isset($formData['payment_method'])) {
+                unset($formData['payment_method']);
+            }
+
             $form->submit($formData);
             $isValid = (int) $form->isValid();
 
