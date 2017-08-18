@@ -28,6 +28,11 @@ class ShippingService
     /**
      * @var bool
      */
+    protected $isCollectTotalEnabled = true;
+
+    /**
+     * @var bool
+     */
     protected $isMultiShippingEnabled = false;
 
     /**
@@ -62,6 +67,24 @@ class ShippingService
     public function getIsShippingEnabled()
     {
         return $this->isShippingEnabled;
+    }
+
+    /**
+     * @param $isEnabled
+     * @return $this
+     */
+    public function setIsCollectTotalEnabled($isEnabled)
+    {
+        $this->isCollectTotalEnabled = $isEnabled;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsCollectTotalEnabled()
+    {
+        return $this->isCollectTotalEnabled;
     }
 
     /**

@@ -513,6 +513,36 @@ cart_admin_order_item:
     defaults: { _controller: 'MobileCartCoreBundle:Admin\OrderItem:index' }
     methods: [GET]
 
+cart_admin_order_shipment:
+    path: /admin/order_shipment/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\OrderShipment:index' }
+    methods: [GET]
+
+cart_admin_order_shipment_create:
+    path: /admin/order_shipment/{order_id}
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\OrderShipment:create' }
+    methods: [POST]
+
+cart_admin_order_shipment_new:
+    path: /admin/order_shipment/new/{order_id}
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\OrderShipment:new' }
+    methods: [GET]
+
+cart_admin_order_shipment_show:
+    path: /admin/order_shipment/{id}
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\OrderShipment:show' }
+    methods: [GET]
+
+cart_admin_order_shipment_edit:
+    path: /admin/order_shipment/{id}/edit
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\OrderShipment:edit' }
+    methods: [GET]
+
+cart_admin_order_shipment_update:
+    path: /admin/order_shipment/{id}
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\OrderShipment:update' }
+    methods: [PUT,POST]
+
 cart_admin_product:
     path: /admin/product/
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:index' }

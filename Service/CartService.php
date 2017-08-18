@@ -25,6 +25,8 @@ use MobileCart\CoreBundle\Event\Payment\FilterPaymentMethodCollectEvent;
 /**
  * Class CartService
  * @package MobileCart\CoreBundle\Service
+ *
+ * This class provides a Singleton Shopping Cart as a Service
  */
 class CartService
 {

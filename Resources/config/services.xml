@@ -26,6 +26,7 @@
         <parameter key="cart.total.discount.auto">1</parameter><!-- automatically load, validate, and apply discounts from the database -->
         <parameter key="cart.shipping.enabled">1</parameter><!-- enable shipping, shipping totals, and shipping section in checkout -->
         <parameter key="cart.shipping.multi.enabled">0</parameter><!-- enable multiple shipping destinations and/or shipping source addresses -->
+        <parameter key="cart.shipping.total.enabled">1</parameter><!-- enable immediate charges and population, otherwise empty/free shipments are saved; for editing later -->
         <parameter key="cart.tax.enabled">1</parameter><!-- enable tax, tax totals -->
         <parameter key="cart.allow.guest.checkout">0</parameter><!-- enable guest checkout -->
         <parameter key="cart.allowed.country.ids">US,GB</parameter><!-- allowed country codes, in CSV -->
@@ -377,6 +378,16 @@
         <!-- Order Item Admin Handlers -->
         <parameter key="cart.listener.order_item.search.class">MobileCart\CoreBundle\EventListener\OrderItem\OrderItemSearch</parameter>
         <parameter key="cart.listener.order_item.list.class">MobileCart\CoreBundle\EventListener\OrderItem\OrderItemList</parameter>
+        <!-- OrderShipment Admin Handlers -->
+        <parameter key="cart.listener.order_shipment.search.class">MobileCart\CoreBundle\EventListener\OrderShipment\OrderShipmentSearch</parameter>
+        <parameter key="cart.listener.order_shipment.list.class">MobileCart\CoreBundle\EventListener\OrderShipment\OrderShipmentList</parameter>
+        <parameter key="cart.listener.order_shipment.edit.return.class">MobileCart\CoreBundle\EventListener\OrderShipment\OrderShipmentEditReturn</parameter>
+        <parameter key="cart.listener.order_shipment.admin.form.class">MobileCart\CoreBundle\EventListener\OrderShipment\OrderShipmentAdminForm</parameter>
+        <parameter key="cart.listener.order_shipment.new.return.class">MobileCart\CoreBundle\EventListener\OrderShipment\OrderShipmentNewReturn</parameter>
+        <parameter key="cart.listener.order_shipment.update.class">MobileCart\CoreBundle\EventListener\OrderShipment\OrderShipmentUpdate</parameter>
+        <parameter key="cart.listener.order_shipment.insert.class">MobileCart\CoreBundle\EventListener\OrderShipment\OrderShipmentInsert</parameter>
+        <parameter key="cart.listener.order_shipment.create.return.class">MobileCart\CoreBundle\EventListener\OrderShipment\OrderShipmentCreateReturn</parameter>
+        <parameter key="cart.listener.order_shipment.update.return.class">MobileCart\CoreBundle\EventListener\OrderShipment\OrderShipmentUpdateReturn</parameter>
         <!-- Payment and Shipping Handlers -->
         <parameter key="cart.listener.payment.method.handler.class">MobileCart\CoreBundle\EventListener\Payment\PaymentMethodHandler</parameter>
         <parameter key="cart.listener.shipping_method.search.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodSearch</parameter>
@@ -600,6 +611,10 @@
                 <argument type="string">cart_admin_order_edit</argument>
             </call>
             <call method="addAdminEditRoute">
+                <argument type="string">order_shipment</argument>
+                <argument type="string">cart_admin_order_shipment_edit</argument>
+            </call>
+            <call method="addAdminEditRoute">
                 <argument type="string">product</argument>
                 <argument type="string">cart_admin_product_edit</argument>
             </call>
@@ -752,6 +767,9 @@
         <service id="cart.shipping" lazy="true" class="%cart.shipping.class%">
             <call method="setIsShippingEnabled">
                 <argument type="string">%cart.shipping.enabled%</argument>
+            </call>
+            <call method="setIsCollectTotalEnabled">
+                <argument type="string">%cart.shipping.total.enabled%</argument>
             </call>
             <call method="setIsMultiShippingEnabled">
                 <argument type="string">%cart.shipping.multi.enabled%</argument>
@@ -3332,6 +3350,65 @@
             </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+
+        <!-- OrderShipment Services and Listeners -->
+        <service id="cart.listener.order_shipment.search" lazy="true" class="%cart.listener.order_shipment.search.class%">
+            <tag name="kernel.event_listener" event="order_shipment.search" method="onOrderShipmentSearch" priority="50" />
+        </service>
+        <service id="cart.listener.order_shipment.list" lazy="true" class="%cart.listener.order_shipment.list.class%">
+            <tag name="kernel.event_listener" event="order_shipment.search" method="onOrderShipmentList" priority="40" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.order_shipment.new.return" lazy="true" class="%cart.listener.order_shipment.new.return.class%">
+            <tag name="kernel.event_listener" event="order_shipment.new.return" method="onOrderShipmentNewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+        <service id="cart.listener.order_shipment.admin.form" lazy="true" class="%cart.listener.order_shipment.admin.form.class%">
+            <tag name="kernel.event_listener" event="order_shipment.admin.form" method="onOrderShipmentAdminForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+        </service>
+        <service id="cart.listener.order_shipment.edit.return" lazy="true" class="%cart.listener.order_shipment.edit.return.class%">
+            <tag name="kernel.event_listener" event="order_shipment.edit.return" method="onOrderShipmentEditReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+        <service id="cart.listener.order_shipment.update" lazy="true" class="%cart.listener.order_shipment.update.class%">
+            <tag name="kernel.event_listener" event="order_shipment.update" method="onOrderShipmentUpdate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setCurrencyService">
+                <argument type="service" id="cart.currency" />
+            </call>
+        </service>
+        <service id="cart.listener.order_shipment.update.return" lazy="true" class="%cart.listener.order_shipment.update.return.class%">
+            <tag name="kernel.event_listener" event="order_shipment.update.return" method="onOrderShipmentUpdateReturn" priority="50" />
+            <call method="setSession">
+                <argument type="service" id="session" />
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
             </call>
         </service>
 

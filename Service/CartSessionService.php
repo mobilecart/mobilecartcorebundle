@@ -993,9 +993,44 @@ class CartSessionService
             $addressId = 'address_' . $addressId; // prefixing integers
         }
 
+        $request = $this->createRateRequest($addressId, $srcAddressKey);
+
         $customerId = ($this->getCart()->getCustomer() && $this->getCart()->getCustomer()->getId())
             ? $this->getCart()->getCustomer()->getId()
             : 0;
+
+        $productIds = [];
+        if ($request->getCartItems()) {
+            foreach($request->getCartItems() as $item) {
+                $productIds[] = $item->getProductId();
+                if ($cartItem = $this->getCart()->findItem('id', $item->getId())) {
+                    $cartItem->set('customer_address_id', $addressId);
+                    $cartItem->set('source_address_key', $srcAddressKey);
+                }
+            }
+        }
+
+        // for Shipments which will be updated or charged later
+        if (!$this->getShippingService()->getIsCollectTotalEnabled()) {
+
+            $this->removeShipments($addressId, $srcAddressKey)
+                ->removeShippingMethods($addressId, $srcAddressKey);
+
+            //if (!$this->addressHasShipment($addressId, $srcAddressKey)) {
+
+                $shipment = new Shipment();
+                $shipment->addData([
+                    'id' => '',
+                    'price' => '0.00',
+                    'company' => 'Shipping',
+                    'method' => 'Method',
+                    'code' => 'shipping_method',
+                ]);
+                $this->addShipment($shipment, $addressId, $productIds, $srcAddressKey);
+                $this->addShippingMethod($shipment, $addressId, $srcAddressKey);
+            //}
+            return $this;
+        }
 
         $postcodes = [];
         if ($customerId) {
@@ -1018,7 +1053,6 @@ class CartSessionService
         $this->removeShipments($addressId, $srcAddressKey)
             ->removeShippingMethods($addressId, $srcAddressKey);
 
-        $request = $this->createRateRequest($addressId, $srcAddressKey);
         $rates = [];
         try {
             $rates = $this->getShippingService()->collectShippingRates($request);
@@ -1045,17 +1079,6 @@ class CartSessionService
 
                 $shipment = new Shipment();
                 $shipment->fromArray($rate->getData());
-
-                $productIds = [];
-                if ($request->getCartItems()) {
-                    foreach($request->getCartItems() as $item) {
-                        $productIds[] = $item->getProductId();
-                        if ($cartItem = $this->getCart()->findItem('id', $item->getId())) {
-                            $cartItem->set('customer_address_id', $addressId);
-                            $cartItem->set('source_address_key', $srcAddressKey);
-                        }
-                    }
-                }
 
                 $this->addShipment($shipment, $addressId, $productIds, $srcAddressKey);
 

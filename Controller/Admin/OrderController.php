@@ -11,24 +11,16 @@
 
 namespace MobileCart\CoreBundle\Controller\Admin;
 
-use MobileCart\CoreBundle\Constants\EntityConstants;
-
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-
-use MobileCart\CoreBundle\Entity\Order;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvents;
 use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
- * Order controller.
- *
- * @Route("/admin/order")
+ * Class OrderController
+ * @package MobileCart\CoreBundle\Controller\Admin
  */
 class OrderController extends Controller
 {
@@ -39,9 +31,6 @@ class OrderController extends Controller
 
     /**
      * Lists Order entities.
-     *
-     * @Route("/", name="cart_admin_order")
-     * @Method("GET")
      */
     public function indexAction(Request $request)
     {
@@ -69,9 +58,6 @@ class OrderController extends Controller
 
     /**
      * Creates a new Order entity.
-     *
-     * @Route("/", name="cart_admin_order_create")
-     * @Method("POST")
      */
     public function createAction(Request $request)
     {
@@ -167,9 +153,6 @@ class OrderController extends Controller
 
     /**
      * Displays a form to create a new Order entity.
-     *
-     * @Route("/new", name="cart_admin_order_new")
-     * @Method("GET")
      */
     public function newAction(Request $request)
     {
@@ -212,9 +195,6 @@ class OrderController extends Controller
 
     /**
      * Finds and displays a Order entity.
-     *
-     * @Route("/{id}", name="cart_admin_order_show")
-     * @Method("GET")
      */
     public function showAction(Request $request, $id)
     {
@@ -228,9 +208,6 @@ class OrderController extends Controller
 
     /**
      * Displays a form to edit an existing Order entity.
-     *
-     * @Route("/{id}/edit", name="cart_admin_order_edit")
-     * @Method("GET")
      */
     public function editAction(Request $request, $id)
     {
@@ -263,9 +240,6 @@ class OrderController extends Controller
 
     /**
      * Edits an existing Order entity.
-     *
-     * @Route("/{id}", name="cart_admin_order_update")
-     * @Method("PUT")
      */
     public function updateAction(Request $request, $id)
     {
@@ -348,9 +322,6 @@ class OrderController extends Controller
 
     /**
      * Update Shipping Method
-     *
-     * @Route("/update/shipping", name="cart_admin_order_shipping")
-     * @Method("POST")
      */
     public function updateShippingAction(Request $request)
     {
@@ -371,9 +342,6 @@ class OrderController extends Controller
 
     /**
      * Update Items
-     *
-     * @Route("/update/items", name="cart_admin_order_items")
-     * @Method("POST")
      */
     public function updateItemsAction(Request $request)
     {
@@ -411,9 +379,6 @@ class OrderController extends Controller
 
     /**
      * Remove Item
-     *
-     * @Route("/remove/item", name="cart_admin_order_remove_item")
-     * @Method("POST")
      */
     public function removeItemAction(Request $request)
     {
@@ -431,9 +396,6 @@ class OrderController extends Controller
 
     /**
      * Add Discount
-     *
-     * @Route("/add/discount", name="cart_admin_order_add_discount")
-     * @Method("POST")
      */
     public function addDiscountAction(Request $request)
     {
@@ -451,9 +413,6 @@ class OrderController extends Controller
 
     /**
      * Remove Discount
-     *
-     * @Route("/remove/discount", name="cart_admin_order_remove_discount")
-     * @Method("POST")
      */
     public function removeDiscountAction(Request $request)
     {
@@ -471,9 +430,6 @@ class OrderController extends Controller
 
     /**
      * Update Customer
-     *
-     * @Route("/update/customer", name="cart_admin_order_customer")
-     * @Method("POST")
      */
     public function updateCustomerAction(Request $request)
     {
@@ -494,9 +450,6 @@ class OrderController extends Controller
 
     /**
      * Deletes a Order entity.
-     *
-     * @Route("/{id}", name="cart_admin_order_delete")
-     * @Method("DELETE")
      */
     public function deleteAction(Request $request, $id)
     {
@@ -528,9 +481,6 @@ class OrderController extends Controller
 
     /**
      * Mass-Delete Orders
-     *
-     * @Route("/mass_delete", name="cart_admin_order_mass_delete")
-     * @Method("POST")
      */
     public function massDeleteAction(Request $request)
     {
