@@ -547,22 +547,26 @@ class Cart extends ArrayWrapper
     }
 
     /**
+     * @return array
+     */
+    public function getAllShippingMethods()
+    {
+        if (!isset($this->data['shipping_methods'])
+            || !is_array($this->data['shipping_methods'])
+        ) {
+            return [];
+        }
+
+        return $this->data['shipping_methods'];
+    }
+
+    /**
      * @param string $addressId
      * @param string $srcAddressKey
      * @return array
      */
     public function getShippingMethods($addressId='main', $srcAddressKey='main')
     {
-        if ($addressId == '' || $addressId == '*') {
-            if (!isset($this->data['shipping_methods'])
-                || !is_array($this->data['shipping_methods'])
-            ) {
-                return [];
-            }
-
-            return $this->data['shipping_methods'];
-        }
-
         if ($addressId != 'main' && is_numeric($addressId)) {
             $addressId = 'address_' . $addressId; // prefixing integers
         }
@@ -1174,42 +1178,38 @@ class Cart extends ArrayWrapper
      */
     public function unsetShippingMethods($addressId='', $srcAddressKey='main')
     {
-
         if ($addressId != 'main' && is_numeric($addressId)) {
             $addressId = 'address_' . $addressId;
         }
 
-        if ($this->getShippingMethods('*')) {
-            foreach($this->getShippingMethods('*') as $aSrcAddressKey => $addressIds){
+        if ($addressId) {
+            if ($this->getAllShippingMethods()) {
+                foreach($this->getAllShippingMethods() as $aSrcAddressKey => $addressIds) {
 
-                if (!$addressIds
-                    || $srcAddressKey != $aSrcAddressKey
-                ) {
-                    continue;
-                }
-
-                foreach($addressIds as $anAddressId => $methods) {
-
-                    // clear all addressIds
-                    if ($addressId == '' || $addressId == '*') {
-                        $this->data['shipping_methods'][$aSrcAddressKey] = [];
-
-                        continue;
-                    }
-
-                    // if there's nothing to do, continue
-                    if (!$methods
+                    if (!$addressIds
                         || $srcAddressKey != $aSrcAddressKey
-                        || $addressId != $anAddressId
-                        || !isset($this->data['shipping_methods'][$aSrcAddressKey][$anAddressId])
                     ) {
-
                         continue;
                     }
 
-                    $this->data['shipping_methods'][$aSrcAddressKey][$addressId] = [];
+                    foreach($addressIds as $anAddressId => $methods) {
+
+                        // if there's nothing to do, continue
+                        if (!$methods
+                            || $srcAddressKey != $aSrcAddressKey
+                            || $addressId != $anAddressId
+                            || !isset($this->data['shipping_methods'][$aSrcAddressKey][$anAddressId])
+                        ) {
+
+                            continue;
+                        }
+
+                        $this->data['shipping_methods'][$aSrcAddressKey][$addressId] = [];
+                    }
                 }
             }
+        } else {
+            $this->data['shipping_methods'] = [];
         }
 
         $this->reapplyDiscounts();

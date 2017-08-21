@@ -212,7 +212,7 @@ class CoreEvent extends Event
      */
     public function __get($key)
     {
-        return isset($this->data[$key]) ? $this->data[$key] : null;
+        return $this->get($key);
     }
 
     /**
@@ -222,19 +222,19 @@ class CoreEvent extends Event
      */
     public function __set($key, $value)
     {
-        $this->data[$key] = $value;
-        return $this;
+        return $this->set($key, $value);
     }
 
     /**
      * @param $key
+     * @param $default
      * @return mixed
      */
-    public function get($key)
+    public function get($key, $default = null)
     {
-        return isset($this->data[$key])
+        return array_key_exists($key, $this->data)
             ? $this->data[$key]
-            : null;
+            : $default;
     }
 
     /**

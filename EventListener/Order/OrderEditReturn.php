@@ -179,6 +179,12 @@ class OrderEditReturn
             $cart->setTotals($totals);
         }
 
+        if ($totals) {
+            foreach($totals as $total) {
+                $total->setValue(number_format($total->getValue(), 2));
+            }
+        }
+
         $shippingMethods = $cart->getShippingMethods();
 
         $discounts = $cart->getDiscounts();

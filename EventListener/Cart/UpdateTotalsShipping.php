@@ -139,8 +139,8 @@ class UpdateTotalsShipping
 
                 // remove shipments and shipping methods
                 if (!$hasItems) {
-                    $this->getCartSessionService()->removeShipments($customerAddressId, $srcAddressKey);
-                    $this->getCartSessionService()->removeShippingMethods($customerAddressId, $srcAddressKey);
+                    $this->getCartSessionService()->removeShipments();
+                    $this->getCartSessionService()->removeShippingMethods();
                     continue;
                 }
 

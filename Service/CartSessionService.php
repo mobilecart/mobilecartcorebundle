@@ -794,13 +794,21 @@ class CartSessionService
     }
 
     /**
+     * @return array
+     */
+    public function getAllShippingMethods()
+    {
+        return $this->getCart()->getAllShippingMethods();
+    }
+
+    /**
      * Empty both shipments and shipment options
      *
      * @param $addressId
      * @param $srcAddressKey
      * @return $this
      */
-    public function removeShipments($addressId='main', $srcAddressKey='main')
+    public function removeShipments($addressId='', $srcAddressKey='main')
     {
         $this->getCart()->unsetShipments($addressId, $srcAddressKey);
         return $this;
@@ -812,7 +820,7 @@ class CartSessionService
      * @param $srcAddressKey
      * @return $this
      */
-    public function removeShippingMethods($addressId='main', $srcAddressKey='main')
+    public function removeShippingMethods($addressId='', $srcAddressKey='main')
     {
         $this->getCart()->unsetShippingMethods($addressId, $srcAddressKey);
         return $this;

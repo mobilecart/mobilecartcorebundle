@@ -210,16 +210,13 @@ class AddShipment
                 $rate = $cart->getShippingMethod($cart->findShippingMethodIdx('code', $code));
                 $shipment = new Shipment();
                 $shipment->fromArray($rate->getData());
-                $productIds = $cart->getProductIds();
 
-                $cartSession
-                    ->removeShipments('main')
-                    ->addShipment($shipment, 'main', $productIds)
+                $cartSession->removeShipments()
+                    ->addShipment($shipment, 'main', $cart->getProductIds())
                     ->collectTotals();
 
                 $success = true;
             }
-
         }
 
         if ($success) {

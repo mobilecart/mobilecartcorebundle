@@ -129,8 +129,8 @@ class RemoveProducts
         }
 
         $this->getCartSessionService()->removeItems();
-        $this->getCartSessionService()->removeShipments('');
-        $this->getCartSessionService()->removeShippingMethods('');
+        $this->getCartSessionService()->removeShipments();
+        $this->getCartSessionService()->removeShippingMethods();
 
         $cart = $this->getCartSessionService()
             ->collectTotals()

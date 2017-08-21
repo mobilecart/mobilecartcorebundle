@@ -21,6 +21,7 @@ class OrderShipmentType extends AbstractType
             ->add('method', 'text', ['required'  => false])
             ->add('tracking', 'text', ['required'  => false])
             ->add('base_price', 'text', ['required'  => false])
+            ->add('adjust_totals', 'checkbox', ['required' => false, 'mapped' => false])
         ;
     }
 

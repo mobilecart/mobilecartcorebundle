@@ -107,6 +107,11 @@ class OrderService
     /**
      * @var bool
      */
+    protected $shipmentIsPaidFlag = false;
+
+    /**
+     * @var bool
+     */
     protected $detectFraudBeforeOrder = false;
 
     /**
@@ -455,6 +460,24 @@ class OrderService
     }
 
     /**
+     * @param $isPaid
+     * @return $this
+     */
+    public function setShipmentIsPaidFlag($isPaid)
+    {
+        $this->shipmentIsPaidFlag = $isPaid;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getShipmentIsPaidFlag()
+    {
+        return $this->shipmentIsPaidFlag;
+    }
+
+    /**
      * @param $paymentMethod
      * @return $this
      */
@@ -720,6 +743,18 @@ class OrderService
         // save order
         $this->createOrder();
 
+        // save payment next, because shipments need to set flag is_paid, and invoice sets a flag also
+        if ($this->getEnableCreatePayment()
+            && $this->getPaymentSuccess()
+        ) {
+            $this->createOrderPayment();
+        }
+
+        // save invoice next
+        if ($this->getEnableCreateInvoice()) {
+            $this->createUpdateInvoice();
+        }
+
         // save order shipments first
         //  because order items can save a reference to a shipment
         $this->createOrderShipments();
@@ -727,22 +762,6 @@ class OrderService
         // save order items
         //  each item could reference a shipment
         $this->createOrderItems();
-
-        if ($this->getEnableCreateInvoice()
-            || $this->getEnableCreatePayment()
-        ) {
-
-            // create invoice
-            $this->createUpdateInvoice();
-
-            if ($this->getPaymentSuccess()) {
-
-                $this->createOrderPayment();
-
-                // update invoice, mark as paid
-                $this->createUpdateInvoice();
-            }
-        }
 
         $event = new CoreEvent();
         $event->addData($this->getEventData())
@@ -1217,9 +1236,12 @@ class OrderService
 
         $customer = $this->getCart()->getCustomer();
         $addresses = $customer->getAddresses();
+        $shippingIsPaid = $this->getPaymentSuccess() && $this->getShipmentIsPaidFlag();
 
         if ($this->getCart()->hasShipments()) {
             foreach($this->getCart()->getShipments() as $shipment) {
+
+                // todo : check for payment, set is_paid
 
                 $data = $shipment->getData();
 
@@ -1249,7 +1271,8 @@ class OrderService
                         ->setPostcode($customer->getShippingPostcode())
                         ->setCountryId($customer->getShippingCountryId())
                         ->setPhone($customer->getShippingPhone())
-                        ->setSourceAddressKey($srcAddressKey);
+                        ->setSourceAddressKey($srcAddressKey)
+                        ->setIsPaid($shippingIsPaid);
 
                 } elseif ($addresses) {
                     foreach($addresses as $address) {
@@ -1258,27 +1281,29 @@ class OrderService
                             $address = new ArrayWrapper($address);
                         }
 
-                        if ($address->getId() == $addressId) {
-
-                            if ($address instanceof \stdClass) {
-                                $address = get_object_vars($address);
-                            }
-
-                            if (is_array($address)) {
-                                $address = new ArrayWrapper($address);
-                            }
-
-                            $orderShipment->setName($address->getName())
-                                ->setCompanyName($address->getCompany())
-                                ->setStreet($address->getStreet())
-                                ->setStreet2($address->getStreet2())
-                                ->setCity($address->getCity())
-                                ->setRegion($address->getRegion())
-                                ->setPostcode($address->getPostcode())
-                                ->setCountryId($address->getCountryId())
-                                ->setPhone($address->getPhone())
-                                ->setSourceAddressKey($srcAddressKey);
+                        if ($address->getId() != $addressId) {
+                            continue;
                         }
+
+                        if ($address instanceof \stdClass) {
+                            $address = get_object_vars($address);
+                        }
+
+                        if (is_array($address)) {
+                            $address = new ArrayWrapper($address);
+                        }
+
+                        $orderShipment->setName($address->getName())
+                            ->setCompanyName($address->getCompany())
+                            ->setStreet($address->getStreet())
+                            ->setStreet2($address->getStreet2())
+                            ->setCity($address->getCity())
+                            ->setRegion($address->getRegion())
+                            ->setPostcode($address->getPostcode())
+                            ->setCountryId($address->getCountryId())
+                            ->setPhone($address->getPhone())
+                            ->setSourceAddressKey($srcAddressKey)
+                            ->setIsPaid($shippingIsPaid);
                     }
                 }
 
@@ -1299,6 +1324,8 @@ class OrderService
                 $orderShipment->setCreatedAt(new \DateTime('now'));
 
                 $this->getEntityService()->persist($orderShipment);
+
+                $shipment->set('order_shipment_id', $orderShipment->getId());
 
                 if ($shipment->getCustomerAddressId()) {
                     $addressId = $shipment->getCustomerAddressId();

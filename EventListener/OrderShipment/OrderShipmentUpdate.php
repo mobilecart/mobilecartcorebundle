@@ -3,6 +3,7 @@
 namespace MobileCart\CoreBundle\EventListener\OrderShipment;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
+use MobileCart\CoreBundle\CartComponent\Shipment;
 
 /**
  * Class OrderShipmentUpdate
@@ -16,9 +17,9 @@ class OrderShipmentUpdate
     protected $entityService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\CurrencyService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $currencyService;
+    protected $cartService;
 
     /**
      * @param $entityService
@@ -39,21 +40,21 @@ class OrderShipmentUpdate
     }
 
     /**
-     * @param $currencyService
+     * @param $cartService
      * @return $this
      */
-    public function setCurrencyService($currencyService)
+    public function setCartService($cartService)
     {
-        $this->currencyService = $currencyService;
+        $this->cartService = $cartService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CurrencyService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getCurrencyService()
+    public function getCartService()
     {
-        return $this->currencyService;
+        return $this->cartService;
     }
 
     /**
@@ -63,13 +64,63 @@ class OrderShipmentUpdate
     {
         $request = $event->getRequest();
         $entity = $event->getEntity();
+        $order = $entity->getOrder();
+        $baseCurrency = $this->getCartService()->getCartTotalService()->getCurrencyService()->getBaseCurrency();
+        if ($order->getCurrency() == $baseCurrency) {
+            $entity->setPrice($entity->getBasePrice());
+        } else {
+            // todo : currency
+        }
+
         $this->getEntityService()->persist($entity);
+        $formData = $event->getFormData();
 
         if ($entity && $request->getSession()) {
             $request->getSession()->getFlashBag()->add(
                 'success',
                 'Shipment Updated!'
             );
+        }
+
+        if (isset($formData['adjust_totals']) && $formData['adjust_totals']) {
+
+            // populate cart with json
+            $this->getCartService()->initCartJson($order->getJson());
+
+            $shipments = $order->getShipments();
+            $this->getCartService()->removeShipments();
+
+            foreach($shipments as $aEntity) {
+                // create cart shipment from entity
+                $shipment = new Shipment();
+                $shipment->fromArray($aEntity->getData());
+                $this->getCartService()->addShipment($shipment);
+            }
+
+            $this->getCartService()->collectTotals();
+
+            $baseGrandTotal = $this->getCartService()
+                ->getTotal(\MobileCart\CoreBundle\EventListener\Cart\GrandTotal::KEY)
+                ->getValue();
+
+            $baseShippingTotal = $this->getCartService()
+                ->getTotal(\MobileCart\CoreBundle\EventListener\Cart\ShipmentTotal::KEY)
+                ->getValue();
+
+            $order->setBaseTotal($baseGrandTotal)
+                ->setBaseShippingTotal($baseShippingTotal);
+
+            if ($order->getCurrency() == $baseCurrency) {
+
+                $order->setShippingTotal($baseShippingTotal)
+                    ->setTotal($baseGrandTotal);
+
+            } else {
+                // todo : currency
+            }
+
+            $order->setJson($this->getCartService()->getCart()->toJson());
+            $this->getEntityService()->persist($order);
         }
     }
 }

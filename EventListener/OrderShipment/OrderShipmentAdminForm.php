@@ -85,6 +85,7 @@ class OrderShipmentAdminForm
                     'method',
                     'base_price',
                     'tracking',
+                    'adjust_totals'
                 ],
             ],
         ];

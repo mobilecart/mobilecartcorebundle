@@ -20,6 +20,8 @@
         <parameter key="cart.email.from.main">test@test.com</parameter>
         <parameter key="cart.email.to.main">test@test.com</parameter>
         <parameter key="cart.order.reference.offset">100000000</parameter>
+        <parameter key="cart.order.payment.enabled">1</parameter>
+        <parameter key="cart.order.invoice.enabled">1</parameter>
         <parameter key="cart.image.upload.frontend.enabled">0</parameter><!-- enable image uploads in frontend -->
         <parameter key="cart.add.product.redirect.cart">1</parameter><!-- redirect to cart or product page after add to cart -->
         <parameter key="cart.discount.enabled">1</parameter><!-- enable discounts -->
@@ -672,13 +674,16 @@
                 <argument type="service" id="cart.payment" />
             </call>
             <call method="setEnableCreateInvoice">
-                <argument type="string">1</argument>
+                <argument type="string">%cart.order.invoice.enabled%</argument>
             </call>
             <call method="setEnableCreatePayment">
-                <argument type="string">1</argument>
+                <argument type="string">%cart.order.payment.enabled%</argument>
             </call>
             <call method="setEnableCreateShipment">
                 <argument type="string">%cart.shipping.enabled%</argument>
+            </call>
+            <call method="setShipmentIsPaidFlag">
+                <argument type="string">%cart.shipping.total.enabled%</argument>
             </call>
             <call method="setOrderReferenceOffset">
                 <argument type="string">%cart.order.reference.offset%</argument>
@@ -3398,8 +3403,8 @@
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>
-            <call method="setCurrencyService">
-                <argument type="service" id="cart.currency" />
+            <call method="setCartService">
+                <argument type="service" id="cart" />
             </call>
         </service>
         <service id="cart.listener.order_shipment.update.return" lazy="true" class="%cart.listener.order_shipment.update.return.class%">

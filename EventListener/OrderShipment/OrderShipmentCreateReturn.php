@@ -44,39 +44,38 @@ class OrderShipmentCreateReturn
      */
     public function onOrderShipmentCreateReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        //$contentType = $request->headers->get('Accept');
 
         $params = ['id' => $entity->getId()];
         $route = 'cart_admin_order_edit';
         $url = $this->getRouter()->generate($route, $params);
 
-        $response = '';
         switch($format) {
             case 'json':
-                $returnData = [
-                    'success' => 1,
+
+                $event->setResponse(new JsonResponse([
+                    'success' => true,
                     'entity' => $entity->getData(),
                     'redirect_url' => $url,
-                ];
-                $response = new JsonResponse($returnData);
+                ]));
                 break;
             default:
 
-                if ($messages = $event->getMessages()) {
-                    foreach($messages as $code => $message) {
-                        $this->getSession()->getFlashBag()->add($code, $message);
+                if ($event->getRequest()->getSession() && $event->getMessages()) {
+                    foreach($event->getMessages() as $code => $messages) {
+                        if (!$messages) {
+                            continue;
+                        }
+                        foreach($messages as $message) {
+                            $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                        }
                     }
                 }
 
-                $response = new RedirectResponse($url);
+                $event->setResponse(new RedirectResponse($url));
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

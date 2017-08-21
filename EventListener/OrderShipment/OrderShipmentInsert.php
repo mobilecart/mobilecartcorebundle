@@ -3,8 +3,6 @@
 namespace MobileCart\CoreBundle\EventListener\OrderShipment;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\Constants\EntityConstants;
-use MobileCart\CoreBundle\CartComponent\Cart;
 
 /**
  * Class OrderShipmentInsert
@@ -18,19 +16,9 @@ class OrderShipmentInsert
     protected $entityService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\CurrencyService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $currencyService;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\OrderService
-     */
-    protected $orderService;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\CartSessionService
-     */
-    protected $cartSessionService;
+    protected $cartService;
 
     /**
      * @param $entityService
@@ -51,57 +39,21 @@ class OrderShipmentInsert
     }
 
     /**
-     * @param $currencyService
+     * @param $cartService
      * @return $this
      */
-    public function setCurrencyService($currencyService)
+    public function setCartService($cartService)
     {
-        $this->currencyService = $currencyService;
+        $this->cartService = $cartService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CurrencyService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getCurrencyService()
+    public function getCartService()
     {
-        return $this->currencyService;
-    }
-
-    /**
-     * @param $orderService
-     * @return $this
-     */
-    public function setOrderService($orderService)
-    {
-        $this->orderService = $orderService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\OrderService
-     */
-    public function getOrderService()
-    {
-        return $this->orderService;
-    }
-
-    /**
-     * @param $cartSessionService
-     * @return $this
-     */
-    public function setCartSessionService($cartSessionService)
-    {
-        $this->cartSessionService = $cartSessionService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
-     */
-    public function getCartSessionService()
-    {
-        return $this->cartSessionService;
+        return $this->cartService;
     }
 
     /**
@@ -109,82 +61,27 @@ class OrderShipmentInsert
      */
     public function onOrderShipmentInsert(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $entity = $event->getEntity();
-        $formData = $event->getFormData();
         $request = $event->getRequest();
+        $entity = $event->getEntity();
+        $this->getEntityService()->persist($entity);
+        $formData = $event->getFormData();
 
-        $customerId = isset($formData['customer'])
-            ? $formData['customer']
-            : 0;
-
-        $customer = $this->getEntityService()
-            ->find(EntityConstants::CUSTOMER, $customerId);
-
-        $customerName = $customer
-            ? $customer->getFirstName() . ' ' . $customer->getLastName()
-            : '';
-
-        $isRefund = false;
-
-        $cart = new Cart();
-        switch($event->getSection()) {
-            case CoreEvent::SECTION_BACKEND:
-                $cartJson = $formData['json'];
-                $cart->importJson($cartJson);
-                break;
-            case CoreEvent::SECTION_FRONTEND:
-                $cart = $this->getCartSessionService()->getCart();
-                break;
-            case CoreEvent::SECTION_API:
-
-                break;
-            default:
-
-                break;
-        }
-
-        $cartTotalService = $this->getOrderService()
-            ->getCartTotalService();
-
-        $cartTotalService->setCart($cart);
-
-        $totals = $cartTotalService
-            ->collectTotals()
-            ->getTotals();
-
-        $cart->setTotals($totals);
-
-        // this is passed outside of the order form
-        $paymentMethod = $request->get('payment_method', '');
-
-        $paymentInfo = $paymentMethod
-            ? $request->request->get($paymentMethod)
-            : [];
-
-        $createPayment = ($paymentMethod && $paymentInfo);
-
-        $order = $this->getOrderService()
-            ->setCart($cart)
-            ->setOrder($entity)
-            ->setRequest($event->getRequest())
-            ->setFormData($event->getFormData())
-            ->setCreatePayment($createPayment)
-            ->setIsRefund($isRefund)
-            ->setPaymentMethod($paymentMethod)
-            ->setPaymentFormData($paymentInfo)
-            ->submitCart()
-            ->getOrder();
-
-        $event->setOrder($order);
-
-        if ($order && $request->getSession()) {
+        if ($entity && $request->getSession()) {
             $request->getSession()->getFlashBag()->add(
                 'success',
-                'Order Created!'
+                'Shipment Created!'
             );
         }
 
-        $event->setReturnData($returnData);
+        if (isset($formData['adjust_totals']) && $formData['adjust_totals']) {
+
+            // load order entity
+
+            // populate cart with json
+
+            // update order.base_shipping_total, order.shipping_total
+
+            // update order.base_total, order.total
+        }
     }
 }

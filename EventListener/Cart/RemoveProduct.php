@@ -100,9 +100,7 @@ class RemoveProduct
         $cartSession = $this->getCartSessionService();
         $cart = $cartSession->getCart();
         $cartId = $cart->getId();
-
         $customerId = $cart->getCustomer()->getId();
-        $customerEntity = false;
 
         $cartEntity = $cartId
             ? $this->getEntityService()->find(EntityConstants::CART, $cartId)
@@ -129,7 +127,6 @@ class RemoveProduct
         }
 
         $cartItem = $cartSession->getCart()->findItem('product_id', $productId);
-
         if ($cartItem) {
 
             $customerAddressId = $cartItem->get('customer_address_id', 'main');
@@ -153,23 +150,11 @@ class RemoveProduct
             }
 
             $this->getCartSessionService()->removeProductId($productId);
-            $cartItems = $cartSession->getCart()->getItems();
-            // check if items still need a shipment for this address
-            $hasItems = false;
-            if ($cartItems) {
-                foreach($cartItems as $cartItem) {
-                    if ($cartItem->get('customer_address_id', 'main') == $customerAddressId
-                        && $cartItem->get('source_address_key', 'main') == $srcAddressKey
-                    ) {
-                        $hasItems = true;
-                    }
-                }
-            }
 
-            // remove shipments and shipping methods
-            if (!$hasItems) {
-                $this->getCartSessionService()->removeShipments($customerAddressId, $srcAddressKey);
-                $this->getCartSessionService()->removeShippingMethods($customerAddressId, $srcAddressKey);
+            // remove all shipments and methods if the cart is empty
+            if (!$cartSession->getCart()->getItems()) {
+                $this->getCartSessionService()->removeShipments();
+                $this->getCartSessionService()->removeShippingMethods();
             }
 
             $success = true;

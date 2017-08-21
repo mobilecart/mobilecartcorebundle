@@ -215,6 +215,13 @@ class OrderShipment
      */
     protected $base_currency;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="is_paid", type="boolean", nullable=true)
+     */
+    protected $is_paid = false;
+
     public function __construct()
     {
         $this->items = new \Doctrine\Common\Collections\ArrayCollection();
@@ -277,6 +284,7 @@ class OrderShipment
             'base_tax' => $this->getBaseTax(),
             'base_discount' => $this->getBaseDiscount(),
             'base_currency' => $this->getBaseCurrency(),
+            'is_paid' => $this->getIsPaid(),
         ];
     }
 
@@ -820,5 +828,23 @@ class OrderShipment
     public function getBaseCurrency()
     {
         return $this->base_currency;
+    }
+
+    /**
+     * @param $isPaid
+     * @return $this
+     */
+    public function setIsPaid($isPaid)
+    {
+        $this->is_paid = (bool) $isPaid;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsPaid()
+    {
+        return $this->is_paid;
     }
 }

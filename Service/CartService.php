@@ -587,6 +587,16 @@ class CartService
     }
 
     /**
+     * @param $key
+     * @return bool
+     */
+    public function getTotal($key)
+    {
+        $this->initCart();
+        return $this->getCart()->getTotal($key);
+    }
+
+    /**
      * @return $this
      */
     public function collectShippingMethods()

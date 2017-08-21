@@ -117,6 +117,7 @@ class FrontendExtension extends \Twig_Extension
             'cartDiscounts' => new \Twig_SimpleFunction('cartDiscounts', [$this, 'getCartDiscounts'], array('is_safe' => array('html'))),
             'cartItems' => new \Twig_SimpleFunction('cartItems', [$this, 'getCartItems'], array('is_safe' => array('html'))),
             'cartShippingMethods' => new \Twig_SimpleFunction('cartShippingMethods', [$this, 'getCartShippingMethods'], array('is_safe' => array('html'))),
+            'cartAllShippingMethods' => new \Twig_SimpleFunction('cartAllShippingMethods', [$this, 'getAllCartShippingMethods'], array('is_safe' => array('html'))),
             'cartShipments' => new \Twig_SimpleFunction('cartShipments', [$this, 'cartShipments'], array('is_safe' => array('html'))),
             'cartShipment' => new \Twig_SimpleFunction('cartShipment', [$this, 'cartShipment'], array('is_safe' => array('html'))),
             'categoryTree' => new \Twig_SimpleFunction('categoryTree', [$this, 'categoryTree'], array('is_safe' => array('html'))),
@@ -950,6 +951,14 @@ class FrontendExtension extends \Twig_Extension
     public function getCartShippingMethods($addressId='main', $srcAddressKey='main')
     {
         return $this->getCartSessionService()->getShippingMethods($addressId, $srcAddressKey);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAllCartShippingMethods()
+    {
+        return $this->getCartSessionService()->getAllShippingMethods();
     }
 
     /**

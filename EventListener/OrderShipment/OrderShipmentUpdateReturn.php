@@ -66,9 +66,14 @@ class OrderShipmentUpdateReturn
                 break;
             default:
 
-                if ($messages = $event->getMessages()) {
-                    foreach($messages as $code => $message) {
-                        $this->getSession()->getFlashBag()->add($code, $message);
+                if ($event->getRequest()->getSession() && $event->getMessages()) {
+                    foreach($event->getMessages() as $code => $messages) {
+                        if (!$messages) {
+                            continue;
+                        }
+                        foreach($messages as $message) {
+                            $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                        }
                     }
                 }
 
