@@ -1024,19 +1024,23 @@ class CartSessionService
             $this->removeShipments($addressId, $srcAddressKey)
                 ->removeShippingMethods($addressId, $srcAddressKey);
 
-            //if (!$this->addressHasShipment($addressId, $srcAddressKey)) {
+            $baseCurrency = $this->getCartService()->getCartTotalService()->getCurrencyService()->getBaseCurrency();
+            $currency = $this->getCart()->get('currency', $baseCurrency);
 
-                $shipment = new Shipment();
-                $shipment->addData([
-                    'id' => '',
-                    'price' => '0.00',
-                    'company' => 'Shipping',
-                    'method' => 'Method',
-                    'code' => 'shipping_method',
-                ]);
-                $this->addShipment($shipment, $addressId, $productIds, $srcAddressKey);
-                $this->addShippingMethod($shipment, $addressId, $srcAddressKey);
-            //}
+            $shipment = new Shipment();
+            $shipment->addData([
+                'id' => '',
+                'base_price' => '0.00',
+                'price' => '0.00',
+                'base_currency' => $baseCurrency,
+                'currency' => $currency,
+                'company' => 'Shipping',
+                'method' => 'Method',
+                'code' => 'shipping_method',
+            ]);
+            $this->addShipment($shipment, $addressId, $productIds, $srcAddressKey);
+            $this->addShippingMethod($shipment, $addressId, $srcAddressKey);
+
             return $this;
         }
 
