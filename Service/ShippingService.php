@@ -18,6 +18,10 @@ use MobileCart\CoreBundle\Shipping\SourceAddress;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Entity\ShippingMethod;
 
+/**
+ * Class ShippingService
+ * @package MobileCart\CoreBundle\Service
+ */
 class ShippingService
 {
     /**
@@ -49,6 +53,11 @@ class ShippingService
      * @var array
      */
     protected $sourceAddresses = []; // r[key] = ArrayWrapper
+
+    /**
+     * @var array
+     */
+    protected $rates = [];
 
     /**
      * @param $yesNo
@@ -152,7 +161,28 @@ class ShippingService
         $this->getEventDispatcher()
             ->dispatch(CoreEvents::SHIPPING_RATE_COLLECT, $event);
 
-        return $event->getRates();
+        $this->rates = $event->getRates();
+
+        if (!$this->getIsCollectTotalEnabled()
+            && $this->rates
+        ) {
+            foreach($this->rates as $rate) {
+
+                $rate->set('price', '0.00')
+                    ->set('base_price', '0.00');
+
+            }
+        }
+
+        return $this->rates;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRates()
+    {
+        return $this->rates;
     }
 
     /**
