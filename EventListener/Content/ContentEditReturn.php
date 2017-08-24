@@ -85,10 +85,7 @@ class ContentEditReturn
      */
     public function onContentEditReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
-        $typeSections = [];
-
         $objectType = EntityConstants::CONTENT;
 
         $slots = $entity->getSlots();
@@ -112,7 +109,8 @@ class ContentEditReturn
             $slots = $newSlots;
         }
 
-        $typeSections['slots'] = [
+        $tplSections = [];
+        $tplSections['slots'] = [
             'section_id' => 'slots',
             'label' => 'Sections',
             'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Content:slots.html.twig',
@@ -121,7 +119,7 @@ class ContentEditReturn
             'upload_query' => '',
         ];
 
-        $typeSections['images'] = [
+        $tplSections['images'] = [
             'section_id'   => 'images',
             'label'        => 'Images',
             'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Image:uploader.html.twig',
@@ -131,16 +129,10 @@ class ContentEditReturn
             'upload_query' => "?object_type={$objectType}&object_id={$entity->getId()}",
         ];
 
-        $returnData['template_sections'] = $typeSections;
+        $event->setReturnData('entity', $entity);
+        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('template_sections', $tplSections);
 
-        $form = $returnData['form'];
-        $returnData['form'] = $form->createView();
-        $returnData['entity'] = $entity;
-
-        $response = $this->getThemeService()
-            ->render('admin', 'Content:edit.html.twig', $returnData);
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
+        $event->setResponse($this->getThemeService()->render('admin', 'Content:edit.html.twig', $event->getReturnData()));
     }
 }

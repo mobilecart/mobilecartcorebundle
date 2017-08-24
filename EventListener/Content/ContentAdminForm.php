@@ -2,8 +2,10 @@
 
 namespace MobileCart\CoreBundle\EventListener\Content;
 
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\Form\ContentType;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
@@ -17,7 +19,15 @@ class ContentAdminForm
      */
     protected $entityService;
 
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
     protected $formFactory;
+
+    /**
+     * @var string
+     */
+    protected $formTypeClass = '';
 
     /**
      * @var \MobileCart\CoreBundle\Service\ThemeConfig
@@ -42,15 +52,40 @@ class ContentAdminForm
         return $this->entityService;
     }
 
-    public function setFormFactory($formFactory)
+    /**
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @return $this
+     */
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
     {
         $this->formFactory = $formFactory;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
     public function getFormFactory()
     {
         return $this->formFactory;
+    }
+
+    /**
+     * @param string $formTypeClass
+     * @return $this
+     */
+    public function setFormTypeClass($formTypeClass)
+    {
+        $this->formTypeClass = $formTypeClass;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormTypeClass()
+    {
+        return $this->formTypeClass;
     }
 
     /**
@@ -76,15 +111,10 @@ class ContentAdminForm
      */
     public function onContentAdminForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
-
-        $formType = new ContentType();
-        $formType->setCustomTemplates($this->getThemeConfig()->getObjectTypeTemplates(EntityConstants::CONTENT));
-        $form = $this->getFormFactory()->create($formType, $entity, [
-            'action' => $event->getAction(),
-            'method' => $event->getMethod(),
+        $form = $this->getFormFactory()->create($this->getFormTypeClass(), $entity, [
+            'action' => $event->getFormAction(),
+            'method' => $event->getFormMethod(),
         ]);
 
         $formSections = [
@@ -139,7 +169,7 @@ class ContentAdminForm
                             }
                         }
 
-                        $form->add($name, 'choice', [
+                        $form->add($name, ChoiceType::class, [
                             'mapped'    => false,
                             'choices'   => $choices,
                             'required'  => $var->getIsRequired(),
@@ -148,11 +178,10 @@ class ContentAdminForm
                         ]);
 
                         $customFields[] = $name;
-
                         break;
                     case 'checkbox':
 
-                        $form->add($name, 'checkbox', [
+                        $form->add($name, CheckboxType::class, [
                             'mapped' => false,
                             'required' => false,
                             'label' => $var->getName(),
@@ -161,13 +190,12 @@ class ContentAdminForm
                         $customFields[] = $name;
                         break;
                     default:
-                        $form->add($name, 'text', [
+                        $form->add($name, TextType::class, [
                             'mapped' => false,
                             'label'  => $var->getName(),
                         ]);
 
                         $customFields[] = $name;
-
                         break;
                 }
             }
@@ -220,11 +248,8 @@ class ContentAdminForm
             ];
         }
 
-        $returnData['content_types'] = EntityConstants::getContentTypes();
-        $returnData['form_sections'] = $formSections;
-        $returnData['form'] = $form;
-
-        $event->setForm($form)
-            ->setReturnData($returnData);
+        $event->setReturnData('content_types', EntityConstants::getContentTypes());
+        $event->setReturnData('form_sections', $formSections);
+        $event->setReturnData('form', $form);
     }
 }

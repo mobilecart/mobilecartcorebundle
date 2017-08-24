@@ -39,27 +39,17 @@ class ContentInsert
      */
     public function onContentInsert(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $request = $event->getRequest();
         $entity = $event->getEntity();
-        $formData = $event->getFormData();
-
         $this->getEntityService()->persist($entity);
 
-        if ($entity && $request->getSession()) {
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Content Created!'
-            );
-        }
-
-        if ($formData) {
+        if ($event->getFormData()) {
 
             $this->getEntityService()
-                ->persistVariants($entity, $formData);
-
+                ->persistVariants($entity, $event->getFormData());
         }
+
+        $event->addSuccessMessage('Content Created!');
 
         // update images
         if ($imageJson = $request->get('images_json', [])) {
@@ -79,7 +69,5 @@ class ContentInsert
 
             $this->getEntityService()->updateContentSlots($entity, $slots);
         }
-
-        $event->setReturnData($returnData);
     }
 }

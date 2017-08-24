@@ -85,26 +85,19 @@ class ContentViewReturn
      */
     public function onContentViewReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
-
+        $event->setReturnData('entity', $entity);
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
-        $response = '';
         switch($format) {
             case 'json':
 
-                $returnData = [
+                $event->setResponse(new JsonResponse([
                     'entity' => $entity->getData(),
-                ];
-
-                $response = new JsonResponse($returnData);
-
+                ]));
                 break;
             default:
-
-                $returnData['entity'] = $entity;
 
                 $customTpl = $event->getCustomTemplate();
                 if (!$customTpl && $event->getEntity()->getCustomTemplate()) {
@@ -115,13 +108,8 @@ class ContentViewReturn
                     ? $customTpl
                     : 'Content:view.html.twig';
 
-                $response = $this->getThemeService()
-                    ->render('frontend', $template, $returnData);
-
+                $event->setResponse($this->getThemeService()->render('frontend', $template, $event->getReturnData()));
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

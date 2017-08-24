@@ -39,27 +39,16 @@ class ContentUpdate
      */
     public function onContentUpdate(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
-        $formData = $event->getFormData();
         $request = $event->getRequest();
-
         $this->getEntityService()->persist($entity);
+        if ($event->getFormData()) {
 
-        if ($entity && $request->getSession()) {
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Content Updated!'
-            );
-        }
-
-        if ($formData) {
-
-            // update var values
             $this->getEntityService()
-                ->persistVariants($entity, $formData);
+                ->persistVariants($entity, $event->getFormData());
         }
+
+        $event->addSuccessMessage('Content Updated!');
 
         // update images
         if ($imageJson = $request->get('images_json', [])) {
@@ -79,8 +68,7 @@ class ContentUpdate
                     }
                 }
 
-                $this->getEntityService()
-                    ->updateImages(EntityConstants::CONTENT_IMAGE, $entity, $images);
+                $this->getEntityService()->updateImages(EntityConstants::CONTENT_IMAGE, $entity, $images);
             }
         }
 
@@ -95,7 +83,5 @@ class ContentUpdate
 
             $this->getEntityService()->updateContentSlots($entity, $slots);
         }
-
-        $event->setReturnData($returnData);
     }
 }

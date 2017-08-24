@@ -53,14 +53,10 @@ class ContentList
      */
     public function onContentList(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $response = '';
 
-        $returnData['mass_actions'] =
-        [
+        $massActions = [
             [
                 'label'         => 'Delete Contents',
                 'input_label'   => 'Confirm Mass-Delete ?',
@@ -75,8 +71,7 @@ class ContentList
             ],
         ];
 
-        $returnData['columns'] =
-        [
+        $columns = [
             [
                 'key' => 'id',
                 'label' => 'ID',
@@ -94,19 +89,16 @@ class ContentList
             ],
         ];
 
+        $event->setReturnData('mass_actions', $massActions);
+        $event->setReturnData('columns', $columns);
+
         switch($format) {
             case 'json':
-                $response = new JsonResponse($returnData);
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
-
-                $response = $this->getThemeService()
-                    ->render('admin', 'Content:index.html.twig', $returnData);
-
+                $event->setResponse($this->getThemeService()->render('admin', 'Content:index.html.twig', $event->getReturnData()));
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

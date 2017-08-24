@@ -2,6 +2,9 @@
 
 namespace MobileCart\CoreBundle\EventListener\Category;
 
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
@@ -147,7 +150,7 @@ class CategoryAdminForm
                             }
                         }
 
-                        $form->add($name, 'choice', [
+                        $form->add($name, ChoiceType::class, [
                             'mapped'    => false,
                             'choices'   => $choices,
                             'required'  => $var->getIsRequired(),
@@ -160,7 +163,7 @@ class CategoryAdminForm
                         break;
                     case 'checkbox':
 
-                        $form->add($name, 'checkbox', [
+                        $form->add($name, CheckboxType::class, [
                             'mapped' => false,
                             'required' => false,
                             'label' => $var->getName(),
@@ -169,7 +172,7 @@ class CategoryAdminForm
                         $customFields[] = $name;
                         break;
                     default:
-                        $form->add($name, 'text', [
+                        $form->add($name, TextType::class, [
                             'mapped' => false,
                             'label'  => $var->getName(),
                         ]);

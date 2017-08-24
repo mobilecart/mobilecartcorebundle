@@ -11,23 +11,15 @@
 
 namespace MobileCart\CoreBundle\Controller\Admin;
 
-use MobileCart\CoreBundle\Constants\EntityConstants;
-
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
 
 /**
- * Content controller.
- *
- * @Route("/admin/content")
+ * Content controller
  */
 class ContentController extends Controller
 {
@@ -37,10 +29,7 @@ class ContentController extends Controller
     protected $objectType = EntityConstants::CONTENT;
 
     /**
-     * Lists Content entities.
-     *
-     * @Route("/", name="cart_admin_content")
-     * @Method("GET")
+     * Lists Content entities
      */
     public function indexAction(Request $request)
     {
@@ -67,14 +56,11 @@ class ContentController extends Controller
     }
 
     /**
-     * Creates a new Content entity.
-     *
-     * @Route("/", name="cart_admin_content_create")
-     * @Method("POST")
+     * Creates a new Content entity
      */
     public function createAction(Request $request)
     {
-        $varSet = '';
+        $varSet = null;
         if ($varSetId = $request->get('var_set_id', '')) {
             $varSet = $this->get('cart.entity')->getVarSet($varSetId);
         } else {
@@ -89,47 +75,34 @@ class ContentController extends Controller
             $entity->setItemVarSet($varSet);
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_content_create'))
-            ->setMethod('POST');
+            ->setFormAction($this->generateUrl('cart_admin_content_create'))
+            ->setFormMethod('POST');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CONTENT_ADMIN_FORM, $formEvent);
+            ->dispatch(CoreEvents::CONTENT_ADMIN_FORM, $event);
 
-        $form = $formEvent->getForm();
-
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
-
-            // observe event
-            //  add content to indexes, etc
-            $event = new CoreEvent();
-            $event->setEntity($entity)
-                ->setObjectType($this->objectType)
-                ->setRequest($request)
-                ->setFormData($formData);
+            $event->setFormData($formData);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CONTENT_INSERT, $event);
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CONTENT_CREATE_RETURN, $returnEvent);
+                ->dispatch(CoreEvents::CONTENT_CREATE_RETURN, $event);
 
-            return $returnEvent->getResponse();
+            return $event->getResponse();
         }
 
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
             $invalid = [];
-            $messages = [];
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {
@@ -140,21 +113,12 @@ class ContentController extends Controller
                 }
             }
 
-            $returnData = [
-                'success' => 0,
+            return new JsonResponse([
+                'success' => false,
                 'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+                'messages' => $event->getMessages(),
+            ]);
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setEntity($entity)
-            ->setVarSet($varSet)
-            ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONTENT_NEW_RETURN, $event);
@@ -163,14 +127,11 @@ class ContentController extends Controller
     }
 
     /**
-     * Displays a form to create a new Content entity.
-     *
-     * @Route("/new", name="cart_admin_content_new")
-     * @Method("GET")
+     * Displays a form to create a new Content entity
      */
     public function newAction(Request $request)
     {
-        $varSet = '';
+        $varSet = null;
         if ($varSetId = $request->get('var_set_id', '')) {
             $varSet = $this->get('cart.entity')->getVarSet($varSetId);
         } else {
@@ -185,22 +146,15 @@ class ContentController extends Controller
             $entity->setItemVarSet($varSet);
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_content_create'))
-            ->setMethod('POST');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CONTENT_ADMIN_FORM, $formEvent);
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setVarSet($varSet)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_content_create'))
+            ->setFormMethod('POST');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CONTENT_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONTENT_NEW_RETURN, $event);
@@ -209,10 +163,7 @@ class ContentController extends Controller
     }
 
     /**
-     * Finds and displays a Content entity.
-     *
-     * @Route("/{id}", name="cart_admin_content_show")
-     * @Method("GET")
+     * Finds and displays a Content entity
      */
     public function showAction(Request $request, $id)
     {
@@ -225,34 +176,24 @@ class ContentController extends Controller
     }
 
     /**
-     * Displays a form to edit an existing Content entity.
-     *
-     * @Route("/{id}/edit", name="cart_admin_content_edit")
-     * @Method("GET")
+     * Displays a form to edit an existing Content entity
      */
     public function editAction(Request $request, $id)
     {
         $entity = $this->get('cart.entity')->find($this->objectType, $id);
-
         if (!$entity) {
             throw $this->createNotFoundException("Unable to find entity with ID: {$id}");
         }
-
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_content_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CONTENT_ADMIN_FORM, $formEvent);
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_content_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CONTENT_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONTENT_EDIT_RETURN, $event);
@@ -261,10 +202,7 @@ class ContentController extends Controller
     }
 
     /**
-     * Edits an existing Content entity.
-     *
-     * @Route("/{id}", name="cart_admin_content_update")
-     * @Method("PUT")
+     * Edits an existing Content entity
      */
     public function updateAction(Request $request, $id)
     {
@@ -273,47 +211,34 @@ class ContentController extends Controller
             throw $this->createNotFoundException('Unable to find Content entity.');
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_content_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT');
+            ->setFormAction($this->generateUrl('cart_admin_content_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CONTENT_ADMIN_FORM, $formEvent);
+            ->dispatch(CoreEvents::CONTENT_ADMIN_FORM, $event);
 
-        $form = $formEvent->getForm();
-
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
-
-            // observe event
-            // update entity via command bus
-            $event = new CoreEvent();
-            $event->setObjectType($this->objectType)
-                ->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData);
+            $event->setFormData($formData);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CONTENT_UPDATE, $event);
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CONTENT_UPDATE_RETURN, $returnEvent);
+                ->dispatch(CoreEvents::CONTENT_UPDATE_RETURN, $event);
 
-            return $returnEvent->getResponse();
+            return $event->getResponse();
         }
 
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
             $invalid = [];
-            $messages = [];
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {
@@ -324,20 +249,12 @@ class ContentController extends Controller
                 }
             }
 
-            $returnData = [
-                'success' => 0,
+            return new JsonResponse([
+                'success' => false,
                 'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+                'messages' => $event->getMessages(),
+            ]);
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONTENT_EDIT_RETURN, $event);
@@ -346,17 +263,12 @@ class ContentController extends Controller
     }
 
     /**
-     * Deletes a Content entity.
-     *
-     * @Route("/{id}", name="cart_admin_content_delete")
-     * @Method("DELETE")
+     * Deletes a Content entity
      */
     public function deleteAction(Request $request, $id)
     {
         $form = $this->createDeleteForm($id);
-        $form->handleRequest($request);
-
-        if ($form->isValid()) {
+        if ($form->handleRequest($request)->isValid()) {
             $entity = $this->get('cart.entity')->find($this->objectType, $id);
             if (!$entity) {
                 throw $this->createNotFoundException('Unable to find Content entity.');
@@ -383,9 +295,6 @@ class ContentController extends Controller
 
     /**
      * Mass-Delete Contents
-     *
-     * @Route("/mass_delete", name="cart_admin_content_mass_delete")
-     * @Method("POST")
      */
     public function massDeleteAction(Request $request)
     {
@@ -430,7 +339,7 @@ class ContentController extends Controller
     protected function createDeleteForm($id)
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('cart_admin_content_delete', array('id' => $id)))
+            ->setAction($this->generateUrl('cart_admin_content_delete', ['id' => $id]))
             ->setMethod('DELETE')
             ->add('submit', 'submit', ['label' => 'Delete'])
             ->getForm();
