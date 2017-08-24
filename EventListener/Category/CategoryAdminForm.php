@@ -3,7 +3,6 @@
 namespace MobileCart\CoreBundle\EventListener\Category;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\Form\CategoryType;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
@@ -17,7 +16,15 @@ class CategoryAdminForm
      */
     protected $entityService;
 
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
     protected $formFactory;
+
+    /**
+     * @var string
+     */
+    protected $formTypeClass = '';
 
     /**
      * @var \MobileCart\CoreBundle\Service\ThemeConfig
@@ -42,33 +49,40 @@ class CategoryAdminForm
         return $this->entityService;
     }
 
-    public function setFormFactory($formFactory)
+    /**
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @return $this
+     */
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
     {
         $this->formFactory = $formFactory;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
     public function getFormFactory()
     {
         return $this->formFactory;
     }
 
     /**
-     * @param $themeConfig
+     * @param string $formTypeClass
      * @return $this
      */
-    public function setThemeConfig($themeConfig)
+    public function setFormTypeClass($formTypeClass)
     {
-        $this->themeConfig = $themeConfig;
+        $this->formTypeClass = $formTypeClass;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\ThemeConfig
+     * @return string
      */
-    public function getThemeConfig()
+    public function getFormTypeClass()
     {
-        return $this->themeConfig;
+        return $this->formTypeClass;
     }
 
     /**
@@ -76,14 +90,10 @@ class CategoryAdminForm
      */
     public function onCategoryAdminForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
-
-        $formType = new CategoryType();
-        $formType->setCustomTemplates($this->getThemeConfig()->getObjectTypeTemplates(EntityConstants::CATEGORY));
-        $form = $this->getFormFactory()->create($formType, $entity, [
-            'action' => $event->getAction(),
-            'method' => $event->getMethod(),
+        $form = $this->getFormFactory()->create($this->getFormTypeClass(), $entity, [
+            'action' => $event->getFormAction(),
+            'method' => $event->getFormMethod(),
         ]);
 
         $formSections = [
@@ -216,10 +226,7 @@ class CategoryAdminForm
             ];
         }
 
-        $returnData['form_sections'] = $formSections;
-        $returnData['form'] = $form;
-
-        $event->setForm($form)
-            ->setReturnData($returnData);
+        $event->setReturnData('form_sections', $formSections);
+        $event->setReturnData('form', $form);
     }
 }

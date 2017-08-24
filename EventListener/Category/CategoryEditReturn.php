@@ -85,9 +85,7 @@ class CategoryEditReturn
      */
     public function onCategoryEditReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
-
         $objectType = EntityConstants::CATEGORY;
 
         $tplSections = [];
@@ -101,16 +99,10 @@ class CategoryEditReturn
             'upload_query' => "?object_type={$objectType}&object_id={$entity->getId()}",
         ];
 
-        $returnData['template_sections'] = $tplSections;
+        $event->setReturnData('entity', $entity);
+        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('template_sections', $tplSections);
 
-        $form = $returnData['form'];
-        $returnData['form'] = $form->createView();
-        $returnData['entity'] = $entity;
-
-        $response = $this->getThemeService()
-            ->render('admin', 'Category:edit.html.twig', $returnData);
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
+        $event->setResponse($this->getThemeService()->render('admin', 'Category:edit.html.twig', $event->getReturnData()));
     }
 }

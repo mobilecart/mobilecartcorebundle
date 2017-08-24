@@ -39,28 +39,20 @@ class CategoryUpdate
      */
     public function onCategoryUpdate(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
-        $formData = $event->getFormData();
         $request = $event->getRequest();
 
         $entity->setSlug($this->getEntityService()->slugify($entity->getSlug()));
-
         $this->getEntityService()->persist($entity);
-        if ($formData) {
+
+        if ($event->getFormData()) {
 
             // update var values
             $this->getEntityService()
-                ->persistVariants($entity, $formData);
+                ->persistVariants($entity, $event->getFormData());
         }
 
-        if ($entity && $request->getSession()) {
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Category Updated!'
-            );
-        }
+        $event->addSuccessMessage('Category Updated!');
 
         // update images
         if ($imageJson = $request->get('images_json', [])) {
@@ -69,7 +61,5 @@ class CategoryUpdate
                 $this->getEntityService()->updateImages(EntityConstants::CATEGORY_IMAGE, $entity, $images);
             }
         }
-
-        $event->setReturnData($returnData);
     }
 }

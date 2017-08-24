@@ -57,6 +57,7 @@
         <parameter key="cart.auth.token.class">MobileCart\CoreBundle\Service\GuardTokenAuthService</parameter>
         <parameter key="cart.auth.token.allow.admin">0</parameter><!-- Enable GuardTokenAuth for Admin access -->
         <!-- Forms -->
+        <parameter key="cart.form.type.category.class">MobileCart\CoreBundle\Form\CategoryType</parameter>
         <parameter key="cart.form.type.contact.class">MobileCart\CoreBundle\Form\ContactFormType</parameter>
         <parameter key="cart.form.type.customer.class">MobileCart\CoreBundle\Form\CustomerType</parameter>
         <parameter key="cart.form.type.customer.forgotpassword.class">MobileCart\CoreBundle\Form\CustomerForgotPasswordType</parameter>
@@ -159,8 +160,9 @@
         <parameter key="cart.repo.shipping_method">MobileCartCoreBundle:ShippingMethod</parameter>
         <parameter key="cart.repo.url_rewrite">MobileCartCoreBundle:UrlRewrite</parameter>
         <parameter key="cart.repo.webhook_log">MobileCartCoreBundle:WebhookLog</parameter>
-        <!-- Event Listeners -->
+        <!-- Homepage Event Listener -->
         <parameter key="cart.listener.home.view.return.class">MobileCart\CoreBundle\EventListener\Home\ViewReturn</parameter>
+        <!-- Admin Dashboard Event Listener -->
         <parameter key="cart.listener.dashboard.notifications.class">MobileCart\CoreBundle\EventListener\Dashboard\DashboardNotifications</parameter>
         <parameter key="cart.listener.dashboard.view.return.class">MobileCart\CoreBundle\EventListener\Dashboard\DashboardViewReturn</parameter>
         <!-- Login Handlers -->
@@ -1834,6 +1836,10 @@
         <!-- Category Services and Listeners -->
         <service id="cart.listener.category.search" lazy="true" class="%cart.listener.category.search.class%">
             <tag name="kernel.event_listener" event="category.search" method="onCategorySearch" priority="50" />
+            <call method="setSearch">
+                <argument type="service" id="cart.search.admin" />
+                <argument type="string">category</argument>
+            </call>
         </service>
         <service id="cart.listener.category.list" lazy="true" class="%cart.listener.category.list.class%">
             <tag name="kernel.event_listener" event="category.search" method="onCategoryList" priority="40" />
@@ -1846,18 +1852,12 @@
         </service>
         <service id="cart.listener.category.create.return" lazy="true" class="%cart.listener.category.create.return.class%">
             <tag name="kernel.event_listener" event="category.create.return" method="onCategoryCreateReturn" priority="50" />
-            <call method="setSession">
-                <argument type="service" id="session" />
-            </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
         </service>
         <service id="cart.listener.category.update.return" lazy="true" class="%cart.listener.category.update.return.class%">
             <tag name="kernel.event_listener" event="category.update.return" method="onCategoryUpdateReturn" priority="50" />
-            <call method="setSession">
-                <argument type="service" id="session" />
-            </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
@@ -1904,6 +1904,12 @@
                 <argument type="service" id="cart.entity" />
             </call>
         </service>
+        <service id="cart.form.type.category" lazy="true" class="%cart.form.type.category.class%">
+            <tag name="form.type" />
+            <call method="setThemeConfigService">
+                <argument type="service" id="cart.theme.config" />
+            </call>
+        </service>
         <service id="cart.listener.category.admin.form" lazy="true" class="%cart.listener.category.admin.form.class%">
             <tag name="kernel.event_listener" event="category.admin.form" method="onCategoryAdminForm" priority="50" />
             <call method="setEntityService">
@@ -1912,8 +1918,8 @@
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
             </call>
-            <call method="setThemeConfig">
-                <argument type="service" id="cart.theme.config" />
+            <call method="setFormTypeClass">
+                <argument type="string">%cart.form.type.category.class%</argument>
             </call>
         </service>
 

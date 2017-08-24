@@ -39,28 +39,18 @@ class CategoryInsert
      */
     public function onCategoryInsert(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $request = $event->getRequest();
         $entity = $event->getEntity();
-        $formData = $event->getFormData();
-
         $entity->setSlug($this->getEntityService()->slugify($entity->getSlug()));
-
         $this->getEntityService()->persist($entity);
-        if ($formData) {
+
+        if ($event->getFormData()) {
 
             $this->getEntityService()
-                ->persistVariants($entity, $formData);
+                ->persistVariants($entity, $event->getFormData());
         }
 
-        if ($entity && $request->getSession()) {
-
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Category Created!'
-            );
-        }
+        $event->addSuccessMessage('Category Created!');
 
         // update images
         if ($imageJson = $request->get('images_json', [])) {
@@ -69,7 +59,5 @@ class CategoryInsert
                 $this->getEntityService()->updateImages(EntityConstants::CATEGORY_IMAGE, $entity, $images);
             }
         }
-
-        $event->setReturnData($returnData);
     }
 }

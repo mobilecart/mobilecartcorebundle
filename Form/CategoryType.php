@@ -5,21 +5,46 @@ namespace MobileCart\CoreBundle\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
+/**
+ * Class CategoryType
+ * @package MobileCart\CoreBundle\Form
+ */
 class CategoryType extends AbstractType
 {
-    protected $customTemplates = [];
+    /**
+     * @var \MobileCart\CoreBundle\Service\ThemeConfig
+     */
+    protected $themeConfigService;
 
-    public function setCustomTemplates(array $customTemplates)
+    /**
+     * @param $themeConfigService
+     * @return $this
+     */
+    public function setThemeConfigService(\MobileCart\CoreBundle\Service\ThemeConfig $themeConfigService)
     {
-        $this->customTemplates = $customTemplates;
+        $this->themeConfigService = $themeConfigService;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ThemeConfig
+     */
+    public function getThemeConfigService()
+    {
+        return $this->themeConfigService;
+    }
+
+    /**
+     * @return array
+     */
     public function getCustomTemplates()
     {
-        return $this->customTemplates;
+        return $this->getThemeConfigService()->getObjectTypeTemplates(EntityConstants::CATEGORY);
     }
 
     /**
@@ -30,40 +55,39 @@ class CategoryType extends AbstractType
     {
         $builder
             ->add('parent_category')
-            ->add('name', 'text',[
-                'required' => 1,
+            ->add('name', TextType::class,[
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('slug', 'text', [
-                'required' => 1,
+            ->add('slug', TextType::class, [
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('page_title')
-            ->add('content', 'textarea', ['required' => false])
-            ->add('meta_title', 'textarea', ['required' => false])
-            ->add('meta_keywords', 'textarea', ['required' => false])
-            ->add('meta_description', 'textarea', ['required' => false])
-            ->add('sort_order', 'text', ['required' => false])
-            ->add('custom_template', 'choice', [
+            ->add('page_title', TextType::class)
+            ->add('content', TextareaType::class, ['required' => false])
+            ->add('meta_title', TextareaType::class, ['required' => false])
+            ->add('meta_keywords', TextareaType::class, ['required' => false])
+            ->add('meta_description', TextareaType::class, ['required' => false])
+            ->add('sort_order', TextType::class, ['required' => false])
+            ->add('custom_template', ChoiceType::class, [
                 'required' => false,
                 'choices' => $this->getCustomTemplates(),
             ])
-            ->add('display_mode', 'choice', [
+            ->add('display_mode', ChoiceType::class, [
                 'required' => false,
                 'choices' => EntityConstants::getDisplayModes()
             ])
-            //->add('item_var_set')
         ;
     }
 
     /**
      * @return string
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'category';
     }

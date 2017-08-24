@@ -11,7 +11,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 class CategoryList
 {
-
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -37,12 +39,19 @@ class CategoryList
         return $this->themeService;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -53,13 +62,10 @@ class CategoryList
      */
     public function onCategoryList(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $response = '';
 
-        $returnData['columns'] = [
+        $columns = [
             [
                 'key' => 'id',
                 'label' => 'ID',
@@ -72,31 +78,31 @@ class CategoryList
             ],
         ];
 
-        if (isset($returnData['search'])) {
-            $search = $returnData['search'];
+        $search = $event->getReturnData('search');
+        if ($search) {
             $sortBy = $search->getSortBy();
             $sortDir = $search->getSortDir();
             if ($sortBy) {
-                foreach($returnData['columns'] as $k => $colData) {
+                foreach($columns as $k => $colData) {
                     if ($colData['key'] == $sortBy) {
-                        $returnData['columns'][$k]['isActive'] = 1;
-                        $returnData['columns'][$k]['direction'] = $sortDir;
+                        $columns[$k]['isActive'] = 1;
+                        $columns[$k]['direction'] = $sortDir;
                         break;
                     }
                 }
             }
         }
 
+        $event->setReturnData('columns', $columns);
+
         switch($event->getSection()) {
             case ($format == 'json'):
             case CoreEvent::SECTION_API:
-
-                $response = new JsonResponse($returnData);
-
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             case CoreEvent::SECTION_BACKEND:
 
-                $returnData['mass_actions'] = [
+                $massActions = [
                     [
                         'label'         => 'Delete Categories',
                         'input_label'   => 'Confirm Mass-Delete ?',
@@ -111,12 +117,13 @@ class CategoryList
                     ],
                 ];
 
+                $event->setReturnData('mass_actions', $massActions);
+
                 $template = $event->getCustomTemplate()
                     ? $event->getCustomTemplate()
                     : 'Category:index.html.twig';
 
-                $response = $this->getThemeService()
-                    ->render('admin', $template, $returnData);
+                $event->setResponse($this->getThemeService()->render('admin', $template, $event->getReturnData()));
 
                 break;
             case CoreEvent::SECTION_FRONTEND:
@@ -125,16 +132,18 @@ class CategoryList
                     ? $event->getCustomTemplate()
                     : 'Category:index.html.twig';
 
-                $response = $this->getThemeService()
-                    ->render('frontend', $template, $returnData);
+                $event->setResponse($this->getThemeService()->render('frontend', $template, $event->getReturnData()));
 
                 break;
             default:
 
+                $template = $event->getCustomTemplate()
+                    ? $event->getCustomTemplate()
+                    : 'Category:index.html.twig';
+
+                $event->setResponse($this->getThemeService()->render('frontend', $template, $event->getReturnData()));
+
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

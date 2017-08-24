@@ -11,13 +11,36 @@ use MobileCart\CoreBundle\Event\CoreEvent;
 class CategorySearch
 {
     /**
+     * @var \MobileCart\CoreBundle\Service\SearchServiceInterface
+     */
+    protected $search;
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\SearchServiceInterface $search
+     * @param $objectType
+     * @return $this
+     */
+    public function setSearch(\MobileCart\CoreBundle\Service\SearchServiceInterface $search, $objectType)
+    {
+        $this->search = $search->setObjectType($objectType);
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\SearchServiceInterface
+     */
+    public function getSearch()
+    {
+        return $this->search;
+    }
+
+    /**
      * @param CoreEvent $event
      */
     public function onCategorySearch(CoreEvent $event)
     {
         $request = $event->getRequest();
-        $search = $event->getSearch()
-            ->parseRequest($request);
+        $search = $this->getSearch()->parseRequest($request);
 
         if ($event->getSection() == CoreEvent::SECTION_FRONTEND) {
             $search->setDefaultSort('sort_order', 'asc');

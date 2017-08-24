@@ -85,9 +85,7 @@ class CategoryNewReturn
      */
     public function onCategoryNewReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
-
         $objectType = EntityConstants::CATEGORY;
 
         $tplSections = [];
@@ -101,15 +99,10 @@ class CategoryNewReturn
             'upload_query' => "?object_type={$objectType}",
         ];
 
-        $returnData['template_sections'] = $tplSections;
-        $form = $returnData['form'];
-        $returnData['form'] = $form->createView();
-        $returnData['entity'] = $entity;
+        $event->setReturnData('entity', $entity);
+        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('template_sections', $tplSections);
 
-        $response = $this->getThemeService()
-            ->render('admin', 'Category:new.html.twig', $returnData);
-
-        $event->setResponse($response)
-            ->setReturnData($returnData);
+        $event->setResponse($this->getThemeService()->render('admin', 'Category:new.html.twig', $event->getReturnData()));
     }
 }

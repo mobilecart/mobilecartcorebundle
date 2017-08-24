@@ -39,8 +39,6 @@ class CategoryDelete
      */
     public function onCategoryDelete(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
 
         // remove category_product
@@ -56,13 +54,17 @@ class CategoryDelete
 
         $this->getEntityService()->remove($entity, EntityConstants::CATEGORY);
 
-        if ($entity && $event->getRequest()->getSession()) {
-            $event->getRequest()->getSession()->getFlashBag()->add(
-                'success',
-                'Category Deleted!'
-            );
-        }
+        $event->addSuccessMessage('Category Deleted!');
 
-        $event->setReturnData($returnData);
+        if ($event->getRequest()->getSession() && $event->getMessages()) {
+            foreach($event->getMessages() as $code => $messages) {
+                if (!$messages) {
+                    continue;
+                }
+                foreach($messages as $message) {
+                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                }
+            }
+        }
     }
 }

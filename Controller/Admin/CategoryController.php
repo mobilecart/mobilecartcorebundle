@@ -11,23 +11,15 @@
 
 namespace MobileCart\CoreBundle\Controller\Admin;
 
-use MobileCart\CoreBundle\Constants\EntityConstants;
-
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
 
 /**
- * Category controller.
- *
- * @Route("/admin/category")
+ * Category controller
  */
 class CategoryController extends Controller
 {
@@ -37,26 +29,12 @@ class CategoryController extends Controller
     protected $objectType = EntityConstants::CATEGORY;
 
     /**
-     * Lists Category entities.
-     *
-     * @Route("/", name="cart_admin_category")
-     * @Method("GET")
+     * Lists Category entities
      */
     public function indexAction(Request $request)
     {
-        // Load a service; which extends Search\SearchAbstract
-        // The service parameter is stored in the service configuration as a parameter ; (slightly meta)
-        // This service could use either MySQL or ElasticSearch, etc for retrieving item data
-        $searchParam = $this->container->getParameter('cart.load.admin');
-        $search = $this->container->get($searchParam)
-            ->setObjectType($this->objectType);
-
-        // Observe Event :
-        //  perform custom logic, post-processing
-
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setSearch($search)
             ->setObjectType($this->objectType)
             ->setSection(CoreEvent::SECTION_BACKEND);
 
@@ -67,14 +45,11 @@ class CategoryController extends Controller
     }
 
     /**
-     * Creates a new Category entity.
-     *
-     * @Route("/", name="cart_admin_category_create")
-     * @Method("POST")
+     * Creates a new Category entity
      */
     public function createAction(Request $request)
     {
-        $varSet = '';
+        $varSet = null;
         if ($varSetId = $request->get('var_set_id', '')) {
             $varSet = $this->get('cart.entity')->getVarSet($varSetId);
         } else {
@@ -89,19 +64,18 @@ class CategoryController extends Controller
             $entity->setItemVarSet($varSet);
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_category_create'))
-            ->setMethod('POST');
+            ->setFormAction($this->generateUrl('cart_admin_category_create'))
+            ->setFormMethod('POST');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CATEGORY_ADMIN_FORM, $formEvent);
+            ->dispatch(CoreEvents::CATEGORY_ADMIN_FORM, $event);
 
         $invalid = [];
-        $messages = [];
-        $form = $formEvent->getForm();
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
@@ -113,24 +87,16 @@ class CategoryController extends Controller
             if ($existing) {
                 $invalid['slug'] = ['Slug already exists'];
             } else {
-                // observe event
-                //  add category to indexes, etc
-                $event = new CoreEvent();
-                $event->setEntity($entity)
-                    ->setRequest($request)
-                    ->setFormData($formData);
+
+                $event->setFormData($formData);
 
                 $this->get('event_dispatcher')
                     ->dispatch(CoreEvents::CATEGORY_INSERT, $event);
 
-                $returnEvent = new CoreEvent();
-                $returnEvent->setMessages($event->getMessages());
-                $returnEvent->setRequest($request);
-                $returnEvent->setEntity($entity);
                 $this->get('event_dispatcher')
-                    ->dispatch(CoreEvents::CATEGORY_CREATE_RETURN, $returnEvent);
+                    ->dispatch(CoreEvents::CATEGORY_CREATE_RETURN, $event);
 
-                return $returnEvent->getResponse();
+                return $event->getResponse();
             }
         }
 
@@ -146,21 +112,12 @@ class CategoryController extends Controller
                 }
             }
 
-            $returnData = [
-                'success' => 0,
+            return new JsonResponse([
+                'success' => false,
                 'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+                'messages' => $event->getMessages(),
+            ]);
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setEntity($entity)
-            ->setVarSet($varSet)
-            ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CATEGORY_NEW_RETURN, $event);
@@ -169,14 +126,11 @@ class CategoryController extends Controller
     }
 
     /**
-     * Displays a form to create a new Category entity.
-     *
-     * @Route("/new", name="cart_admin_category_new")
-     * @Method("GET")
+     * Displays a form to create a new Category entity
      */
     public function newAction(Request $request)
     {
-        $varSet = '';
+        $varSet = null;
         if ($varSetId = $request->get('var_set_id', '')) {
             $varSet = $this->get('cart.entity')->getVarSet($varSetId);
         } else {
@@ -191,22 +145,15 @@ class CategoryController extends Controller
             $entity->setItemVarSet($varSet);
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_category_create'))
-            ->setMethod('POST');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CATEGORY_ADMIN_FORM, $formEvent);
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setVarSet($varSet)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_category_create'))
+            ->setFormMethod('POST');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CATEGORY_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CATEGORY_NEW_RETURN, $event);
@@ -215,10 +162,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Finds and displays a Category entity.
-     *
-     * @Route("/{id}", name="cart_admin_category_show")
-     * @Method("GET")
+     * Finds and displays a Category entity
      */
     public function showAction(Request $request, $id)
     {
@@ -231,34 +175,24 @@ class CategoryController extends Controller
     }
 
     /**
-     * Displays a form to edit an existing Category entity.
-     *
-     * @Route("/{id}/edit", name="cart_admin_category_edit")
-     * @Method("GET")
+     * Displays a form to edit an existing Category entity
      */
     public function editAction(Request $request, $id)
     {
         $entity = $this->get('cart.entity')->find($this->objectType, $id);
-
         if (!$entity) {
             throw $this->createNotFoundException("Unable to find entity with ID: {$id}");
         }
-
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_category_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CATEGORY_ADMIN_FORM, $formEvent);
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_category_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CATEGORY_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CATEGORY_EDIT_RETURN, $event);
@@ -267,10 +201,7 @@ class CategoryController extends Controller
     }
 
     /**
-     * Edits an existing Category entity.
-     *
-     * @Route("/{id}", name="cart_admin_category_update")
-     * @Method("PUT")
+     * Edits an existing Category entity
      */
     public function updateAction(Request $request, $id)
     {
@@ -279,19 +210,18 @@ class CategoryController extends Controller
             throw $this->createNotFoundException('Unable to find Category entity.');
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_category_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT');
+            ->setFormAction($this->generateUrl('cart_admin_category_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CATEGORY_ADMIN_FORM, $formEvent);
+            ->dispatch(CoreEvents::CATEGORY_ADMIN_FORM, $event);
 
         $invalid = [];
-        $messages = [];
-        $form = $formEvent->getForm();
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
@@ -313,23 +243,15 @@ class CategoryController extends Controller
 
             if (!$exists) {
 
-                $event = new CoreEvent();
-                $event->setObjectType($this->objectType)
-                    ->setEntity($entity)
-                    ->setRequest($request)
-                    ->setFormData($formData);
+                $event->setFormData($formData);
 
                 $this->get('event_dispatcher')
                     ->dispatch(CoreEvents::CATEGORY_UPDATE, $event);
 
-                $returnEvent = new CoreEvent();
-                $returnEvent->setMessages($event->getMessages());
-                $returnEvent->setRequest($request);
-                $returnEvent->setEntity($entity);
                 $this->get('event_dispatcher')
-                    ->dispatch(CoreEvents::CATEGORY_UPDATE_RETURN, $returnEvent);
+                    ->dispatch(CoreEvents::CATEGORY_UPDATE_RETURN, $event);
 
-                return $returnEvent->getResponse();
+                return $event->getResponse();
             }
         }
 
@@ -346,30 +268,22 @@ class CategoryController extends Controller
             }
 
             $returnData = [
-                'success' => 0,
+                'success' => false,
                 'invalid' => $invalid,
-                'messages' => $messages,
+                'messages' => $event->getMessages(),
             ];
 
             return new JsonResponse($returnData);
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CATEGORY_EDIT_RETURN, $event);
 
         return $event->getResponse();
     }
+
     /**
-     * Deletes a Category entity.
-     *
-     * @Route("/{id}", name="cart_admin_category_delete")
-     * @Method("DELETE")
+     * Deletes a Category entity
      */
     public function deleteAction(Request $request, $id)
     {
@@ -403,9 +317,6 @@ class CategoryController extends Controller
 
     /**
      * Mass-Delete Categories
-     *
-     * @Route("/mass_delete", name="cart_admin_category_mass_delete")
-     * @Method("POST")
      */
     public function massDeleteAction(Request $request)
     {
@@ -450,7 +361,7 @@ class CategoryController extends Controller
     protected function createDeleteForm($id)
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('cart_admin_category_delete', array('id' => $id)))
+            ->setAction($this->generateUrl('cart_admin_category_delete', ['id' => $id]))
             ->setMethod('DELETE')
             ->add('submit', 'submit', ['label' => 'Delete'])
             ->getForm();
