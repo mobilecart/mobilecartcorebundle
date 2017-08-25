@@ -38,11 +38,6 @@ class ContentSlotViewReturn
      */
     public function onContentSlotViewReturn(CoreEvent $event)
     {
-
-        $returnData = $event->getReturnData();
-
         // nothing for now
-
-        $event->setReturnData($returnData);
     }
 }

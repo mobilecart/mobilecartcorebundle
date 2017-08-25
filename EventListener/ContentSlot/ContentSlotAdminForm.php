@@ -16,7 +16,15 @@ class ContentSlotAdminForm
      */
     protected $entityService;
 
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
     protected $formFactory;
+
+    /**
+     * @var string
+     */
+    protected $formTypeClass = '';
 
     /**
      * @var \MobileCart\CoreBundle\Service\ThemeConfig
@@ -41,15 +49,40 @@ class ContentSlotAdminForm
         return $this->entityService;
     }
 
-    public function setFormFactory($formFactory)
+    /**
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @return $this
+     */
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
     {
         $this->formFactory = $formFactory;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
     public function getFormFactory()
     {
         return $this->formFactory;
+    }
+
+    /**
+     * @param string $formTypeClass
+     * @return $this
+     */
+    public function setFormTypeClass($formTypeClass)
+    {
+        $this->formTypeClass = $formTypeClass;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormTypeClass()
+    {
+        return $this->formTypeClass;
     }
 
     /**
@@ -75,19 +108,13 @@ class ContentSlotAdminForm
      */
     public function onContentSlotAdminForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
-
-        $formType = new ContentSlotType();
-        $form = $this->getFormFactory()->create($formType, $entity, [
-            'action' => $event->getAction(),
-            'method' => $event->getMethod(),
+        $form = $this->getFormFactory()->create($this->getFormTypeClass(), $entity, [
+            'action' => $event->getFormAction(),
+            'method' => $event->getFormMethod(),
         ]);
 
-        $returnData['form_sections'] = [];
-        $returnData['form'] = $form;
-
-        $event->setForm($form)
-            ->setReturnData($returnData);
+        $event->setReturnData('form', $form);
+        $event->setReturnData('form_sections', []);
     }
 }

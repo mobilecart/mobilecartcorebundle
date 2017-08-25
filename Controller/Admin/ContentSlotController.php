@@ -11,23 +11,16 @@
 
 namespace MobileCart\CoreBundle\Controller\Admin;
 
-use MobileCart\CoreBundle\Constants\EntityConstants;
-
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
- * Content Slot controller.
- *
- * @Route("/admin/content_slot")
+ * Class ContentSlotController
+ * @package MobileCart\CoreBundle\Controller\Admin
  */
 class ContentSlotController extends Controller
 {
@@ -37,26 +30,12 @@ class ContentSlotController extends Controller
     protected $objectType = EntityConstants::CONTENT_SLOT;
 
     /**
-     * Lists Content entities.
-     *
-     * @Route("/", name="cart_admin_content_slot")
-     * @Method("GET")
+     * Lists Content entities
      */
     public function indexAction(Request $request)
     {
-        // Load a service; which extends Search\SearchAbstract
-        // The service parameter is stored in the service configuration as a parameter ; (slightly meta)
-        // This service could use either MySQL or ElasticSearch, etc for retrieving item data
-        $searchParam = $this->container->getParameter('cart.load.admin');
-        $search = $this->container->get($searchParam)
-            ->setObjectType($this->objectType);
-
-        // Observe Event :
-        //  perform custom logic, post-processing
-
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setSearch($search)
             ->setObjectType($this->objectType)
             ->setSection(CoreEvent::SECTION_BACKEND);
 
@@ -67,55 +46,41 @@ class ContentSlotController extends Controller
     }
 
     /**
-     * Creates a new Content entity.
-     *
-     * @Route("/", name="cart_admin_content_slot_create")
-     * @Method("POST")
+     * Creates a new Content entity
      */
     public function createAction(Request $request)
     {
         $entity = $this->get('cart.entity')->getInstance(EntityConstants::CONTENT_SLOT);
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_content_slot_create'))
-            ->setMethod('POST');
+            ->setFormAction($this->generateUrl('cart_admin_content_slot_create'))
+            ->setFormMethod('POST');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CONTENT_SLOT_ADMIN_FORM, $formEvent);
+            ->dispatch(CoreEvents::CONTENT_SLOT_ADMIN_FORM, $event);
 
-        $form = $formEvent->getForm();
-
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
 
-            // observe event
-            //  add content to indexes, etc
-            $event = new CoreEvent();
-            $event->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData);
+            $event->setFormData($formData);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CONTENT_SLOT_INSERT, $event);
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CONTENT_SLOT_CREATE_RETURN, $returnEvent);
+                ->dispatch(CoreEvents::CONTENT_SLOT_CREATE_RETURN, $event);
 
-            return $returnEvent->getResponse();
+            return $event->getResponse();
         }
 
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
             $invalid = [];
-            $messages = [];
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {
@@ -126,20 +91,12 @@ class ContentSlotController extends Controller
                 }
             }
 
-            $returnData = [
-                'success' => 0,
+            return new JsonResponse([
+                'success' => false,
                 'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+                'messages' => $event->getMessages(),
+            ]);
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setEntity($entity)
-            ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONTENT_SLOT_NEW_RETURN, $event);
@@ -148,30 +105,21 @@ class ContentSlotController extends Controller
     }
 
     /**
-     * Displays a form to create a new Content entity.
-     *
-     * @Route("/new", name="cart_admin_content_slot_new")
-     * @Method("GET")
+     * Displays a form to create a new Content entity
      */
     public function newAction(Request $request)
     {
         $entity = $this->get('cart.entity')->getInstance($this->objectType);
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_content_create'))
-            ->setMethod('POST');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CONTENT_SLOT_ADMIN_FORM, $formEvent);
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_content_create'))
+            ->setFormMethod('POST');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CONTENT_SLOT_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONTENT_SLOT_NEW_RETURN, $event);
@@ -180,10 +128,7 @@ class ContentSlotController extends Controller
     }
 
     /**
-     * Finds and displays a Content entity.
-     *
-     * @Route("/{id}", name="cart_admin_content_slot_show")
-     * @Method("GET")
+     * Finds and displays a Content entity
      */
     public function showAction(Request $request, $id)
     {
@@ -196,34 +141,24 @@ class ContentSlotController extends Controller
     }
 
     /**
-     * Displays a form to edit an existing Content entity.
-     *
-     * @Route("/{id}/edit", name="cart_admin_content_slot_edit")
-     * @Method("GET")
+     * Displays a form to edit an existing Content entity
      */
     public function editAction(Request $request, $id)
     {
         $entity = $this->get('cart.entity')->find($this->objectType, $id);
-
         if (!$entity) {
             throw $this->createNotFoundException("Unable to find entity with ID: {$id}");
         }
-
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_content_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CONTENT_SLOT_ADMIN_FORM, $formEvent);
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_content_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CONTENT_SLOT_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONTENT_SLOT_EDIT_RETURN, $event);
@@ -232,59 +167,44 @@ class ContentSlotController extends Controller
     }
 
     /**
-     * Edits an existing Content entity.
-     *
-     * @Route("/{id}", name="cart_admin_content_slot_update")
-     * @Method("PUT")
+     * Edits an existing Content entity
      */
     public function updateAction(Request $request, $id)
     {
         $entity = $this->get('cart.entity')->find($this->objectType, $id);
         if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Content entity.');
+            throw $this->createNotFoundException('Unable to find ContentSlot entity.');
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_content_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT');
+            ->setFormAction($this->generateUrl('cart_admin_content_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CONTENT_SLOT_ADMIN_FORM, $formEvent);
+            ->dispatch(CoreEvents::CONTENT_SLOT_ADMIN_FORM, $event);
 
-        $form = $formEvent->getForm();
-
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
 
-            // observe event
-            // update entity via command bus
-            $event = new CoreEvent();
-            $event->setObjectType($this->objectType)
-                ->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData);
+            $event->setFormData($formData);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CONTENT_SLOT_UPDATE, $event);
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CONTENT_SLOT_UPDATE_RETURN, $returnEvent);
+                ->dispatch(CoreEvents::CONTENT_SLOT_UPDATE_RETURN, $event);
 
-            return $returnEvent->getResponse();
+            return $event->getResponse();
         }
 
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
             $invalid = [];
-            $messages = [];
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {
@@ -295,20 +215,12 @@ class ContentSlotController extends Controller
                 }
             }
 
-            $returnData = [
-                'success' => 0,
+            return new JsonResponse([
+                'success' => false,
                 'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+                'messages' => $event->getMessages(),
+            ]);
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONTENT_SLOT_EDIT_RETURN, $event);
@@ -317,53 +229,43 @@ class ContentSlotController extends Controller
     }
 
     /**
-     * Deletes a Content entity.
-     *
-     * @Route("/{id}", name="cart_admin_content_slot_delete")
-     * @Method("DELETE")
+     * Deletes a Content entity
      */
     public function deleteAction(Request $request, $id)
     {
-        //$form = $this->createDeleteForm($id);
-        //if ($form->handleRequest($request)->isValid()) {
-            $entity = $this->get('cart.entity')->find($this->objectType, $id);
-            if (!$entity) {
-                //throw $this->createNotFoundException('Unable to find Content entity.');
-                return new JsonResponse([
-                    'success' => 0,
-                ]);
-            }
+        $entity = $this->get('cart.entity')->find($this->objectType, $id);
+        if (!$entity) {
 
-            $event = new CoreEvent();
-            $event->setObjectType($this->objectType)
-                ->setEntity($entity)
-                ->setRequest($request);
+            return new JsonResponse([
+                'success' => false,
+            ]);
+        }
 
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CONTENT_SLOT_DELETE, $event);
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
+            ->setEntity($entity)
+            ->setRequest($request);
 
-            // todo : event
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CONTENT_SLOT_DELETE, $event);
 
-            if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
-                return new JsonResponse([
-                    'success' => 1,
-                ]);
-            }
+        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Content Successfully Deleted!'
-            );
-        //}
+            return new JsonResponse([
+                'success' => true,
+            ]);
+        }
+
+        $request->getSession()->getFlashBag()->add(
+            'success',
+            'Content Successfully Deleted!'
+        );
 
         return $this->redirect($this->generateUrl('cart_admin_content_slot'));
     }
 
     /**
      * Mass-Delete Contents
-     *
-     * @Route("/mass_delete", name="cart_admin_content_slot_mass_delete")
-     * @Method("POST")
      */
     public function massDeleteAction(Request $request)
     {

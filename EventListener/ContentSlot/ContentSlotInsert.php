@@ -38,9 +38,8 @@ class ContentSlotInsert
      */
     public function onContentSlotInsert(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
         $this->getEntityService()->persist($entity);
-        $event->setReturnData($returnData);
+        $event->addSuccessMessage('Content Slot Created!');
     }
 }

@@ -61,6 +61,7 @@
         <parameter key="cart.form.type.config_setting.class">MobileCart\CoreBundle\Form\ConfigSettingType</parameter>
         <parameter key="cart.form.type.contact.class">MobileCart\CoreBundle\Form\ContactFormType</parameter>
         <parameter key="cart.form.type.content.class">MobileCart\CoreBundle\Form\ContentType</parameter>
+        <parameter key="cart.form.type.content_slot.class">MobileCart\CoreBundle\Form\ContentSlotType</parameter>
         <parameter key="cart.form.type.customer.class">MobileCart\CoreBundle\Form\CustomerType</parameter>
         <parameter key="cart.form.type.customer.forgotpassword.class">MobileCart\CoreBundle\Form\CustomerForgotPasswordType</parameter>
         <parameter key="cart.form.type.customer.updatepassword.class">MobileCart\CoreBundle\Form\CustomerUpdatePasswordType</parameter>
@@ -2157,6 +2158,10 @@
         <!-- ContentSlot Services and Listeners -->
         <service id="cart.listener.content_slot.search" lazy="true" class="%cart.listener.content_slot.search.class%">
             <tag name="kernel.event_listener" event="content_slot.search" method="onContentSlotSearch" priority="50" />
+            <call method="setSearch">
+                <argument type="service" id="cart.search.admin" />
+                <argument type="string">content_slot</argument>
+            </call>
         </service>
         <service id="cart.listener.content_slot.list" lazy="true" class="%cart.listener.content_slot.list.class%">
             <tag name="kernel.event_listener" event="content_slot.search" method="onContentSlotList" priority="40" />
@@ -2193,18 +2198,12 @@
         </service>
         <service id="cart.listener.content_slot.create.return" lazy="true" class="%cart.listener.content_slot.create.return.class%">
             <tag name="kernel.event_listener" event="content_slot.create.return" method="onContentSlotCreateReturn" priority="50" />
-            <call method="setSession">
-                <argument type="service" id="session" />
-            </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
         </service>
         <service id="cart.listener.content_slot.update.return" lazy="true" class="%cart.listener.content_slot.update.return.class%">
             <tag name="kernel.event_listener" event="content_slot.update.return" method="onContentSlotUpdateReturn" priority="50" />
-            <call method="setSession">
-                <argument type="service" id="session" />
-            </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
@@ -2227,6 +2226,9 @@
                 <argument type="service" id="cart.entity" />
             </call>
         </service>
+        <service id="cart.form.type.content_slot" lazy="true" class="%cart.form.type.content_slot.class%">
+            <tag name="form.type" />
+        </service>
         <service id="cart.listener.content_slot.admin.form" lazy="true" class="%cart.listener.content_slot.admin.form.class%">
             <tag name="kernel.event_listener" event="content_slot.admin.form" method="onContentSlotAdminForm" priority="50" />
             <call method="setEntityService">
@@ -2234,6 +2236,9 @@
             </call>
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
+            </call>
+            <call method="setFormTypeClass">
+                <argument type="string">%cart.form.type.content_slot.class%</argument>
             </call>
             <call method="setThemeConfig">
                 <argument type="service" id="cart.theme.config" />

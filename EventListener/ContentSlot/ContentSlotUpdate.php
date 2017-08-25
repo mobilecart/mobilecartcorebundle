@@ -39,12 +39,8 @@ class ContentSlotUpdate
      */
     public function onContentSlotUpdate(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
         $formData = $event->getFormData();
-        $request = $event->getRequest();
-
         if (isset($formData['parent_id'])) {
             $parentId = $formData['parent_id'];
             $content = $this->getEntityService()->find(EntityConstants::CONTENT, $parentId);
@@ -54,6 +50,5 @@ class ContentSlotUpdate
         }
 
         $this->getEntityService()->persist($entity);
-        $event->setReturnData($returnData);
     }
 }

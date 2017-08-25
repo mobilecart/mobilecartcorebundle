@@ -84,16 +84,8 @@ class ContentSlotEditReturn
      */
     public function onContentSlotEditReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $entity = $event->getEntity();
-        $typeSections = [];
-
-        $returnData['template_sections'] = $typeSections;
-
-        $form = $returnData['form'];
-        $returnData['form'] = $form->createView();
-        $returnData['entity'] = $entity;
-
-        $event->setReturnData($returnData);
+        $event->setReturnData('entity', $event->getEntity());
+        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('template_sections', []);
     }
 }

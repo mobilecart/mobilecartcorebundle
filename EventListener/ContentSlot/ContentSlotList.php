@@ -52,12 +52,10 @@ class ContentSlotList
      */
     public function onContentSlotList(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
-        $returnData['mass_actions'] =
-        [
+        $event->setReturnData('mass_actions', [
             [
                 'label'         => 'Delete Contents',
                 'input_label'   => 'Confirm Mass-Delete ?',
@@ -70,10 +68,9 @@ class ContentSlotList
                 'url' => $this->getRouter()->generate('cart_admin_content_mass_delete'),
                 'external' => 0,
             ],
-        ];
+        ]);
 
-        $returnData['columns'] =
-        [
+        $event->setReturnData('columns', [
             [
                 'key' => 'id',
                 'label' => 'ID',
@@ -89,19 +86,16 @@ class ContentSlotList
                 'label' => 'URL Slug',
                 'sort' => 1,
             ],
-        ];
+        ]);
 
-        $response = '';
         switch($format) {
             case 'json':
-                $response = new JsonResponse($returnData);
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
-                $response = null; // currently un-used
+                // currently un-used
+                $event->setResponse(new JsonResponse([]));
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }
