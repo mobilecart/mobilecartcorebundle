@@ -7,8 +7,15 @@ use MobileCart\CoreBundle\Event\CoreEvents;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Class ContactController
+ * @package MobileCart\CoreBundle\Controller\Frontend
+ */
 class ContactController extends Controller
 {
+    /**
+     * Display form
+     */
     public function indexAction(Request $request)
     {
         $event = new CoreEvent();
@@ -16,18 +23,16 @@ class ContactController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONTACT_FORM, $event);
 
-        $returnData = $event->getReturnData();
-        $form = $returnData['form'];
+        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('user', $this->getUser());
+        $event->setReturnData('recaptcha_key', trim($this->getParameter('recaptcha.key.site')));
 
-        $returnData['form'] = $form->createView();
-        $returnData['user'] = $this->getUser();
-        $returnData['recaptcha_key'] = trim($this->getParameter('recaptcha.key.site'));
-
-        // render template
-        return $this->get('cart.theme')
-            ->render('frontend', 'Contact:index.html.twig', $returnData);
+        return $this->get('cart.theme')->render('frontend', 'Contact:index.html.twig', $event->getReturnData());
     }
 
+    /**
+     * Handle form submission
+     */
     public function postAction(Request $request)
     {
         // build form
@@ -36,10 +41,8 @@ class ContactController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONTACT_FORM, $event);
 
-        $returnData = $event->getReturnData();
-        $form = $returnData['form'];
-
         // validate
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
             // validate recaptcha
@@ -53,24 +56,34 @@ class ContactController extends Controller
 
             $formData = $request->request->get($form->getName());
 
-            $emailEvent = new CoreEvent();
-            $emailEvent->setFormData($formData)
-                ->setRequest($request);
+            $event->setFormData($formData);
 
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CONTACT_FORM_POST, $emailEvent);
+                ->dispatch(CoreEvents::CONTACT_FORM_POST, $event);
 
-            return $emailEvent->getResponse();
+            return $event->getResponse();
+        }
+
+        if ($request->getSession() && $event->getMessages()) {
+            foreach($event->getMessages() as $code => $messages) {
+                if (!$messages) {
+                    continue;
+                }
+                foreach($messages as $message) {
+                    $request->getSession()->getFlashBag()->add($code, $message);
+                }
+            }
         }
 
         // redirect
         return $this->redirectToRoute('cart_contact', []);
     }
 
+    /**
+     * Display confirmation message
+     */
     public function thankyouAction(Request $request)
     {
-        // render template
-        return $this->get('cart.theme')
-            ->render('frontend', 'Contact:thankyou.html.twig', []);
+        return $this->get('cart.theme')->render('frontend', 'Contact:thankyou.html.twig', []);
     }
 }

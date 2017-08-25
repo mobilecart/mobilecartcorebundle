@@ -88,6 +88,11 @@ class CoreEvent extends Event
     protected $form_method = '';
 
     /**
+     * @var array
+     */
+    protected $form_data = [];
+
+    /**
      * @var bool
      */
     protected $is_mass_update = false;
@@ -635,6 +640,24 @@ class CoreEvent extends Event
     public function getFormAction()
     {
         return $this->form_action;
+    }
+
+    /**
+     * @param array $data
+     * @return $this
+     */
+    public function setFormData(array $data)
+    {
+        $this->form_data = $data;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFormData()
+    {
+        return $this->form_data;
     }
 
     /**

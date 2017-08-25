@@ -14,8 +14,11 @@ class ContactForm
     /**
      * @var string
      */
-    protected $formTypeClass;
+    protected $formTypeClass = '';
 
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
     protected $formFactory;
 
     /**
@@ -23,66 +26,92 @@ class ContactForm
      */
     protected $recaptchaKey;
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
+    /**
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @return $this
+     */
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
+    {
+        $this->formFactory = $formFactory;
+        return $this;
+    }
+
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
+    public function getFormFactory()
+    {
+        return $this->formFactory;
+    }
+
+    /**
+     * @param string $formTypeClass
+     * @return $this
+     */
     public function setFormTypeClass($formTypeClass)
     {
         $this->formTypeClass = $formTypeClass;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getFormTypeClass()
     {
         return $this->formTypeClass;
     }
 
-    public function setFormFactory($formFactory)
-    {
-        $this->formFactory = $formFactory;
-        return $this;
-    }
-
-    public function getFormFactory()
-    {
-        return $this->formFactory;
-    }
-
+    /**
+     * @param $recaptchaKey
+     * @return $this
+     */
     public function setRecaptchaKey($recaptchaKey)
     {
         $this->recaptchaKey = $recaptchaKey;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getRecaptchaKey()
     {
         return $this->recaptchaKey;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
     }
 
+    /**
+     * @param CoreEvent $event
+     */
     public function onContactForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
-        $route = 'cart_contact_post';
-        $params = [];
-        $url = $this->getRouter()->generate($route, $params);
-
         $form = $this->getFormFactory()->create($this->getFormTypeClass(), new ArrayWrapper(), [
-            'action' => $url,
+            'action' => $this->getRouter()->generate('cart_contact_post', []),
             'method' => 'POST',
         ]);
-
-        $returnData['form'] = $form;
-        $event->setReturnData($returnData);
+        $event->setReturnData('form', $form);
     }
 }

@@ -31,14 +31,24 @@ class ContactFormPost
      */
     protected $themeService;
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -98,34 +108,31 @@ class ContactFormPost
         return $this->emailFrom;
     }
 
+    /**
+     * @param $mailer
+     * @return $this
+     */
     public function setMailer($mailer)
     {
         $this->mailer = $mailer;
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
     public function getMailer()
     {
         return $this->mailer;
     }
 
+    /**
+     * @param CoreEvent $event
+     */
     public function onContactFormPost(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $request = $event->getRequest();
-        $formData = $event->getFormData();
-
-        $viewData = [
-            'email' => $formData['email'],
-            'name' => $formData['name'],
-            'phone' => $formData['phone'],
-            'message' => $formData['message'],
-        ];
-
-        // render template
-
         $body = $this->getThemeService()
-            ->renderView('email', 'Email:contact_message.html.twig', $viewData);
+            ->renderView('email', 'Email:contact_message.html.twig', $event->getFormData());
 
         $subject = 'Contact Form Submission';
         $recipient = trim($this->getEmailTo());
@@ -142,14 +149,20 @@ class ContactFormPost
             $this->getMailer()->send($msg);
 
         } catch(\Exception $e) {
-            // todo : handle error
+            $event->addErrorMessage('Error sending email');
         }
 
-        // redirect
-        $route = 'cart_contact_thankyou';
-        $url = $this->getRouter()->generate($route, []);
-        $event->setResponse(new RedirectResponse($url));
+        if ($event->getRequest()->getSession() && $event->getMessages()) {
+            foreach($event->getMessages() as $code => $messages) {
+                if (!$messages) {
+                    continue;
+                }
+                foreach($messages as $message) {
+                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                }
+            }
+        }
 
-        $event->setReturnData($returnData);
+        $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_contact_thankyou', [])));
     }
 }
