@@ -39,18 +39,8 @@ class ConfigSettingDelete
      */
     public function onConfigSettingDelete(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
         $this->getEntityService()->remove($entity, EntityConstants::CONFIG_SETTING);
-
-        if ($entity && $event->getRequest()->getSession()) {
-            $event->getRequest()->getSession()->getFlashBag()->add(
-                'success',
-                'Config Setting Deleted!'
-            );
-        }
-
-        $event->setReturnData($returnData);
+        $event->addSuccessMessage('Config Setting Deleted!');
     }
 }

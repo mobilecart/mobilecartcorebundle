@@ -4,7 +4,6 @@ namespace MobileCart\CoreBundle\EventListener\ConfigSetting;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Form\ConfigSettingType;
-use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
  * Class ConfigSettingAdminForm
@@ -17,7 +16,15 @@ class ConfigSettingAdminForm
      */
     protected $entityService;
 
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
     protected $formFactory;
+
+    /**
+     * @var string
+     */
+    protected $formTypeClass = '';
 
     /**
      * @var \MobileCart\CoreBundle\Service\ThemeConfig
@@ -42,15 +49,40 @@ class ConfigSettingAdminForm
         return $this->entityService;
     }
 
-    public function setFormFactory($formFactory)
+    /**
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @return $this
+     */
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
     {
         $this->formFactory = $formFactory;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
     public function getFormFactory()
     {
         return $this->formFactory;
+    }
+
+    /**
+     * @param string $formTypeClass
+     * @return $this
+     */
+    public function setFormTypeClass($formTypeClass)
+    {
+        $this->formTypeClass = $formTypeClass;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormTypeClass()
+    {
+        return $this->formTypeClass;
     }
 
     /**
@@ -76,16 +108,15 @@ class ConfigSettingAdminForm
      */
     public function onConfigSettingAdminForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
-
-        $formType = new ConfigSettingType();
-        $form = $this->getFormFactory()->create($formType, $entity, [
-            'action' => $event->getAction(),
-            'method' => $event->getMethod(),
+        //$formType = new ConfigSettingType();
+        $form = $this->getFormFactory()->create($this->getFormTypeClass(), $entity, [
+            'action' => $event->getFormAction(),
+            'method' => $event->getFormMethod(),
         ]);
 
-        $formSections = [
+        $event->setReturnData('form', $form);
+        $event->setReturnData('form_sections', [
             'general' => [
                 'label' => 'General',
                 'id' => 'general',
@@ -95,12 +126,6 @@ class ConfigSettingAdminForm
                     'value',
                 ],
             ],
-        ];
-
-        $returnData['form_sections'] = $formSections;
-        $returnData['form'] = $form;
-
-        $event->setForm($form)
-            ->setReturnData($returnData);
+        ]);
     }
 }

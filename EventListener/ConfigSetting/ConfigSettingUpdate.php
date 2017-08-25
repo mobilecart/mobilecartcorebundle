@@ -3,7 +3,6 @@
 namespace MobileCart\CoreBundle\EventListener\ConfigSetting;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
  * Class ConfigSettingUpdate
@@ -39,21 +38,8 @@ class ConfigSettingUpdate
      */
     public function onConfigSettingUpdate(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $entity = $event->getEntity();
-        $formData = $event->getFormData();
-        $request = $event->getRequest();
-
         $this->getEntityService()->persist($entity);
-
-        if ($entity && $request->getSession()) {
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Config Setting Updated!'
-            );
-        }
-
-        $event->setReturnData($returnData);
+        $event->addSuccessMessage('Config Setting Updated!');
     }
 }

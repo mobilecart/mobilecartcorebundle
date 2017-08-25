@@ -58,6 +58,7 @@
         <parameter key="cart.auth.token.allow.admin">0</parameter><!-- Enable GuardTokenAuth for Admin access -->
         <!-- Forms -->
         <parameter key="cart.form.type.category.class">MobileCart\CoreBundle\Form\CategoryType</parameter>
+        <parameter key="cart.form.type.config_setting.class">MobileCart\CoreBundle\Form\ConfigSettingType</parameter>
         <parameter key="cart.form.type.contact.class">MobileCart\CoreBundle\Form\ContactFormType</parameter>
         <parameter key="cart.form.type.content.class">MobileCart\CoreBundle\Form\ContentType</parameter>
         <parameter key="cart.form.type.customer.class">MobileCart\CoreBundle\Form\CustomerType</parameter>
@@ -1927,6 +1928,10 @@
         <!-- ConfigSetting Services and Listeners -->
         <service id="cart.listener.config_setting.search" lazy="true" class="%cart.listener.config_setting.search.class%">
             <tag name="kernel.event_listener" event="config_setting.search" method="onConfigSettingSearch" priority="50" />
+            <call method="setSearch">
+                <argument type="service" id="cart.search.admin" />
+                <argument type="string">config_setting</argument>
+            </call>
         </service>
         <service id="cart.listener.config_setting.list" lazy="true" class="%cart.listener.config_setting.list.class%">
             <tag name="kernel.event_listener" event="config_setting.search" method="onConfigSettingList" priority="40" />
@@ -1963,18 +1968,12 @@
         </service>
         <service id="cart.listener.config_setting.create.return" lazy="true" class="%cart.listener.config_setting.create.return.class%">
             <tag name="kernel.event_listener" event="config_setting.create.return" method="onConfigSettingCreateReturn" priority="50" />
-            <call method="setSession">
-                <argument type="service" id="session" />
-            </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
         </service>
         <service id="cart.listener.config_setting.update.return" lazy="true" class="%cart.listener.config_setting.update.return.class%">
             <tag name="kernel.event_listener" event="config_setting.update.return" method="onConfigSettingUpdateReturn" priority="50" />
-            <call method="setSession">
-                <argument type="service" id="session" />
-            </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
@@ -2004,6 +2003,9 @@
             </call>
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
+            </call>
+            <call method="setFormTypeClass">
+                <argument type="string">%cart.form.type.config_setting.class%</argument>
             </call>
             <call method="setThemeConfig">
                 <argument type="service" id="cart.theme.config" />

@@ -11,7 +11,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 class ConfigSettingList
 {
-
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -37,12 +39,19 @@ class ConfigSettingList
         return $this->themeService;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -53,14 +62,10 @@ class ConfigSettingList
      */
     public function onConfigSettingList(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $response = '';
 
-        $returnData['mass_actions'] =
-        [
+        $event->setReturnData('mass_actions', [
             [
                 'label'         => 'Delete Config Settings',
                 'input_label'   => 'Confirm Mass-Delete ?',
@@ -73,45 +78,38 @@ class ConfigSettingList
                 'url' => $this->getRouter()->generate('cart_admin_config_setting_mass_delete'),
                 'external' => 0,
             ],
-        ];
+        ]);
 
-        $returnData['columns'] =
-        [
+        $event->setReturnData('columns', [
             [
                 'key' => 'id',
                 'label' => 'ID',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'label',
                 'label' => 'Label',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'code',
                 'label' => 'Code',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'value',
                 'label' => 'Value',
-                'sort' => 1,
+                'sort' => true,
             ],
-        ];
+        ]);
 
         switch($format) {
             case 'json':
-                $response = new JsonResponse($returnData);
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
-
-                $response = $this->getThemeService()
-                    ->render('admin', 'ConfigSetting:index.html.twig', $returnData);
-
+                $event->setResponse($this->getThemeService()->render('admin', 'ConfigSetting:index.html.twig', $event->getReturnData()));
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

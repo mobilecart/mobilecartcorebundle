@@ -3,7 +3,6 @@
 namespace MobileCart\CoreBundle\EventListener\ConfigSetting;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
  * Class ConfigSettingInsert
@@ -39,20 +38,8 @@ class ConfigSettingInsert
      */
     public function onConfigSettingInsert(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $request = $event->getRequest();
         $entity = $event->getEntity();
-        $formData = $event->getFormData();
-
         $this->getEntityService()->persist($entity);
-
-        if ($entity && $request->getSession()) {
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Config Setting Created!'
-            );
-        }
-
-        $event->setReturnData($returnData);
+        $event->addSuccessMessage('Config Setting Created!');
     }
 }

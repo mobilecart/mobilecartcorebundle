@@ -11,23 +11,15 @@
 
 namespace MobileCart\CoreBundle\Controller\Admin;
 
-use MobileCart\CoreBundle\Constants\EntityConstants;
-
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
 
 /**
- * ConfigSetting controller.
- *
- * @Route("/admin/config_setting")
+ * ConfigSetting controller
  */
 class ConfigSettingController extends Controller
 {
@@ -37,26 +29,12 @@ class ConfigSettingController extends Controller
     protected $objectType = EntityConstants::CONFIG_SETTING;
 
     /**
-     * Lists ConfigSetting entities.
-     *
-     * @Route("/", name="cart_admin_config_setting")
-     * @Method("GET")
+     * Lists ConfigSetting entities
      */
     public function indexAction(Request $request)
     {
-        // Load a service; which extends Search\SearchAbstract
-        // The service parameter is stored in the service configuration as a parameter ; (slightly meta)
-        // This service could use either MySQL or ElasticSearch, etc for retrieving item data
-        $searchParam = $this->container->getParameter('cart.load.admin');
-        $search = $this->container->get($searchParam)
-            ->setObjectType($this->objectType);
-
-        // Observe Event :
-        //  perform custom logic, post-processing
-
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setSearch($search)
             ->setObjectType($this->objectType)
             ->setSection(CoreEvent::SECTION_BACKEND);
 
@@ -67,14 +45,11 @@ class ConfigSettingController extends Controller
     }
 
     /**
-     * Creates a new ConfigSetting entity.
-     *
-     * @Route("/", name="cart_admin_config_setting_create")
-     * @Method("POST")
+     * Creates a new ConfigSetting entity
      */
     public function createAction(Request $request)
     {
-        $varSet = '';
+        $varSet = null;
         if ($varSetId = $request->get('var_set_id', '')) {
             $varSet = $this->get('cart.entity')->getVarSet($varSetId);
         } else {
@@ -89,47 +64,34 @@ class ConfigSettingController extends Controller
             $entity->setItemVarSet($varSet);
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_config_setting_create'))
-            ->setMethod('POST');
+            ->setFormAction($this->generateUrl('cart_admin_config_setting_create'))
+            ->setFormMethod('POST');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CONFIG_SETTING_ADMIN_FORM, $formEvent);
+            ->dispatch(CoreEvents::CONFIG_SETTING_ADMIN_FORM, $event);
 
-        $form = $formEvent->getForm();
-
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
-
-            // observe event
-            //  add config_setting to indexes, etc
-            $event = new CoreEvent();
-            $event->setEntity($entity)
-                ->setObjectType($this->objectType)
-                ->setRequest($request)
-                ->setFormData($formData);
+            $event->setFormData($formData);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CONFIG_SETTING_INSERT, $event);
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CONFIG_SETTING_CREATE_RETURN, $returnEvent);
+                ->dispatch(CoreEvents::CONFIG_SETTING_CREATE_RETURN, $event);
 
-            return $returnEvent->getResponse();
+            return $event->getResponse();
         }
 
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
             $invalid = [];
-            $messages = [];
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {
@@ -140,21 +102,12 @@ class ConfigSettingController extends Controller
                 }
             }
 
-            $returnData = [
-                'success' => 0,
+            return new JsonResponse([
+                'success' => false,
                 'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+                'messages' => $event->getMessages(),
+            ]);
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setEntity($entity)
-            ->setVarSet($varSet)
-            ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONFIG_SETTING_NEW_RETURN, $event);
@@ -163,30 +116,21 @@ class ConfigSettingController extends Controller
     }
 
     /**
-     * Displays a form to create a new ConfigSetting entity.
-     *
-     * @Route("/new", name="cart_admin_config_setting_new")
-     * @Method("GET")
+     * Displays a form to create a new ConfigSetting entity
      */
     public function newAction(Request $request)
     {
         $entity = $this->get('cart.entity')->getInstance($this->objectType);
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_config_setting_create'))
-            ->setMethod('POST');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CONFIG_SETTING_ADMIN_FORM, $formEvent);
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_config_setting_create'))
+            ->setFormMethod('POST');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CONFIG_SETTING_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONFIG_SETTING_NEW_RETURN, $event);
@@ -195,10 +139,7 @@ class ConfigSettingController extends Controller
     }
 
     /**
-     * Finds and displays a ConfigSetting entity.
-     *
-     * @Route("/{id}", name="cart_admin_config_setting_show")
-     * @Method("GET")
+     * Finds and displays a ConfigSetting entity
      */
     public function showAction(Request $request, $id)
     {
@@ -211,34 +152,24 @@ class ConfigSettingController extends Controller
     }
 
     /**
-     * Displays a form to edit an existing ConfigSetting entity.
-     *
-     * @Route("/{id}/edit", name="cart_admin_config_setting_edit")
-     * @Method("GET")
+     * Displays a form to edit an existing ConfigSetting entity
      */
     public function editAction(Request $request, $id)
     {
         $entity = $this->get('cart.entity')->find($this->objectType, $id);
-
         if (!$entity) {
             throw $this->createNotFoundException("Unable to find entity with ID: {$id}");
         }
-
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_config_setting_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CONFIG_SETTING_ADMIN_FORM, $formEvent);
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_config_setting_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CONFIG_SETTING_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONFIG_SETTING_EDIT_RETURN, $event);
@@ -247,10 +178,7 @@ class ConfigSettingController extends Controller
     }
 
     /**
-     * Edits an existing ConfigSetting entity.
-     *
-     * @Route("/{id}", name="cart_admin_config_setting_update")
-     * @Method("PUT")
+     * Edits an existing ConfigSetting entity
      */
     public function updateAction(Request $request, $id)
     {
@@ -259,47 +187,35 @@ class ConfigSettingController extends Controller
             throw $this->createNotFoundException('Unable to find ConfigSetting entity.');
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_config_setting_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT');
+            ->setFormAction($this->generateUrl('cart_admin_config_setting_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CONFIG_SETTING_ADMIN_FORM, $formEvent);
+            ->dispatch(CoreEvents::CONFIG_SETTING_ADMIN_FORM, $event);
 
-        $form = $formEvent->getForm();
-
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
 
-            // observe event
-            // update entity via command bus
-            $event = new CoreEvent();
-            $event->setObjectType($this->objectType)
-                ->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData);
+            $event->setFormData($formData);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CONFIG_SETTING_UPDATE, $event);
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CONFIG_SETTING_UPDATE_RETURN, $returnEvent);
+                ->dispatch(CoreEvents::CONFIG_SETTING_UPDATE_RETURN, $event);
 
-            return $returnEvent->getResponse();
+            return $event->getResponse();
         }
 
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
             $invalid = [];
-            $messages = [];
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {
@@ -310,20 +226,12 @@ class ConfigSettingController extends Controller
                 }
             }
 
-            $returnData = [
-                'success' => 0,
+            return new JsonResponse([
+                'success' => false,
                 'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+                'messages' => $event->getMessages(),
+            ]);
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONFIG_SETTING_EDIT_RETURN, $event);
@@ -332,10 +240,7 @@ class ConfigSettingController extends Controller
     }
 
     /**
-     * Deletes a ConfigSetting entity.
-     *
-     * @Route("/{id}", name="cart_admin_config_setting_delete")
-     * @Method("DELETE")
+     * Deletes a ConfigSetting entity
      */
     public function deleteAction(Request $request, $id)
     {
@@ -369,9 +274,6 @@ class ConfigSettingController extends Controller
 
     /**
      * Mass-Delete ConfigSettings
-     *
-     * @Route("/mass_delete", name="cart_admin_config_setting_mass_delete")
-     * @Method("POST")
      */
     public function massDeleteAction(Request $request)
     {

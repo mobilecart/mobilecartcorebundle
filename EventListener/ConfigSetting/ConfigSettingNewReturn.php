@@ -84,22 +84,9 @@ class ConfigSettingNewReturn
      */
     public function onConfigSettingNewReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $entity = $event->getEntity();
-        $objectType = $event->getObjectType();
-
-        $typeSections = [];
-
-        $returnData['template_sections'] = $typeSections;
-
-        $form = $returnData['form'];
-        $returnData['form'] = $form->createView();
-        $returnData['entity'] = $entity;
-
-        $response = $this->getThemeService()
-            ->render('admin', 'ConfigSetting:new.html.twig', $returnData);
-
-        $event->setResponse($response)
-            ->setReturnData($returnData);
+        $event->setReturnData('template_sections', []);
+        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('entity', $event->getEntity());
+        $event->setResponse($this->getThemeService()->render('admin', 'ConfigSetting:new.html.twig', $event->getReturnData()));
     }
 }
