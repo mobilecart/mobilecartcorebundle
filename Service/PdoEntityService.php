@@ -143,9 +143,9 @@ class PdoEntityService
             $x = 1;
             foreach($params as $v) {
                 if (is_int($v)) {
-                    $stmt->bindParam($x, $v, \PDO::PARAM_INT);
+                    $stmt->bindValue($x, $v, \PDO::PARAM_INT);
                 } else {
-                    $stmt->bindParam($x, $v, \PDO::PARAM_STR);
+                    $stmt->bindValue($x, $v, \PDO::PARAM_STR);
                 }
                 $x++;
             }
@@ -208,9 +208,9 @@ class PdoEntityService
             $x = 1;
             foreach($params as $v) {
                 if (is_int($v)) {
-                    $stmt->bindParam($x, $v, \PDO::PARAM_INT);
+                    $stmt->bindValue($x, $v, \PDO::PARAM_INT);
                 } else {
-                    $stmt->bindParam($x, $v, \PDO::PARAM_STR);
+                    $stmt->bindValue($x, $v, \PDO::PARAM_STR);
                 }
                 $x++;
             }
@@ -275,13 +275,13 @@ class PdoEntityService
         $sql = "delete from {$tableName} where id = ?";
 
         $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(1, $id, \PDO::PARAM_INT);
+        $stmt->bindValue(1, $id, \PDO::PARAM_INT);
         $stmt->execute();
 
         // determine if it's EAV, the delete should cascade
         //  might need to delete those rows manually
 
-        // return true or false
+        return $this;
     }
 
     /**
@@ -293,7 +293,7 @@ class PdoEntityService
         $table = $this->getTableName(EntityConstants::PRODUCT);
         $sql = "select id from {$table} where sku = ?";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bindParam(1, $sku, \PDO::PARAM_STR);
+        $stmt->bindValue(1, $sku, \PDO::PARAM_STR);
         $stmt->execute();
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
 
@@ -385,7 +385,6 @@ class PdoEntityService
 
             $stmt->execute($entityData);
 
-            return $id;
         } else {
 
             $sql = "insert into {$tableName} (id";
@@ -424,8 +423,11 @@ class PdoEntityService
             $stmt = $this->conn->prepare($sql);
             $stmt->execute($entityData);
 
-            return $this->conn->lastInsertId();
+            $newId = $this->conn->lastInsertId();
+            $entity->setId($newId);
         }
+
+        return $this;
     }
 
     /**
@@ -563,6 +565,8 @@ class PdoEntityService
                     break;
             }
         }
+
+        return $this;
     }
 
     /**

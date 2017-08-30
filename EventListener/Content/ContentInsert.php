@@ -67,7 +67,213 @@ class ContentInsert
                 $sortOrder++;
             }
 
-            $this->getEntityService()->updateContentSlots($entity, $slots);
+            $this->updateContentSlots($entity, $slots);
         }
+    }
+
+    /**
+     * Update Content Slots within a Content Entity
+     *
+     * @param $entity
+     * @param array $slots
+     * @return $this
+     */
+    public function updateContentSlots($entity, array $slots)
+    {
+        $objectType = EntityConstants::CONTENT_SLOT;
+        if (is_int($entity)) {
+            $entity = $this->getEntityService()->find($objectType, $entity);
+        }
+
+        // get slots
+        $currentSlots = $entity->getSlots();
+        if ($currentSlots) {
+            foreach($currentSlots as $contentSlot) {
+                $found = false;
+                foreach($slots as $idx => $data) {
+
+                    if ($data['id'] != $contentSlot->getId()) {
+                        continue;
+                    }
+
+                    $embedCode = isset($data['embed_code'])
+                        ? $data['embed_code']
+                        : '';
+
+                    $title = isset($data['title'])
+                        ? $data['title']
+                        : '';
+
+                    $bodyText = isset($data['body_text'])
+                        ? $data['body_text']
+                        : '';
+
+                    $sortOrder = isset($data['sort_order'])
+                        ? $data['sort_order']
+                        : 1;
+
+                    switch($data['content_type']) {
+                        case EntityConstants::CONTENT_TYPE_IMAGE:
+
+                            // update slot
+                            $contentSlot
+                                ->setParent($entity)
+                                ->setContentType(EntityConstants::CONTENT_TYPE_IMAGE)
+                                ->setTitle($title)
+                                ->setBodyText($bodyText)
+                                ->setSortOrder($sortOrder)
+                                ->setEmbedCode('');
+
+                            if (isset($data['url'])) {
+                                $contentSlot->setUrl($data['url']);
+                            }
+
+                            if (isset($data['path'])) {
+                                $contentSlot->setPath($data['path']);
+                            }
+
+                            if (isset($data['alt_text'])) {
+                                $contentSlot->setAltText($data['alt_text']);
+                            }
+
+                            break;
+                        case EntityConstants::CONTENT_TYPE_EMBED:
+
+                            // update slot
+                            $contentSlot
+                                ->setParent($entity)
+                                ->setContentType(EntityConstants::CONTENT_TYPE_EMBED)
+                                ->setTitle($title)
+                                ->setBodyText($bodyText)
+                                ->setSortOrder($sortOrder)
+                                ->setAltText('')
+                                ->setUrl('')
+                                ->setEmbedCode($embedCode)
+                                ->setPath('');
+
+                            break;
+                        case EntityConstants::CONTENT_TYPE_HTML:
+
+                            // update slot
+                            $contentSlot
+                                ->setParent($entity)
+                                ->setContentType(EntityConstants::CONTENT_TYPE_HTML)
+                                ->setTitle($title)
+                                ->setBodyText($bodyText)
+                                ->setSortOrder($sortOrder)
+                                ->setAltText('')
+                                ->setUrl('')
+                                ->setEmbedCode('')
+                                ->setPath('');
+
+                            break;
+                        default:
+
+                            break;
+                    }
+
+                    $this->getEntityService()->persist($contentSlot);
+
+                    unset($slots[$idx]);
+                    $found = true;
+                    break;
+                }
+
+                // remove the slot if it's not included
+                if (!$found) {
+                    $this->getEntityService()->remove($contentSlot);
+                }
+            }
+        }
+
+        if ($slots) {
+            foreach($slots as $data) {
+
+                $contentSlot = $this->getEntityService()->find($objectType, $data['id']);
+
+                $embedCode = isset($data['embed_code'])
+                    ? $data['embed_code']
+                    : '';
+
+                $title = isset($data['title'])
+                    ? $data['title']
+                    : '';
+
+                $bodyText = isset($data['body_text'])
+                    ? $data['body_text']
+                    : '';
+
+                $sortOrder = isset($data['sort_order'])
+                    ? $data['sort_order']
+                    : 1;
+
+                switch($data['content_type']) {
+                    case EntityConstants::CONTENT_TYPE_IMAGE:
+
+                        // update slot
+                        $contentSlot
+                            ->setParent($entity)
+                            ->setContentType(EntityConstants::CONTENT_TYPE_IMAGE)
+                            ->setTitle($title)
+                            ->setBodyText($bodyText)
+                            ->setSortOrder($sortOrder)
+                            ->setEmbedCode('')
+                        ;
+
+                        if (isset($data['url'])) {
+                            $contentSlot->setUrl($data['url']);
+                        }
+
+                        if (isset($data['path'])) {
+                            $contentSlot->setPath($data['path']);
+                        }
+
+                        if (isset($data['alt_text'])) {
+                            $contentSlot->setAltText($data['alt_text']);
+                        }
+
+                        break;
+                    case EntityConstants::CONTENT_TYPE_EMBED:
+
+                        // update slot
+                        $contentSlot
+                            ->setParent($entity)
+                            ->setContentType(EntityConstants::CONTENT_TYPE_EMBED)
+                            ->setTitle($title)
+                            ->setBodyText($bodyText)
+                            ->setSortOrder($sortOrder)
+                            ->setAltText('')
+                            ->setUrl('')
+                            ->setEmbedCode($embedCode)
+                            ->setPath('')
+                        ;
+
+                        break;
+                    case EntityConstants::CONTENT_TYPE_HTML:
+
+                        // update slot
+                        $contentSlot
+                            ->setParent($entity)
+                            ->setContentType(EntityConstants::CONTENT_TYPE_HTML)
+                            ->setTitle($title)
+                            ->setBodyText($bodyText)
+                            ->setSortOrder($sortOrder)
+                            ->setAltText('')
+                            ->setUrl('')
+                            ->setEmbedCode('')
+                            ->setPath('')
+                        ;
+
+                        break;
+                    default:
+
+                        break;
+                }
+
+                $this->getEntityService()->persist($contentSlot);
+            }
+        }
+
+        return $this;
     }
 }
