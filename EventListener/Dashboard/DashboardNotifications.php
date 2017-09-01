@@ -61,17 +61,12 @@ class DashboardNotifications
      */
     public function onDashboardViewReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $sections = [];
-
-        $sections['notifications'] = [
+        $event->setReturnData('notifications', [
             'section_id'   => 'notifications',
             'label'        => 'Notifications',
             'template'     => $this->getThemeService()->getTemplatePath('admin') . ':' . 'Dashboard/notifications.html.twig',
-        ];
+        ]);
 
-        $returnData['template_sections'] = $sections;
-
-        $event->setReturnData($returnData);
+        $event->setReturnData('template_sections', []);
     }
 }

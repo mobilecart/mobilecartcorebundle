@@ -61,15 +61,14 @@ class DashboardViewReturn
      */
     public function onDashboardViewReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
-        if (!isset($returnData['template_sections'])) {
-            $returnData['template_sections'] = [];
+        if (is_null($event->getReturnData('template_sections'))) {
+            $event->setReturnData('template_sections', []);
         }
 
-        $response = $this->getThemeService()
-            ->render('admin', 'Dashboard:index.html.twig', $returnData);
-
-        $event->setResponse($response);
+        $event->setResponse($this->getThemeService()->render(
+            'admin',
+            'Dashboard:index.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

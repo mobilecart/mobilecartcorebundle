@@ -85,27 +85,27 @@ class CustomerAddressList
             [
                 'key' => 'id',
                 'label' => 'ID',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'name',
                 'label' => 'Name',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'city',
                 'label' => 'City',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'region',
                 'label' => 'Region/State',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'country_id',
                 'label' => 'Country',
-                'sort' => 1,
+                'sort' => true,
             ],
         ]);
 
