@@ -61,18 +61,14 @@ class DiscountNewReturn
      */
     public function onDiscountNewReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $entity = $event->getEntity();
-        $returnData['template_sections'] = [];
+        $event->setReturnData('entity', $event->getEntity());
+        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('template_sections', []);
 
-        $form = $returnData['form'];
-        $returnData['form'] = $form->createView();
-        $returnData['entity'] = $entity;
-
-        $response = $this->getThemeService()
-            ->render('admin', 'Discount:new.html.twig', $returnData);
-
-        $event->setResponse($response)
-            ->setReturnData($returnData);
+        $event->setResponse($this->getThemeService()->render(
+            'admin',
+            'Discount:new.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

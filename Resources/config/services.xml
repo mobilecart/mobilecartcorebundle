@@ -69,6 +69,7 @@
         <parameter key="cart.form.type.customer.profile.class">MobileCart\CoreBundle\Form\CustomerProfileType</parameter>
         <parameter key="cart.form.type.customer.register.class">MobileCart\CoreBundle\Form\CustomerRegisterType</parameter>
         <parameter key="cart.form.type.customer_address.class">MobileCart\CoreBundle\Form\CustomerAddressType</parameter>
+        <parameter key="cart.form.type.discount.class">MobileCart\CoreBundle\Form\DiscountType</parameter>
         <parameter key="cart.form.type.export_options.class">MobileCart\CoreBundle\Form\ExportOptionsType</parameter>
         <!-- Services -->
         <parameter key="cart.session.class">MobileCart\CoreBundle\Service\CartSessionService</parameter>
@@ -2778,6 +2779,10 @@
         <!-- Discount -->
         <service id="cart.listener.discount.search" lazy="true" class="%cart.listener.discount.search.class%">
             <tag name="kernel.event_listener" event="discount.search" method="onDiscountSearch" priority="50" />
+            <call method="setSearch">
+                <argument type="service" id="cart.search.admin" />
+                <argument type="string">discount</argument>
+            </call>
         </service>
         <service id="cart.listener.discount.list" lazy="true" class="%cart.listener.discount.list.class%">
             <tag name="kernel.event_listener" event="discount.search" method="onDiscountList" priority="40" />
@@ -2826,21 +2831,18 @@
         </service>
         <service id="cart.listener.discount.create.return" lazy="true" class="%cart.listener.discount.create.return.class%">
             <tag name="kernel.event_listener" event="discount.create.return" method="onDiscountCreateReturn" priority="50" />
-            <call method="setSession">
-                <argument type="service" id="session" />
-            </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
         </service>
         <service id="cart.listener.discount.update.return" lazy="true" class="%cart.listener.discount.update.return.class%">
             <tag name="kernel.event_listener" event="discount.update.return" method="onDiscountUpdateReturn" priority="50" />
-            <call method="setSession">
-                <argument type="service" id="session" />
-            </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
+        </service>
+        <service id="cart.form.type.discount" lazy="true" class="%cart.form.type.discount.class%">
+            <tag name="form.type" />
         </service>
         <service id="cart.listener.discount.admin.form" lazy="true" class="%cart.listener.discount.admin.form.class%">
             <tag name="kernel.event_listener" event="discount.admin.form" method="onDiscountAdminForm" priority="50" />
@@ -2849,6 +2851,9 @@
             </call>
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
+            </call>
+            <call method="setFormTypeClass">
+                <argument type="string">%cart.form.type.discount.class%</argument>
             </call>
         </service>
 

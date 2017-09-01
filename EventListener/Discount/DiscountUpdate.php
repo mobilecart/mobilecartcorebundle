@@ -3,6 +3,7 @@
 namespace MobileCart\CoreBundle\EventListener\Discount;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
+use MobileCart\CoreBundle\CartComponent\Discount;
 
 /**
  * Class DiscountUpdate
@@ -38,18 +39,12 @@ class DiscountUpdate
      */
     public function onDiscountUpdate(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
-        $this->getEntityService()->persist($entity);
-
-        if ($entity && $event->getRequest()->getSession()) {
-
-            $event->getRequest()->getSession()->getFlashBag()->add(
-                'success',
-                'Discount Updated!'
-            );
+        if ($entity->getAppliedTo() != Discount::$toSpecified) {
+            $entity->setPreConditions('{}');
+            $entity->setTargetConditions('{}');
         }
-
-        $event->setReturnData($returnData);
+        $this->getEntityService()->persist($entity);
+        $event->addSuccessMessage('Discount Updated!');
     }
 }

@@ -3,7 +3,6 @@
 namespace MobileCart\CoreBundle\EventListener\Discount;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\Form\DiscountType;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
@@ -12,22 +11,55 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
  */
 class DiscountAdminForm
 {
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
     protected $formFactory;
+
+    /**
+     * @var string
+     */
+    protected $formTypeClass = '';
 
     /**
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
 
-    public function setFormFactory($formFactory)
+    /**
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @return $this
+     */
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
     {
         $this->formFactory = $formFactory;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
     public function getFormFactory()
     {
         return $this->formFactory;
+    }
+
+    /**
+     * @param string $formTypeClass
+     * @return $this
+     */
+    public function setFormTypeClass($formTypeClass)
+    {
+        $this->formTypeClass = $formTypeClass;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormTypeClass()
+    {
+        return $this->formTypeClass;
     }
 
     /**
@@ -53,23 +85,24 @@ class DiscountAdminForm
      */
     public function onDiscountAdminForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
-
-        $form = $this->getFormFactory()->create(new DiscountType(), $entity, [
-            'action' => $event->getAction(),
-            'method' => $event->getMethod(),
+        $form = $this->getFormFactory()->create($this->getFormTypeClass(), $entity, [
+            'action' => $event->getFormAction(),
+            'method' => $event->getFormMethod(),
         ]);
 
         $operators = [
-            'gt' => 'Greater Than',
-            'gte' => 'Greater Than or Equal To',
-            'lt' => 'Less Than',
-            'lte' => 'Less Than or Equal To',
-            'equals' => 'Equal To',
-            'in_array' => 'In List',
-            'array_intersect' => 'Intersect Lists',
-            'contains' => 'Contains',
+            'gt' => ['label' => 'Greater Than', 'types' => ['number', 'date']],
+            'gte' => ['label' => 'Greater Than or Equal To', 'types' => ['number', 'date']],
+            'lt' => ['label' => 'Less Than', 'types' => ['number', 'date']],
+            'lte' => ['label' => 'Less Than or Equal To', 'types' => ['number', 'date']],
+            'equals' => ['label' => 'Equal To', 'types' => ['number', 'string', 'date', 'boolean']],
+            'in_array' => ['label' => 'In List', 'types' => ['number', 'string']],
+            //'array_intersect' => ['label' => 'Intersect Lists', 'types' => ['number', 'string']],
+            'starts' => ['label' => 'Starts With', 'types' => ['string']],
+            'ends' => ['label' => 'Ends With', 'types' => ['string']],
+            'contains' => ['label' => 'Contains', 'types' => ['string']],
+
         ];
 
         $logicalOperators = [
@@ -78,8 +111,8 @@ class DiscountAdminForm
         ];
 
         $containerOperators = [
-            'product'  => 'Cart Has a Product',
-            'shipment' => 'Cart Has a Shipment',
+            'product'  => 'Cart Has a Product', // currently, this needs to line up with entity-type shortcodes also eg product, shipment, customer
+            'shipment' => 'Cart Has a Shipment', // so , don't change these without creating a mapper function of some sort
             'customer' => 'Cart Has a Customer',
         ];
 
@@ -156,11 +189,29 @@ class DiscountAdminForm
                             continue;
                         }
 
-                        $varSetData[$objectType]['vars'][$var->getCode()] = [
-                            'datatype' => $var->getDatatype(),
+                        $datatype = 'string';
+                        if (in_array($var->getDatatype(), ['int', 'decimal'])) {
+                            $datatype = 'number';
+                        }
+
+                        $configData = [
+                            'datatype' => $datatype,
                             'name'     => $var->getName(),
                             'object_type' => $objectType,
                         ];
+
+                        if (in_array($var->getFormInput(), ['select', 'multiselect'])) {
+                            $options = $var->getItemVarOptions();
+                            if ($options) {
+                                $selectOptions = [];
+                                foreach($options as $option) {
+                                    $selectOptions[] = $option->getValue();
+                                }
+                                $configData['options'] = $selectOptions;
+                            }
+                        }
+
+                        $varSetData[$objectType]['vars'][$var->getCode()] = $configData;
                     }
                 }
             }
@@ -169,7 +220,7 @@ class DiscountAdminForm
         $varSetData['cart'] = [
             'name' => 'Shopping Cart',
             'vars' => [
-                'subtotal' => [
+                'base_item_total' => [
                     'datatype' => 'number',
                     'name' => 'Subtotal',
                     'object_type' => 'cart',
@@ -214,7 +265,7 @@ class DiscountAdminForm
             ],
         ];
 
-        $returnData = array_merge($returnData, [
+        $event->addReturnData([
             'entity' => $entity,
             'form' => $form,
             'form_sections' => $formSections,
@@ -226,8 +277,5 @@ class DiscountAdminForm
             'container' => $container,
             'var_sets' => json_encode($varSetData),
         ]);
-
-        $event->setForm($form)
-            ->setReturnData($returnData);
     }
 }
