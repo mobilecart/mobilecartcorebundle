@@ -71,6 +71,7 @@
         <parameter key="cart.form.type.customer_address.class">MobileCart\CoreBundle\Form\CustomerAddressType</parameter>
         <parameter key="cart.form.type.discount.class">MobileCart\CoreBundle\Form\DiscountType</parameter>
         <parameter key="cart.form.type.export_options.class">MobileCart\CoreBundle\Form\ExportOptionsType</parameter>
+        <parameter key="cart.form.type.item_var.class">MobileCart\CoreBundle\Form\ItemVarType</parameter>
         <!-- Services -->
         <parameter key="cart.session.class">MobileCart\CoreBundle\Service\CartSessionService</parameter>
         <parameter key="cart.class">MobileCart\CoreBundle\Service\CartService</parameter>
@@ -2860,6 +2861,10 @@
         <!-- ItemVar -->
         <service id="cart.listener.item_var.search" lazy="true" class="%cart.listener.item_var.search.class%">
             <tag name="kernel.event_listener" event="item_var.search" method="onItemVarSearch" priority="50" />
+            <call method="setSearch">
+                <argument type="service" id="cart.search.admin" />
+                <argument type="string">item_var</argument>
+            </call>
         </service>
         <service id="cart.listener.item_var.list" lazy="true" class="%cart.listener.item_var.list.class%">
             <tag name="kernel.event_listener" event="item_var.search" method="onItemVarList" priority="40" />
@@ -2890,18 +2895,12 @@
         </service>
         <service id="cart.listener.item_var.create.return" lazy="true" class="%cart.listener.item_var.create.return.class%">
             <tag name="kernel.event_listener" event="item_var.create.return" method="onItemVarCreateReturn" priority="50" />
-            <call method="setSession">
-                <argument type="service" id="session" />
-            </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
         </service>
         <service id="cart.listener.item_var.update.return" lazy="true" class="%cart.listener.item_var.update.return.class%">
             <tag name="kernel.event_listener" event="item_var.update.return" method="onItemVarUpdateReturn" priority="50" />
-            <call method="setSession">
-                <argument type="service" id="session" />
-            </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
@@ -2924,6 +2923,9 @@
                 <argument type="service" id="cart.entity" />
             </call>
         </service>
+        <service id="cart.form.type.item_var" lazy="true" class="%cart.form.type.item_var.class%">
+            <tag name="form.type" />
+        </service>
         <service id="cart.listener.item_var.admin.form" lazy="true" class="%cart.listener.item_var.admin.form.class%">
             <tag name="kernel.event_listener" event="item_var.admin.form" method="onItemVarAdminForm" priority="50" />
             <call method="setEntityService">
@@ -2931,6 +2933,9 @@
             </call>
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
+            </call>
+            <call method="setFormTypeClass">
+                <argument type="string">%cart.form.type.item_var.class%</argument>
             </call>
         </service>
 

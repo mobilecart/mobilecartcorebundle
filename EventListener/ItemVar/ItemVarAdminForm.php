@@ -21,8 +21,19 @@ class ItemVarAdminForm
      */
     protected $currencyService;
 
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
     protected $formFactory;
 
+    /**
+     * @var string
+     */
+    protected $formTypeClass = '';
+
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -61,23 +72,55 @@ class ItemVarAdminForm
         return $this->currencyService;
     }
 
-    public function setFormFactory($formFactory)
+    /**
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @return $this
+     */
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
     {
         $this->formFactory = $formFactory;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
     public function getFormFactory()
     {
         return $this->formFactory;
     }
 
-    public function setRouter($router)
+    /**
+     * @param string $formTypeClass
+     * @return $this
+     */
+    public function setFormTypeClass($formTypeClass)
+    {
+        $this->formTypeClass = $formTypeClass;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormTypeClass()
+    {
+        return $this->formTypeClass;
+    }
+
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -88,15 +131,13 @@ class ItemVarAdminForm
      */
     public function onItemVarAdminForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
-        $formType = new ItemVarType();
-        $form = $this->getFormFactory()->create($formType, $entity, [
-            'action' => $event->getAction(),
-            'method' => $event->getMethod(),
+        $form = $this->getFormFactory()->create($this->getFormTypeClass(), $entity, [
+            'action' => $event->getFormAction(),
+            'method' => $event->getFormMethod(),
         ]);
 
-        $formSections = [
+        $event->setReturnData('form_sections', [
             'general' => [
                 'label' => 'General',
                 'id' => 'general',
@@ -114,12 +155,8 @@ class ItemVarAdminForm
                     'is_sortable',
                 ],
             ],
-        ];
+        ]);
 
-        $returnData['form_sections'] = $formSections;
-        $returnData['form'] = $form;
-
-        $event->setForm($form);
-        $event->setReturnData($returnData);
+        $event->setReturnData('form', $form);
     }
 }

@@ -11,6 +11,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 class ItemVarList
 {
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -36,12 +39,19 @@ class ItemVarList
         return $this->themeService;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -52,14 +62,12 @@ class ItemVarList
      */
     public function onItemVarList(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
-        $returnData['mass_actions'] =
-        [
+        $event->setReturnData('mass_actions', [
             [
-                'label'         => 'Delete ItemVars',
+                'label'         => 'Delete Custom Fields',
                 'input_label'   => 'Confirm Mass-Delete ?',
                 'input'         => 'mass_delete',
                 'input_type'    => 'select',
@@ -70,41 +78,38 @@ class ItemVarList
                 'url' => $this->getRouter()->generate('cart_admin_item_var_mass_delete'),
                 'external' => 0,
             ],
-        ];
+        ]);
 
-        $returnData['columns'] =
-        [
+
+        $event->setReturnData('columns', [
             [
                 'key' => 'id',
                 'label' => 'ID',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'name',
                 'label' => 'Name',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'code',
                 'label' => 'Code',
-                'sort' => 1,
+                'sort' => true,
             ],
-        ];
+        ]);
 
-        $response = '';
         switch($format) {
             case 'json':
-                $response = new JsonResponse($returnData);
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
-
-                $response = $this->getThemeService()
-                    ->render('admin', 'ItemVar:index.html.twig', $returnData);
-
+                $event->setResponse($this->getThemeService()->render(
+                    'admin',
+                    'ItemVar:index.html.twig',
+                    $event->getReturnData()
+                ));
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

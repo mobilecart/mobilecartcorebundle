@@ -38,19 +38,10 @@ class ItemVarUpdate
      */
     public function onItemVarUpdate(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
         $entity->setUrlToken($this->getEntityService()->slugify($entity->getUrlToken()));
         $entity->setCode($this->getEntityService()->slugify($entity->getCode()));
         $this->getEntityService()->persist($entity);
-
-        if ($entity && $event->getRequest()->getSession()) {
-            $event->getRequest()->getSession()->getFlashBag()->add(
-                'success',
-                'Custom Field Updated!'
-            );
-        }
-
-        $event->setReturnData($returnData);
+        $event->addSuccessMessage('Custom Field Updated!');
     }
 }
