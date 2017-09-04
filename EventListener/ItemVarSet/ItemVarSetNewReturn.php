@@ -61,19 +61,15 @@ class ItemVarSetNewReturn
      */
     public function onItemVarSetNewReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
-        $typeSections = [];
-        $returnData['template_sections'] = $typeSections;
+        $event->setReturnData('entity', $entity);
+        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('template_sections', []);
 
-        $form = $returnData['form'];
-        $returnData['form'] = $form->createView();
-        $returnData['entity'] = $entity;
-
-        $response = $this->getThemeService()
-            ->render('admin', 'ItemVarSet:new.html.twig', $returnData);
-
-        $event->setResponse($response)
-            ->setReturnData($returnData);
+        $event->setResponse($this->getThemeService()->render(
+            'admin',
+            'ItemVarSet:new.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

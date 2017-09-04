@@ -39,18 +39,8 @@ class ItemVarSetDelete
      */
     public function onItemVarSetDelete(CoreEvent $event)
     {
-
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
         $this->getEntityService()->remove($entity, EntityConstants::ITEM_VAR_SET);
-
-        if ($entity && $event->getRequest()->getSession()) {
-            $event->getRequest()->getSession()->getFlashBag()->add(
-                'success',
-                'Custom Field Set Deleted!'
-            );
-        }
-
-        $event->setReturnData($returnData);
+        $event->addSuccessMessage('Custom Field Set Deleted!');
     }
 }

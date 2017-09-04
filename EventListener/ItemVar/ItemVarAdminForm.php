@@ -3,7 +3,6 @@
 namespace MobileCart\CoreBundle\EventListener\ItemVar;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\Form\ItemVarType;
 
 /**
  * Class ItemVarAdminForm
