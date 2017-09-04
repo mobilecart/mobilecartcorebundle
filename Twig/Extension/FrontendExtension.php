@@ -508,11 +508,12 @@ class FrontendExtension extends \Twig_Extension
 
     /**
      * @param $alias
+     * @param array $options
      * @return \Knp\Menu\MenuItem
      */
-    public function cartMenu($alias)
+    public function cartMenu($alias, array $options = [])
     {
-        return $this->menuService->createMenu($alias);
+        return $this->menuService->createMenu($alias, $options);
     }
 
     /**

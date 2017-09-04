@@ -26,11 +26,12 @@ class MenuService extends \Knp\Menu\MenuFactory
 
     /**
      * @param $alias
+     * @param array $options
      * @return \Knp\Menu\MenuItem
      */
-    public function createMenu($alias)
+    public function createMenu($alias, array $options = [])
     {
-        $menu = $this->createItem($alias);
+        $menu = $this->createItem($alias, $options);
 
         $event = new CoreEvent();
         $event->set('menu', $menu);

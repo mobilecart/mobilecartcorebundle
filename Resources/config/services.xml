@@ -169,6 +169,7 @@
         <!-- Homepage Event Listener -->
         <parameter key="cart.listener.home.view.return.class">MobileCart\CoreBundle\EventListener\Home\ViewReturn</parameter>
         <!-- Admin Dashboard Event Listener -->
+        <parameter key="cart.listener.admin.navigation.class">MobileCart\CoreBundle\EventListener\Admin\AdminNavigation</parameter>
         <parameter key="cart.listener.dashboard.notifications.class">MobileCart\CoreBundle\EventListener\Dashboard\DashboardNotifications</parameter>
         <parameter key="cart.listener.dashboard.view.return.class">MobileCart\CoreBundle\EventListener\Dashboard\DashboardViewReturn</parameter>
         <!-- Login Handlers -->
@@ -448,6 +449,14 @@
             </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+
+        <!-- Admin Menu -->
+        <service id="cart.listener.admin.navigation" lazy="true" class="%cart.listener.admin.navigation.class%">
+            <tag name="kernel.event_listener" event="menu.build.admin_dashboard" method="onAdminNavigation" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
             </call>
         </service>
 
