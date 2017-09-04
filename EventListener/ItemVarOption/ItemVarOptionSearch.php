@@ -11,12 +11,36 @@ use MobileCart\CoreBundle\Event\CoreEvent;
 class ItemVarOptionSearch
 {
     /**
+     * @var \MobileCart\CoreBundle\Service\SearchServiceInterface
+     */
+    protected $search;
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\SearchServiceInterface $search
+     * @return $this
+     */
+    public function setSearch(\MobileCart\CoreBundle\Service\SearchServiceInterface $search)
+    {
+        $this->search = $search;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\SearchServiceInterface
+     */
+    public function getSearch()
+    {
+        return $this->search;
+    }
+
+    /**
      * @param CoreEvent $event
      */
     public function onItemVarOptionSearch(CoreEvent $event)
     {
         $request = $event->getRequest();
-        $search = $event->getSearch()
+        $search = $this->getSearch()
+            ->setObjectType($event->getObjectType())
             ->parseRequest($event->getRequest())
             ->addJoin('inner', 'item_var', 'id', 'item_var_id')
             ->addColumn('item_var.name', 'item_var_name');

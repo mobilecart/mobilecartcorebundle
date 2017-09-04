@@ -38,18 +38,9 @@ class ItemVarOptionInsert
      */
     public function onItemVarOptionInsert(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
         $entity->setUrlValue($this->getEntityService()->slugify($entity->getUrlValue()));
         $this->getEntityService()->persist($entity);
-
-        if ($entity && $event->getRequest()->getSession()) {
-            $event->getRequest()->getSession()->getFlashBag()->add(
-                'success',
-                'Custom Field Option Created!'
-            );
-        }
-
-        $event->setReturnData($returnData);
+        $event->addSuccessMessage('Custom Field Option Created!');
     }
 }

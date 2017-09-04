@@ -11,7 +11,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 class ItemVarOptionList
 {
-
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -37,12 +39,19 @@ class ItemVarOptionList
         return $this->themeService;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -57,10 +66,9 @@ class ItemVarOptionList
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
-        $returnData['mass_actions'] =
-        [
+        $event->setReturnData('mass_actions', [
             [
-                'label'         => 'Delete ItemVarOptions',
+                'label'         => 'Delete Options',
                 'input_label'   => 'Confirm Mass-Delete ?',
                 'input'         => 'mass_delete',
                 'input_type'    => 'select',
@@ -71,46 +79,47 @@ class ItemVarOptionList
                 'url' => $this->router->generate('cart_admin_item_var_option_mass_delete'),
                 'external' => 0,
             ],
-        ];
+        ]);
 
-        $returnData['columns'] =
-        [
+        $event->setReturnData('columns', [
             [
                 'key' => 'id',
                 'label' => 'ID',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'item_var_name',
                 'label' => 'Custom Field',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'value',
                 'label' => 'Value',
-                'sort' => 1,
+                'sort' => true,
+            ],
+            [
+                'key' => 'url_value',
+                'label' => 'URL Value',
+                'sort' => true,
             ],
             [
                 'key' => 'is_in_stock',
                 'label' => 'Is In Stock',
-                'sort' => 1,
+                'sort' => true,
             ],
-        ];
+        ]);
 
-        $response = '';
         switch($format) {
             case 'json':
-                $response = new JsonResponse($returnData);
+                $event->setResponse(new JsonResponse($returnData));
                 break;
             default:
-
-                $response = $this->getThemeService()
-                    ->render('admin', 'ItemVarOption:index.html.twig', $returnData);
-
+                $event->setResponse($this->getThemeService()->render(
+                    'admin',
+                    'ItemVarOption:index.html.twig',
+                    $event->getReturnData()
+                ));
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

@@ -12,7 +12,6 @@
 namespace MobileCart\CoreBundle\Twig\Extension;
 
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
-use Symfony\Component\HttpKernel\KernelInterface;
 use MobileCart\CoreBundle\Entity\Product;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
@@ -648,6 +647,19 @@ class FrontendExtension extends \Twig_Extension
         }
 
         switch($objectType) {
+            case EntityConstants::ITEM_VAR:
+                switch($field) {
+                    case 'action':
+                        if (strlen($value)) {
+                            return '<a href="' . $value . '">Options</a>';
+                        }
+                        return '';
+                        break;
+                    default:
+                        return $value;
+                        break;
+                }
+                break;
             case EntityConstants::PRODUCT:
                 switch($field) {
                     case 'type':

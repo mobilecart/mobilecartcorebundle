@@ -97,6 +97,16 @@ class ItemVarList
                 'label' => 'Code',
                 'sort' => true,
             ],
+            [
+                'key' => 'form_input',
+                'label' => 'Form Input',
+                'sort' => true,
+            ],
+            [
+                'key' => 'action',
+                'label' => 'Actions',
+                'sort' => false,
+            ],
         ]);
 
         switch($format) {
@@ -104,6 +114,19 @@ class ItemVarList
                 $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
+
+                $result = $event->getReturnData('result');
+                if ($result && $result['entities']) {
+                    foreach($result['entities'] as $idx => $data) {
+                        if (in_array($data['form_input'], ['select', 'multiselect'])) {
+                            $result['entities'][$idx]['action'] = $this->getRouter()->generate('cart_admin_item_var_option', ['item_var_id' => $data['id']]);
+                        } else {
+                            $result['entities'][$idx]['action'] = '';
+                        }
+                    }
+                    $event->setReturnData('result', $result);
+                }
+
                 $event->setResponse($this->getThemeService()->render(
                     'admin',
                     'ItemVar:index.html.twig',

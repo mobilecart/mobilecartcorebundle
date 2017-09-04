@@ -11,23 +11,16 @@
 
 namespace MobileCart\CoreBundle\Controller\Admin;
 
-use MobileCart\CoreBundle\Constants\EntityConstants;
-
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
- * ItemVarOption controller.
- *
- * @Route("/admin/item_var_option")
+ * Class ItemVarOptionController
+ * @package MobileCart\CoreBundle\Controller\Admin
  */
 class ItemVarOptionController extends Controller
 {
@@ -77,28 +70,14 @@ class ItemVarOptionController extends Controller
     }
 
     /**
-     * Lists ItemVarOption entities.
-     *
-     * @Route("/", name="cart_admin_item_var_option")
-     * @Method("GET")
+     * Lists ItemVarOption entities
      */
     public function indexAction(Request $request)
     {
         $this->initObjectType($request->get('datatype', ''));
 
-        // Load a service; which extends Search\SearchAbstract
-        // The service parameter is stored in the service configuration as a parameter ; (slightly meta)
-        // This service could use either MySQL or ElasticSearch, etc for retrieving item data
-        $searchParam = $this->container->getParameter('cart.load.admin');
-        $search = $this->container->get($searchParam)
-            ->setObjectType($this->objectType);
-
-        // Observe Event :
-        //  perform custom logic, post-processing
-
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setSearch($search)
             ->setObjectType($this->objectType)
             ->setSection(CoreEvent::SECTION_BACKEND);
 
@@ -109,56 +88,46 @@ class ItemVarOptionController extends Controller
     }
 
     /**
-     * Creates a new ItemVarOption entity.
-     *
-     * @Route("/", name="cart_admin_item_var_option_create")
-     * @Method("POST")
+     * Creates a new ItemVarOption entity
      */
     public function createAction(Request $request)
     {
         $this->initObjectType($request->get('datatype', ''));
-
         $entity = $this->get('cart.entity')->getVarOptionInstance($this->dataType);
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
+        
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_item_var_option_create', ['datatype' => $this->dataType]))
-            ->setMethod('POST');
+            ->setFormAction($this->generateUrl('cart_admin_item_var_option_create', ['datatype' => $this->dataType]))
+            ->setFormMethod('POST');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::ITEM_VAR_OPTION_ADMIN_FORM, $formEvent);
+            ->dispatch(CoreEvents::ITEM_VAR_OPTION_ADMIN_FORM, $event);
 
-        $form = $formEvent->getForm();
-
+        $invalid = [];
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
-            $formData = $request->request->get($form->getName());
+            if (in_array($event->getEntity()->getItemVar()->getFormInput(), ['select', 'multiselect'])) {
+                $formData = $request->request->get($form->getName());
+                $event->setFormData($formData);
 
-            // observe event
-            //  add item_var_option to indexes, etc
-            $event = new CoreEvent();
-            $event->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData);
+                $this->get('event_dispatcher')
+                    ->dispatch(CoreEvents::ITEM_VAR_OPTION_INSERT, $event);
 
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::ITEM_VAR_OPTION_INSERT, $event);
+                $this->get('event_dispatcher')
+                    ->dispatch(CoreEvents::ITEM_VAR_OPTION_CREATE_RETURN, $event);
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::ITEM_VAR_OPTION_CREATE_RETURN, $returnEvent);
-
-            return $returnEvent->getResponse();
+                return $event->getResponse();
+            } else {
+                $event->addErrorMessage('Custom Field must have Form Input value: Select or Multi Select');
+                $invalid['item_var'] = ['Invalid'];
+            }
         }
 
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
-            $invalid = [];
-            $messages = [];
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {
@@ -169,20 +138,12 @@ class ItemVarOptionController extends Controller
                 }
             }
 
-            $returnData = [
-                'success' => 0,
+            return new JsonResponse([
+                'success' => false,
                 'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+                'messages' => $event->getMessages(),
+            ]);
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setEntity($entity)
-            ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ITEM_VAR_OPTION_NEW_RETURN, $event);
@@ -191,31 +152,22 @@ class ItemVarOptionController extends Controller
     }
 
     /**
-     * Displays a form to create a new ItemVarOption entity.
-     *
-     * @Route("/new", name="cart_admin_item_var_option_new")
-     * @Method("GET")
+     * Displays a form to create a new ItemVarOption entity
      */
     public function newAction(Request $request)
     {
         $this->initObjectType($request->get('datatype', ''));
 
         $entity = $this->get('cart.entity')->getInstance($this->objectType);
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_item_var_option_create', ['datatype' => $this->dataType]))
-            ->setMethod('POST');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::ITEM_VAR_OPTION_ADMIN_FORM, $formEvent);
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_item_var_option_create', ['datatype' => $this->dataType]))
+            ->setFormMethod('POST');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::ITEM_VAR_OPTION_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ITEM_VAR_OPTION_NEW_RETURN, $event);
@@ -224,10 +176,7 @@ class ItemVarOptionController extends Controller
     }
 
     /**
-     * Finds and displays a ItemVarOption entity.
-     *
-     * @Route("/{id}", name="cart_admin_item_var_option_show")
-     * @Method("GET")
+     * Finds and displays a ItemVarOption entity
      */
     public function showAction(Request $request, $id)
     {
@@ -242,10 +191,7 @@ class ItemVarOptionController extends Controller
     }
 
     /**
-     * Displays a form to edit an existing ItemVarOption entity.
-     *
-     * @Route("/{id}/edit", name="cart_admin_item_var_option_edit")
-     * @Method("GET")
+     * Displays a form to edit an existing ItemVarOption entity
      */
     public function editAction(Request $request, $id)
     {
@@ -256,21 +202,15 @@ class ItemVarOptionController extends Controller
             throw $this->createNotFoundException("Unable to find entity with ID: {$id}");
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_item_var_option_update', ['id' => $entity->getId(), 'datatype' => $this->dataType]))
-            ->setMethod('PUT');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::ITEM_VAR_OPTION_ADMIN_FORM, $formEvent);
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_item_var_option_update', ['id' => $entity->getId(), 'datatype' => $this->dataType]))
+            ->setFormMethod('PUT');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::ITEM_VAR_OPTION_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ITEM_VAR_OPTION_EDIT_RETURN, $event);
@@ -279,10 +219,7 @@ class ItemVarOptionController extends Controller
     }
 
     /**
-     * Edits an existing ItemVarOption entity.
-     *
-     * @Route("/{id}", name="cart_admin_item_var_option_update")
-     * @Method("PUT")
+     * Edits an existing ItemVarOption entity
      */
     public function updateAction(Request $request, $id)
     {
@@ -293,47 +230,34 @@ class ItemVarOptionController extends Controller
             throw $this->createNotFoundException('Unable to find ItemVarOption entity.');
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_item_var_option_update', ['id' => $entity->getId(), 'datatype' => $this->dataType]))
-            ->setMethod('PUT');
+            ->setFormAction($this->generateUrl('cart_admin_item_var_option_update', ['id' => $entity->getId(), 'datatype' => $this->dataType]))
+            ->setFormMethod('PUT');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::ITEM_VAR_OPTION_ADMIN_FORM, $formEvent);
+            ->dispatch(CoreEvents::ITEM_VAR_OPTION_ADMIN_FORM, $event);
 
-        $form = $formEvent->getForm();
-
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
-
-            // observe event
-            // update entity via command bus
-            $event = new CoreEvent();
-            $event->setObjectType($this->objectType)
-                ->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData);
+            $event->setFormData($formData);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::ITEM_VAR_OPTION_UPDATE, $event);
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::ITEM_VAR_OPTION_UPDATE_RETURN, $returnEvent);
+                ->dispatch(CoreEvents::ITEM_VAR_OPTION_UPDATE_RETURN, $event);
 
-            return $returnEvent->getResponse();
+            return $event->getResponse();
         }
 
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
             $invalid = [];
-            $messages = [];
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {
@@ -344,20 +268,12 @@ class ItemVarOptionController extends Controller
                 }
             }
 
-            $returnData = [
-                'success' => 0,
+            return new JsonResponse([
+                'success' => false,
                 'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+                'messages' => $event->getMessages(),
+            ]);
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ITEM_VAR_OPTION_EDIT_RETURN, $event);
@@ -366,10 +282,7 @@ class ItemVarOptionController extends Controller
     }
 
     /**
-     * Deletes a ItemVarOption entity.
-     *
-     * @Route("/{id}", name="cart_admin_item_var_option_delete")
-     * @Method("DELETE")
+     * Deletes a ItemVarOption entity
      */
     public function deleteAction(Request $request, $id)
     {
@@ -394,7 +307,7 @@ class ItemVarOptionController extends Controller
 
             $request->getSession()->getFlashBag()->add(
                 'success',
-                'ItemVarOption Successfully Deleted!'
+                'Option Successfully Deleted!'
             );
         }
 
@@ -403,9 +316,6 @@ class ItemVarOptionController extends Controller
 
     /**
      * Mass-Delete Categories
-     *
-     * @Route("/mass_delete", name="cart_admin_item_var_option_mass_delete")
-     * @Method("POST")
      */
     public function massDeleteAction(Request $request)
     {
@@ -435,7 +345,7 @@ class ItemVarOptionController extends Controller
 
             $request->getSession()->getFlashBag()->add(
                 'success',
-                count($returnData['item_ids']) . ' ItemVarOptions Successfully Deleted'
+                count($returnData['item_ids']) . ' Options Successfully Deleted'
             );
         }
 
