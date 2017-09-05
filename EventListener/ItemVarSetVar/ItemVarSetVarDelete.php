@@ -39,17 +39,8 @@ class ItemVarSetVarDelete
      */
     public function onItemVarSetVarDelete(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
         $this->getEntityService()->remove($entity, EntityConstants::ITEM_VAR_SET_VAR);
-
-        if ($entity && $event->getRequest()->getSession()) {
-            $event->getRequest()->getSession()->getFlashBag()->add(
-                'success',
-                'Custom Field Mapping Deleted!'
-            );
-        }
-
-        $event->setReturnData($returnData);
+        $event->addSuccessMessage('Field Mapping Deleted!');
     }
 }

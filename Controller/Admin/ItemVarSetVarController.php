@@ -11,23 +11,16 @@
 
 namespace MobileCart\CoreBundle\Controller\Admin;
 
-use MobileCart\CoreBundle\Constants\EntityConstants;
-
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
- * ItemVarSetVar controller.
- *
- * @Route("/admin/item_var_set_var")
+ * Class ItemVarSetVarController
+ * @package MobileCart\CoreBundle\Controller\Admin
  */
 class ItemVarSetVarController extends Controller
 {
@@ -37,26 +30,12 @@ class ItemVarSetVarController extends Controller
     protected $objectType = EntityConstants::ITEM_VAR_SET_VAR;
 
     /**
-     * Lists ItemVar entities.
-     *
-     * @Route("/", name="cart_admin_item_var_set_var")
-     * @Method("GET")
+     * Lists ItemVar entities
      */
     public function indexAction(Request $request)
     {
-        // Load a service; which extends Search\SearchAbstract
-        // The service parameter is stored in the service configuration as a parameter ; (slightly meta)
-        // This service could use either MySQL or ElasticSearch, etc for retrieving item data
-        $searchParam = $this->container->getParameter('cart.load.admin');
-        $search = $this->container->get($searchParam)
-            ->setObjectType($this->objectType);
-
-        // Observe Event :
-        //  perform custom logic, post-processing
-
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setSearch($search)
             ->setObjectType($this->objectType)
             ->setSection(CoreEvent::SECTION_BACKEND);
 
@@ -67,54 +46,40 @@ class ItemVarSetVarController extends Controller
     }
 
     /**
-     * Creates a new ItemVar entity.
-     *
-     * @Route("/", name="cart_admin_item_var_set_var_create")
-     * @Method("POST")
+     * Creates a new ItemVar entity
      */
     public function createAction(Request $request)
     {
         $entity = $this->get('cart.entity')->getInstance($this->objectType);
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
+
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_item_var_set_var_create'))
-            ->setMethod('POST');
+            ->setFormAction($this->generateUrl('cart_admin_item_var_set_var_create'))
+            ->setFormMethod('POST');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::ITEM_VAR_SET_VAR_ADMIN_FORM, $formEvent);
+            ->dispatch(CoreEvents::ITEM_VAR_SET_VAR_ADMIN_FORM, $event);
 
-        $form = $formEvent->getForm();
-
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
-
-            // observe event
-            //  add item_var to indexes, etc
-            $event = new CoreEvent();
-            $event->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData);
+            $event->setFormData($formData);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::ITEM_VAR_SET_VAR_INSERT, $event);
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::ITEM_VAR_SET_VAR_CREATE_RETURN, $returnEvent);
+                ->dispatch(CoreEvents::ITEM_VAR_SET_VAR_CREATE_RETURN, $event);
 
-            return $returnEvent->getResponse();
+            return $event->getResponse();
         }
 
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
             $invalid = [];
-            $messages = [];
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {
@@ -125,20 +90,18 @@ class ItemVarSetVarController extends Controller
                 }
             }
 
-            $returnData = [
-                'success' => 0,
+            return new JsonResponse([
+                'success' => false,
                 'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+                'messages' => $event->getMessages(),
+            ]);
         }
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setRequest($request)
             ->setEntity($entity)
-            ->setReturnData($formEvent->getReturnData());
+            ->setReturnData($event->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ITEM_VAR_SET_VAR_NEW_RETURN, $event);
@@ -147,29 +110,21 @@ class ItemVarSetVarController extends Controller
     }
 
     /**
-     * Displays a form to create a new ItemVar entity.
-     *
-     * @Route("/new", name="cart_admin_item_var_set_var_new")
-     * @Method("GET")
+     * Displays a form to create a new ItemVar entity
      */
     public function newAction(Request $request)
     {
         $entity = $this->get('cart.entity')->getInstance($this->objectType);
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_item_var_set_var_create'))
-            ->setMethod('POST');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::ITEM_VAR_SET_VAR_ADMIN_FORM, $formEvent);
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_item_var_set_var_create'))
+            ->setFormMethod('POST');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::ITEM_VAR_SET_VAR_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ITEM_VAR_SET_VAR_NEW_RETURN, $event);
@@ -178,10 +133,7 @@ class ItemVarSetVarController extends Controller
     }
 
     /**
-     * Finds and displays a ItemVar entity.
-     *
-     * @Route("/{id}", name="cart_admin_item_var_set_var_show")
-     * @Method("GET")
+     * Finds and displays a ItemVar entity
      */
     public function showAction(Request $request, $id)
     {
@@ -194,34 +146,24 @@ class ItemVarSetVarController extends Controller
     }
 
     /**
-     * Displays a form to edit an existing ItemVar entity.
-     *
-     * @Route("/{id}/edit", name="cart_admin_item_var_set_var_edit")
-     * @Method("GET")
+     * Displays a form to edit an existing ItemVar entity
      */
     public function editAction(Request $request, $id)
     {
         $entity = $this->get('cart.entity')->find($this->objectType, $id);
-
         if (!$entity) {
             throw $this->createNotFoundException("Unable to find entity with ID: {$id}");
         }
-
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_item_var_set_var_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::ITEM_VAR_SET_VAR_ADMIN_FORM, $formEvent);
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_item_var_set_var_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::ITEM_VAR_SET_VAR_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ITEM_VAR_SET_VAR_EDIT_RETURN, $event);
@@ -230,10 +172,7 @@ class ItemVarSetVarController extends Controller
     }
 
     /**
-     * Edits an existing ItemVar entity.
-     *
-     * @Route("/{id}", name="cart_admin_item_var_set_var_update")
-     * @Method("PUT")
+     * Edits an existing ItemVar entity
      */
     public function updateAction(Request $request, $id)
     {
@@ -242,47 +181,34 @@ class ItemVarSetVarController extends Controller
             throw $this->createNotFoundException('Unable to find ItemVar entity.');
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_item_var_set_var_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT');
+            ->setFormAction($this->generateUrl('cart_admin_item_var_set_var_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::ITEM_VAR_SET_VAR_ADMIN_FORM, $formEvent);
+            ->dispatch(CoreEvents::ITEM_VAR_SET_VAR_ADMIN_FORM, $event);
 
-        $form = $formEvent->getForm();
-
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
-
-            // observe event
-            // update entity via command bus
-            $event = new CoreEvent();
-            $event->setObjectType($this->objectType)
-                ->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData);
+            $event->setFormData($formData);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::ITEM_VAR_SET_VAR_UPDATE, $event);
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::ITEM_VAR_SET_VAR_UPDATE_RETURN, $returnEvent);
+                ->dispatch(CoreEvents::ITEM_VAR_SET_VAR_UPDATE_RETURN, $event);
 
-            return $returnEvent->getResponse();
+            return $event->getResponse();
         }
 
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
             $invalid = [];
-            $messages = [];
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {
@@ -293,20 +219,12 @@ class ItemVarSetVarController extends Controller
                 }
             }
 
-            $returnData = [
-                'success' => 0,
+            return new JsonResponse([
+                'success' => false,
                 'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+                'messages' => $event->getMessages(),
+            ]);
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ITEM_VAR_SET_VAR_EDIT_RETURN, $event);
@@ -315,10 +233,7 @@ class ItemVarSetVarController extends Controller
     }
 
     /**
-     * Deletes a ItemVar entity.
-     *
-     * @Route("/{id}", name="cart_admin_item_var_set_var_delete")
-     * @Method("DELETE")
+     * Deletes a ItemVar entity
      */
     public function deleteAction(Request $request, $id)
     {
@@ -350,9 +265,6 @@ class ItemVarSetVarController extends Controller
 
     /**
      * Mass-Delete Categories
-     *
-     * @Route("/mass_delete", name="cart_admin_item_var_set_var_mass_delete")
-     * @Method("POST")
      */
     public function massDeleteAction(Request $request)
     {

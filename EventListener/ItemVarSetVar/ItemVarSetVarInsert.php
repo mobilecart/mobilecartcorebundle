@@ -38,18 +38,8 @@ class ItemVarSetVarInsert
      */
     public function onItemVarSetVarInsert(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
         $this->getEntityService()->persist($entity);
-
-        if ($entity && $event->getRequest()->getSession()) {
-
-            $event->getRequest()->getSession()->getFlashBag()->add(
-                'success',
-                'Custom Field Mapping Created!'
-            );
-        }
-
-        $event->setReturnData($returnData);
+        $event->addSuccessMessage('Field Mapping Created!');
     }
 }

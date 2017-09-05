@@ -38,17 +38,8 @@ class ItemVarSetVarUpdate
      */
     public function onItemVarSetVarUpdate(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
         $this->getEntityService()->persist($entity);
-
-        if ($entity && $event->getRequest()->getSession()) {
-            $event->getRequest()->getSession()->getFlashBag()->add(
-                'success',
-                'Custom Field Mapping Updated!'
-            );
-        }
-
-        $event->setReturnData($returnData);
+        $event->addSuccessMessage('Custom Field Mapping Updated!');
     }
 }
