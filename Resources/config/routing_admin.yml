@@ -26,7 +26,7 @@ cart_admin_category_edit:
 cart_admin_category_update:
     path: /admin/category/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Category:update' }
-    methods: [PUT,POST]
+    methods: [PUT]
 
 cart_admin_category_delete:
     path: /admin/category/{id}
@@ -66,7 +66,7 @@ cart_admin_config_setting_edit:
 cart_admin_config_setting_update:
     path: /admin/config_setting/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ConfigSetting:update' }
-    methods: [PUT,POST]
+    methods: [PUT]
 
 cart_admin_config_setting_delete:
     path: /admin/config_setting/{id}
@@ -106,7 +106,7 @@ cart_admin_content_edit:
 cart_admin_content_update:
     path: /admin/content/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Content:update' }
-    methods: [PUT,POST]
+    methods: [PUT]
 
 cart_admin_content_delete:
     path: /admin/content/{id}
@@ -146,7 +146,7 @@ cart_admin_content_slot_edit:
 cart_admin_content_slot_update:
     path: /admin/content_slot/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ContentSlot:update' }
-    methods: [PUT,POST]
+    methods: [PUT]
 
 cart_admin_content_slot_delete:
     path: /admin/content_slot/{id}
@@ -186,7 +186,7 @@ cart_admin_customer_edit:
 cart_admin_customer_update:
     path: /admin/customer/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Customer:update' }
-    methods: [PUT,POST]
+    methods: [PUT]
 
 cart_admin_customer_delete:
     path: /admin/customer/{id}
@@ -231,7 +231,7 @@ cart_admin_discount_edit:
 cart_admin_discount_update:
     path: /admin/discount/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Discount:update' }
-    methods: [PUT,POST]
+    methods: [PUT]
 
 cart_admin_discount_delete:
     path: /admin/discount/{id}
@@ -301,7 +301,7 @@ cart_admin_item_var_edit:
 cart_admin_item_var_update:
     path: /admin/item_var/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVar:update' }
-    methods: [PUT,POST]
+    methods: [PUT]
 
 cart_admin_item_var_delete:
     path: /admin/item_var/{id}
@@ -341,7 +341,7 @@ cart_admin_item_var_option_edit:
 cart_admin_item_var_option_update:
     path: /admin/item_var_option/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarOption:update' }
-    methods: [PUT,POST]
+    methods: [PUT]
 
 cart_admin_item_var_option_delete:
     path: /admin/item_var_option/{id}
@@ -381,7 +381,7 @@ cart_admin_item_var_set_edit:
 cart_admin_item_var_set_update:
     path: /admin/item_var_set/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSet:update' }
-    methods: [PUT,POST]
+    methods: [PUT]
 
 cart_admin_item_var_set_delete:
     path: /admin/item_var_set/{id}
@@ -421,7 +421,7 @@ cart_admin_item_var_set_var_edit:
 cart_admin_item_var_set_var_update:
     path: /admin/item_var_set_var/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ItemVarSetVar:update' }
-    methods: [PUT,POST]
+    methods: [PUT]
 
 cart_admin_item_var_set_var_delete:
     path: /admin/item_var_set_var/{id}
@@ -461,7 +461,7 @@ cart_admin_order_edit:
 cart_admin_order_update:
     path: /admin/order/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Order:update' }
-    methods: [PUT,POST]
+    methods: [PUT]
 
 cart_admin_order_shipping:
     path: /admin/order/update/shipping
@@ -541,7 +541,7 @@ cart_admin_order_shipment_edit:
 cart_admin_order_shipment_update:
     path: /admin/order_shipment/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\OrderShipment:update' }
-    methods: [PUT,POST]
+    methods: [PUT]
 
 cart_admin_product:
     path: /admin/product/
@@ -576,10 +576,10 @@ cart_admin_product_edit:
 cart_admin_product_update:
     path: /admin/product/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:update' }
-    methods: [PUT,POST]
+    methods: [PUT]
 
 cart_admin_product_delete:
-    path: /admin/product/{id}
+    path: /admin/product/{id}/delete
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:delete' }
     methods: [DELETE]
 
@@ -626,7 +626,7 @@ cart_admin_shipping_method_edit:
 cart_admin_shipping_method_update:
     path: /admin/shipping_method/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\ShippingMethod:update' }
-    methods: [PUT,POST]
+    methods: [PUT]
 
 cart_admin_shipping_method_delete:
     path: /admin/shipping_method/{id}
@@ -666,7 +666,7 @@ cart_admin_url_rewrite_edit:
 cart_admin_url_rewrite_update:
     path: /admin/url_rewrite/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\UrlRewrite:update' }
-    methods: [PUT,POST]
+    methods: [PUT]
 
 cart_admin_url_rewrite_delete:
     path: /admin/url_rewrite/{id}
