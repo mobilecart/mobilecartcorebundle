@@ -5,33 +5,43 @@ namespace MobileCart\CoreBundle\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use MobileCart\CoreBundle\Entity\ItemVar;
 
+/**
+ * Class ItemVarType
+ * @package MobileCart\CoreBundle\Form
+ */
 class ItemVarType extends AbstractType
 {
+    /**
+     * @param FormBuilderInterface $builder
+     * @param array $options
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name', 'text', [
-                'required' => 1,
+            ->add('name', TextType::class, [
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('code', 'text', [
-                'required' => 1,
+            ->add('code', TextType::class, [
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('url_token', 'text', [
-                'required' => 1,
+            ->add('url_token', TextType::class, [
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('datatype', 'choice', ['choices' => ItemVar::$types])
-            ->add('form_input', 'choice', ['choices' => ItemVar::$formInputs])
+            ->add('datatype', ChoiceType::class, ['choices' => ItemVar::$types])
+            ->add('form_input', ChoiceType::class, ['choices' => ItemVar::$formInputs])
             ->add('is_required')
             ->add('is_displayed')
             ->add('sort_order')
@@ -41,7 +51,10 @@ class ItemVarType extends AbstractType
         ;
     }
 
-    public function getName()
+    /**
+     * @return string
+     */
+    public function getBlockPrefix()
     {
         return 'item_var';
     }

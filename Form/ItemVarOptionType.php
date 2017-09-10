@@ -4,7 +4,7 @@ namespace MobileCart\CoreBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ItemVarOptionType extends AbstractType
 {
@@ -27,8 +27,18 @@ class ItemVarOptionType extends AbstractType
     /**
      * @return string
      */
-    public function getName()
+    public function getBlockPrefix()
     {
-        return 'mobilecart_corebundle_itemvaroption';
+        return 'item_var_option';
+    }
+
+    /**
+     * @param OptionsResolver $resolver
+     */
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+            'csrf_protection' => false, // for api calls
+        ]);
     }
 }
