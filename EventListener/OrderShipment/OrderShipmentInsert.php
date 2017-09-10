@@ -3,6 +3,7 @@
 namespace MobileCart\CoreBundle\EventListener\OrderShipment;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
+use MobileCart\CoreBundle\CartComponent\Shipment;
 
 /**
  * Class OrderShipmentInsert
@@ -61,27 +62,59 @@ class OrderShipmentInsert
      */
     public function onOrderShipmentInsert(CoreEvent $event)
     {
-        $request = $event->getRequest();
         $entity = $event->getEntity();
-        $this->getEntityService()->persist($entity);
-        $formData = $event->getFormData();
 
-        if ($entity && $request->getSession()) {
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Shipment Created!'
-            );
+        $order = $entity->getOrder();
+        $baseCurrency = $this->getCartService()->getCartTotalService()->getCurrencyService()->getBaseCurrency();
+        if ($order->getCurrency() == $baseCurrency) {
+            $entity->setPrice($entity->getBasePrice());
+        } else {
+            // todo : currency
         }
 
+        $this->getEntityService()->persist($entity);
+        $event->addSuccessMessage('Shipment Created!');
+
+        $formData = $event->getFormData();
         if (isset($formData['adjust_totals']) && $formData['adjust_totals']) {
 
-            // load order entity
-
             // populate cart with json
+            $this->getCartService()->initCartJson($order->getJson());
 
-            // update order.base_shipping_total, order.shipping_total
+            $shipments = $order->getShipments();
+            $this->getCartService()->removeShipments();
 
-            // update order.base_total, order.total
+            foreach($shipments as $aEntity) {
+                // create cart shipment from entity
+                $shipment = new Shipment();
+                $shipment->fromArray($aEntity->getData());
+                $this->getCartService()->addShipment($shipment);
+            }
+
+            $this->getCartService()->collectTotals();
+
+            $baseGrandTotal = $this->getCartService()
+                ->getTotal(\MobileCart\CoreBundle\EventListener\Cart\GrandTotal::KEY)
+                ->getValue();
+
+            $baseShippingTotal = $this->getCartService()
+                ->getTotal(\MobileCart\CoreBundle\EventListener\Cart\ShipmentTotal::KEY)
+                ->getValue();
+
+            $order->setBaseTotal($baseGrandTotal)
+                ->setBaseShippingTotal($baseShippingTotal);
+
+            if ($order->getCurrency() == $baseCurrency) {
+
+                $order->setShippingTotal($baseShippingTotal)
+                    ->setTotal($baseGrandTotal);
+
+            } else {
+                // todo : currency
+            }
+
+            $order->setJson($this->getCartService()->getCart()->toJson());
+            $this->getEntityService()->persist($order);
         }
     }
 }

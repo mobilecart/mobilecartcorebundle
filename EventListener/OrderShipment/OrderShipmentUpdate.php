@@ -62,7 +62,6 @@ class OrderShipmentUpdate
      */
     public function onOrderShipmentUpdate(CoreEvent $event)
     {
-        $request = $event->getRequest();
         $entity = $event->getEntity();
         $order = $entity->getOrder();
         $baseCurrency = $this->getCartService()->getCartTotalService()->getCurrencyService()->getBaseCurrency();
@@ -73,15 +72,9 @@ class OrderShipmentUpdate
         }
 
         $this->getEntityService()->persist($entity);
+        $event->addSuccessMessage('Shipment Updated!');
+
         $formData = $event->getFormData();
-
-        if ($entity && $request->getSession()) {
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Shipment Updated!'
-            );
-        }
-
         if (isset($formData['adjust_totals']) && $formData['adjust_totals']) {
 
             // populate cart with json

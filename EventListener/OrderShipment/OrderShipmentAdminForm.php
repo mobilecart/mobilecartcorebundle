@@ -3,9 +3,6 @@
 namespace MobileCart\CoreBundle\EventListener\OrderShipment;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
-use Symfony\Component\Intl\Intl;
-use MobileCart\CoreBundle\Form\OrderShipmentType;
-use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
  * Class OrderShipmentAdminForm
@@ -18,9 +15,15 @@ class OrderShipmentAdminForm
      */
     protected $entityService;
 
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
     protected $formFactory;
 
-    protected $router;
+    /**
+     * @var string
+     */
+    protected $formTypeClass = '';
 
     /**
      * @param $entityService
@@ -40,26 +43,40 @@ class OrderShipmentAdminForm
         return $this->entityService;
     }
 
-    public function setFormFactory($formFactory)
+    /**
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @return $this
+     */
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
     {
         $this->formFactory = $formFactory;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
     public function getFormFactory()
     {
         return $this->formFactory;
     }
 
-    public function setRouter($router)
+    /**
+     * @param string $formTypeClass
+     * @return $this
+     */
+    public function setFormTypeClass($formTypeClass)
     {
-        $this->router = $router;
+        $this->formTypeClass = $formTypeClass;
         return $this;
     }
 
-    public function getRouter()
+    /**
+     * @return string
+     */
+    public function getFormTypeClass()
     {
-        return $this->router;
+        return $this->formTypeClass;
     }
 
     /**
@@ -67,16 +84,13 @@ class OrderShipmentAdminForm
      */
     public function onOrderShipmentAdminForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
-
-        $formType = new OrderShipmentType();
-        $form = $this->getFormFactory()->create($formType, $entity, [
-            'action' => $event->getAction(),
-            'method' => $event->getMethod(),
+        $form = $this->getFormFactory()->create($this->getFormTypeClass(), $entity, [
+            'action' => $event->getFormAction(),
+            'method' => $event->getFormMethod(),
         ]);
 
-        $formSections = [
+        $event->setReturnData('form_sections', [
             'general' => [
                 'label' => 'General',
                 'id' => 'general',
@@ -88,13 +102,8 @@ class OrderShipmentAdminForm
                     'adjust_totals'
                 ],
             ],
-        ];
+        ]);
 
-        $returnData['form_sections'] = $formSections;
-        $returnData['form_name'] = $formType->getName();
-        $returnData['form'] = $form;
-
-        $event->setForm($form)
-            ->setReturnData($returnData);
+        $event->setReturnData('form', $form);
     }
 }

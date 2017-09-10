@@ -23,7 +23,74 @@ interface SearchServiceInterface
     public function parseRequest(\Symfony\Component\HttpFoundation\Request $request);
 
     /**
+     * @param $sortBy
+     * @param string $sortDir
+     * @return $this
+     */
+    public function setSort($sortBy, $sortDir = 'asc');
+
+    /**
+     * @param $sortBy
+     * @param string $sortDir
+     * @return $this
+     */
+    public function setDefaultSort($sortBy, $sortDir = 'asc');
+
+    /**
+     * Get sort-by parameter value
+     *
+     * @return string
+     */
+    public function getSortBy();
+
+    /**
+     * Get sort direction parameter value
+     *
+     * @return string
+     */
+    public function getSortDir();
+
+    /**
+     * @return string
+     */
+    public function getDefaultSortBy();
+
+    /**
+     * @return string
+     */
+    public function getDefaultSortDir();
+
+    /**
+     * Set page number
+     *
+     * @param int $page
+     * @return $this
+     */
+    public function setPage($page);
+
+    /**
+     * @return int
+     */
+    public function getPage();
+
+    /**
+     * @param int $limit
+     * @return $this
+     */
+    public function setLimit($limit);
+
+    /**
+     * @return int
+     */
+    public function getLimit();
+
+    /**
      * @return array|mixed
      */
     public function search();
+
+    /**
+     * @return array|mixed
+     */
+    public function getResult();
 }

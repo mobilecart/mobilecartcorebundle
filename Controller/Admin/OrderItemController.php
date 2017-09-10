@@ -11,40 +11,31 @@
 
 namespace MobileCart\CoreBundle\Controller\Admin;
 
-use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 
+/**
+ * Class OrderItemController
+ * @package MobileCart\CoreBundle\Controller\Admin
+ */
 class OrderItemController extends Controller
 {
+    /**
+     * @var string
+     */
     protected $objectType = EntityConstants::ORDER_ITEM;
 
     /**
-     * Lists Order Item entities.
-     *
-     * @Route("/", name="cart_admin_order_item")
-     * @Method("GET")
+     * Lists Order Item entities
      */
     public function indexAction(Request $request)
     {
-        // Load a service; which extends Search\SearchAbstract
-        // The service parameter is stored in the service configuration as a parameter ; (slightly meta)
-        // This service could use either MySQL or ElasticSearch, etc for retrieving item data
-        $searchParam = $this->container->getParameter('cart.load.admin');
-        $search = $this->container->get($searchParam)
-            ->setObjectType($this->objectType);
-
-        // Observe Event :
-        //  perform custom logic, post-processing
-
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setSearch($search)
-            ->setObjectType(EntityConstants::ORDER_ITEM)
+            ->setObjectType($this->objectType)
             ->setSection(CoreEvent::SECTION_BACKEND);
 
         $this->get('event_dispatcher')

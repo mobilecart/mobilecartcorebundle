@@ -206,13 +206,13 @@ class OrderPayment
     }
 
     /**
-     * Set code
-     *
-     * @param string $code
+     * @param $code
+     * @return $this
      */
     public function setCode($code)
     {
         $this->code = $code;
+        return $this;
     }
 
     /**
@@ -316,13 +316,13 @@ class OrderPayment
     }
 
     /**
-     * Set amount
-     *
-     * @param float $amount
+     * @param $amount
+     * @return $this
      */
     public function setAmount($amount)
     {
         $this->amount = $amount;
+        return $this;
     }
 
     /**
@@ -354,13 +354,13 @@ class OrderPayment
     }
 
     /**
-     * Set base_amount
-     *
-     * @param float $amount
+     * @param $amount
+     * @return $this
      */
     public function setBaseAmount($amount)
     {
         $this->base_amount = $amount;
+        return $this;
     }
 
     /**
@@ -428,13 +428,13 @@ class OrderPayment
     }
 
     /**
-     * Set order
-     *
      * @param Order $order
+     * @return $this
      */
     public function setOrder(Order $order)
     {
         $this->order = $order;
+        return $this;
     }
 
     /**

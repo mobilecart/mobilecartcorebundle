@@ -11,12 +11,36 @@ use MobileCart\CoreBundle\Event\CoreEvent;
 class OrderShipmentSearch
 {
     /**
+     * @var \MobileCart\CoreBundle\Service\SearchServiceInterface
+     */
+    protected $search;
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\SearchServiceInterface $search
+     * @param $objectType
+     * @return $this
+     */
+    public function setSearch(\MobileCart\CoreBundle\Service\SearchServiceInterface $search, $objectType)
+    {
+        $this->search = $search->setObjectType($objectType);
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\SearchServiceInterface
+     */
+    public function getSearch()
+    {
+        return $this->search;
+    }
+
+    /**
      * @param CoreEvent $event
      */
     public function onOrderShipmentSearch(CoreEvent $event)
     {
         $request = $event->getRequest();
-        $search = $event->getSearch()
+        $search = $this->getSearch()
             ->setDefaultSort('created_at', 'desc')
             ->parseRequest($request);
 

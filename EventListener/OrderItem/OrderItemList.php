@@ -4,7 +4,6 @@ namespace MobileCart\CoreBundle\EventListener\OrderItem;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class OrderItemList
@@ -60,70 +59,65 @@ class OrderItemList
      */
     public function onOrderItemList(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
-        $returnData['mass_actions'] = [];
+        $event->setReturnData('mass_actions', []);
 
-        $returnData['columns'] =
-        [
+        $event->setReturnData('columns', [
             [
                 'key' => 'id',
                 'label' => 'ID',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'reference_nbr',
                 'label' => 'Order #',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'sku',
                 'label' => 'SKU',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'name',
                 'label' => 'Name',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'price',
                 'label' => 'Price',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'qty',
                 'label' => 'Qty',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'shipping_method',
                 'label' => 'Shipping',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'order_created_at',
                 'label' => 'Created At',
-                'sort' => 1,
+                'sort' => true,
             ],
-        ];
+        ]);
 
-        $response = '';
         switch($format) {
             case 'json':
-                $response = new JsonResponse($returnData);
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
-
-                $response = $this->getThemeService()
-                    ->render('admin', 'OrderItem:index.html.twig', $returnData);
-
+                $event->setResponse($this->getThemeService()->render(
+                    'admin',
+                    'OrderItem:index.html.twig',
+                    $event->getReturnData()
+                ));
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

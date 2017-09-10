@@ -2,9 +2,8 @@
 
 namespace MobileCart\CoreBundle\EventListener\OrderShipment;
 
-use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class OrderShipmentList
@@ -12,6 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class OrderShipmentList
 {
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -38,17 +40,17 @@ class OrderShipmentList
     }
 
     /**
-     * @param $router
+     * @param \Symfony\Component\Routing\RouterInterface $router
      * @return $this
      */
-    public function setRouter($router)
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
     /**
-     * @return mixed
+     * @return \Symfony\Component\Routing\RouterInterface
      */
     public function getRouter()
     {
@@ -60,74 +62,55 @@ class OrderShipmentList
      */
     public function onOrderShipmentList(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
-        $returnData['mass_actions'] =
-        [
-            /*[
-                'label'         => 'Delete Orders',
-                'input_label'   => 'Confirm Mass-Delete ?',
-                'input'         => 'mass_delete',
-                'input_type'    => 'select',
-                'input_options' => [
-                    ['value' => 0, 'label' => 'No'],
-                    ['value' => 1, 'label' => 'Yes'],
-                ],
-                'url'      => $this->getRouter()->generate('cart_admin_order_mass_delete'),
-                'external' => 0,
-            ], //*/
-        ];
+        $event->setReturnData('mass_actions', []);
 
-        $returnData['columns'] =
-        [
+        $event->setReturnData('columns', [
             [
                 'key' => 'id',
                 'label' => 'ID',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'name',
                 'label' => 'Name',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'company_name',
                 'label' => 'Company',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'company',
                 'label' => 'Provider',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'method',
                 'label' => 'Method',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'created_at',
                 'label' => 'Created At',
-                'sort' => 1,
+                'sort' => true,
             ],
-        ];
+        ]);
 
-        $response = '';
         switch($format) {
             case 'json':
-                $response = new JsonResponse($returnData);
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
-
-                $response = $this->getThemeService()
-                    ->render('admin', 'OrderShipment:index.html.twig', $returnData);
-
+                $event->setResponse($this->getThemeService()->render(
+                    'admin',
+                    'OrderShipment:index.html.twig',
+                    $event->getReturnData()
+                ));
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

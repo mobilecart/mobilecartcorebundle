@@ -579,7 +579,7 @@ cart_admin_product_update:
     methods: [PUT]
 
 cart_admin_product_delete:
-    path: /admin/product/{id}/delete
+    path: /admin/product/{id}
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Product:delete' }
     methods: [DELETE]
 
