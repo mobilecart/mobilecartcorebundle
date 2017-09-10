@@ -4,7 +4,6 @@ namespace MobileCart\CoreBundle\EventListener\Payment;
 
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\Constants\EntityConstants;
-use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\Payment\FilterPaymentMethodCollectEvent;
 use MobileCart\CoreBundle\Payment\PaymentMethodServiceInterface;
 
@@ -14,7 +13,9 @@ use MobileCart\CoreBundle\Payment\PaymentMethodServiceInterface;
  */
 class PaymentMethodHandler
 {
-
+    /**
+     * @var \MobileCart\CoreBundle\Payment\PaymentMethodServiceInterface
+     */
     protected $paymentMethodService;
 
     /**
@@ -32,12 +33,19 @@ class PaymentMethodHandler
      */
     protected $isEnabled;
 
-    public function setPaymentMethodService($paymentMethodService)
+    /**
+     * @param PaymentMethodServiceInterface $paymentMethodService
+     * @return $this
+     */
+    public function setPaymentMethodService(PaymentMethodServiceInterface $paymentMethodService)
     {
         $this->paymentMethodService = $paymentMethodService;
         return $this;
     }
 
+    /**
+     * @return PaymentMethodServiceInterface
+     */
     public function getPaymentMethodService()
     {
         return $this->paymentMethodService;
