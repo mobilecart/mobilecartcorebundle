@@ -11,23 +11,17 @@
 
 namespace MobileCart\CoreBundle\Controller\Admin;
 
-use MobileCart\CoreBundle\Constants\EntityConstants;
-
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use MobileCart\CoreBundle\Event\CoreEvents;
 use MobileCart\CoreBundle\Event\CoreEvent;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
- * Product controller.
- *
- * @Route("/admin/product")
+ * Class ProductController
+ * @package MobileCart\CoreBundle\Controller\Admin
  */
 class ProductController extends Controller
 {
@@ -38,9 +32,6 @@ class ProductController extends Controller
 
     /**
      * Lists Product entities
-     *
-     * @Route("/", name="cart_admin_product")
-     * @Method("GET")
      */
     public function indexAction(Request $request)
     {
@@ -72,15 +63,12 @@ class ProductController extends Controller
     /**
      * Displays a form to gather required fields for
      *  properly building the create form in the newAction
-     *
-     * @Route("/init", name="cart_admin_product_init")
-     * @Method("GET")
      */
     public function initAction(Request $request)
     {
         $form = $this->createInitForm();
 
-        $form->add('type', 'choice', [
+        $form->add('type', ChoiceType::class, [
             'mapped'    => false,
             'choices'   => $this->get('cart.entity')->getProductTypes(),
             'required'  => 1,
@@ -98,7 +86,7 @@ class ProductController extends Controller
             }
         }
 
-        $form->add('var_set_id', 'choice', [
+        $form->add('var_set_id', ChoiceType::class, [
             'mapped'    => false,
             'choices'   => $varSetChoices,
             'required'  => 1,
@@ -116,10 +104,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Displays a form to create a new Product entity.
-     *
-     * @Route("/new", name="cart_admin_product_new")
-     * @Method("GET")
+     * Displays a form to create a new Product entity
      */
     public function newAction(Request $request)
     {
@@ -137,11 +122,8 @@ class ProductController extends Controller
         if (!$varSetId || !$type || !isset($types[$type])) {
             return $this->redirect($this->generateUrl('cart_admin_product_init'));
         }
-        $typeLabel = $types[$type];
 
-        $varSet = $this->get('cart.entity')
-            ->getVarSet($varSetId);
-
+        $varSet = $this->get('cart.entity')->getVarSet($varSetId);
         if (!$varSet) {
             return $this->redirect($this->generateUrl('cart_admin_product_init'));
         }
@@ -150,28 +132,21 @@ class ProductController extends Controller
         $entity->setType($type);
         $entity->setItemVarSet($varSet);
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_product_create', [
-                'var_set_id' => $varSetId,
-                'type'       => $type
-            ]))
-            ->setReturnData([
-                'type' => $typeLabel,
-            ])
-            ->setMethod('POST');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::PRODUCT_ADMIN_FORM, $formEvent);
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setVarSet($varSet)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_product_create', [
+                'var_set_id' => $varSetId,
+                'type'       => $type
+            ]))
+            ->setReturnData([
+                'type' => $types[$type],
+            ])
+            ->setFormMethod('POST');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::PRODUCT_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::PRODUCT_NEW_RETURN, $event);
@@ -180,10 +155,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Finds and displays a Product entity.
-     *
-     * @Route("/{id}", name="cart_admin_product_show")
-     * @Method("GET")
+     * Finds and displays a Product entity
      */
     public function showAction(Request $request, $id)
     {
@@ -191,15 +163,11 @@ class ProductController extends Controller
         if (!$entity) {
             throw $this->createNotFoundException("Unable to find entity with ID: {$id}");
         }
-
         return new JsonResponse($entity->getData());
     }
 
     /**
-     * Creates a new Product entity.
-     *
-     * @Route("/", name="cart_admin_product_create")
-     * @Method("POST")
+     * Creates a new Product entity
      */
     public function createAction(Request $request)
     {
@@ -210,7 +178,6 @@ class ProductController extends Controller
         if (!$varSetId || !$type || !isset($types[$type])) {
             return $this->redirect($this->generateUrl('cart_admin_product_new'));
         }
-        $typeLabel = $types[$type];
 
         $varSet = $this->get('cart.entity')->getVarSet($varSetId);
         if (!$varSet) {
@@ -221,22 +188,21 @@ class ProductController extends Controller
         $entity->setType($type);
         $entity->setItemVarSet($varSet);
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_product_create', [
+            ->setFormAction($this->generateUrl('cart_admin_product_create', [
                 'var_set_id' => $varSetId,
                 'type'       => $type
             ]))
-            ->setMethod('POST');
+            ->setFormMethod('POST');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::PRODUCT_ADMIN_FORM, $formEvent);
+            ->dispatch(CoreEvents::PRODUCT_ADMIN_FORM, $event);
 
         $invalid = [];
-        $messages = [];
-        $form = $formEvent->getForm();
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
@@ -249,25 +215,15 @@ class ProductController extends Controller
                 $invalid['slug'] = ['Slug already exists'];
             } else {
 
-                // observe event
-                //  add product to indexes, etc
-                $event = new CoreEvent();
-                $event->setObjectType($this->objectType)
-                    ->setEntity($entity)
-                    ->setRequest($request)
-                    ->setFormData($formData);
+                $event->setFormData($formData);
 
                 $this->get('event_dispatcher')
                     ->dispatch(CoreEvents::PRODUCT_INSERT, $event);
 
-                $returnEvent = new CoreEvent();
-                $returnEvent->setMessages($event->getMessages());
-                $returnEvent->setRequest($request);
-                $returnEvent->setEntity($entity);
                 $this->get('event_dispatcher')
-                    ->dispatch(CoreEvents::PRODUCT_CREATE_RETURN, $returnEvent);
+                    ->dispatch(CoreEvents::PRODUCT_CREATE_RETURN, $event);
 
-                return $returnEvent->getResponse();
+                return $event->getResponse();
             }
         }
 
@@ -283,21 +239,12 @@ class ProductController extends Controller
                 }
             }
 
-            $returnData = [
-                'success' => 0,
+            return new JsonResponse([
+                'success' => false,
                 'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+                'messages' => $event->getMessages(),
+            ]);
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setEntity($entity)
-            ->setVarSet($varSet)
-            ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::PRODUCT_NEW_RETURN, $event);
@@ -306,10 +253,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Displays a form to edit an existing Product entity.
-     *
-     * @Route("/{id}/edit", name="cart_admin_product_edit")
-     * @Method("GET")
+     * Displays a form to edit an existing Product entity
      */
     public function editAction(Request $request, $id)
     {
@@ -321,22 +265,16 @@ class ProductController extends Controller
         $types = $this->get('cart.entity')->getProductTypes();
         $type = $types[$entity->getType()];
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_product_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT')
-            ->setReturnData(['type' => $type]);
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::PRODUCT_ADMIN_FORM, $formEvent);
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_product_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT')
+            ->setReturnData(['type' => $type]);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::PRODUCT_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::PRODUCT_EDIT_RETURN, $event);
@@ -345,10 +283,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Edits an existing Product entity.
-     *
-     * @Route("/{id}", name="cart_admin_product_update")
-     * @Method("PUT")
+     * Edits an existing Product entity
      */
     public function updateAction(Request $request, $id)
     {
@@ -360,20 +295,19 @@ class ProductController extends Controller
         $types = $this->get('cart.entity')->getProductTypes();
         $type = $types[$entity->getType()];
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_product_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT')
+            ->setFormAction($this->generateUrl('cart_admin_product_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT')
             ->setReturnData(['type' => $type]);
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::PRODUCT_ADMIN_FORM, $formEvent);
+            ->dispatch(CoreEvents::PRODUCT_ADMIN_FORM, $event);
 
         $invalid = [];
-        $messages = [];
-        $form = $formEvent->getForm();
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
@@ -409,23 +343,15 @@ class ProductController extends Controller
 
             if (!$exists) {
 
-                $event = new CoreEvent();
-                $event->setObjectType($this->objectType)
-                    ->setEntity($entity)
-                    ->setRequest($request)
-                    ->setFormData($formData);
+                $event->setFormData($formData);
 
                 $this->get('event_dispatcher')
                     ->dispatch(CoreEvents::PRODUCT_UPDATE, $event);
 
-                $returnEvent = new CoreEvent();
-                $returnEvent->setMessages($event->getMessages());
-                $returnEvent->setRequest($request);
-                $returnEvent->setEntity($entity);
                 $this->get('event_dispatcher')
-                    ->dispatch(CoreEvents::PRODUCT_UPDATE_RETURN, $returnEvent);
+                    ->dispatch(CoreEvents::PRODUCT_UPDATE_RETURN, $event);
 
-                return $returnEvent->getResponse();
+                return $event->getResponse();
             }
         }
 
@@ -441,20 +367,12 @@ class ProductController extends Controller
                 }
             }
 
-            $returnData = [
-                'success' => 0,
+            return new JsonResponse([
+                'success' => false,
                 'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+                'messages' => $event->getMessages(),
+            ]);
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::PRODUCT_EDIT_RETURN, $event);
@@ -463,10 +381,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Deletes a Product entity.
-     *
-     * @Route("/{id}", name="cart_admin_product_delete")
-     * @Method("DELETE")
+     * Deletes a Product entity
      */
     public function deleteAction(Request $request, $id)
     {
@@ -497,10 +412,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Duplicates a Product entity.
-     *
-     * @Route("/{id}", name="cart_admin_product_duplicate")
-     * @Method("POST")
+     * Duplicates a Product entity
      */
     public function duplicateAction(Request $request, $id)
     {
@@ -517,26 +429,16 @@ class ProductController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::PRODUCT_DUPLICATE, $event);
 
-        $request->getSession()->getFlashBag()->add(
-            'success',
-            'Product Successfully Duplicated!'
-        );
+        $event->addSuccessMessage('Product Successfully Duplicated!');
 
-        $returnEvent = new CoreEvent();
-        $returnEvent->setMessages($event->getMessages());
-        $returnEvent->setRequest($request);
-        $returnEvent->setEntity($event->getEntity());
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::PRODUCT_UPDATE_RETURN, $returnEvent);
+            ->dispatch(CoreEvents::PRODUCT_UPDATE_RETURN, $event);
 
-        return $returnEvent->getResponse();
+        return $event->getResponse();
     }
 
     /**
      * Mass-Update Products
-     *
-     * @Route("/mass_update", name="cart_admin_product_mass_update")
-     * @Method("POST")
      */
     public function massUpdateAction(Request $request)
     {
@@ -590,9 +492,6 @@ class ProductController extends Controller
 
     /**
      * Mass-Delete Products
-     *
-     * @Route("/mass_delete", name="cart_admin_product_mass_delete")
-     * @Method("POST")
      */
     public function massDeleteAction(Request $request)
     {

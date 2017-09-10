@@ -39,7 +39,6 @@ class ProductDelete
      */
     public function onProductDelete(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
 
         // remove tier prices
@@ -103,12 +102,7 @@ class ProductDelete
             && $event->getRequest()->getSession()
             && !$event->getIsMassUpdate()
         ) {
-            $event->getRequest()->getSession()->getFlashBag()->add(
-                'success',
-                'Product Deleted!'
-            );
+            $event->addSuccessMessage('Product Deleted!');
         }
-
-        $event->setReturnData($returnData);
     }
 }

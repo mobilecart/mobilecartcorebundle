@@ -40,7 +40,6 @@ class ProductDuplicate
     public function onProductDuplicate(CoreEvent $event)
     {
         $returnData = $event->getReturnData();
-        $request = $event->getRequest();
 
         $origEntity = $event->getEntity();
         $formData = $origEntity->getData();

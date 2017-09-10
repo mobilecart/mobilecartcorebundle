@@ -679,7 +679,7 @@ class Product
      * Set createdAt
      *
      * @param \DateTime $createdAt
-     * @return Product
+     * @return $this
      */
     public function setCreatedAt($createdAt)
     {
@@ -701,7 +701,7 @@ class Product
      * Set updatedAt
      *
      * @param \DateTime $updatedAt
-     * @return Product
+     * @return $this
      */
     public function setUpdatedAt($updatedAt)
     {
@@ -721,7 +721,7 @@ class Product
 
     /**
      * @param int $oldId
-     * @return Product
+     * @return $this
      */
     public function setOldId($oldId)
     {
@@ -755,7 +755,7 @@ class Product
 
     /**
      * @param $customTemplate
-     * @return Product
+     * @return $this
      */
     public function setCustomTemplate($customTemplate)
     {
@@ -773,7 +773,7 @@ class Product
 
     /**
      * @param $title
-     * @return Product
+     * @return $this
      */
     public function setPageTitle($title)
     {
@@ -791,7 +791,7 @@ class Product
 
     /**
      * @param $sortOrder
-     * @return Product
+     * @return $this
      */
     public function setSortOrder($sortOrder)
     {
@@ -809,7 +809,7 @@ class Product
 
     /**
      * @param $isPublic
-     * @return Product
+     * @return $this
      */
     public function setIsPublic($isPublic)
     {
@@ -820,7 +820,7 @@ class Product
     /**
      * Get is_public
      *
-     * @return boolean
+     * @return bool
      */
     public function getIsPublic()
     {
@@ -829,7 +829,7 @@ class Product
 
     /**
      * @param $isSearchable
-     * @return Product
+     * @return $this
      */
     public function setIsSearchable($isSearchable)
     {
@@ -840,7 +840,7 @@ class Product
     /**
      * Get is_searchable
      *
-     * @return boolean
+     * @return bool
      */
     public function getIsSearchable()
     {
@@ -851,7 +851,7 @@ class Product
      * Set name
      *
      * @param string $name
-     * @return Product
+     * @return $this
      */
     public function setName($name)
     {
@@ -873,7 +873,7 @@ class Product
      * Set slug
      *
      * @param string $slug
-     * @return Product
+     * @return $this
      */
     public function setSlug($slug)
     {
@@ -895,7 +895,7 @@ class Product
      * Set content
      *
      * @param string $content
-     * @return Product
+     * @return $this
      */
     public function setContent($content)
     {
@@ -915,7 +915,7 @@ class Product
 
     /**
      * @param $desc
-     * @return Product
+     * @return $this
      */
     public function setMetaDescription($desc)
     {
@@ -933,7 +933,7 @@ class Product
 
     /**
      * @param $desc
-     * @return Product
+     * @return $this
      */
     public function setMetaKeywords($desc)
     {
@@ -951,7 +951,7 @@ class Product
 
     /**
      * @param $desc
-     * @return Product
+     * @return $this
      */
     public function setMetaTitle($desc)
     {
@@ -969,7 +969,7 @@ class Product
 
     /**
      * @param $type
-     * @return Product
+     * @return $this
      */
     public function setType($type)
     {
@@ -980,7 +980,7 @@ class Product
     /**
      * Get type
      *
-     * @return integer
+     * @return int
      */
     public function getType()
     {
@@ -989,7 +989,7 @@ class Product
 
     /**
      * @param $config
-     * @return Product
+     * @return $this
      */
     public function setConfig($config)
     {
@@ -1009,7 +1009,7 @@ class Product
     }
 
     /**
-     * @return Product
+     * @return $this
      */
     public function reconfigure()
     {
@@ -1174,7 +1174,7 @@ class Product
 
     /**
      * @param $visibility
-     * @return Product
+     * @return $this
      */
     public function setVisibility($visibility)
     {
@@ -1185,7 +1185,7 @@ class Product
     /**
      * Get visibility
      *
-     * @return integer
+     * @return int
      */
     public function getVisibility()
     {
@@ -1194,7 +1194,7 @@ class Product
 
     /**
      * @param $isEnabled
-     * @return Product
+     * @return $this
      */
     public function setIsEnabled($isEnabled)
     {
@@ -1205,7 +1205,7 @@ class Product
     /**
      * Get is_enabled
      *
-     * @return boolean
+     * @return bool
      */
     public function getIsEnabled()
     {
@@ -1214,7 +1214,7 @@ class Product
 
     /**
      * @param $sku
-     * @return Product
+     * @return $this
      */
     public function setSku($sku)
     {
@@ -1252,7 +1252,7 @@ class Product
 
     /**
      * @param $desc
-     * @return Product
+     * @return $this
      */
     public function setShortDescription($desc)
     {
@@ -1270,7 +1270,7 @@ class Product
 
     /**
      * @param $currency
-     * @return Product
+     * @return $this
      */
     public function setCurrency($currency)
     {
@@ -1288,7 +1288,7 @@ class Product
 
     /**
      * @param $price
-     * @return Product
+     * @return $this
      */
     public function setPrice($price)
     {
@@ -1308,7 +1308,7 @@ class Product
 
     /**
      * @param $price
-     * @return Product
+     * @return $this
      */
     public function setSpecialPrice($price)
     {
@@ -1328,7 +1328,7 @@ class Product
 
     /**
      * @param $cost
-     * @return Product
+     * @return $this
      */
     public function setCost($cost)
     {
@@ -1346,7 +1346,7 @@ class Product
 
     /**
      * @param $isTaxable
-     * @return Product
+     * @return $this
      */
     public function setIsTaxable($isTaxable)
     {
@@ -1357,7 +1357,7 @@ class Product
     /**
      * Get is_taxable
      *
-     * @return boolean
+     * @return bool
      */
     public function getIsTaxable()
     {
@@ -1366,7 +1366,7 @@ class Product
 
     /**
      * @param CustomerGroupProductPrice $groupPrice
-     * @return Product
+     * @return $this
      */
     public function addGroupPrice(CustomerGroupProductPrice $groupPrice)
     {
@@ -1530,7 +1530,7 @@ class Product
 
     /**
      * @param $isDiscountable
-     * @return Product
+     * @return $this
      */
     public function setIsDiscountable($isDiscountable)
     {
@@ -1541,7 +1541,7 @@ class Product
     /**
      * Get is_discountable
      *
-     * @return boolean 
+     * @return bool
      */
     public function getIsDiscountable()
     {
@@ -1550,7 +1550,7 @@ class Product
 
     /**
      * @param $isInStock
-     * @return Product
+     * @return $this
      */
     public function setIsInStock($isInStock)
     {
@@ -1561,7 +1561,7 @@ class Product
     /**
      * Get is_in_stock
      *
-     * @return boolean 
+     * @return bool
      */
     public function getIsInStock()
     {
@@ -1570,7 +1570,7 @@ class Product
 
     /**
      * @param $isQtyManaged
-     * @return Product
+     * @return $this
      */
     public function setIsQtyManaged($isQtyManaged)
     {
@@ -1581,7 +1581,7 @@ class Product
     /**
      * Get is_qty_managed
      *
-     * @return boolean
+     * @return bool
      */
     public function getIsQtyManaged()
     {
@@ -1590,7 +1590,7 @@ class Product
 
     /**
      * @param $stockType
-     * @return Product
+     * @return $this
      */
     public function setStockType($stockType)
     {
@@ -1628,7 +1628,7 @@ class Product
 
     /**
      * @param $canBackorder
-     * @return Product
+     * @return $this
      */
     public function setCanBackorder($canBackorder)
     {
@@ -1639,7 +1639,7 @@ class Product
     /**
      * Get can_backorder
      *
-     * @return boolean 
+     * @return bool
      */
     public function getCanBackorder()
     {
@@ -1648,7 +1648,7 @@ class Product
 
     /**
      * @param $qty
-     * @return Product
+     * @return $this
      */
     public function setQty($qty)
     {
@@ -1659,7 +1659,7 @@ class Product
     /**
      * Get qty
      *
-     * @return integer 
+     * @return int
      */
     public function getQty()
     {
@@ -1668,7 +1668,7 @@ class Product
 
     /**
      * @param $qtyUnit
-     * @return Product
+     * @return $this
      */
     public function setQtyUnit($qtyUnit)
     {
@@ -1679,7 +1679,7 @@ class Product
     /**
      * Get qty
      *
-     * @return integer
+     * @return int
      */
     public function getQtyUnit()
     {
@@ -1688,7 +1688,7 @@ class Product
 
     /**
      * @param $qty
-     * @return Product
+     * @return $this
      */
     public function setMinQty($qty)
     {
@@ -1699,7 +1699,7 @@ class Product
     /**
      * Get min_qty
      *
-     * @return integer
+     * @return int
      */
     public function getMinQty()
     {
@@ -1708,7 +1708,7 @@ class Product
 
     /**
      * @param $fulltext_search
-     * @return Product
+     * @return $this
      */
     public function setFulltextSearch($fulltext_search)
     {
@@ -1728,7 +1728,7 @@ class Product
 
     /**
      * @param $customSearch
-     * @return Product
+     * @return $this
      */
     public function setCustomSearch($customSearch)
     {
@@ -1748,7 +1748,7 @@ class Product
 
     /**
      * @param CategoryProduct $categoryProduct
-     * @return Product
+     * @return $this
      */
     public function addCategoryProduct(CategoryProduct $categoryProduct)
     {
@@ -1798,7 +1798,7 @@ class Product
 
     /**
      * @param ProductConfig $productConfig
-     * @return Product
+     * @return $this
      */
     public function addProductConfig(ProductConfig $productConfig)
     {
@@ -1856,7 +1856,7 @@ class Product
 
     /**
      * @param ItemVarSet $itemVarSet
-     * @return Product
+     * @return $this
      */
     public function setItemVarSet(ItemVarSet $itemVarSet)
     {
@@ -1876,7 +1876,7 @@ class Product
 
     /**
      * @param ProductVarValueDecimal $itemVarValues
-     * @return Product
+     * @return $this
      */
     public function addVarValueDecimal(ProductVarValueDecimal $itemVarValues)
     {
@@ -1896,7 +1896,7 @@ class Product
 
     /**
      * @param ProductVarValueDatetime $itemVarValues
-     * @return Product
+     * @return $this
      */
     public function addVarValueDatetime(ProductVarValueDatetime $itemVarValues)
     {
@@ -1916,7 +1916,7 @@ class Product
 
     /**
      * @param ProductVarValueInt $itemVarValues
-     * @return Product
+     * @return $this
      */
     public function addVarValueInt(ProductVarValueInt $itemVarValues)
     {
@@ -1936,7 +1936,7 @@ class Product
 
     /**
      * @param ProductVarValueText $itemVarValues
-     * @return Product
+     * @return $this
      */
     public function addVarValueText(ProductVarValueText $itemVarValues)
     {
@@ -1956,7 +1956,7 @@ class Product
 
     /**
      * @param ProductVarValueVarchar $itemVarValues
-     * @return Product
+     * @return $this
      */
     public function addVarValueVarchar(ProductVarValueVarchar $itemVarValues)
     {

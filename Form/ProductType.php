@@ -5,24 +5,46 @@ namespace MobileCart\CoreBundle\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 
+/**
+ * Class ProductType
+ * @package MobileCart\CoreBundle\Form
+ */
 class ProductType extends AbstractType
 {
     /**
-     * @var string
+     * @var \MobileCart\CoreBundle\Service\CurrencyService
      */
-    protected $currency = 'USD';
-
-    protected $customTemplates = [];
+    protected $currencyService;
 
     /**
-     * @param $currency
+     * @var \MobileCart\CoreBundle\Service\ThemeConfig
+     */
+    protected $themeConfig;
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\CurrencyService $currencyService
      * @return $this
      */
-    public function setCurrency($currency)
+    public function setCurrencyService(\MobileCart\CoreBundle\Service\CurrencyService $currencyService)
     {
-        $this->currency = $currency;
+        $this->currencyService = $currencyService;
         return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CurrencyService
+     */
+    public function getCurrencyService()
+    {
+        return $this->currencyService;
     }
 
     /**
@@ -30,18 +52,33 @@ class ProductType extends AbstractType
      */
     public function getCurrency()
     {
-        return $this->currency;
+        return $this->getCurrencyService()->getBaseCurrency();
     }
 
-    public function setCustomTemplates(array $customTemplates)
+    /**
+     * @param \MobileCart\CoreBundle\Service\ThemeConfig $themeConfig
+     * @return $this
+     */
+    public function setThemeConfig(\MobileCart\CoreBundle\Service\ThemeConfig $themeConfig)
     {
-        $this->customTemplates = $customTemplates;
+        $this->themeConfig = $themeConfig;
         return $this;
     }
 
+    /**
+     * @return \MobileCart\CoreBundle\Service\ThemeConfig
+     */
+    public function getThemeConfig()
+    {
+        return $this->themeConfig;
+    }
+
+    /**
+     * @return array
+     */
     public function getCustomTemplates()
     {
-        return $this->customTemplates;
+        return $this->getThemeConfig()->getObjectTypeTemplates(EntityConstants::PRODUCT);
     }
 
     /**
@@ -51,24 +88,23 @@ class ProductType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('sku', 'text', [
-                'required' => 1,
+            ->add('sku', TextType::class, [
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('price', 'money', [
+            ->add('price', MoneyType::class, [
                 'currency' => $this->getCurrency(),
-                'required' => 1,
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-//            ->add('type', 'hidden') // type is handled in controller logic
-            ->add('source_address_key', 'text', ['required' => 0, 'label' => 'Warehouse Code'])
-            ->add('weight', 'text', ['required' => 0])
-            ->add('weight_unit', 'choice', [
-                'required' => 0,
+            ->add('source_address_key', TextType::class, ['required' => false, 'label' => 'Warehouse Code'])
+            ->add('weight', TextType::class, ['required' => false])
+            ->add('weight_unit', ChoiceType::class, [
+                'required' => false,
                 'choices' => [
                     'lb' => 'LB',
                     'oz' => 'Ounce',
@@ -76,11 +112,11 @@ class ProductType extends AbstractType
                     'g' => 'Gram',
                 ]
             ])
-            ->add('width', 'text', ['required' => 0])
-            ->add('height', 'text', ['required' => 0])
-            ->add('length', 'text', ['required' => 0])
-            ->add('measure_unit', 'choice', [
-                'required' => 0,
+            ->add('width', TextType::class, ['required' => false])
+            ->add('height', TextType::class, ['required' => false])
+            ->add('length', TextType::class, ['required' => false])
+            ->add('measure_unit', ChoiceType::class, [
+                'required' => false,
                 'choices' => [
                     'in' => 'Inch',
                     'ft' => 'Foot',
@@ -88,62 +124,62 @@ class ProductType extends AbstractType
                     'm' => 'Meter',
                 ]
             ])
-            ->add('qty', 'number', [
-                'required' => 1,
+            ->add('qty', NumberType::class, [
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('qty_unit', 'choice', [
-                'required' => 0,
+            ->add('qty_unit', ChoiceType::class, [
+                'required' => false,
                 'choices' => [
                     'EA' => 'Each',
                     'CASE' => 'Case',
                     '10-Pack' => '10 Pack',
                 ]
             ])
-            ->add('min_qty', 'number', ['required' => 0])
-            ->add('is_enabled', 'checkbox', ['required' => 0])
-            ->add('is_public', 'checkbox', ['required' => 0])
-            ->add('is_taxable', 'checkbox', ['required' => 0])
-            ->add('is_qty_managed', 'checkbox', ['required' => 0])
-            ->add('is_discountable', 'checkbox', ['required' => 0])
-            ->add('is_in_stock', 'checkbox', ['required' => 0])
-            ->add('is_flat_shipping', 'checkbox', ['required' => 0])
-            ->add('flat_shipping_price', 'text', ['required' => 0])
-            ->add('can_backorder', 'checkbox', ['required' => 0])
-            ->add('custom_search', 'textarea',['required' => 0])
-            ->add('name', 'text', [
-                'required' => 1,
+            ->add('upc', TextType::class, ['required' => false])
+            ->add('min_qty', NumberType::class, ['required' => false])
+            ->add('is_enabled', CheckboxType::class, ['required' => false])
+            ->add('is_public', CheckboxType::class, ['required' => false])
+            ->add('is_taxable', CheckboxType::class, ['required' => false])
+            ->add('is_qty_managed', CheckboxType::class, ['required' => false])
+            ->add('is_discountable', CheckboxType::class, ['required' => false])
+            ->add('is_in_stock', CheckboxType::class, ['required' => false])
+            ->add('is_flat_shipping', CheckboxType::class, ['required' => false])
+            ->add('flat_shipping_price', TextType::class, ['required' => false])
+            ->add('can_backorder', CheckboxType::class, ['required' => false])
+            ->add('custom_search', TextareaType::class, ['required' => false])
+            ->add('name', TextType::class, [
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('slug', 'text', [
-                'required' => 1,
+            ->add('slug', TextType::class, [
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('sort_order', 'text', ['required'  => false])
-            ->add('content', 'textarea', ['required'  => false])
+            ->add('sort_order', TextType::class, ['required'  => false])
+            ->add('content', TextareaType::class, ['required'  => false])
             ->add('page_title')
-            ->add('meta_title', 'textarea', ['required'  => false])
-            ->add('meta_keywords', 'textarea', ['required'  => false])
-            ->add('meta_description', 'textarea', [
+            ->add('meta_title', TextareaType::class, ['required'  => false])
+            ->add('meta_keywords', TextareaType::class, ['required'  => false])
+            ->add('meta_description', TextareaType::class, [
                 'required' => false,
             ])
-            ->add('custom_template', 'choice', [
+            ->add('custom_template', ChoiceType::class, [
                 'required' => false,
                 'choices' => $this->getCustomTemplates(),
-            ])
-        ;
+            ]);
     }
 
     /**
      * @return string
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'product';
     }

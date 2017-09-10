@@ -3,7 +3,6 @@
 namespace MobileCart\CoreBundle\EventListener\Product;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
-use MobileCart\CoreBundle\Entity\ProductConfig;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Entity\Product;
 
@@ -41,7 +40,6 @@ class ProductUpdate
      */
     public function onProductUpdate(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
         $formData = $event->getFormData();
         $request = $event->getRequest();
@@ -52,9 +50,9 @@ class ProductUpdate
                 unset($fulltextData[$k]);
             }
         }
-        $entity->setFulltextSearch(implode(' ', $fulltextData));
 
-        $entity->setSlug($this->getEntityService()->slugify($entity->getSlug()));
+        $entity->setFulltextSearch(implode(' ', $fulltextData))
+            ->setSlug($this->getEntityService()->slugify($entity->getSlug()));
 
         $this->getEntityService()->persist($entity);
 
@@ -173,13 +171,7 @@ class ProductUpdate
                 ->persistVariants($entity, $formData);
         }
 
-        if ($entity && $request->getSession()) {
-
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Product Updated!'
-            );
-        }
+        $event->addSuccessMessage('Product Updated!');
 
         // update categories
         $categoryIds = $entity->getCategoryIds();
@@ -214,7 +206,5 @@ class ProductUpdate
                 $this->getEntityService()->updateImages(EntityConstants::PRODUCT_IMAGE, $entity, $images);
             }
         }
-
-        $event->setReturnData($returnData);
     }
 }

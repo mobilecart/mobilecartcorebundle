@@ -40,9 +40,7 @@ class ProductInsert
      */
     public function onProductInsert(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
-
         $entity = $event->getEntity();
         if (!$entity->getCurrency()) {
             // todo : use currency service
@@ -59,14 +57,12 @@ class ProductInsert
         }
 
         $entity->setFulltextSearch(implode(' ', $fulltextData))
-            ->setCreatedAt(new \DateTime('now'));
-
-        $entity->setSlug($this->getEntityService()->slugify($entity->getSlug()));
+            ->setCreatedAt(new \DateTime('now'))
+            ->setSlug($this->getEntityService()->slugify($entity->getSlug()));
 
         $this->getEntityService()->persist($entity);
 
         // update configurable product information
-
         if ($entity->getType() == Product::TYPE_CONFIGURABLE) {
 
             $simpleIds = is_array($request->get('simple_ids', []))
@@ -74,12 +70,9 @@ class ProductInsert
                 : [];
 
             $variants = [];
-
             if ($simpleIds) {
-
                 $variantCodes = $request->get('config_vars', []);
                 if ($variantCodes) {
-
                     $variants = $this->getEntityService()->findBy(EntityConstants::ITEM_VAR, [
                         'code' => $variantCodes
                     ]);
@@ -155,17 +148,6 @@ class ProductInsert
             }
         }
 
-        if ($entity
-            && $entity->getId()
-            && $request->getSession()
-        ) {
-
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Product Created!'
-            );
-        }
-
-        $event->setReturnData($returnData);
+        $event->addSuccessMessage('Product Created!');
     }
 }

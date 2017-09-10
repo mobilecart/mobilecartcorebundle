@@ -2,9 +2,8 @@
 
 namespace MobileCart\CoreBundle\EventListener\Product;
 
-use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use MobileCart\CoreBundle\Constants\EntityConstants;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class ProductViewReturn

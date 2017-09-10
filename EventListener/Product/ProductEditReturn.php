@@ -86,10 +86,8 @@ class ProductEditReturn
      */
     public function onProductEditReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $product = $event->getEntity();
-
-        $config = @ (array) json_decode($product->getConfig());
+        $entity = $event->getEntity();
+        $config = @ (array) json_decode($entity->getConfig());
         $typeSections = [];
         $objectType = EntityConstants::PRODUCT;
 
@@ -98,14 +96,14 @@ class ProductEditReturn
             'label'        => 'Images',
             'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Image:uploader.html.twig',
             'js_template'  => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Image:uploader_js.html.twig',
-            'images'       => $product->getImages(),
+            'images'       => $entity->getImages(),
             'image_sizes'  => $this->getImageService()->getImageConfigs($objectType),
-            'upload_query' => "?object_type={$objectType}&object_id={$product->getId()}",
+            'upload_query' => "?object_type={$objectType}&object_id={$entity->getId()}",
         ];
 
         $categories = [];
         $categoryIds = [];
-        $productCats = $product->getCategoryProducts();
+        $productCats = $entity->getCategoryProducts();
         if ($productCats) {
             foreach($productCats as $productCat) {
                 $category = $productCat->getCategory();
@@ -141,12 +139,12 @@ class ProductEditReturn
             'check_prefix' => 'related-id-', // for shared templates in product-listing.js, todo: remove this
         ); //*/
 
-        switch($product->getType()) {
+        switch($entity->getType()) {
             case Product::TYPE_SIMPLE:
 
                 break;
             case Product::TYPE_CONFIGURABLE:
-                $varSet = $product->getItemVarSet();
+                $varSet = $entity->getItemVarSet();
                 $vars = $varSet
                     ? $varSet->getItemVars()
                     : [];
@@ -168,7 +166,7 @@ class ProductEditReturn
                 }
 
                 $childIds = [];
-                $productConfigs = $product->getProductConfigs();
+                $productConfigs = $entity->getProductConfigs();
                 if ($productConfigs->count()) {
                     foreach($productConfigs as $productConfig) {
                         $childId = $productConfig->getChildProduct()->getId();
@@ -188,8 +186,9 @@ class ProductEditReturn
                     'check_prefix' => 'child-id-', // for shared templates in product-listing.js, todo: remove this
                 ];
 
-                $childProducts = $this->getEntityService()->findBy(EntityConstants::PRODUCT, ['id' => $childIds]);
-                $returnData['child_products'] = $childProducts;
+                $event->setReturnData('child_products', $this->getEntityService()->findBy(EntityConstants::PRODUCT, [
+                    'id' => $childIds
+                ]));
 
                 break;
             default:
@@ -197,16 +196,14 @@ class ProductEditReturn
                 break;
         }
 
-        $returnData['template_sections'] = $typeSections;
+        $event->setReturnData('entity', $entity);
+        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('template_sections', $typeSections);
 
-        $form = $returnData['form'];
-        $returnData['form'] = $form->createView();
-        $returnData['entity'] = $product;
-
-        $response = $this->getThemeService()
-            ->render('admin', 'Product:edit.html.twig', $returnData);
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
+        $event->setResponse($this->getThemeService()->render(
+            'admin',
+            'Product:edit.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

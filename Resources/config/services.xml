@@ -76,6 +76,7 @@
         <parameter key="cart.form.type.item_var_set.class">MobileCart\CoreBundle\Form\ItemVarSetType</parameter>
         <parameter key="cart.form.type.item_var_set_var.class">MobileCart\CoreBundle\Form\ItemVarSetVarType</parameter>
         <parameter key="cart.form.type.order_shipment.class">MobileCart\CoreBundle\Form\OrderShipmentType</parameter>
+        <parameter key="cart.form.type.product.class">MobileCart\CoreBundle\Form\ProductType</parameter>
         <!-- Services -->
         <parameter key="cart.session.class">MobileCart\CoreBundle\Service\CartSessionService</parameter>
         <parameter key="cart.class">MobileCart\CoreBundle\Service\CartService</parameter>
@@ -1730,127 +1731,6 @@
             <tag name="kernel.event_listener" event="cart.total" method="onCartTotalCollect" priority="1" />
         </service>
 
-        <!-- Event Listener : Product Search -->
-        <service id="cart.listener.product.search" lazy="true" class="%cart.listener.product.search.class%">
-            <tag name="kernel.event_listener" event="product.search" method="onProductSearch" priority="50" />
-            <call method="setSearch">
-                <argument type="service" id="cart.search.frontend" />
-                <argument type="string">product</argument>
-            </call>
-        </service>
-
-        <!-- Event Listener: Product Listing : for frontend, not for APIs -->
-        <service id="cart.listener.product.list" lazy="true" class="%cart.listener.product.list.class%">
-            <tag name="kernel.event_listener" event="product.search" method="onProductList" priority="40" />
-            <call method="setRouter">
-                <argument type="service" id="router"/>
-            </call>
-            <call method="setThemeService">
-                <argument type="service" id="cart.theme"/>
-            </call>
-        </service>
-
-        <!-- Event Listener: Build Product Form in Admin -->
-        <service id="cart.listener.product.admin.form" lazy="true" class="%cart.listener.product.admin.form.class%">
-            <tag name="kernel.event_listener" event="product.admin.form" method="onProductAdminForm" priority="50" />
-            <call method="setEntityService">
-                <argument type="service" id="cart.entity" />
-            </call>
-            <call method="setCurrencyService">
-                <argument type="service" id="cart.currency" />
-            </call>
-            <call method="setFormFactory">
-                <argument type="service" id="form.factory" />
-            </call>
-            <call method="setThemeConfig">
-                <argument type="service" id="cart.theme.config" />
-            </call>
-        </service>
-
-        <!-- Event Listener: Return View Data to Admin Product Create page -->
-        <service id="cart.listener.product.create.return" lazy="true" class="%cart.listener.product.create.return.class%">
-            <tag name="kernel.event_listener" event="product.create.return" method="onProductCreateReturn" priority="50" />
-            <call method="setSession">
-                <argument type="service" id="session" />
-            </call>
-            <call method="setRouter">
-                <argument type="service" id="router" />
-            </call>
-        </service>
-        <service id="cart.listener.product.update.return" lazy="true" class="%cart.listener.product.update.return.class%">
-            <tag name="kernel.event_listener" event="product.update.return" method="onProductUpdateReturn" priority="50" />
-            <call method="setSession">
-                <argument type="service" id="session" />
-            </call>
-            <call method="setRouter">
-                <argument type="service" id="router" />
-            </call>
-        </service>
-        <service id="cart.listener.product.edit.return" lazy="true" class="%cart.listener.product.edit.return.class%">
-            <tag name="kernel.event_listener" event="product.edit.return" method="onProductEditReturn" priority="50" />
-            <call method="setEntityService">
-                <argument type="service" id="cart.entity" />
-            </call>
-            <call method="setImageService">
-                <argument type="service" id="cart.image" />
-            </call>
-            <call method="setThemeService">
-                <argument type="service" id="cart.theme" />
-            </call>
-        </service>
-        <service id="cart.listener.product.new.return" lazy="true" class="%cart.listener.product.new.return.class%">
-            <tag name="kernel.event_listener" event="product.new.return" method="onProductNewReturn" priority="50" />
-            <call method="setEntityService">
-                <argument type="service" id="cart.entity" />
-            </call>
-            <call method="setImageService">
-                <argument type="service" id="cart.image" />
-            </call>
-            <call method="setThemeService">
-                <argument type="service" id="cart.theme"/>
-            </call>
-        </service>
-        <service id="cart.listener.product.view.return" lazy="true" class="%cart.listener.product.view.return.class%">
-            <tag name="kernel.event_listener" event="product.view.return" method="onProductViewReturn" priority="50" />
-            <call method="setEntityService">
-                <argument type="service" id="cart.entity" />
-            </call>
-            <call method="setImageService">
-                <argument type="service" id="cart.image" />
-            </call>
-            <call method="setThemeService">
-                <argument type="service" id="cart.theme" />
-            </call>
-            <call method="setSearch">
-                <argument type="service" id="cart.search.frontend" />
-                <argument type="string">product</argument>
-            </call>
-        </service>
-        <service id="cart.listener.product.update" lazy="true" class="%cart.listener.product.update.class%">
-            <tag name="kernel.event_listener" event="product.update" method="onProductUpdate" priority="50" />
-            <call method="setEntityService">
-                <argument type="service" id="cart.entity" />
-            </call>
-        </service>
-        <service id="cart.listener.product.insert" lazy="true" class="%cart.listener.product.insert.class%">
-            <tag name="kernel.event_listener" event="product.insert" method="onProductInsert" priority="50" />
-            <call method="setEntityService">
-                <argument type="service" id="cart.entity" />
-            </call>
-        </service>
-        <service id="cart.listener.product.delete" lazy="true" class="%cart.listener.product.delete.class%">
-            <tag name="kernel.event_listener" event="product.delete" method="onProductDelete" priority="50" />
-            <call method="setEntityService">
-                <argument type="service" id="cart.entity" />
-            </call>
-        </service>
-        <service id="cart.listener.product.duplicate" lazy="true" class="%cart.listener.product.duplicate.class%">
-            <tag name="kernel.event_listener" event="product.duplicate" method="onProductDuplicate" priority="50" />
-            <call method="setEntityService">
-                <argument type="service" id="cart.entity" />
-            </call>
-        </service>
-
         <!-- Category Services and Listeners -->
         <service id="cart.listener.category.search" lazy="true" class="%cart.listener.category.search.class%">
             <tag name="kernel.event_listener" event="category.search" method="onCategorySearch" priority="50" />
@@ -3480,6 +3360,124 @@
             </call>
             <call method="setFormTypeClass">
                 <argument type="string">%cart.form.type.order_shipment.class%</argument>
+            </call>
+        </service>
+
+        <!-- Product Services and Listeners -->
+        <service id="cart.listener.product.search" lazy="true" class="%cart.listener.product.search.class%">
+            <tag name="kernel.event_listener" event="product.search" method="onProductSearch" priority="50" />
+            <call method="setSearch">
+                <argument type="service" id="cart.search.frontend" />
+                <argument type="string">product</argument>
+            </call>
+        </service>
+        <service id="cart.listener.product.list" lazy="true" class="%cart.listener.product.list.class%">
+            <tag name="kernel.event_listener" event="product.search" method="onProductList" priority="40" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.product.new.return" lazy="true" class="%cart.listener.product.new.return.class%">
+            <tag name="kernel.event_listener" event="product.new.return" method="onProductNewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setImageService">
+                <argument type="service" id="cart.image" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.product.insert" lazy="true" class="%cart.listener.product.insert.class%">
+            <tag name="kernel.event_listener" event="product.insert" method="onProductInsert" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.product.create.return" lazy="true" class="%cart.listener.product.create.return.class%">
+            <tag name="kernel.event_listener" event="product.create.return" method="onProductCreateReturn" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.product.edit.return" lazy="true" class="%cart.listener.product.edit.return.class%">
+            <tag name="kernel.event_listener" event="product.edit.return" method="onProductEditReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setImageService">
+                <argument type="service" id="cart.image" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+        <service id="cart.listener.product.update" lazy="true" class="%cart.listener.product.update.class%">
+            <tag name="kernel.event_listener" event="product.update" method="onProductUpdate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.product.update.return" lazy="true" class="%cart.listener.product.update.return.class%">
+            <tag name="kernel.event_listener" event="product.update.return" method="onProductUpdateReturn" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.product.view.return" lazy="true" class="%cart.listener.product.view.return.class%">
+            <tag name="kernel.event_listener" event="product.view.return" method="onProductViewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setImageService">
+                <argument type="service" id="cart.image" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+            <call method="setSearch">
+                <argument type="service" id="cart.search.frontend" />
+                <argument type="string">product</argument>
+            </call>
+        </service>
+        <service id="cart.listener.product.delete" lazy="true" class="%cart.listener.product.delete.class%">
+            <tag name="kernel.event_listener" event="product.delete" method="onProductDelete" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.product.duplicate" lazy="true" class="%cart.listener.product.duplicate.class%">
+            <tag name="kernel.event_listener" event="product.duplicate" method="onProductDuplicate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.form.type.product" lazy="true" class="%cart.form.type.product.class%">
+            <tag name="form.type" />
+            <call method="setThemeConfig">
+                <argument type="service" id="cart.theme.config" />
+            </call>
+            <call method="setCurrencyService">
+                <argument type="service" id="cart.currency" />
+            </call>
+        </service>
+        <service id="cart.listener.product.admin.form" lazy="true" class="%cart.listener.product.admin.form.class%">
+            <tag name="kernel.event_listener" event="product.admin.form" method="onProductAdminForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setCurrencyService">
+                <argument type="service" id="cart.currency" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+            <call method="setFormTypeClass">
+                <argument type="string">%cart.form.type.product.class%</argument>
             </call>
         </service>
 

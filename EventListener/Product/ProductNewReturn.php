@@ -86,16 +86,8 @@ class ProductNewReturn
      */
     public function onProductNewReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $product = $event->getEntity();
-        $request = $event->getRequest();
-
-        $formData = $request->get('form', []);
-        $varSetId = isset($formData['var_set_id'])
-            ? $formData['var_set_id']
-            : 0;
-
-        $varSet = $this->getEntityService()->find(EntityConstants::ITEM_VAR_SET, $varSetId);
+        $entity = $event->getEntity();
+        $varSet = $entity->getItemVarSet();
         $objectType = EntityConstants::PRODUCT;
         $typeSections = [];
 
@@ -128,7 +120,7 @@ class ProductNewReturn
             'check_prefix' => 'related-id-', // for shared templates in product-listing.js, todo: remove this
         ); //*/
 
-        switch($product->getType()) {
+        switch($entity->getType()) {
             case Product::TYPE_SIMPLE:
 
                 break;
@@ -149,23 +141,23 @@ class ProductNewReturn
                     'child_ids'    => $childIds,
                     'check_prefix' => 'child-id-', // for shared templates in product-listing.js, todo: remove this
                 ];
-                $returnData['child_products'] = [];
+
+                $event->setReturnData('child_products', []);
+
                 break;
             default:
 
                 break;
         }
 
-        $returnData['template_sections'] = $typeSections;
+        $event->setReturnData('entity', $entity);
+        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('template_sections', $typeSections);
 
-        $form = $returnData['form'];
-        $returnData['form'] = $form->createView();
-        $returnData['entity'] = $product;
-
-        $response = $this->getThemeService()
-            ->render('admin', 'Product:new.html.twig', $returnData);
-
-        $event->setResponse($response)
-            ->setReturnData($returnData);
+        $event->setResponse($this->getThemeService()->render(
+            'admin',
+            'Product:new.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

@@ -2,10 +2,12 @@
 
 namespace MobileCart\CoreBundle\EventListener\Product;
 
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Entity\Product;
 use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\Form\ProductType;
 
 /**
  * Class ProductAdminForm
@@ -23,7 +25,15 @@ class ProductAdminForm
      */
     protected $currencyService;
 
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
     protected $formFactory;
+
+    /**
+     * @var string
+     */
+    protected $formTypeClass = '';
 
     /**
      * @var \MobileCart\CoreBundle\Service\ThemeConfig
@@ -66,15 +76,40 @@ class ProductAdminForm
         return $this->currencyService;
     }
 
-    public function setFormFactory($formFactory)
+    /**
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @return $this
+     */
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
     {
         $this->formFactory = $formFactory;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
     public function getFormFactory()
     {
         return $this->formFactory;
+    }
+
+    /**
+     * @param string $formTypeClass
+     * @return $this
+     */
+    public function setFormTypeClass($formTypeClass)
+    {
+        $this->formTypeClass = $formTypeClass;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormTypeClass()
+    {
+        return $this->formTypeClass;
     }
 
     /**
@@ -100,76 +135,11 @@ class ProductAdminForm
      */
     public function onProductAdminForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
-
-        $formType = new ProductType();
-        $formType->setCurrency($this->getCurrencyService()->getBaseCurrency());
-        $formType->setCustomTemplates($this->getThemeConfig()->getObjectTypeTemplates(EntityConstants::PRODUCT));
-
-        $form = $this->getFormFactory()->create($formType, $entity, [
-            'action' => $event->getAction(),
-            'method' => $event->getMethod(),
+        $form = $this->getFormFactory()->create($this->getFormTypeClass(), $entity, [
+            'action' => $event->getFormAction(),
+            'method' => $event->getFormMethod(),
         ]);
-
-        $formSections = [
-            'general' => [
-                'label' => 'General',
-                'id' => 'general',
-                'fields' => [
-                    'name',
-                    'sku',
-                    'slug',
-                    'price',
-                    'is_enabled',
-                    'is_public',
-                    'is_taxable',
-                    'is_discountable',
-                ],
-            ],
-            'stock' => [
-                'label'  => 'Stock',
-                'id'     => 'stock',
-                'fields' => [
-                    'is_in_stock',
-                    'is_qty_managed',
-                    'can_backorder',
-                    'qty',
-                    'qty_unit',
-                    'min_qty',
-                    //'stock_type',
-                ],
-            ],
-            'content' => [
-                'label' => 'Content',
-                'id' => 'content',
-                'fields' => [
-                    'content',
-                    'page_title',
-                    'meta_title',
-                    'meta_keywords',
-                    'meta_description',
-                    'custom_search',
-                    'sort_order',
-                    'custom_template',
-                ],
-            ],
-            'shipping' => [
-                'label' => 'Shipping',
-                'id' => 'shipping',
-                'fields' => [
-                    'is_flat_shipping',
-                    'flat_shipping_price',
-                    'source_address_key',
-                    'weight',
-                    'weight_unit',
-                    'width',
-                    'height',
-                    'length',
-                    'measure_unit',
-                ],
-            ],
-        ];
 
         $customFields = [];
         $varSet = $entity->getItemVarSet();
@@ -178,13 +148,10 @@ class ProductAdminForm
             : [];
 
         $varValues = $entity->getVarValues();
-
         if ($varSet && $vars) {
 
             foreach($vars as $var) {
-
                 $name = $var->getCode();
-
                 switch($var->getFormInput()) {
                     case 'select':
                     case 'multiselect':
@@ -195,8 +162,7 @@ class ProductAdminForm
                                 $choices[$option->getValue()] = $option->getValue();
                             }
                         }
-
-                        $form->add($name, 'choice', [
+                        $form->add($name, ChoiceType::class, [
                             'mapped'    => false,
                             'choices'   => $choices,
                             'required'  => $var->getIsRequired(),
@@ -204,28 +170,22 @@ class ProductAdminForm
                             'multiple'  => ($var->getFormInput() == EntityConstants::INPUT_MULTISELECT
                                             || ($entity->getType() == Product::TYPE_CONFIGURABLE && $var->getFormInput() == EntityConstants::INPUT_SELECT)),
                         ]);
-
                         $customFields[] = $name;
-
                         break;
                     case 'checkbox':
-
-                        $form->add($name, 'checkbox', [
+                        $form->add($name, CheckboxType::class, [
                             'mapped' => false,
                             'required' => false,
                             'label' => $var->getName(),
                         ]);
-
                         $customFields[] = $name;
                         break;
                     default:
-                        $form->add($name, 'text', [
+                        $form->add($name, TextType::class, [
                             'mapped' => false,
                             'label'  => $var->getName(),
                         ]);
-
                         $customFields[] = $name;
-
                         break;
                 }
             }
@@ -268,6 +228,66 @@ class ProductAdminForm
             }
         }
 
+        $formSections = [
+            'general' => [
+                'label' => 'General',
+                'id' => 'general',
+                'fields' => [
+                    'name',
+                    'sku',
+                    'slug',
+                    'price',
+                    'is_enabled',
+                    'is_public',
+                    'is_taxable',
+                    'is_discountable',
+                ],
+            ],
+            'stock' => [
+                'label'  => 'Stock',
+                'id'     => 'stock',
+                'fields' => [
+                    'is_in_stock',
+                    'is_qty_managed',
+                    'can_backorder',
+                    'qty',
+                    'qty_unit',
+                    'min_qty',
+                    //'stock_type',
+                    'upc',
+                ],
+            ],
+            'content' => [
+                'label' => 'Content',
+                'id' => 'content',
+                'fields' => [
+                    'content',
+                    'page_title',
+                    'meta_title',
+                    'meta_keywords',
+                    'meta_description',
+                    'custom_search',
+                    'sort_order',
+                    'custom_template',
+                ],
+            ],
+            'shipping' => [
+                'label' => 'Shipping',
+                'id' => 'shipping',
+                'fields' => [
+                    'is_flat_shipping',
+                    'flat_shipping_price',
+                    'source_address_key',
+                    'weight',
+                    'weight_unit',
+                    'width',
+                    'height',
+                    'length',
+                    'measure_unit',
+                ],
+            ],
+        ];
+
         if ($customFields) {
 
             $formSections['custom'] = [
@@ -277,10 +297,7 @@ class ProductAdminForm
             ];
         }
 
-        $returnData['form_sections'] = $formSections;
-        $returnData['form'] = $form;
-
-        $event->setForm($form);
-        $event->setReturnData($returnData);
+        $event->setReturnData('form_sections', $formSections);
+        $event->setReturnData('form', $form);
     }
 }
