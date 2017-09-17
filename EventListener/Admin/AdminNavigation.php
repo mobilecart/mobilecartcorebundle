@@ -46,7 +46,7 @@ class AdminNavigation
 
         $event->get('menu')->addChild('<i class="fa fa-gears fa-fw"></i> Config Settings', [
             'route' => 'cart_admin_config_setting',
-            'uri'   => $this->getRouter()->generate('cart_admin_dashboard', []),
+            'uri'   => $this->getRouter()->generate('cart_admin_config_setting', []),
             'extras' => [
                 'safe_label' => true,
             ]
