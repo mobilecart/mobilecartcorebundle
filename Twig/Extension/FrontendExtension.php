@@ -688,7 +688,17 @@ class FrontendExtension extends \Twig_Extension
                         return '<a href="' . $url . '">' . $value . '</a>';
                         break;
                     case 'total':
-                        return number_format($value, 2);
+                        return number_format($value, 2, '.', '');
+                        break;
+                    default:
+                        return $value;
+                        break;
+                }
+                break;
+            case EntityConstants::ORDER_PAYMENT:
+                switch($field) {
+                    case 'base_amount':
+                        return number_format($value, 2, '.', '');
                         break;
                     default:
                         return $value;
@@ -703,7 +713,7 @@ class FrontendExtension extends \Twig_Extension
                         return '<a href="' . $url . '">' . $value . '</a>';
                         break;
                     case 'price':
-                        return number_format($value, 2);
+                        return number_format($value, 2, '.', '');
                         break;
                     default:
                         return $value;

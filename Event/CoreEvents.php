@@ -257,6 +257,16 @@ final class CoreEvents
     const ORDER_ITEM_LIST = 'order_item.list';
     const ORDER_ITEM_SEARCH = 'order_item.search';
 
+    const ORDER_PAYMENT_LIST = 'order_payment.list';
+    const ORDER_PAYMENT_SEARCH = 'order_payment.search';
+    const ORDER_PAYMENT_NEW_RETURN = 'order_payment.new.return';
+    const ORDER_PAYMENT_INSERT = 'order_payment.insert';
+    const ORDER_PAYMENT_CREATE_RETURN = 'order_payment.create.return';
+    const ORDER_PAYMENT_EDIT_RETURN = 'order_payment.edit.return';
+    const ORDER_PAYMENT_UPDATE = 'order_payment.update';
+    const ORDER_PAYMENT_UPDATE_RETURN = 'order_payment.update.return';
+    const ORDER_PAYMENT_ADMIN_FORM = 'order_payment.admin.form';
+
     const ORDER_SHIPMENT_LIST = 'order_shipment.list';
     const ORDER_SHIPMENT_SEARCH = 'order_shipment.search';
     const ORDER_SHIPMENT_NEW_RETURN = 'order_shipment.new.return';

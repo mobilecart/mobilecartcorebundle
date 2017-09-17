@@ -81,18 +81,32 @@ class OrderController extends Controller
         $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
+            $email = $request->get('customer_email', '');
+
             // more validation
             switch($request->get('customer_strategy', '')) {
                 case 'existing':
                     $customerId = (int) $request->get('customer_id', 0);
-                    //$cart->getCustomer()->setId($customerId); // todo : make sure this is set in the js
-                    if (!$customerId) {
+                    if ($customerId) {
+                        $customer = $this->get('cart.entity')->find(EntityConstants::CUSTOMER, $customerId);
+                        if ($customer) {
+                            $entity->setCustomer($customer);
+                            $entity->setEmail($customer->getEmail());
+                        } else {
+                            $invalid['customer_id'] = ['Customer does not exist'];
+                        }
+                    } else {
                         $invalid['customer_id'] = ['Customer ID cannot be zero'];
                     }
 
                     break;
                 case 'guest':
 
+                    if (strlen($email) < 5) {
+                        $invalid['customer_email'] = ['Invalid email address'];
+                    } else {
+                        $entity->setEmail($email);
+                    }
 
                     break;
                 case 'new':

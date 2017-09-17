@@ -76,6 +76,7 @@
         <parameter key="cart.form.type.item_var_set.class">MobileCart\CoreBundle\Form\ItemVarSetType</parameter>
         <parameter key="cart.form.type.item_var_set_var.class">MobileCart\CoreBundle\Form\ItemVarSetVarType</parameter>
         <parameter key="cart.form.type.order.class">MobileCart\CoreBundle\Form\OrderType</parameter>
+        <parameter key="cart.form.type.order_payment.class">MobileCart\CoreBundle\Form\OrderPaymentType</parameter>
         <parameter key="cart.form.type.order_shipment.class">MobileCart\CoreBundle\Form\OrderShipmentType</parameter>
         <parameter key="cart.form.type.product.class">MobileCart\CoreBundle\Form\ProductType</parameter>
         <!-- Services -->
@@ -394,6 +395,16 @@
         <!-- Order Item Admin Handlers -->
         <parameter key="cart.listener.order_item.search.class">MobileCart\CoreBundle\EventListener\OrderItem\OrderItemSearch</parameter>
         <parameter key="cart.listener.order_item.list.class">MobileCart\CoreBundle\EventListener\OrderItem\OrderItemList</parameter>
+        <!-- OrderPayment Admin Handlers -->
+        <parameter key="cart.listener.order_payment.search.class">MobileCart\CoreBundle\EventListener\OrderPayment\OrderPaymentSearch</parameter>
+        <parameter key="cart.listener.order_payment.list.class">MobileCart\CoreBundle\EventListener\OrderPayment\OrderPaymentList</parameter>
+        <parameter key="cart.listener.order_payment.edit.return.class">MobileCart\CoreBundle\EventListener\OrderPayment\OrderPaymentEditReturn</parameter>
+        <parameter key="cart.listener.order_payment.admin.form.class">MobileCart\CoreBundle\EventListener\OrderPayment\OrderPaymentAdminForm</parameter>
+        <parameter key="cart.listener.order_payment.new.return.class">MobileCart\CoreBundle\EventListener\OrderPayment\OrderPaymentNewReturn</parameter>
+        <parameter key="cart.listener.order_payment.update.class">MobileCart\CoreBundle\EventListener\OrderPayment\OrderPaymentUpdate</parameter>
+        <parameter key="cart.listener.order_payment.insert.class">MobileCart\CoreBundle\EventListener\OrderPayment\OrderPaymentInsert</parameter>
+        <parameter key="cart.listener.order_payment.create.return.class">MobileCart\CoreBundle\EventListener\OrderPayment\OrderPaymentCreateReturn</parameter>
+        <parameter key="cart.listener.order_payment.update.return.class">MobileCart\CoreBundle\EventListener\OrderPayment\OrderPaymentUpdateReturn</parameter>
         <!-- OrderShipment Admin Handlers -->
         <parameter key="cart.listener.order_shipment.search.class">MobileCart\CoreBundle\EventListener\OrderShipment\OrderShipmentSearch</parameter>
         <parameter key="cart.listener.order_shipment.list.class">MobileCart\CoreBundle\EventListener\OrderShipment\OrderShipmentList</parameter>
@@ -633,6 +644,10 @@
             <call method="addAdminEditRoute">
                 <argument type="string">order</argument>
                 <argument type="string">cart_admin_order_edit</argument>
+            </call>
+            <call method="addAdminEditRoute">
+                <argument type="string">order_payment</argument>
+                <argument type="string">cart_admin_order_payment_edit</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">order_shipment</argument>
@@ -1379,14 +1394,6 @@
                 <argument>%cart.repo.order_var_value_varchar%</argument>
             </call>
             <call method="addObjectRepository">
-                <argument>order_item</argument>
-                <argument>%cart.repo.order_item%</argument>
-            </call>
-            <call method="addObjectRepository">
-                <argument>order_shipment</argument>
-                <argument>%cart.repo.order_shipment%</argument>
-            </call>
-            <call method="addObjectRepository">
                 <argument>order_history</argument>
                 <argument>%cart.repo.order_history%</argument>
             </call>
@@ -1395,12 +1402,20 @@
                 <argument>%cart.repo.order_invoice%</argument>
             </call>
             <call method="addObjectRepository">
+                <argument>order_item</argument>
+                <argument>%cart.repo.order_item%</argument>
+            </call>
+            <call method="addObjectRepository">
                 <argument>order_payment</argument>
                 <argument>%cart.repo.order_payment%</argument>
             </call>
             <call method="addObjectRepository">
                 <argument>order_refund</argument>
                 <argument>%cart.repo.order_refund%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>order_shipment</argument>
+                <argument>%cart.repo.order_shipment%</argument>
             </call>
             <call method="addObjectRepository">
                 <argument>product</argument>
@@ -3295,6 +3310,93 @@
             </call>
         </service>
 
+        <!-- OrderPayment Services and Listeners -->
+        <service id="cart.listener.order_payment.search" lazy="true" class="%cart.listener.order_payment.search.class%">
+            <tag name="kernel.event_listener" event="order_payment.search" method="onOrderPaymentSearch" priority="50" />
+            <call method="setSearch">
+                <argument type="service" id="cart.search.admin" />
+                <argument type="string">order_payment</argument>
+            </call>
+        </service>
+        <service id="cart.listener.order_payment.list" lazy="true" class="%cart.listener.order_payment.list.class%">
+            <tag name="kernel.event_listener" event="order_payment.search" method="onOrderPaymentList" priority="40" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.order_payment.new.return" lazy="true" class="%cart.listener.order_payment.new.return.class%">
+            <tag name="kernel.event_listener" event="order_payment.new.return" method="onOrderPaymentNewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+            <call method="setPaymentService">
+                <argument type="service" id="cart.payment" />
+            </call>
+        </service>
+        <service id="cart.listener.order_payment.insert" lazy="true" class="%cart.listener.order_payment.insert.class%">
+            <tag name="kernel.event_listener" event="order_payment.insert" method="onOrderPaymentInsert" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setCartService">
+                <argument type="service" id="cart" />
+            </call>
+        </service>
+        <service id="cart.listener.order_payment.create.return" lazy="true" class="%cart.listener.order_payment.create.return.class%">
+            <tag name="kernel.event_listener" event="order_payment.create.return" method="onOrderPaymentCreateReturn" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.order_payment.edit.return" lazy="true" class="%cart.listener.order_payment.edit.return.class%">
+            <tag name="kernel.event_listener" event="order_payment.edit.return" method="onOrderPaymentEditReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+        <service id="cart.listener.order_payment.update" lazy="true" class="%cart.listener.order_payment.update.class%">
+            <tag name="kernel.event_listener" event="order_payment.update" method="onOrderPaymentUpdate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setCartService">
+                <argument type="service" id="cart" />
+            </call>
+        </service>
+        <service id="cart.listener.order_payment.update.return" lazy="true" class="%cart.listener.order_payment.update.return.class%">
+            <tag name="kernel.event_listener" event="order_payment.update.return" method="onOrderPaymentUpdateReturn" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.form.type.order_payment" lazy="true" class="%cart.form.type.order_payment.class%">
+            <tag name="form.type" />
+            <call method="setPaymentService">
+                <argument type="service" id="cart.payment" />
+            </call>
+        </service>
+        <service id="cart.listener.order_payment.admin.form" lazy="true" class="%cart.listener.order_payment.admin.form.class%">
+            <tag name="kernel.event_listener" event="order_payment.admin.form" method="onOrderPaymentAdminForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+            <call method="setFormTypeClass">
+                <argument type="string">%cart.form.type.order_payment.class%</argument>
+            </call>
+        </service>
+
         <!-- OrderShipment Services and Listeners -->
         <service id="cart.listener.order_shipment.search" lazy="true" class="%cart.listener.order_shipment.search.class%">
             <tag name="kernel.event_listener" event="order_shipment.search" method="onOrderShipmentSearch" priority="50" />
@@ -3319,6 +3421,21 @@
             </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+        <service id="cart.listener.order_shipment.insert" lazy="true" class="%cart.listener.order_shipment.insert.class%">
+            <tag name="kernel.event_listener" event="order_shipment.insert" method="onOrderShipmentInsert" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setCartService">
+                <argument type="service" id="cart" />
+            </call>
+        </service>
+        <service id="cart.listener.order_shipment.create.return" lazy="true" class="%cart.listener.order_shipment.create.return.class%">
+            <tag name="kernel.event_listener" event="order_shipment.create.return" method="onOrderShipmentCreateReturn" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router" />
             </call>
         </service>
         <service id="cart.listener.order_shipment.edit.return" lazy="true" class="%cart.listener.order_shipment.edit.return.class%">

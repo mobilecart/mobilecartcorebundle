@@ -1,15 +1,15 @@
 <?php
 
-namespace MobileCart\CoreBundle\EventListener\OrderShipment;
+namespace MobileCart\CoreBundle\EventListener\OrderPayment;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\CartComponent\Shipment;
+use MobileCart\CoreBundle\CartComponent\Payment;
 
 /**
- * Class OrderShipmentInsert
- * @package MobileCart\CoreBundle\EventListener\OrderShipment
+ * Class OrderPaymentUpdate
+ * @package MobileCart\CoreBundle\EventListener\OrderPayment
  */
-class OrderShipmentInsert
+class OrderPaymentUpdate
 {
     /**
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
@@ -60,26 +60,19 @@ class OrderShipmentInsert
     /**
      * @param CoreEvent $event
      */
-    public function onOrderShipmentInsert(CoreEvent $event)
+    public function onOrderPaymentUpdate(CoreEvent $event)
     {
-        /** @var \MobileCart\CoreBundle\Entity\OrderShipment $entity */
         $entity = $event->getEntity();
-
         $order = $entity->getOrder();
         $baseCurrency = $this->getCartService()->getCartTotalService()->getCurrencyService()->getBaseCurrency();
-        $entity->setBaseCurrency($baseCurrency);
-
         if ($order->getCurrency() == $baseCurrency) {
-
-            $entity->setPrice($entity->getBasePrice())
-                ->setCurrency($baseCurrency);
-
+            $entity->setPrice($entity->getBasePrice());
         } else {
             // todo : currency
         }
 
         $this->getEntityService()->persist($entity);
-        $event->addSuccessMessage('Shipment Created!');
+        $event->addSuccessMessage('Payment Updated!');
 
         $formData = $event->getFormData();
         if (isset($formData['adjust_totals']) && $formData['adjust_totals']) {
@@ -87,14 +80,14 @@ class OrderShipmentInsert
             // populate cart with json
             $this->getCartService()->initCartJson($order->getJson());
 
-            $shipments = $order->getShipments();
-            $this->getCartService()->removeShipments();
+            $payments = $order->getPayments();
+            $this->getCartService()->removePayments();
 
-            foreach($shipments as $aEntity) {
-                // create cart shipment from entity
-                $shipment = new Shipment();
-                $shipment->fromArray($aEntity->getData());
-                $this->getCartService()->addShipment($shipment);
+            foreach($payments as $aEntity) {
+                // create cart payment from entity
+                $payment = new Payment();
+                $payment->fromArray($aEntity->getData());
+                $this->getCartService()->addPayment($payment);
             }
 
             $this->getCartService()->collectTotals();
@@ -104,7 +97,7 @@ class OrderShipmentInsert
                 ->getValue();
 
             $baseShippingTotal = $this->getCartService()
-                ->getTotal(\MobileCart\CoreBundle\EventListener\Cart\ShipmentTotal::KEY)
+                ->getTotal(\MobileCart\CoreBundle\EventListener\Cart\PaymentTotal::KEY)
                 ->getValue();
 
             $order->setBaseTotal($baseGrandTotal)

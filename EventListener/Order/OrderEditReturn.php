@@ -276,7 +276,7 @@ class OrderEditReturn
                 'label' => 'Payments',
                 'section_id' => 'payments',
                 'template' => $this->getThemeService()->getTemplatePath('admin') . 'Order/Edit:payment_tabs.html.twig',
-                'js_template' => $this->getThemeService()->getTemplatePath('admin') . 'Order/Edit:payment_tabs_js.html.twig',
+                //'js_template' => $this->getThemeService()->getTemplatePath('admin') . 'Order/Edit:payment_tabs_js.html.twig',
                 'payment_methods' => $this->getPaymentService()->collectPaymentMethods($methodRequest),
                 'payments' => $entity->getPayments(),
             ],

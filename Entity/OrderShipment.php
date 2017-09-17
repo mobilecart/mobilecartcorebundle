@@ -527,7 +527,7 @@ class OrderShipment
      * Set shipping_method_id
      *
      * @param int $shippingMethodId
-     * @return OrderShipment
+     * @return $this
      */
     public function setShippingMethodId($shippingMethodId)
     {
@@ -549,7 +549,7 @@ class OrderShipment
      * Set tracking
      *
      * @param string $tracking
-     * @return OrderShipment
+     * @return $this
      */
     public function setTracking($tracking)
     {
@@ -608,10 +608,12 @@ class OrderShipment
      * Set order
      *
      * @param Order $order
+     * @return $this
      */
     public function setOrder(Order $order)
     {
         $this->order = $order;
+        return $this;
     }
 
     /**
@@ -628,7 +630,7 @@ class OrderShipment
      * Add order items
      *
      * @param OrderItem $item
-     * @return Order
+     * @return $this
      */
     public function addItem(OrderItem $item)
     {
@@ -650,10 +652,12 @@ class OrderShipment
      * Set price
      *
      * @param float $price
+     * @return $this
      */
     public function setPrice($price)
     {
         $this->price = $price;
+        return $this;
     }
 
     /**
@@ -742,10 +746,12 @@ class OrderShipment
      * Set base price
      *
      * @param float $price
+     * @return $this
      */
     public function setBasePrice($price)
     {
         $this->base_price = $price;
+        return $this;
     }
 
     /**
