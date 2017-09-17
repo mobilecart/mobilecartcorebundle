@@ -43,7 +43,7 @@ class OrderShipmentCreateReturn
         $entity = $event->getEntity();
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $url = $this->getRouter()->generate('cart_admin_order_edit', ['id' => $entity->getId()]);
+        $url = $this->getRouter()->generate('cart_admin_order_shipment_edit', ['id' => $entity->getId()]);
 
         if ($event->getRequest()->getSession() && $event->getMessages()) {
             foreach($event->getMessages() as $code => $messages) {
