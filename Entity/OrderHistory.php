@@ -14,16 +14,22 @@ class OrderHistory
     extends AbstractCartEntity
     implements CartEntityInterface
 {
+    const TYPE_GENERAL = 1;
+    const TYPE_STATUS = 2;
+    const TYPE_PAYMENT = 3;
+    const TYPE_SHIPMENT = 4;
+    const TYPE_REFUND_PAYMENT = 5;
+
     /**
      * @var array
      */
-    static $historyTypes = array(
-        1 => 'General Comment',
-        2 => 'Order Status Update',
-        3 => 'Payment',
-        4 => 'Shipment',
-        5 => 'Refund Payment',
-    );
+    static $historyTypes = [
+        self::TYPE_GENERAL => 'General Comment',
+        self::TYPE_STATUS => 'Order Status Update',
+        self::TYPE_PAYMENT => 'Payment',
+        self::TYPE_SHIPMENT => 'Shipment',
+        self::TYPE_REFUND_PAYMENT => 'Refund Payment',
+    ];
 
     /**
      * @var integer
@@ -58,7 +64,7 @@ class OrderHistory
     /**
      * @var string
      *
-     * @ORM\Column(name="message", type="text")
+     * @ORM\Column(name="message", type="text", nullable=true)
      */
     protected $message;
 
@@ -137,12 +143,11 @@ class OrderHistory
      * Set user
      *
      * @param string $user
-     * @return OrderHistory
+     * @return $this
      */
     public function setUser($user)
     {
         $this->user = $user;
-
         return $this;
     }
 
@@ -160,12 +165,11 @@ class OrderHistory
      * Set history_type
      *
      * @param integer $historyType
-     * @return OrderHistory
+     * @return $this
      */
     public function setHistoryType($historyType)
     {
         $this->history_type = $historyType;
-
         return $this;
     }
 
@@ -183,12 +187,11 @@ class OrderHistory
      * Set message
      *
      * @param string $message
-     * @return OrderHistory
+     * @return $this
      */
     public function setMessage($message)
     {
         $this->message = $message;
-
         return $this;
     }
 
@@ -203,13 +206,13 @@ class OrderHistory
     }
 
     /**
-     * Set order
-     *
      * @param Order $order
+     * @return $this
      */
     public function setOrder(Order $order)
     {
         $this->order = $order;
+        return $this;
     }
 
     /**
