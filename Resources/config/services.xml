@@ -75,6 +75,7 @@
         <parameter key="cart.form.type.item_var_option.class">MobileCart\CoreBundle\Form\ItemVarOptionType</parameter>
         <parameter key="cart.form.type.item_var_set.class">MobileCart\CoreBundle\Form\ItemVarSetType</parameter>
         <parameter key="cart.form.type.item_var_set_var.class">MobileCart\CoreBundle\Form\ItemVarSetVarType</parameter>
+        <parameter key="cart.form.type.order.class">MobileCart\CoreBundle\Form\OrderType</parameter>
         <parameter key="cart.form.type.order_shipment.class">MobileCart\CoreBundle\Form\OrderShipmentType</parameter>
         <parameter key="cart.form.type.product.class">MobileCart\CoreBundle\Form\ProductType</parameter>
         <!-- Services -->
@@ -136,7 +137,7 @@
         <parameter key="cart.repo.discount">MobileCartCoreBundle:Discount</parameter>
         <parameter key="cart.repo.item">MobileCartCoreBundle:Item</parameter>
         <parameter key="cart.repo.item_var">MobileCartCoreBundle:ItemVar</parameter>
-        <parameter key="cart.repo.item_var_option">MobileCartCoreBundle:ItemVarOption</parameter>
+        <parameter key="cart.repo.item_var_option">MobileCartCoreBundle:ItemVarOption</parameter><!-- placeholder -->
         <parameter key="cart.repo.item_var_option_datetime">MobileCartCoreBundle:ItemVarOptionDatetime</parameter>
         <parameter key="cart.repo.item_var_option_decimal">MobileCartCoreBundle:ItemVarOptionDecimal</parameter>
         <parameter key="cart.repo.item_var_option_int">MobileCartCoreBundle:ItemVarOptionInt</parameter>
@@ -153,6 +154,7 @@
         <parameter key="cart.repo.order_var_value_varchar">MobileCartCoreBundle:OrderVarValueVarchar</parameter>
         <parameter key="cart.repo.order_item">MobileCartCoreBundle:OrderItem</parameter>
         <parameter key="cart.repo.order_shipment">MobileCartCoreBundle:OrderShipment</parameter>
+        <parameter key="cart.repo.order_history">MobileCartCoreBundle:OrderHistory</parameter>
         <parameter key="cart.repo.order_invoice">MobileCartCoreBundle:OrderInvoice</parameter>
         <parameter key="cart.repo.order_payment">MobileCartCoreBundle:OrderPayment</parameter>
         <parameter key="cart.repo.order_refund">MobileCartCoreBundle:OrderRefund</parameter>
@@ -383,7 +385,6 @@
         <parameter key="cart.listener.order.create.return.class">MobileCart\CoreBundle\EventListener\Order\OrderCreateReturn</parameter>
         <parameter key="cart.listener.order.update.return.class">MobileCart\CoreBundle\EventListener\Order\OrderUpdateReturn</parameter>
         <parameter key="cart.listener.order.delete.class">MobileCart\CoreBundle\EventListener\Order\OrderDelete</parameter>
-        <parameter key="cart.listener.order.update.shipping.class">MobileCart\CoreBundle\EventListener\Order\OrderUpdateShipping</parameter>
         <parameter key="cart.listener.order.update.items.class">MobileCart\CoreBundle\EventListener\Order\OrderUpdateItems</parameter>
         <parameter key="cart.listener.order.update.customer.class">MobileCart\CoreBundle\EventListener\Order\OrderUpdateCustomer</parameter>
         <parameter key="cart.listener.order.add.item.class">MobileCart\CoreBundle\EventListener\Order\OrderAddItem</parameter>
@@ -1384,6 +1385,10 @@
             <call method="addObjectRepository">
                 <argument>order_shipment</argument>
                 <argument>%cart.repo.order_shipment%</argument>
+            </call>
+            <call method="addObjectRepository">
+                <argument>order_history</argument>
+                <argument>%cart.repo.order_history%</argument>
             </call>
             <call method="addObjectRepository">
                 <argument>order_invoice</argument>
@@ -3077,6 +3082,10 @@
         <!-- Order Services and Listeners -->
         <service id="cart.listener.order.search" lazy="true" class="%cart.listener.order.search.class%">
             <tag name="kernel.event_listener" event="order.search" method="onOrderSearch" priority="50" />
+            <call method="setSearch">
+                <argument type="service" id="cart.search.admin" />
+                <argument type="string">order</argument>
+            </call>
         </service>
         <service id="cart.listener.order.list" lazy="true" class="%cart.listener.order.list.class%">
             <tag name="kernel.event_listener" event="order.search" method="onOrderList" priority="40" />
@@ -3108,6 +3117,15 @@
                 <argument type="service" id="cart.theme" />
             </call>
         </service>
+        <service id="cart.form.type.order" lazy="true" class="%cart.form.type.order.class%">
+            <tag name="form.type" />
+            <call method="setCartService">
+                <argument type="service" id="cart" />
+            </call>
+            <call method="setOrderService">
+                <argument type="service" id="cart.order" />
+            </call>
+        </service>
         <service id="cart.listener.order.admin.form" lazy="true" class="%cart.listener.order.admin.form.class%">
             <tag name="kernel.event_listener" event="order.admin.form" method="onOrderAdminForm" priority="50" />
             <call method="setEntityService">
@@ -3116,16 +3134,14 @@
             <call method="setCurrencyService">
                 <argument type="service" id="cart.currency" />
             </call>
-            <call method="setFormFactory">
-                <argument type="service" id="form.factory" />
-            </call>
-            <!-- For Allowed Country IDs -->
             <call method="setCartService">
                 <argument type="service" id="cart" />
             </call>
-            <!-- For Order Status Options -->
-            <call method="setOrderService">
-                <argument type="service" id="cart.order" />
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+            <call method="setFormTypeClass">
+                <argument type="string">%cart.form.type.order.class%</argument>
             </call>
         </service>
         <service id="cart.listener.order.new.return" lazy="true" class="%cart.listener.order.new.return.class%">
@@ -3172,18 +3188,12 @@
         </service>
         <service id="cart.listener.order.create.return" lazy="true" class="%cart.listener.order.create.return.class%">
             <tag name="kernel.event_listener" event="order.create.return" method="onOrderCreateReturn" priority="50" />
-            <call method="setSession">
-                <argument type="service" id="session" />
-            </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
         </service>
         <service id="cart.listener.order.update.return" lazy="true" class="%cart.listener.order.update.return.class%">
             <tag name="kernel.event_listener" event="order.update.return" method="onOrderUpdateReturn" priority="50" />
-            <call method="setSession">
-                <argument type="service" id="session" />
-            </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
@@ -3196,18 +3206,6 @@
         </service>
         <service id="cart.listener.order.update.items" lazy="true" class="%cart.listener.order.update.items.class%">
             <tag name="kernel.event_listener" event="order.update.items" method="onOrderUpdateItems" priority="50" />
-            <call method="setCartSession">
-                <argument type="service" id="cart.session" />
-            </call>
-            <call method="setCartTotalService">
-                <argument type="service" id="cart.total" />
-            </call>
-            <call method="setDiscountService">
-                <argument type="service" id="cart.discount" />
-            </call>
-        </service>
-        <service id="cart.listener.order.update.shipping" lazy="true" class="%cart.listener.order.update.shipping.class%">
-            <tag name="kernel.event_listener" event="order.update.shipping" method="onOrderUpdateShipping" priority="50" />
             <call method="setCartSession">
                 <argument type="service" id="cart.session" />
             </call>

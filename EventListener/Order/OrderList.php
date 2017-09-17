@@ -2,9 +2,8 @@
 
 namespace MobileCart\CoreBundle\EventListener\Order;
 
-use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class OrderList
@@ -12,6 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class OrderList
 {
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -20,10 +22,10 @@ class OrderList
     protected $themeService;
 
     /**
-     * @param $themeService
+     * @param \MobileCart\CoreBundle\Service\ThemeService $themeService
      * @return $this
      */
-    public function setThemeService($themeService)
+    public function setThemeService(\MobileCart\CoreBundle\Service\ThemeService $themeService)
     {
         $this->themeService = $themeService;
         return $this;
@@ -38,17 +40,17 @@ class OrderList
     }
 
     /**
-     * @param $router
+     * @param \Symfony\Component\Routing\RouterInterface $router
      * @return $this
      */
-    public function setRouter($router)
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
     /**
-     * @return mixed
+     * @return \Symfony\Component\Routing\RouterInterface
      */
     public function getRouter()
     {
@@ -60,12 +62,10 @@ class OrderList
      */
     public function onOrderList(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
-        $returnData['mass_actions'] =
-        [
+        $event->setReturnData('mass_actions', [
             [
                 'label'         => 'Delete Orders',
                 'input_label'   => 'Confirm Mass-Delete ?',
@@ -78,51 +78,47 @@ class OrderList
                 'url'      => $this->getRouter()->generate('cart_admin_order_mass_delete'),
                 'external' => 0,
             ],
-        ];
+        ]);
 
-        $returnData['columns'] =
-        [
+        $event->setReturnData('columns', [
             [
                 'key' => 'id',
                 'label' => 'ID',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'status',
                 'label' => 'Status',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'billing_name',
                 'label' => 'Customer',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'total',
                 'label' => 'Total',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'created_at',
                 'label' => 'Created At',
-                'sort' => 1,
+                'sort' => true,
             ],
-        ];
+        ]);
 
-        $response = '';
         switch($format) {
             case 'json':
-                $response = new JsonResponse($returnData);
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
-
-                $response = $this->getThemeService()
-                    ->render('admin', 'Order:index.html.twig', $returnData);
-
+                $event->setResponse($this->getThemeService()->render(
+                    'admin',
+                    'Order:index.html.twig',
+                    $event->getReturnData()
+                ));
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

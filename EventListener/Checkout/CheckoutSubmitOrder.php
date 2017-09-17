@@ -143,6 +143,7 @@ class CheckoutSubmitOrder
         $paymentData = $this->getCheckoutSessionService()
             ->getPaymentData();
 
+        // merge data
         if (isset($returnData['payment_data']) && is_array($returnData['payment_data'])) {
             foreach($returnData['payment_data'] as $k => $v) {
                 $paymentData[$k] = $v;
@@ -156,7 +157,8 @@ class CheckoutSubmitOrder
         $orderService = $this->getOrderService()
             ->setCart($cart)
             ->setPaymentMethodService($paymentMethodService)
-            ->setPaymentData($paymentData);
+            ->setPaymentData($paymentData)
+            ->setUser($event->getUser());
 
         // create order, orderItems, orderShipments, orderInvoice
         //  and payment, if necessary

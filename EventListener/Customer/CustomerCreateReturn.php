@@ -4,7 +4,6 @@ namespace MobileCart\CoreBundle\EventListener\Customer;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**

@@ -220,7 +220,7 @@ class CartSessionService
 
     /**
      * @param string $json
-     * @return Cart
+     * @return $this
      */
     public function initCartJson($json)
     {

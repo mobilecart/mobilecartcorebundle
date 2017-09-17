@@ -3,7 +3,6 @@
 namespace MobileCart\CoreBundle\EventListener\Order;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Class OrderAddItem
@@ -85,7 +84,6 @@ class OrderAddItem
      */
     public function onOrderAddItem(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
 
         // set shipment method on cart
@@ -112,18 +110,13 @@ class OrderAddItem
             ->collectTotals()
             ->getCart();
 
-        $returnData['cart'] = $cart;
-
-        $excludeDiscountIds = [];
-
         // todo: implement getCartDiscounts()
 
         $discounts = $this->getDiscountService()
             ->setCart($cart)
             ->getAutoDiscounts(true);
 
-        $returnData['discounts'] = $discounts;
-
-        $event->setReturnData($returnData);
+        $event->setReturnData('cart', $cart);
+        $event->setReturnData('discounts', $discounts);
     }
 }

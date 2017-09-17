@@ -2,9 +2,10 @@
 
 namespace MobileCart\CoreBundle\EventListener\Order;
 
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use MobileCart\CoreBundle\Event\CoreEvent;
-use Symfony\Component\Intl\Intl;
-use MobileCart\CoreBundle\Form\OrderType;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
@@ -23,19 +24,20 @@ class OrderAdminForm
      */
     protected $currencyService;
 
-    protected $formFactory;
-
-    protected $router;
-
     /**
      * @var \MobileCart\CoreBundle\Service\CartService
      */
     protected $cartService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\OrderService
+     * @var \Symfony\Component\Form\FormFactoryInterface
      */
-    protected $orderService;
+    protected $formFactory;
+
+    /**
+     * @var string
+     */
+    protected $formTypeClass = '';
 
     /**
      * @param $entityService
@@ -73,33 +75,11 @@ class OrderAdminForm
         return $this->currencyService;
     }
 
-    public function setFormFactory($formFactory)
-    {
-        $this->formFactory = $formFactory;
-        return $this;
-    }
-
-    public function getFormFactory()
-    {
-        return $this->formFactory;
-    }
-
-    public function setRouter($router)
-    {
-        $this->router = $router;
-        return $this;
-    }
-
-    public function getRouter()
-    {
-        return $this->router;
-    }
-
     /**
-     * @param $cartService
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
      * @return $this
      */
-    public function setCartService($cartService)
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
     {
         $this->cartService = $cartService;
         return $this;
@@ -114,21 +94,39 @@ class OrderAdminForm
     }
 
     /**
-     * @param $orderService
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
      * @return $this
      */
-    public function setOrderService($orderService)
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
     {
-        $this->orderService = $orderService;
+        $this->formFactory = $formFactory;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\OrderService
+     * @return \Symfony\Component\Form\FormFactoryInterface
      */
-    public function getOrderService()
+    public function getFormFactory()
     {
-        return $this->orderService;
+        return $this->formFactory;
+    }
+
+    /**
+     * @param string $formTypeClass
+     * @return $this
+     */
+    public function setFormTypeClass($formTypeClass)
+    {
+        $this->formTypeClass = $formTypeClass;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormTypeClass()
+    {
+        return $this->formTypeClass;
     }
 
     /**
@@ -136,51 +134,28 @@ class OrderAdminForm
      */
     public function onOrderAdminForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
-
-        $allCountries = Intl::getRegionBundle()->getCountryNames();
-        $allowedCountries = $this->getCartService()->getAllowedCountryIds();
-
-        $countries = [];
-        foreach($allowedCountries as $countryId) {
-            $countries[$countryId] = $allCountries[$countryId];
-        }
-
-        $formType = new OrderType();
-        $formType->setCountries($countries);
-        if ($this->getOrderService()->getStatusOptions()) {
-            $statusOptions = [];
-            foreach($this->getOrderService()->getStatusOptions() as $option) {
-                $statusOptions[$option['key']] = $option['label'];
-            }
-            $formType->setStatusOptions($statusOptions);
-        }
-
-        $form = $this->getFormFactory()->create($formType, $entity, [
-            'action' => $event->getAction(),
-            'method' => $event->getMethod(),
+        $form = $this->getFormFactory()->create($this->getFormTypeClass(), $entity, [
+            'action' => $event->getFormAction(),
+            'method' => $event->getFormMethod(),
         ]);
 
         $formSections = [];
-
         $customFields = [];
+
         $varSet = $entity->getItemVarSet();
         $vars = $varSet
             ? $varSet->getItemVars()
             : [];
 
         $varValues = $entity->getVarValues();
-
         if ($varSet && $vars) {
-
             foreach($vars as $var) {
-
                 $name = $var->getCode();
-
                 switch($var->getFormInput()) {
                     case 'select':
                     case 'multiselect':
+
                         $options = $var->getItemVarOptions();
                         $choices = [];
                         if ($options) {
@@ -189,7 +164,7 @@ class OrderAdminForm
                             }
                         }
 
-                        $form->add($name, 'choice', [
+                        $form->add($name, ChoiceType::class, [
                             'mapped'    => false,
                             'choices'   => $choices,
                             'required'  => $var->getIsRequired(),
@@ -198,11 +173,10 @@ class OrderAdminForm
                         ]);
 
                         $customFields[] = $name;
-
                         break;
                     case 'checkbox':
 
-                        $form->add($name, 'checkbox', [
+                        $form->add($name, CheckboxType::class, [
                             'mapped' => false,
                             'required' => false,
                             'label' => $var->getName(),
@@ -211,13 +185,13 @@ class OrderAdminForm
                         $customFields[] = $name;
                         break;
                     default:
-                        $form->add($name, 'text', [
+
+                        $form->add($name, TextType::class, [
                             'mapped' => false,
                             'label'  => $var->getName(),
                         ]);
 
                         $customFields[] = $name;
-
                         break;
                 }
             }
@@ -268,12 +242,8 @@ class OrderAdminForm
             ];
         }
 
-        $returnData['form_sections'] = $formSections;
-        $returnData['form_name'] = $formType->getName();
-        $returnData['country_regions'] = $this->getCartService()->getCountryRegions();
-        $returnData['form'] = $form;
-
-        $event->setForm($form)
-            ->setReturnData($returnData);
+        $event->setReturnData('form_sections', $formSections);
+        $event->setReturnData('country_regions', $this->getCartService()->getCountryRegions());
+        $event->setReturnData('form', $form);
     }
 }

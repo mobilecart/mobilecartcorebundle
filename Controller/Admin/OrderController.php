@@ -34,19 +34,8 @@ class OrderController extends Controller
      */
     public function indexAction(Request $request)
     {
-        // Load a service; which extends Search\SearchAbstract
-        // The service parameter is stored in the service configuration as a parameter ; (slightly meta)
-        // This service could use either MySQL or ElasticSearch, etc for retrieving item data
-        $searchParam = $this->container->getParameter('cart.load.admin');
-        $search = $this->container->get($searchParam)
-            ->setObjectType($this->objectType);
-
-        // Observe Event :
-        //  perform custom logic, post-processing
-
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setSearch($search)
             ->setObjectType(EntityConstants::ORDER)
             ->setSection(CoreEvent::SECTION_BACKEND);
 
@@ -61,7 +50,7 @@ class OrderController extends Controller
      */
     public function createAction(Request $request)
     {
-        $varSet = '';
+        $varSet = null;
         if ($varSetId = $request->get('var_set_id', '')) {
             $varSet = $this->get('cart.entity')->getVarSet($varSetId);
         } else {
@@ -76,49 +65,74 @@ class OrderController extends Controller
             $entity->setItemVarSet($varSet);
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
             ->setEntity($entity)
+            ->setUser($this->getUser())
+            ->setSection(CoreEvent::SECTION_BACKEND)
             ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_order_create'))
-            ->setMethod('POST');
+            ->setFormAction($this->generateUrl('cart_admin_order_create'))
+            ->setFormMethod('POST');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::ORDER_ADMIN_FORM, $formEvent);
+            ->dispatch(CoreEvents::ORDER_ADMIN_FORM, $event);
 
-        $form = $formEvent->getForm();
+        $invalid = [];
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
-            $formData = $request->request->get($form->getName());
+            // more validation
+            switch($request->get('customer_strategy', '')) {
+                case 'existing':
+                    $customerId = (int) $request->get('customer_id', 0);
+                    //$cart->getCustomer()->setId($customerId); // todo : make sure this is set in the js
+                    if (!$customerId) {
+                        $invalid['customer_id'] = ['Customer ID cannot be zero'];
+                    }
 
-            // observe event
-            //  add order to indexes, etc
-            $event = new CoreEvent();
-            $event->setObjectType($this->objectType)
-                ->setEntity($entity)
-                ->setSection(CoreEvent::SECTION_BACKEND)
-                ->setRequest($request)
-                ->setFormData($formData);
+                    break;
+                case 'guest':
 
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::ORDER_INSERT, $event);
 
-            $entity = $event->getOrder();
+                    break;
+                case 'new':
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::ORDER_CREATE_RETURN, $returnEvent);
+                    // create customer
+                    $plaintext = $request->get('customer_password', '');
+                    $plaintextConfirm = $request->get('customer_password_confirm', '');
+                    if (strlen($plaintext) > 0) {
+                        if ($plaintext != $plaintextConfirm) {
+                            $invalid['customer_password'] = ['Passwords do not match'];
+                            $invalid['customer_password_confirm'] = ['Passwords do not match'];
+                        }
+                    } else {
+                        $invalid['customer_password'] = ['Password cannot be blank'];
+                        $invalid['customer_password_confirm'] = ['Password cannot be blank'];
+                    }
 
-            return $returnEvent->getResponse();
+                    break;
+                default:
+
+                    break;
+            }
+
+            if (!$invalid) {
+
+                $formData = $request->request->get($form->getName());
+                $event->setFormData($formData);
+
+                $this->get('event_dispatcher')
+                    ->dispatch(CoreEvents::ORDER_INSERT, $event);
+
+                $this->get('event_dispatcher')
+                    ->dispatch(CoreEvents::ORDER_CREATE_RETURN, $event);
+
+                return $event->getResponse();
+            }
         }
 
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
-            $invalid = [];
-            $messages = [];
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {
@@ -129,21 +143,12 @@ class OrderController extends Controller
                 }
             }
 
-            $returnData = [
-                'success' => 0,
+            return new JsonResponse([
+                'success' => false,
                 'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+                'messages' => $event->getMessages(),
+            ]);
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setEntity($entity)
-            ->setVarSet($varSet)
-            ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ORDER_NEW_RETURN, $event);
@@ -156,7 +161,7 @@ class OrderController extends Controller
      */
     public function newAction(Request $request)
     {
-        $varSet = '';
+        $varSet = null;
         if ($varSetId = $request->get('var_set_id', '')) {
             $varSet = $this->get('cart.entity')->getVarSet($varSetId);
         } else {
@@ -171,21 +176,15 @@ class OrderController extends Controller
             $entity->setItemVarSet($varSet);
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_order_create'))
-            ->setMethod('POST');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::ORDER_ADMIN_FORM, $formEvent);
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_order_create'))
+            ->setFormMethod('POST');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::ORDER_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ORDER_NEW_RETURN, $event);
@@ -216,21 +215,15 @@ class OrderController extends Controller
             throw $this->createNotFoundException("Unable to find entity with ID: {$id}");
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_order_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::ORDER_ADMIN_FORM, $formEvent);
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_order_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::ORDER_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ORDER_EDIT_RETURN, $event);
@@ -248,47 +241,35 @@ class OrderController extends Controller
             throw $this->createNotFoundException("Unable to find entity with ID: {$id}");
         }
 
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
             ->setEntity($entity)
+            ->setUser($this->getUser())
             ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_order_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT');
+            ->setFormAction($this->generateUrl('cart_admin_order_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::ORDER_ADMIN_FORM, $formEvent);
+            ->dispatch(CoreEvents::ORDER_ADMIN_FORM, $event);
 
-        $form = $formEvent->getForm();
-
+        $form = $event->getReturnData('form');
         if ($form->handleRequest($request)->isValid()) {
 
             $formData = $request->request->get($form->getName());
-
-            // observe event
-            // update entity via command bus
-            $event = new CoreEvent();
-            $event->setObjectType($this->objectType)
-                ->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData);
+            $event->setFormData($formData);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::ORDER_UPDATE, $event);
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::ORDER_UPDATE_RETURN, $returnEvent);
+                ->dispatch(CoreEvents::ORDER_UPDATE_RETURN, $event);
 
-            return $returnEvent->getResponse();
+            return $event->getResponse();
         }
 
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
 
             $invalid = [];
-            $messages = [];
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
                 if ($errors->count()) {
@@ -299,20 +280,12 @@ class OrderController extends Controller
                 }
             }
 
-            $returnData = [
-                'success' => 0,
+            return new JsonResponse([
+                'success' => false,
                 'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+                'messages' => $event->getMessages(),
+            ]);
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ORDER_EDIT_RETURN, $event);
@@ -325,14 +298,9 @@ class OrderController extends Controller
      */
     public function updateShippingAction(Request $request)
     {
-        // cart json
-        // shipping method id/code
-
-        $returnData = [];
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setReturnData($returnData);
+            ->setRequest($request);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ORDER_UPDATE_SHIPPING, $event);
@@ -345,11 +313,9 @@ class OrderController extends Controller
      */
     public function updateItemsAction(Request $request)
     {
-        $returnData = [];
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setReturnData($returnData);
+            ->setRequest($request);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ORDER_UPDATE_ITEMS, $event);
@@ -359,17 +325,12 @@ class OrderController extends Controller
 
     /**
      * Add Item
-     *
-     * @Route("/add/item", name="cart_admin_order_add_item")
-     * @Method("POST")
      */
     public function addItemAction(Request $request)
     {
-        $returnData = [];
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setReturnData($returnData);
+            ->setRequest($request);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ORDER_ADD_ITEM, $event);
@@ -382,11 +343,9 @@ class OrderController extends Controller
      */
     public function removeItemAction(Request $request)
     {
-        $returnData = [];
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setReturnData($returnData);
+            ->setRequest($request);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ORDER_REMOVE_ITEM, $event);
@@ -399,11 +358,9 @@ class OrderController extends Controller
      */
     public function addDiscountAction(Request $request)
     {
-        $returnData = [];
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setReturnData($returnData);
+            ->setRequest($request);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ORDER_ADD_DISCOUNT, $event);
@@ -416,11 +373,9 @@ class OrderController extends Controller
      */
     public function removeDiscountAction(Request $request)
     {
-        $returnData = [];
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setReturnData($returnData);
+            ->setRequest($request);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ORDER_REMOVE_ITEM, $event);
@@ -433,14 +388,9 @@ class OrderController extends Controller
      */
     public function updateCustomerAction(Request $request)
     {
-        // cart json
-        // shipping method id/code
-
-        $returnData = [];
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setReturnData($returnData);
+            ->setRequest($request);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ORDER_UPDATE_CUSTOMER, $event);

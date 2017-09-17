@@ -2,8 +2,8 @@
 
 namespace MobileCart\CoreBundle\EventListener\Customer;
 
-use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class CustomerList
@@ -11,7 +11,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 class CustomerList
 {
-
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -37,12 +39,19 @@ class CustomerList
         return $this->themeService;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -53,12 +62,10 @@ class CustomerList
      */
     public function onCustomerList(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
-        $returnData['mass_actions'] =
-        [
+        $event->setReturnData('mass_actions', [
             [
                 'label'         => 'Delete Customers',
                 'input_label'   => 'Confirm Mass-Delete ?',
@@ -71,51 +78,35 @@ class CustomerList
                 'url'      => $this->getRouter()->generate('cart_admin_customer_mass_delete'),
                 'external' => 0,
             ],
-        ];
+        ]);
 
-        $returnData['columns'] =
-        [
+        $event->setReturnData('columns', [
             [
                 'key' => 'id',
                 'label' => 'ID',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'first_name',
                 'label' => 'First Name',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'last_name',
                 'label' => 'Last Name',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'email',
                 'label' => 'Email',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'created_at',
                 'label' => 'Created At',
-                'sort' => 1,
+                'sort' => true,
             ],
-        ];
-
-        if (isset($returnData['search'])) {
-            $search = $returnData['search'];
-            $sortBy = $search->getSortBy();
-            $sortDir = $search->getSortDir();
-            if ($sortBy) {
-                foreach($returnData['columns'] as $k => $colData) {
-                    if ($colData['key'] == $sortBy) {
-                        $returnData['columns'][$k]['isActive'] = 1;
-                        $returnData['columns'][$k]['direction'] = $sortDir;
-                        break;
-                    }
-                }
-            }
-        }
+        ]);
 
         if ($event->getRequest()->getSession() && $event->getMessages()) {
             foreach($event->getMessages() as $code => $messages) {
@@ -130,17 +121,15 @@ class CustomerList
 
         switch($format) {
             case 'json':
-                $event->setResponse(new JsonResponse($returnData));
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
                 $event->setResponse($this->getThemeService()->render(
                     'admin',
                     'Customer:index.html.twig',
-                    $returnData
+                    $event->getReturnData()
                 ));
                 break;
         }
-
-        $event->setReturnData($returnData);
     }
 }

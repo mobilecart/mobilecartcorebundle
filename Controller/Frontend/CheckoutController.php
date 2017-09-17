@@ -19,6 +19,10 @@ use MobileCart\CoreBundle\Event\CoreEvents;
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
+/**
+ * Class CheckoutController
+ * @package MobileCart\CoreBundle\Controller\Frontend
+ */
 class CheckoutController extends Controller
 {
     public function indexAction(Request $request)
@@ -271,6 +275,7 @@ class CheckoutController extends Controller
 
         $event = new CoreEvent();
         $event->setRequest($request)
+            ->setUser($this->getUser())
             ->setForm($form)
             ->setReturnData($formEvent->getReturnData());
 

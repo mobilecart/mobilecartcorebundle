@@ -2,10 +2,9 @@
 
 namespace MobileCart\CoreBundle\EventListener\Order;
 
-use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class OrderUpdateReturn
@@ -13,30 +12,27 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
  */
 class OrderUpdateReturn
 {
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
-    protected $session;
-
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
-    }
-
-    public function setSession($session)
-    {
-        $this->session = $session;
-        return $this;
-    }
-
-    public function getSession()
-    {
-        return $this->session;
     }
 
     /**
@@ -44,44 +40,33 @@ class OrderUpdateReturn
      */
     public function onOrderUpdateReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $entity = $event->getEntity();
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        //$contentType = $request->headers->get('Accept');
+        $url = $this->getRouter()->generate('cart_admin_order_edit', ['id' => $entity->getId()]);
 
-        $params = ['id' => $entity->getId()];
-        $route = 'cart_admin_order_edit';
-        $url = $this->getRouter()->generate($route, $params);
-
-        $response = '';
-        switch($format) {
-            case 'json':
-                $returnData = [
-                    'success' => 1,
-                    'entity' => $entity->getData(),
-                    'redirect_url' => $url,
-                ];
-                $response = new JsonResponse($returnData);
-                break;
-            default:
-
-                if ($event->getRequest()->getSession() && $event->getMessages()) {
-                    foreach($event->getMessages() as $code => $messages) {
-                        if (!$messages) {
-                            continue;
-                        }
-                        foreach($messages as $message) {
-                            $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                        }
-                    }
+        if ($event->getRequest()->getSession() && $event->getMessages()) {
+            foreach($event->getMessages() as $code => $messages) {
+                if (!$messages) {
+                    continue;
                 }
-
-                $response = new RedirectResponse($url);
-                break;
+                foreach($messages as $message) {
+                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                }
+            }
         }
 
-        $event->setReturnData($returnData)
-            ->setResponse($response);
+        switch($format) {
+            case 'json':
+                $event->setResponse(new JsonResponse([
+                    'success' => true,
+                    'entity' => $entity->getData(),
+                    'redirect_url' => $url,
+                ]));
+                break;
+            default:
+                $event->setResponse(new RedirectResponse($url));
+                break;
+        }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Order;
 
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\CartComponent\Cart;
 use MobileCart\CoreBundle\Payment\CollectPaymentMethodRequest;
@@ -155,19 +156,12 @@ class OrderEditReturn
      */
     public function onOrderEditReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $order = $event->getEntity();
-        $returnData['order'] = $order;
+        $entity = $event->getEntity();
 
         $cart = new Cart();
-        $cart->importJson($order->getJson());
-
-        $customerId = $cart->getCustomerId();
-
-        $returnData['cart'] = $cart;
+        $cart->importJson($entity->getJson());
 
         // Totals _should_ be saved with cart, but they can be collected also
-
         $totals = $cart->getTotals();
         if (!$cart->getTotals()) {
 
@@ -185,10 +179,8 @@ class OrderEditReturn
             }
         }
 
-        $shippingMethods = $cart->getShippingMethods();
-
+        // gather discount IDs
         $discounts = $cart->getDiscounts();
-        $returnData['discounts'] = $discounts;
         $discountIds = [];
         if ($discounts) {
             foreach($discounts as $discount) {
@@ -196,39 +188,48 @@ class OrderEditReturn
             }
         }
 
+        // gather shipping method codes
+        $shipments = $entity->getShipments();
+        $shippingMethods = $cart->getShippingMethods();
         $methodCodes = [];
-        $shipments = $order->getShipments();
         if ($shipments) {
             foreach($shipments as $shipment) {
                 $methodCodes[] = $shipment->getCompany() . '-' . $shipment->getMethod();
             }
         }
 
-        $payments = $order->getPayments();
-
+        // gather product IDs
         $orderProductIds = [];
-        $orderItems = $order->getItems();
+        $orderItems = $entity->getItems();
         if ($orderItems) {
             foreach($orderItems as $orderItem) {
                 $orderProductIds[] = $orderItem->getProductId();
             }
         }
 
-        $form = $returnData['form'];
-        $returnData['form'] = $form->createView();
+        $history = $this->getEntityService()->findBy(EntityConstants::ORDER_HISTORY, [
+            'order' => $entity->getId(),
+        ], [
+            'created_at' => 'asc'
+        ]);
+
+        $event->setReturnData('entity', $entity);
+        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('cart', $cart);
+        $event->setReturnData('discounts', $discounts);
 
         // todo : populate with customer info
         $methodRequest = new CollectPaymentMethodRequest();
 
-        $returnData['template_sections'] = [
+        $event->setReturnData('template_sections', [
             'customer' => [
                 'active' => 1,
                 'label' => 'Customer',
                 'section_id' => 'customer',
                 'template' => $this->getThemeService()->getTemplatePath('admin') . 'Order/Edit:customer_tabs.html.twig',
                 'js_template' => $this->getThemeService()->getTemplatePath('admin') . 'Order/Edit:customer_tabs_js.html.twig',
-                'customer_id' => $customerId,
-                'form' => $returnData['form'],
+                //'customer_id' => $customerId,
+                'form' => $event->getReturnData('form'),
                 'form_elements' => [
                     'billing_name',
                     'billing_phone',
@@ -274,24 +275,23 @@ class OrderEditReturn
             'payment' => [
                 'label' => 'Payments',
                 'section_id' => 'payments',
-                'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Order/Edit:payment_tabs.html.twig',
-                'js_template'  => $this->getThemeService()->getTemplatePath('admin') . 'Order/Edit:payment_tabs_js.html.twig',
+                'template' => $this->getThemeService()->getTemplatePath('admin') . 'Order/Edit:payment_tabs.html.twig',
+                'js_template' => $this->getThemeService()->getTemplatePath('admin') . 'Order/Edit:payment_tabs_js.html.twig',
                 'payment_methods' => $this->getPaymentService()->collectPaymentMethods($methodRequest),
-                'payments' => $payments,
+                'payments' => $entity->getPayments(),
             ],
             'history' => [
                 'label' => 'History',
                 'section_id' => 'history',
                 'template' => $this->getThemeService()->getTemplatePath('admin') . 'Order/Edit:history.html.twig',
+                'history' => $history,
             ],
-        ];
+        ]);
 
-        $returnData['entity'] = $order;
-
-        $response = $this->getThemeService()
-            ->render('admin', 'Order:edit.html.twig', $returnData);
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
+        $event->setResponse($this->getThemeService()->render(
+            'admin',
+            'Order:edit.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

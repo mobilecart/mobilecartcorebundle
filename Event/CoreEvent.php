@@ -70,7 +70,7 @@ class CoreEvent extends Event
     /**
      * @var string
      */
-    protected $objectType;
+    protected $object_type;
 
     /**
      * @var string
@@ -121,6 +121,11 @@ class CoreEvent extends Event
      * @var int
      */
     protected $count_warning = 0;
+
+    /**
+     * @var \Symfony\Component\Security\Core\User\UserInterface
+     */
+    protected $user;
 
     public function __construct(array $data = [])
     {
@@ -576,7 +581,7 @@ class CoreEvent extends Event
      */
     public function setObjectType($objectType)
     {
-        $this->objectType = $objectType;
+        $this->object_type = $objectType;
         return $this;
     }
 
@@ -585,7 +590,7 @@ class CoreEvent extends Event
      */
     public function getObjectType()
     {
-        return $this->objectType;
+        return $this->object_type;
     }
 
     /**
@@ -717,5 +722,23 @@ class CoreEvent extends Event
     public function getIsApi()
     {
         return $this->is_api;
+    }
+
+    /**
+     * @param \Symfony\Component\Security\Core\User\UserInterface $user
+     * @return $this
+     */
+    public function setUser(\Symfony\Component\Security\Core\User\UserInterface $user)
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+    /**
+     * @return \Symfony\Component\Security\Core\User\UserInterface
+     */
+    public function getUser()
+    {
+        return $this->user;
     }
 }

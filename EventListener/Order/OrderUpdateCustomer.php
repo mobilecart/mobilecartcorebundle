@@ -85,7 +85,6 @@ class OrderUpdateCustomer
      */
     public function onOrderUpdateCustomer(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
 
         // set shipment method on cart
@@ -107,13 +106,7 @@ class OrderUpdateCustomer
             ->collectTotals()
             ->getTotals();
 
-        //$returnData['totals'] = $totals;
-
         $cart->setTotals($totals);
-
-        $returnData['cart'] = $cart; //->toArray();
-
-        $excludeDiscountIds = [];
 
         // todo: implement getCartDiscounts()
 
@@ -121,8 +114,7 @@ class OrderUpdateCustomer
             ->setCart($cart)
             ->getAutoDiscounts(true);
 
-        $returnData['discounts'] = $discounts;
-
-        $event->setReturnData($returnData);
+        $event->setReturnData('discounts', $discounts);
+        $event->setReturnData('cart', $cart);
     }
 }

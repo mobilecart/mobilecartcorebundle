@@ -3,7 +3,6 @@
 namespace MobileCart\CoreBundle\EventListener\Order;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\CartComponent\Item;
 
 /**
  * Class OrderRemoveItem
@@ -85,7 +84,6 @@ class OrderRemoveItem
      */
     public function onOrderRemoveItem(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
 
         // set shipment method on cart
@@ -106,18 +104,13 @@ class OrderRemoveItem
 
         $cart->setTotals($totals);
 
-        $returnData['cart'] = $cart;
-
-        $excludeDiscountIds = [];
-
         // todo: implement getCartDiscounts()
 
         $discounts = $this->getDiscountService()
             ->setCart($cart)
             ->getAutoDiscounts(true);
 
-        $returnData['discounts'] = $discounts;
-
-        $event->setReturnData($returnData);
+        $event->setReturnData('discounts', $discounts);
+        $event->setReturnData('cart', $cart);
     }
 }

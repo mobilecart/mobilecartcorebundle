@@ -3,7 +3,6 @@
 namespace MobileCart\CoreBundle\EventListener\Order;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\CartComponent\Cart;
 
 /**
@@ -109,23 +108,8 @@ class OrderInsert
      */
     public function onOrderInsert(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $entity = $event->getEntity();
         $formData = $event->getFormData();
         $request = $event->getRequest();
-
-        $customerId = isset($formData['customer'])
-            ? $formData['customer']
-            : 0;
-
-        $customer = $this->getEntityService()
-            ->find(EntityConstants::CUSTOMER, $customerId);
-
-        $customerName = $customer
-            ? $customer->getFirstName() . ' ' . $customer->getLastName()
-            : '';
-
-        $isRefund = false;
 
         $cart = new Cart();
         switch($event->getSection()) {
@@ -144,9 +128,7 @@ class OrderInsert
                 break;
         }
 
-        $cartTotalService = $this->getOrderService()
-            ->getCartTotalService();
-
+        $cartTotalService = $this->getOrderService()->getCartTotalService();
         $cartTotalService->setCart($cart);
 
         $totals = $cartTotalService
@@ -164,27 +146,22 @@ class OrderInsert
 
         $createPayment = ($paymentMethod && $paymentInfo);
 
-        $order = $this->getOrderService()
-            ->setCart($cart)
-            ->setOrder($entity)
-            ->setRequest($event->getRequest())
-            ->setFormData($event->getFormData())
-            ->setCreatePayment($createPayment)
-            ->setIsRefund($isRefund)
-            ->setPaymentMethod($paymentMethod)
-            ->setPaymentFormData($paymentInfo)
-            ->submitCart()
-            ->getOrder();
-
-        $event->setOrder($order);
-
-        if ($order && $request->getSession()) {
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Order Created!'
-            );
+        if ($event->getEntity()->getCustomer()) {
+            $event->getEntity()->setEmail($event->getEntity()->getCustomer()->getEmail());
         }
 
-        $event->setReturnData($returnData);
+        $this->getOrderService()
+            ->setCart($cart)
+            ->setOrder($event->getEntity())
+            ->setRequest($event->getRequest())
+            ->setFormData($event->getFormData())
+            ->setEnableCreatePayment($createPayment)
+            ->setIsRefund(false)
+            ->setPaymentMethodCode($paymentMethod)
+            ->setOrderPaymentData($paymentInfo)
+            ->setUser($event->getUser())
+            ->submitCart();
+
+        $event->addSuccessMessage('Order Created!');
     }
 }

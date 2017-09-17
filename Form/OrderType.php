@@ -4,29 +4,62 @@ namespace MobileCart\CoreBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Intl\Intl;
 
+/**
+ * Class OrderType
+ * @package MobileCart\CoreBundle\Form
+ */
 class OrderType extends AbstractType
 {
     /**
-     * @var array
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $countries = [];
+    protected $cartService;
 
     /**
-     * @var array
+     * @var \MobileCart\CoreBundle\Service\OrderService
      */
-    protected $statusOptions = [];
+    protected $orderService;
 
     /**
-     * @param array $countries
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
      * @return $this
      */
-    public function setCountries(array $countries)
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
     {
-        $this->countries = $countries;
+        $this->cartService = $cartService;
         return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->cartService;
+    }
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\OrderService $orderService
+     * @return $this
+     */
+    public function setOrderService(\MobileCart\CoreBundle\Service\OrderService $orderService)
+    {
+        $this->orderService = $orderService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\OrderService
+     */
+    public function getOrderService()
+    {
+        return $this->orderService;
     }
 
     /**
@@ -34,17 +67,15 @@ class OrderType extends AbstractType
      */
     public function getCountries()
     {
-        return $this->countries;
-    }
+        $allCountries = Intl::getRegionBundle()->getCountryNames();
+        $allowedCountries = $this->getCartService()->getAllowedCountryIds();
 
-    /**
-     * @param array $statusOptions
-     * @return $this
-     */
-    public function setStatusOptions(array $statusOptions)
-    {
-        $this->statusOptions = $statusOptions;
-        return $this;
+        $countries = [];
+        foreach($allowedCountries as $countryId) {
+            $countries[$countryId] = $allCountries[$countryId];
+        }
+
+        return $countries;
     }
 
     /**
@@ -52,7 +83,13 @@ class OrderType extends AbstractType
      */
     public function getStatusOptions()
     {
-        return $this->statusOptions;
+        $statusOptions = [];
+        if ($this->getOrderService()->getStatusOptions()) {
+            foreach($this->getOrderService()->getStatusOptions() as $option) {
+                $statusOptions[$option['key']] = $option['label'];
+            }
+        }
+        return $statusOptions;
     }
 
     /**
@@ -62,76 +99,65 @@ class OrderType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('status', 'choice', [
+            ->add('status', ChoiceType::class, [
                 'choices' => $this->getStatusOptions(),
-                'required' => 1,
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('json', 'hidden')
-            ->add('billing_name', 'text', [
-                'required' => 1,
+            ->add('json', HiddenType::class)
+            ->add('billing_name', TextType::class, [
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
             ->add('billing_phone')
-            ->add('billing_street', 'text', [
-                'required' => 1,
+            ->add('billing_street', TextType::class, [
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('billing_street2', 'text')
-            ->add('billing_city', 'text', [
-                'required' => 1,
+            ->add('billing_street2', TextType::class)
+            ->add('billing_city', TextType::class, [
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('billing_region', 'text', [
+            ->add('billing_region', TextType::class, [
                 'attr' => [
                     'class' => 'region-input',
                 ],
-                'required' => 1,
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('billing_postcode', 'text', [
-                'required' => 1,
+            ->add('billing_postcode', TextType::class, [
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('billing_country_id', 'choice', [
+            ->add('billing_country_id', ChoiceType::class, [
                 'choices' => $this->getCountries(),
                 'attr' => [
                     'class' => 'country-input',
                 ],
-                'required' => 1,
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
-            ])
-        ;
-    }
-
-    /**
-     * @param OptionsResolver $resolver
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults([
-            'data_class' => 'MobileCart\CoreBundle\Entity\Order'
-        ]);
+            ]);
     }
 
     /**
      * @return string
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'order';
     }

@@ -43,11 +43,21 @@ class OrderService
     protected $eventDispatcher;
 
     /**
+     * @var \Symfony\Component\HttpFoundation\Request
+     */
+    protected $request;
+
+    /**
      * Passed into events, for event listeners
      *
      * @var array
      */
     protected $eventData = [];
+
+    /**
+     * @var array
+     */
+    protected $formData = [];
 
     /**
      * @var array
@@ -190,6 +200,11 @@ class OrderService
     protected $orderReferenceOffset = '';
 
     /**
+     * @var \Symfony\Component\Security\Core\User\UserInterface
+     */
+    protected $user;
+
+    /**
      * @param $eventDispatcher
      * @return $this
      */
@@ -205,6 +220,42 @@ class OrderService
     public function getEventDispatcher()
     {
         return $this->eventDispatcher;
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return $this
+     */
+    public function setRequest(\Symfony\Component\HttpFoundation\Request $request)
+    {
+        $this->request = $request;
+        return $this;
+    }
+
+    /**
+     * @return \Symfony\Component\HttpFoundation\Request
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * @param array $formData
+     * @return $this
+     */
+    public function setFormData(array $formData)
+    {
+        $this->formData = $formData;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFormData()
+    {
+        return $this->formData;
     }
 
     /**
@@ -712,6 +763,24 @@ class OrderService
     }
 
     /**
+     * @param \Symfony\Component\Security\Core\User\UserInterface $user
+     * @return $this
+     */
+    public function setUser(\Symfony\Component\Security\Core\User\UserInterface $user)
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+    /**
+     * @return \Symfony\Component\Security\Core\User\UserInterface
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
      * @return CartTotalService
      */
     public function getCartTotalService()
@@ -1128,6 +1197,20 @@ class OrderService
         //        ->persistVariants($order, $formData);
         //}
 
+        $username = $this->getUser()
+            ? $this->getUser()->getEmail()
+            : $order->getEmail();
+
+        /** @var \MobileCart\CoreBundle\Entity\OrderHistory $history */
+        $history = $this->getEntityService()->getInstance(EntityConstants::ORDER_HISTORY);
+        $history->setCreatedAt(new \DateTime('now'))
+            ->setOrder($order)
+            ->setUser($username)
+            ->setMessage('Order Created')
+            ->setHistoryType(\MobileCart\CoreBundle\Entity\OrderHistory::TYPE_STATUS);
+
+        $this->getEntityService()->persist($history);
+
         // set order for further processing
         $this->setOrder($order);
 
@@ -1382,6 +1465,15 @@ class OrderService
 
         $this->getEntityService()->persist($orderPayment);
         $this->setPayment($orderPayment);
+
+        /** @var \MobileCart\CoreBundle\Entity\OrderHistory $history */
+        $history = $this->getEntityService()->getInstance(EntityConstants::ORDER_HISTORY);
+        $history->setCreatedAt(new \DateTime('now'))
+            ->setOrder($order)
+            ->setMessage('Payment Created')
+            ->setHistoryType(\MobileCart\CoreBundle\Entity\OrderHistory::TYPE_PAYMENT);
+
+        $this->getEntityService()->persist($history);
 
         return $this;
     }

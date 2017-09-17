@@ -85,7 +85,6 @@ class OrderAddDiscount
      */
     public function onOrderAddDiscount(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
 
         // set shipment method on cart
@@ -97,8 +96,7 @@ class OrderAddDiscount
             ->getCart();
 
         // load discount
-        $entity = $this->getDiscountService()
-            ->find($discountId);
+        $entity = $this->getDiscountService()->find($discountId);
 
         // convert discount
         $discount = new Discount();
@@ -119,18 +117,13 @@ class OrderAddDiscount
 
         $cart->setTotals($totals);
 
-        $returnData['cart'] = $cart;
-
-        $excludeDiscountIds = [];
-
         // todo: implement getCartDiscounts()
 
         $discounts = $this->getDiscountService()
             ->setCart($cart)
             ->getAutoDiscounts(true);
 
-        $returnData['discounts'] = $discounts;
-
-        $event->setReturnData($returnData);
+        $event->setReturnData('discounts', $discounts);
+        $event->setReturnData('cart', $cart);
     }
 }

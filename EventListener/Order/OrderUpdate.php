@@ -2,6 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Order;
 
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
@@ -61,23 +62,44 @@ class OrderUpdate
      */
     public function onOrderUpdate(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $request = $event->getRequest();
-        $tracking = $request->get('tracking', []);
-
         $entity = $event->getEntity();
         $formData = $event->getFormData();
+        $request = $event->getRequest();
+        $customerId = $request->get('customer_id', 0);
+
+        if ($entity->get('customer_id') != $customerId) {
+            $customer = $this->getEntityService()->find(EntityConstants::CUSTOMER, $customerId);
+            if ($customer) {
+                $entity->setCustomer($customer);
+            }
+        }
 
         $this->getEntityService()->persist($entity);
 
         if ($formData) {
 
-            // update var values
             $this->getEntityService()
                 ->persistVariants($entity, $formData);
         }
 
-        if ($shipments = $entity->getShipments() && $tracking) {
+        $username = $event->getUser()
+            ? $event->getUser()->getEmail()
+            : $entity->getEmail();
+
+        /** @var \MobileCart\CoreBundle\Entity\OrderHistory $history */
+        $history = $this->getEntityService()->getInstance(EntityConstants::ORDER_HISTORY);
+        $history->setCreatedAt(new \DateTime('now'))
+            ->setOrder($entity)
+            ->setUser($username)
+            ->setMessage('Order Updated')
+            ->setHistoryType(\MobileCart\CoreBundle\Entity\OrderHistory::TYPE_STATUS);
+
+        // update tracking numbers on shipments, if necessary
+        $request = $event->getRequest();
+        $tracking = $request->get('tracking', []);
+
+        $shipments = $entity->getShipments();
+        if ($shipments && $tracking) {
             foreach($entity->getShipments() as $shipment) {
                 if (isset($tracking[$shipment->getId()])
                     && $shipment->getTracking() != $tracking[$shipment->getId()]
@@ -88,14 +110,6 @@ class OrderUpdate
             }
         }
 
-
-        if ($entity && $request->getSession()) {
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Order Updated!'
-            );
-        }
-
-        $event->setReturnData($returnData);
+        $event->addSuccessMessage('Order Updated!');
     }
 }
