@@ -1466,10 +1466,15 @@ class OrderService
         $this->getEntityService()->persist($orderPayment);
         $this->setPayment($orderPayment);
 
+        $username = $this->getUser()
+            ? $this->getUser()->getEmail()
+            : $order->getEmail();
+
         /** @var \MobileCart\CoreBundle\Entity\OrderHistory $history */
         $history = $this->getEntityService()->getInstance(EntityConstants::ORDER_HISTORY);
         $history->setCreatedAt(new \DateTime('now'))
             ->setOrder($order)
+            ->setUser($username)
             ->setMessage('Payment Created')
             ->setHistoryType(\MobileCart\CoreBundle\Entity\OrderHistory::TYPE_PAYMENT);
 
