@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * MobileCart\CoreBundle\Entity\OrderPayment
  *
  * @ORM\Table(name="order_payment")
- * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CommonRepository")
+ * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\OrderPaymentRepository")
  */
 class OrderPayment
     extends AbstractCartEntity
