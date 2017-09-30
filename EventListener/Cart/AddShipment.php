@@ -2,12 +2,12 @@
 
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
-use MobileCart\CoreBundle\CartComponent\Shipment;
-use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use MobileCart\CoreBundle\CartComponent\Shipment;
+use MobileCart\CoreBundle\Event\CoreEvent;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
  * Class AddShipment

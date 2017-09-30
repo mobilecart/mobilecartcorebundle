@@ -4,8 +4,13 @@ namespace MobileCart\CoreBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * Class ConfigSettingType
+ * @package MobileCart\CoreBundle\Form
+ */
 class ConfigSettingType extends AbstractType
 {
     /**
@@ -15,20 +20,20 @@ class ConfigSettingType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('code', 'text', [
-                'required' => 1,
+            ->add('code', TextType::class, [
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('label', 'text', [
-                'required' => 1,
+            ->add('label', TextType::class, [
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('value', 'text', [
-                'required' => 1,
+            ->add('value', TextType::class, [
+                'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
@@ -39,7 +44,7 @@ class ConfigSettingType extends AbstractType
     /**
      * @return string
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'config_setting';
     }

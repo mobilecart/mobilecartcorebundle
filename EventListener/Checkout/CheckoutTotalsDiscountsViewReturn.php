@@ -2,6 +2,7 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
+use MobileCart\CoreBundle\Constants\CheckoutConstants;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
 
@@ -25,6 +26,11 @@ class CheckoutTotalsDiscountsViewReturn
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     protected $entityService;
+
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
+    protected $router;
 
     /**
      * @var string
@@ -55,10 +61,10 @@ class CheckoutTotalsDiscountsViewReturn
     }
 
     /**
-     * @param $themeService
+     * @param \MobileCart\CoreBundle\Service\ThemeService $themeService
      * @return $this
      */
-    public function setThemeService($themeService)
+    public function setThemeService(\MobileCart\CoreBundle\Service\ThemeService $themeService)
     {
         $this->themeService = $themeService;
         return $this;
@@ -88,6 +94,24 @@ class CheckoutTotalsDiscountsViewReturn
     public function getEntityService()
     {
         return $this->entityService;
+    }
+
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
+    {
+        $this->router = $router;
+        return $this;
+    }
+
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
+    public function getRouter()
+    {
+        return $this->router;
     }
 
     /**
@@ -137,37 +161,22 @@ class CheckoutTotalsDiscountsViewReturn
     /**
      * @param CoreEvent $event
      */
-    public function onCheckoutTotalsDiscounts(CoreEvent $event)
+    public function onCheckoutForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $request = $event->getRequest();
-
-        $returnData['cart'] = $this->getCartSession()
-            ->collectTotals()
-            ->getCart();
-
-        $returnData['is_shipping_enabled'] = $this->getCartSession()
-            ->getShippingService()
-            ->getIsShippingEnabled();
-
-        $returnData['is_multi_shipping_enabled'] = $this->getCartSession()
-            ->getShippingService()
-            ->getIsMultiShippingEnabled();
-
-        if (!$this->getCartSession()->getCartService()->getIsSpaEnabled()
-            && !$request->get('reload', 0)
-        ) {
-            $this->setDefaultTemplate('Checkout:totals_discounts_full.html.twig');
-            $returnData['section'] = $event->getSingleStep();
-            $returnData['step_number'] = $event->getStepNumber();
+        if ($event->get('step_number', 0) > 0) {
+            $event->set('step_number', $event->get('step_number') + 1);
+        } else {
+            $event->set('step_number', 1);
         }
 
+        $customerId = $this->getCartSession()->getCustomerId();
         $addressOptions = [];
-        if ($this->getCartSession()->getCustomer()->getId()) {
+        if ($customerId) {
+
             $customer = $this->getCartSession()->getCustomer();
 
             $addresses = $this->getEntityService()->findBy(EntityConstants::CUSTOMER_ADDRESS, [
-                'customer' => $customer->getId()
+                'customer' => $customerId
             ]);
 
             if ($addresses) {
@@ -190,16 +199,68 @@ class CheckoutTotalsDiscountsViewReturn
             }
         }
 
-        $returnData['addresses'] = $addressOptions;
+        $event->setReturnData('addresses', $addressOptions);
 
-        $template = $event->getTemplate()
-            ? $event->getTemplate()
-            : $this->defaultTemplate;
+        $javascripts = $event->getReturnData('javascripts', []);
 
-        $response = $this->getThemeService()
-            ->render($this->getLayout(), $template, $returnData);
+        $tplPath = $this->getThemeService()->getTemplatePath($this->getThemeService()->getThemeConfig()->getFrontendTheme());
 
-        $event->setResponse($response)
-            ->setReturnData($returnData);
+        $sectionData = [
+            'section' => CheckoutConstants::STEP_TOTALS_DISCOUNTS,
+            'template' => $tplPath . 'Checkout:totals_discounts.html.twig',
+            'step_number' => $event->get('step_number'),
+            'label' => 'Totals and Discounts',
+            'post_url' => $this->getRouter()->generate('cart_checkout_update_section', ['section' => CheckoutConstants::STEP_TOTALS_DISCOUNTS]),
+            'addresses' => $addressOptions,
+            'is_shipping_enabled' => $this->getCartSession()->getShippingService()->getIsShippingEnabled(),
+            'is_multi_shipping_enabled' => $this->getCartSession()->getShippingService()->getIsMultiShippingEnabled(),
+            'cart' => $this->getCartSession()->collectTotals()->getCart(),
+        ];
+
+        if ($event->get('single_step', '')) {
+            if ($event->get('single_step', '') == CheckoutConstants::STEP_TOTALS_DISCOUNTS) {
+                if ($event->getRequest()->get('ajax', '')) {
+
+                    $template = $event->getTemplate()
+                        ? $event->getTemplate()
+                        : 'Checkout:totals_discounts.html.twig';
+
+                    $event->setResponse($this->getThemeService()->render(
+                        'frontend',
+                        $template,
+                        $sectionData
+                    ));
+
+                } else {
+                    $template = $event->getTemplate()
+                        ? $event->getTemplate()
+                        : 'Checkout:section_full.html.twig';
+
+                    $javascripts[] = [
+                        'js_template' => $tplPath . 'Checkout:section_full_js.html.twig',
+                    ];
+
+                    $sectionData['javascripts'] = $javascripts;
+
+                    $event->setResponse($this->getThemeService()->render(
+                        'frontend',
+                        $template,
+                        $sectionData
+                    ));
+                }
+            }
+        } else {
+
+            $javascripts[] = [
+                'js_template' => $tplPath . 'Checkout:totals_discounts_js.html.twig',
+                'data' => $sectionData,
+            ];
+
+            $event->setReturnData('javascripts', $javascripts);
+        }
+
+        $sections = $event->getReturnData('sections', []);
+        $sections[CheckoutConstants::STEP_TOTALS_DISCOUNTS] = $sectionData;
+        $event->setReturnData('sections', $sections);
     }
 }

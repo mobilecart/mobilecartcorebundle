@@ -42,11 +42,6 @@ class ContactFormType extends AbstractType
         ;
     }
 
-    public function getName()
-    {
-        return 'contact';
-    }
-
     public function getBlockPrefix()
     {
         return 'contact';

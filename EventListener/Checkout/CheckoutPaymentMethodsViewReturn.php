@@ -2,10 +2,10 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Payment\CollectPaymentMethodRequest;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Class CheckoutPaymentMethodsViewReturn
@@ -64,10 +64,10 @@ class CheckoutPaymentMethodsViewReturn
     }
 
     /**
-     * @param $themeService
+     * @param \MobileCart\CoreBundle\Service\ThemeService $themeService
      * @return $this
      */
-    public function setThemeService($themeService)
+    public function setThemeService(\MobileCart\CoreBundle\Service\ThemeService $themeService)
     {
         $this->themeService = $themeService;
         return $this;
@@ -180,60 +180,95 @@ class CheckoutPaymentMethodsViewReturn
     }
 
     /**
+     * @return bool
+     */
+    public function getIsSpaEnabled()
+    {
+        return (bool) $this->getCheckoutSessionService()->getCartSessionService()->getCartService()->getIsSpaEnabled();
+    }
+
+    /**
      * @param CoreEvent $event
      */
     public function onCheckoutPaymentMethodsViewReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $request = $event->getRequest();
-
-        $cart = $this->getCartSession()
-            ->collectTotals()
-            ->getCart();
-
-        if (!$cart->hasItems()) {
+        if (!$this->getCartSession()->hasItems()) {
             $response = new RedirectResponse($this->getRouter()->generate('cart_checkout', []));
             $event->setResponse($response);
             return;
         }
+
+        if ($event->get('step_number', 0) > 0) {
+            $event->set('step_number', $event->get('step_number') + 1);
+        } else {
+            $event->set('step_number', 1);
+        }
+
+        $javascripts = $event->getReturnData('javascripts', []);
 
         // payment method request
         $methodRequest = $event->getCollectPaymentMethodRequest()
             ? $event->getCollectPaymentMethodRequest()
             : new CollectPaymentMethodRequest();
 
-        $paymentMethods = $this->getPaymentService()
-            ->collectPaymentMethods($methodRequest);
-
+        $paymentMethods = $this->getPaymentService()->collectPaymentMethods($methodRequest);
         if ($paymentMethods) {
             $methodCodes = [];
 
             // paymentMethod is an ArrayWrapper : code, label, form
             foreach($paymentMethods as $paymentMethod) {
                 $methodCodes[] = $paymentMethod->getCode();
+                if ($paymentMethod->get('javascripts')) {
+                    foreach($paymentMethod->get('javascripts') as $javascript) {
+                        $javascripts[] = $javascript;
+                    }
+                }
             }
 
             $this->getCartSession()->setPaymentMethodCodes($methodCodes);
         }
 
-        $returnData = array_merge($returnData,[
-            // this builds a form for each payment method
-            'order' => 50,
+        $tplPath = $this->getThemeService()->getTemplatePath($this->getThemeService()->getThemeConfig()->getFrontendTheme());
+
+        $sectionData = [
+            'section' => CheckoutConstants::STEP_PAYMENT_METHOD,
+            'step_number' => $event->get('step_number'),
             'label' => 'Payment',
             'payment_methods' => $paymentMethods,
             'post_url' => $this->getRouter()->generate('cart_checkout_update_payment', []),
-            'final_step' => 1,
-            'section' => CheckoutConstants::STEP_PAYMENT_METHODS,
-        ]);
+            'final_step' => true,
+            'template' => $tplPath . 'Checkout:payment_methods.html.twig',
+        ];
 
-        $template = $event->getTemplate()
-            ? $event->getTemplate()
-            : $this->defaultTemplate;
+        if ($event->get('single_step', '')) {
+            if ($event->get('single_step', '') == CheckoutConstants::STEP_PAYMENT_METHOD) {
 
-        $response = $this->getThemeService()
-            ->render($this->getLayout(), $template, $returnData);
+                $template = $event->getTemplate()
+                    ? $event->getTemplate()
+                    : 'Checkout:section_full.html.twig';
 
-        $event->setResponse($response)
-            ->setReturnData($returnData);
+                $javascripts[] = [
+                    'js_template' => $tplPath . 'Checkout:payment_methods_js.html.twig',
+                ];
+
+                $sectionData['javascripts'] = $javascripts;
+
+                $event->setResponse($this->getThemeService()->render('frontend', $template, $sectionData));
+            }
+        } else {
+
+            if (!$event->getRequest()->get('ajax', '')) {
+                $javascripts[] = [
+                    'js_template' => $tplPath . 'Checkout:payment_methods_js.html.twig',
+                    'data' => $sectionData,
+                ];
+
+                $event->setReturnData('javascripts', $javascripts);
+            }
+        }
+
+        $sections = $event->getReturnData('sections', []);
+        $sections[CheckoutConstants::STEP_PAYMENT_METHOD] = $sectionData;
+        $event->setReturnData('sections', $sections);
     }
 }

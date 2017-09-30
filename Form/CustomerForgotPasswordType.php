@@ -29,11 +29,6 @@ class CustomerForgotPasswordType extends AbstractType
             ]);
     }
 
-    public function getName()
-    {
-        return 'customer_forgot_password';
-    }
-
     public function getBlockPrefix()
     {
         return 'customer_forgot_password';

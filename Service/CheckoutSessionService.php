@@ -11,6 +11,8 @@
 
 namespace MobileCart\CoreBundle\Service;
 
+use MobileCart\CoreBundle\Constants\CheckoutConstants;
+
 /**
  * Class CheckoutSessionService
  * @package MobileCart\CoreBundle\Service
@@ -31,6 +33,11 @@ class CheckoutSessionService
     protected $orderService;
 
     /**
+     * @var \MobileCart\CoreBundle\Service\CheckoutFormService
+     */
+    protected $checkoutFormService;
+
+    /**
      * @var float
      */
     protected $minimumOrderGrandTotal = 1.0;
@@ -46,12 +53,96 @@ class CheckoutSessionService
     protected $paymentData = [];
 
     /**
-     * @param bool $yesNo
      * @return $this
      */
-    public function setIsValidBillingAddress($yesNo)
+    public function initSections()
     {
-        $this->getCartSessionService()->getSession()->set('is_valid_billing_address', $yesNo);
+        $sections = $this->getCartSessionService()->getSession()->get('checkout_sections', []);
+        if (!$sections) {
+            $sections = [];
+            $sectionKeys = $this->getCheckoutFormService()->getSectionKeys();
+            if ($sectionKeys) {
+                foreach($sectionKeys as $sectionKey) {
+                    $sections[$sectionKey] = false;
+                }
+            }
+            $this->getCartSessionService()->getSession()->set('checkout_sections', $sections);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $section
+     * @param bool $isValid
+     * @return $this
+     */
+    public function setSectionIsValid($section, $isValid = true)
+    {
+        $this->initSections();
+        $sections = $this->getCartSessionService()->getSession()->get('checkout_sections', []);
+        $sections[$section] = $isValid;
+        $this->getCartSessionService()->getSession()->set('checkout_sections', $sections);
+        return $this;
+    }
+
+    /**
+     * @param $section
+     * @return bool
+     */
+    public function getSectionIsValid($section)
+    {
+        $this->initSections();
+        $sections = $this->getCartSessionService()->getSession()->get('checkout_sections', []);
+        return (bool) isset($sections[$section])
+            ? $sections[$section]
+            : false;
+    }
+
+    /**
+     * @return array
+     */
+    public function getInvalidSections()
+    {
+        $invalid = [];
+        $this->initSections();
+        $sections = $this->getCartSessionService()->getSession()->get('checkout_sections', []);
+        if ($sections) {
+            foreach($sections as $section => $isValid) {
+                if (!$isValid) {
+                    $invalid[] = $section;
+                }
+            }
+        }
+
+        return $invalid;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsAllValid()
+    {
+        $this->initSections();
+        $sections = $this->getCartSessionService()->getSession()->get('checkout_sections', []);
+        if ($sections) {
+            foreach($sections as $section => $isValid) {
+                if (!$isValid) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param bool $isValid
+     * @return $this
+     */
+    public function setIsValidBillingAddress($isValid)
+    {
+        $this->setSectionIsValid(CheckoutConstants::STEP_BILLING_ADDRESS, $isValid);
         return $this;
     }
 
@@ -60,16 +151,16 @@ class CheckoutSessionService
      */
     public function getIsValidBillingAddress()
     {
-        return $this->getCartSessionService()->getSession()->get('is_valid_billing_address', false);
+        return $this->getSectionIsValid(CheckoutConstants::STEP_BILLING_ADDRESS);
     }
 
     /**
-     * @param bool $yesNo
+     * @param bool $isValid
      * @return $this
      */
-    public function setIsValidShippingAddress($yesNo)
+    public function setIsValidShippingAddress($isValid)
     {
-        $this->getCartSessionService()->getSession()->set('is_valid_shipping_address', $yesNo);
+        $this->setSectionIsValid(CheckoutConstants::STEP_SHIPPING_ADDRESS, $isValid);
         return $this;
     }
 
@@ -78,16 +169,16 @@ class CheckoutSessionService
      */
     public function getIsValidShippingAddress()
     {
-        return $this->getCartSessionService()->getSession()->get('is_valid_shipping_address', false);
+        return $this->getSectionIsValid(CheckoutConstants::STEP_SHIPPING_ADDRESS);
     }
 
     /**
-     * @param bool $yesNo
+     * @param bool $isValid
      * @return $this
      */
-    public function setIsValidShippingMethod($yesNo)
+    public function setIsValidShippingMethod($isValid)
     {
-        $this->getCartSessionService()->getSession()->set('is_valid_shipping_method', $yesNo);
+        $this->setSectionIsValid(CheckoutConstants::STEP_SHIPPING_METHOD, $isValid);
         return $this;
     }
 
@@ -96,16 +187,16 @@ class CheckoutSessionService
      */
     public function getIsValidShippingMethod()
     {
-        return $this->getCartSessionService()->getSession()->get('is_valid_shipping_method', false);
+        return $this->getSectionIsValid(CheckoutConstants::STEP_SHIPPING_METHOD);
     }
 
     /**
-     * @param bool $yesNo
+     * @param bool $isValid
      * @return $this
      */
-    public function setIsValidTotals($yesNo)
+    public function setIsValidTotals($isValid)
     {
-        $this->getCartSessionService()->getSession()->set('is_valid_totals', $yesNo);
+        $this->getCartSessionService()->getSession()->set('is_valid_totals', $isValid);
         return $this;
     }
 
@@ -118,12 +209,12 @@ class CheckoutSessionService
     }
 
     /**
-     * @param bool $yesNo
+     * @param bool $isValid
      * @return $this
      */
-    public function setIsValidPaymentMethod($yesNo)
+    public function setIsValidPaymentMethod($isValid)
     {
-        $this->getCartSessionService()->getSession()->set('is_valid_payment_method', $yesNo);
+        $this->getCartSessionService()->getSession()->set('is_valid_payment_method', $isValid);
         return $this;
     }
 
@@ -212,6 +303,24 @@ class CheckoutSessionService
     public function getOrderService()
     {
         return $this->orderService;
+    }
+
+    /**
+     * @param CheckoutFormService $checkoutFormService
+     * @return $this
+     */
+    public function setCheckoutFormService(\MobileCart\CoreBundle\Service\CheckoutFormService $checkoutFormService)
+    {
+        $this->checkoutFormService = $checkoutFormService;
+        return $this;
+    }
+
+    /**
+     * @return CheckoutFormService
+     */
+    public function getCheckoutFormService()
+    {
+        return $this->checkoutFormService;
     }
 
     /**

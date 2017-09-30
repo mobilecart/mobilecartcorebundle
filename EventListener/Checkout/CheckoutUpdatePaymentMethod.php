@@ -2,8 +2,9 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
-use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use MobileCart\CoreBundle\Event\CoreEvent;
+use MobileCart\CoreBundle\Constants\CheckoutConstants;
 
 /**
  * Class CheckoutUpdatePaymentMethod
@@ -11,7 +12,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 class CheckoutUpdatePaymentMethod
 {
-
     /**
      * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
      */
@@ -129,7 +129,7 @@ class CheckoutUpdatePaymentMethod
             $returnData['messages'][] = "Invalid Form Submission. Invalid Payment Service";
         }
 
-        $this->getCheckoutSessionService()->setIsValidPaymentMethod($isValid);
+        $this->getCheckoutSessionService()->setSectionIsValid(CheckoutConstants::STEP_PAYMENT_METHOD, $isValid);
 
         $returnData['success'] = $isValid;
 

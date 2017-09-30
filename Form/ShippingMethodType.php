@@ -4,6 +4,10 @@ namespace MobileCart\CoreBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ShippingMethodType extends AbstractType
@@ -40,33 +44,33 @@ class ShippingMethodType extends AbstractType
     {
         $builder
             ->add('title')
-            ->add('company', 'text', [
+            ->add('company', TextType::class, [
                 'required' => 1,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('method', 'text', [
+            ->add('method', TextType::class, [
                 'required' => 1,
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
-            ->add('price', 'money', [
+            ->add('price', MoneyType::class, [
                 'currency' => $this->getCurrency(),
             ])
-            ->add('min_days', 'number')
-            ->add('max_days', 'number')
-            ->add('is_taxable', 'checkbox', [
+            ->add('min_days', NumberType::class)
+            ->add('max_days', NumberType::class)
+            ->add('is_taxable', CheckboxType::class, [
                 'required' => 0,
             ])
-            ->add('is_discountable', 'checkbox', [
+            ->add('is_discountable', CheckboxType::class, [
                 'required' => 0,
             ])
-            ->add('is_price_dynamic', 'checkbox', [
+            ->add('is_price_dynamic', CheckboxType::class, [
                 'required' => 0,
             ])
-            ->add('pre_conditions', 'text', [
+            ->add('pre_conditions', TextType::class, [
                 'required' => 0,
             ])
         ;
@@ -75,7 +79,7 @@ class ShippingMethodType extends AbstractType
     /**
      * @return string
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'shipping_method';
     }

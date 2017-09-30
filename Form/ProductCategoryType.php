@@ -18,8 +18,8 @@ class ProductCategoryType extends AbstractType
         ;
     }
 
-    public function getName()
+    public function getBlockPrefix()
     {
-        return 'mobilecart_corebundle_productcategorytype';
+        return 'product_category';
     }
 }

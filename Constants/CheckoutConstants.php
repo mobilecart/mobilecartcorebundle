@@ -21,7 +21,7 @@ class CheckoutConstants
 
     const STEP_TOTALS_DISCOUNTS = 'totals_discounts';
 
-    const STEP_PAYMENT_METHODS = 'payment_methods';
+    const STEP_PAYMENT_METHOD = 'payment_method';
 
     const STEP_SUMMARY_CONFIRM = 'summary_confirm';
 

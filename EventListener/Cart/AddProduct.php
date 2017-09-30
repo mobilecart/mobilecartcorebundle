@@ -961,6 +961,23 @@ class AddProduct
             ->setReturnData('cart', $this->getCartSessionService()->getCart())
             ->setReturnData('success', (bool) $this->getSuccess());
 
+        if (!$event->getMessages()
+            && $this->getSuccess()
+        ) {
+            $event->addSuccessMessage('Product Added to Cart');
+        }
+
+        if ($event->getRequest()->getSession() && $event->getMessages()) {
+            foreach($event->getMessages() as $code => $messages) {
+                if (!$messages) {
+                    continue;
+                }
+                foreach($messages as $message) {
+                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                }
+            }
+        }
+
         switch($format) {
             case 'json':
                 $event->setResponse(new JsonResponse($event->getReturnData()));
@@ -968,14 +985,11 @@ class AddProduct
             default:
                 $route = 'cart_view';
                 $params = [];
-                if (!$event->getIsMassUpdate()) {
-                    if ($this->getSuccess()) {
-                        $event->addSuccessMessage('Product Added to Cart');
-                    }
-                    if (!$this->getRedirectToCart()) {
-                        $route = 'cart_product_view';
-                        $params = ['slug' => $product->getSlug()];
-                    }
+                if (!$event->getIsMassUpdate()
+                    && !$this->getRedirectToCart()
+                ) {
+                    $route = 'cart_product_view';
+                    $params = ['slug' => $product->getSlug()];
                 }
                 $event->setResponse(new RedirectResponse($this->getRouter()->generate($route, $params)));
                 break;

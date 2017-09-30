@@ -3,8 +3,6 @@
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
-use Symfony\Component\Intl\Intl;
-use MobileCart\CoreBundle\Form\CheckoutBillingAddressType;
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
 
 /**
@@ -13,6 +11,19 @@ use MobileCart\CoreBundle\Constants\CheckoutConstants;
  */
 class CheckoutBillingAddressForm
 {
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
+    protected $formFactory;
+
+    /**
+     * @var string
+     */
+    protected $formTypeClass = '';
+
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -26,10 +37,46 @@ class CheckoutBillingAddressForm
     protected $checkoutSessionService;
 
     /**
-     * @param $themeService
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
      * @return $this
      */
-    public function setThemeService($themeService)
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
+    {
+        $this->formFactory = $formFactory;
+        return $this;
+    }
+
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
+    public function getFormFactory()
+    {
+        return $this->formFactory;
+    }
+
+    /**
+     * @param string $formTypeClass
+     * @return $this
+     */
+    public function setFormTypeClass($formTypeClass)
+    {
+        $this->formTypeClass = $formTypeClass;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormTypeClass()
+    {
+        return $this->formTypeClass;
+    }
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\ThemeService $themeService
+     * @return $this
+     */
+    public function setThemeService(\MobileCart\CoreBundle\Service\ThemeService $themeService)
     {
         $this->themeService = $themeService;
         return $this;
@@ -43,12 +90,19 @@ class CheckoutBillingAddressForm
         return $this->themeService;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -73,11 +127,19 @@ class CheckoutBillingAddressForm
     }
 
     /**
+     * @return mixed
+     */
+    public function getCustomerId()
+    {
+        return (int) $this->getCheckoutSessionService()->getCartSessionService()->getCustomerId();
+    }
+
+    /**
      * @return bool
      */
     public function getDisplayEmailInput()
     {
-        return $this->getCheckoutSessionService()->getAllowGuestCheckout();
+        return $this->getCheckoutSessionService()->getAllowGuestCheckout() && !$this->getCustomerId();
     }
 
     /**
@@ -86,37 +148,22 @@ class CheckoutBillingAddressForm
      */
     public function onCheckoutForm(CoreEvent $event)
     {
-        if ($event->getSingleStep()
-            && $event->getSingleStep() != CheckoutConstants::STEP_BILLING_ADDRESS) {
-
-            return false;
+        if ($event->get('step_number', 0) > 0) {
+            $event->set('step_number', $event->get('step_number') + 1);
+        } else {
+            $event->set('step_number', 1);
         }
 
-        $returnData = $event->getReturnData();
-
-        // sections are combined with other listeners/observer
-        //  and later ordered
-        $sections = isset($returnData['sections'])
-            ? $returnData['sections']
-            : [];
-
-        $allCountries = Intl::getRegionBundle()->getCountryNames();
-        $allowedCountries = $this->getCheckoutSessionService()->getAllowedCountryIds();
-
-        $countries = [];
-        foreach($allowedCountries as $countryId) {
-            $countries[$countryId] = $allCountries[$countryId];
-        }
-
-        $formType = new CheckoutBillingAddressType();
-        $formType->setCountries($countries);
+        $form = $this->getFormFactory()->create($this->getFormTypeClass(), [], [
+            'method' => 'post',
+            'action' => $this->getRouter()->generate('cart_checkout_update_section', [
+                'section' => CheckoutConstants::STEP_BILLING_ADDRESS
+            ]),
+        ]);
 
         $billingFields = [];
         if ($this->getDisplayEmailInput()) {
             $billingFields[] = 'email';
-        } else {
-            // todo
-            //$form->remove('email');
         }
 
         $billingFields = array_merge($billingFields,
@@ -133,19 +180,86 @@ class CheckoutBillingAddressForm
             ]
         );
 
-        $sections = array_merge([
-            CheckoutConstants::STEP_BILLING_ADDRESS => [
-                'order' => 10,
-                'label' => 'Billing Address',
-                'fields' => $billingFields,
-                'post_url' => $this->getRouter()->generate('cart_checkout_update_billing_address', []),
-            ]
-        ], $sections);
+        $javascripts = $event->getReturnData('javascripts', []);
 
-        $returnData['sections'] = $sections;
+        $tplPath = $this->getThemeService()->getTemplatePath($this->getThemeService()->getThemeConfig()->getFrontendTheme());
 
-        $event->setBillingAddressForm($formType)
-            ->setReturnData($returnData);
+        $cartSession = $this->getCheckoutSessionService()
+            ->getCartSessionService();
 
+        $cart = $cartSession->getCart();
+        $customer = $cart->getCustomer();
+
+        foreach($billingFields as $field) {
+
+            $customerValue = $customer->get($field);
+
+            switch($field) {
+                case 'is_shipping_same':
+                    // must be a new "feature" in Symfony? It won't take a '1' anymore?
+                    $form->get($field)->setData((bool) $customerValue);
+                    break;
+                case 'billing_name':
+                    if ($customer->get('first_name') && !$customer->get('billing_name')) {
+                        $form->get($field)->setData("{$customer->get('first_name')} {$customer->get('last_name')}");
+                    } else {
+                        $form->get($field)->setData($customerValue);
+                    }
+                    break;
+                default:
+                    if (!is_null($customerValue)) {
+                        $form->get($field)->setData($customerValue);
+                    }
+                    break;
+            }
+        }
+
+        $sectionData = [
+            'section' => CheckoutConstants::STEP_BILLING_ADDRESS,
+            'step_number' => $event->get('step_number'),
+            'label' => 'Billing Address',
+            'fields' => $billingFields,
+            'post_url' => $this->getRouter()->generate('cart_checkout_update_section', ['section' => CheckoutConstants::STEP_BILLING_ADDRESS]),
+            'form' => $form,
+            'form_view' => $form->createView(),
+            'country_regions' => $this->getCheckoutSessionService()->getCartSessionService()->getCountryRegions(),
+        ];
+
+        if ($event->get('single_step', '')) {
+            if ($event->get('single_step', '') == CheckoutConstants::STEP_BILLING_ADDRESS) {
+
+                $template = $event->get('template', '')
+                    ? $event->get('template', '')
+                    : 'Checkout:section_full.html.twig';
+
+                // add js for handling a single step on each page
+                $javascripts[] = [
+                    'js_template' => $tplPath . 'Checkout:section_full_js.html.twig',
+                ];
+
+                $sectionData['javascripts'] = $javascripts;
+
+                $event->setResponse($this->getThemeService()->render('frontend', $template, $sectionData));
+            }
+        } else {
+
+            // logic for totals_discounts
+            if (!$event->getRequest()->get('ajax', '')) {
+
+                $javascripts[] = [
+                    'js_template' => $tplPath . 'Checkout:section_address_js.html.twig',
+                    'data' => $sectionData,
+                ];
+
+                $event->setReturnData('javascripts', $javascripts);
+                $event->setReturnData('country_regions', $sectionData['country_regions']);
+            }
+
+        }
+
+        // sections are combined with other listeners/observers
+        $sections = $event->getReturnData('sections', []);
+        $sections[CheckoutConstants::STEP_BILLING_ADDRESS] = $sectionData;
+        $event->setReturnData('sections', $sections);
     }
 }

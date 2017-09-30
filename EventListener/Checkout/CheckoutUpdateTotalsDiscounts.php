@@ -2,8 +2,9 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
-use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use MobileCart\CoreBundle\Event\CoreEvent;
+use MobileCart\CoreBundle\Constants\CheckoutConstants;
 
 /**
  * Class CheckoutUpdateTotalsDiscounts
@@ -21,6 +22,9 @@ class CheckoutUpdateTotalsDiscounts
      */
     protected $entityService;
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -59,12 +63,19 @@ class CheckoutUpdateTotalsDiscounts
         return $this->entityService;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -75,31 +86,33 @@ class CheckoutUpdateTotalsDiscounts
      */
     public function onCheckoutUpdateTotalsDiscounts(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $isValid = 1;
+        $isValid = true;
+        $invalid = [];
 
-        // todo : validation
+        $sectionData = $event->get('section_data', []);
 
-        // todo : build error, warning messages
+        $nextSection = isset($sectionData['next_section'])
+            ? $sectionData['next_section']
+            : '';
 
-        // todo : set success flag
+        $this->getCheckoutSessionService()->setSectionIsValid(CheckoutConstants::STEP_TOTALS_DISCOUNTS, $isValid);
 
-        // todo : update cart session
-
-        $returnData['success'] = $isValid;
-        $returnData['messages'] = [];
-        $returnData['invalid'] = [];
+        $event->setReturnData('success', $isValid);
+        $event->setReturnData('messages', $event->getMessages());
+        $event->setReturnData('invalid', $invalid);
 
         $cartService = $this->getCheckoutSessionService()->getCartSessionService()->getCartService();
         if ($isValid && !$cartService->getIsSpaEnabled()) {
-            $returnData['redirect_url'] = $this->getRouter()->generate('cart_checkout_payment', []);
+
+            $event->setReturnData('redirect_url', $this->getRouter()->generate(
+                'cart_checkout_section', [
+                    'section' => $nextSection
+                ]
+            ));
         }
 
         $this->getCheckoutSessionService()->setIsValidTotals($isValid);
 
-        $response = new JsonResponse($returnData);
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
+        $event->setResponse(new JsonResponse($event->getReturnData()));
     }
 }

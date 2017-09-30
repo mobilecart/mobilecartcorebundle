@@ -3,8 +3,6 @@
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
-use Symfony\Component\Intl\Intl;
-use MobileCart\CoreBundle\Form\CheckoutShippingAddressType;
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
 
 /**
@@ -13,7 +11,19 @@ use MobileCart\CoreBundle\Constants\CheckoutConstants;
  */
 class CheckoutShippingAddressForm
 {
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
+    protected $formFactory;
 
+    /**
+     * @var string
+     */
+    protected $formTypeClass = '';
+
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -25,6 +35,42 @@ class CheckoutShippingAddressForm
      * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
      */
     protected $checkoutSessionService;
+
+    /**
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @return $this
+     */
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
+    {
+        $this->formFactory = $formFactory;
+        return $this;
+    }
+
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
+    public function getFormFactory()
+    {
+        return $this->formFactory;
+    }
+
+    /**
+     * @param string $formTypeClass
+     * @return $this
+     */
+    public function setFormTypeClass($formTypeClass)
+    {
+        $this->formTypeClass = $formTypeClass;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormTypeClass()
+    {
+        return $this->formTypeClass;
+    }
 
     /**
      * @param $themeService
@@ -45,17 +91,17 @@ class CheckoutShippingAddressForm
     }
 
     /**
-     * @param $router
+     * @param \Symfony\Component\Routing\RouterInterface $router
      * @return $this
      */
-    public function setRouter($router)
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
     /**
-     * @return mixed
+     * @return \Symfony\Component\Routing\RouterInterface
      */
     public function getRouter()
     {
@@ -81,64 +127,122 @@ class CheckoutShippingAddressForm
     }
 
     /**
+     * @return bool
+     */
+    public function getIsShippingEnabled()
+    {
+        return $this->getCheckoutSessionService()->getCartSessionService()->getShippingService()->getIsShippingEnabled();
+    }
+
+    /**
      * @param CoreEvent $event
      * @return bool
      */
     public function onCheckoutForm(CoreEvent $event)
     {
-        if ($event->getSingleStep()
-            && $event->getSingleStep() != CheckoutConstants::STEP_SHIPPING_ADDRESS) {
-
+        if (!$this->getIsShippingEnabled()) {
             return false;
         }
 
-        if (!$this->getCheckoutSessionService()->getCartSessionService()->getShippingService()->getIsShippingEnabled()) {
-            return false;
+        if ($event->get('step_number', 0) > 0) {
+            $event->set('step_number', $event->get('step_number') + 1);
+        } else {
+            $event->set('step_number', 1);
         }
 
-        $returnData = $event->getReturnData();
+        $form = $this->getFormFactory()->create($this->getFormTypeClass(), [], [
+            'method' => 'post',
+            'action' => $this->getRouter()->generate('cart_checkout_update_section', [
+                'section' => CheckoutConstants::STEP_SHIPPING_ADDRESS
+            ]),
+        ]);
 
-        // sections are combined with other listeners/observer
-        //  and later ordered
-        $sections = isset($returnData['sections'])
-            ? $returnData['sections']
-            : [];
+        $shippingFields = [
+            'is_shipping_same',
+            'shipping_name',
+            'shipping_company',
+            'shipping_street',
+            'shipping_street2',
+            'shipping_city',
+            'shipping_region',
+            'shipping_postcode',
+            'shipping_country_id',
+            'shipping_phone',
+        ];
 
-        $allCountries = Intl::getRegionBundle()->getCountryNames();
-        $allowedCountries = $this->getCheckoutSessionService()->getAllowedCountryIds();
+        $javascripts = $event->getReturnData('javascripts', []);
 
-        $countries = [];
-        foreach($allowedCountries as $countryId) {
-            $countries[$countryId] = $allCountries[$countryId];
+        $tplPath = $this->getThemeService()->getTemplatePath($this->getThemeService()->getThemeConfig()->getFrontendTheme());
+
+        $cartSession = $this->getCheckoutSessionService()
+            ->getCartSessionService();
+
+        $cart = $cartSession->getCart();
+        $customer = $cart->getCustomer();
+
+        foreach($shippingFields as $field) {
+
+            $customerValue = $customer->get($field);
+
+            switch($field) {
+                case 'is_shipping_same':
+                    // must be a new "feature" in Symfony? It won't take a '1' anymore?
+                    $form->get($field)->setData((bool) $customerValue);
+                    break;
+                case 'shipping_name':
+                    if ($customer->get('first_name') && !$customer->get('billing_name')) {
+                        $form->get($field)->setData("{$customer->get('first_name')} {$customer->get('last_name')}");
+                    } else {
+                        $form->get($field)->setData($customerValue);
+                    }
+                    break;
+                default:
+                    if (!is_null($customerValue)) {
+                        $form->get($field)->setData($customerValue);
+                    }
+                    break;
+            }
         }
 
-        $formType = new CheckoutShippingAddressType();
-        $formType->setCountries($countries);
+        $sectionData = [
+            'section' => CheckoutConstants::STEP_SHIPPING_ADDRESS,
+            'step_number' => $event->get('step_number'),
+            'label' => 'Shipping Address',
+            'fields' => $shippingFields,
+            'post_url' => $this->getRouter()->generate('cart_checkout_update_section', ['section' => CheckoutConstants::STEP_SHIPPING_ADDRESS]),
+            'form' => $form,
+            'form_view' => $form->createView(),
+        ];
 
-        $sections = array_merge([
-            CheckoutConstants::STEP_SHIPPING_ADDRESS => [
-                'order' => 20,
-                'label' => 'Shipping Address',
-                'fields' => [
-                    'is_shipping_same',
-                    'shipping_name',
-                    'shipping_company',
-                    'shipping_street',
-                    'shipping_street2',
-                    'shipping_city',
-                    'shipping_region',
-                    'shipping_postcode',
-                    'shipping_country_id',
-                    'shipping_phone',
-                ],
-                'post_url' => $this->getRouter()->generate('cart_checkout_update_shipping_address', []),
-            ],
-        ], $sections);
+        if ($event->get('single_step', '')) {
+            if ($event->get('single_step', '') == CheckoutConstants::STEP_SHIPPING_ADDRESS) {
 
-        $returnData['sections'] = $sections;
+                $template = $event->getTemplate()
+                    ? $event->getTemplate()
+                    : 'Checkout:section_full.html.twig';
 
-        $event->setShippingAddressForm($formType)
-            ->setReturnData($returnData);
+                $javascripts[] = [
+                    'js_template' => $tplPath . 'Checkout:section_full_js.html.twig',
+                ];
 
+                $sectionData['javascripts'] = $javascripts;
+
+                $event->setResponse($this->getThemeService()->render('frontend', $template, $sectionData));
+            }
+        } else {
+            if (!$event->getRequest()->get('ajax', '')) {
+
+                $javascripts[] = [
+                    'js_template' => $tplPath . 'Checkout:section_address_js.html.twig',
+                    'data' => $sectionData,
+                ];
+
+                $event->setReturnData('javascripts', $javascripts);
+            }
+        }
+
+        $sections = $event->getReturnData('sections', []);
+        $sections[CheckoutConstants::STEP_SHIPPING_ADDRESS] = $sectionData;
+        $event->setReturnData('sections', $sections);
     }
 }

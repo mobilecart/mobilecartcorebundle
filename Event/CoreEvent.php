@@ -339,31 +339,33 @@ class CoreEvent extends Event
 
     /**
      * @param string $key
-     * @return array
+     * @param null $default
+     * @return array|null
      */
-    public function getReturnData($key = '')
+    public function getReturnData($key = '', $default = null)
     {
         if (strlen($key)) {
 
             return isset($this->return_data[$key])
                 ? $this->return_data[$key]
-                : null;
+                : $default;
         }
+
         return $this->return_data;
     }
 
     /**
-     * @param $request
+     * @param \Symfony\Component\HttpFoundation\Request $request
      * @return $this
      */
-    public function setRequest($request)
+    public function setRequest(\Symfony\Component\HttpFoundation\Request $request)
     {
         $this->request = $request;
         return $this;
     }
 
     /**
-     * @return mixed
+     * @return \Symfony\Component\HttpFoundation\Request
      */
     public function getRequest()
     {

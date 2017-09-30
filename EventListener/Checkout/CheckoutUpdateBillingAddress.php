@@ -2,9 +2,10 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
-use MobileCart\CoreBundle\Constants\EntityConstants;
-use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use MobileCart\CoreBundle\Constants\EntityConstants;
+use MobileCart\CoreBundle\Constants\CheckoutConstants;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class CheckoutUpdateBillingAddress
@@ -12,7 +13,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 class CheckoutUpdateBillingAddress
 {
-
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
     protected $formFactory;
 
     /**
@@ -27,6 +30,9 @@ class CheckoutUpdateBillingAddress
      */
     protected $entityService;
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -52,12 +58,19 @@ class CheckoutUpdateBillingAddress
         return $this->entityService;
     }
 
-    public function setFormFactory($formFactory)
+    /**
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @return $this
+     */
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
     {
         $this->formFactory = $formFactory;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
     public function getFormFactory()
     {
         return $this->formFactory;
@@ -92,12 +105,19 @@ class CheckoutUpdateBillingAddress
         return $this->passwordEncoder;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -126,55 +146,70 @@ class CheckoutUpdateBillingAddress
      */
     public function onCheckoutUpdateBillingAddress(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
+        $sectionData = $event->get('section_data', []);
+
+        $form = isset($sectionData['form'])
+            ? $sectionData['form']
+            : [];
+
+        $nextSection = isset($sectionData['next_section'])
+            ? $sectionData['next_section']
+            : '';
+
+        //$returnData = $event->getReturnData();
 
         $request = $event->getRequest();
-        $formType = $event->getForm();
-        $entity = $event->getEntity();
+        //$formType = $event->getForm();
+        //$entity = $event->getEntity();
 
         $cart = $this->getCheckoutSessionService()
             ->getCartSessionService()
             ->getCart();
 
+        $customerId = $this->getCheckoutSessionService()->getCartSessionService()->getCustomerId();
+
         $cartCustomer = $cart->getCustomer();
 
+        /*
         $form = $this->getFormFactory()->create($formType, $entity, [
             'action' => $event->getAction(),
             'method' => $event->getMethod(),
             'translation_domain' => 'checkout',
             'validation_groups' => 'billing_address',
-        ]);
+        ]); //*/
 
         $requestData = $request->request->all();
         $form->submit($requestData);
         $isValid = $form->isValid();
 
-        if (isset($requestData['email']) && !$cartCustomer->getId()) {
-            $customerEntity = $this->getEntityService()->findOneBy(EntityConstants::CUSTOMER, [
+        // if they are not registered (or logged in), and they try to checkout with a registered email
+        if (!$customerId && isset($requestData['email'])) {
+
+            $existing = $this->getEntityService()->findOneBy(EntityConstants::CUSTOMER, [
                 'email' => $requestData['email'],
             ]);
 
-            if ($customerEntity) {
+            if ($existing) {
                 $isValid = false;
                 $invalid['email'] = ['Email exists. Please login before checkout'];
             }
         }
 
-        $messages = [];
         $invalid = [];
 
         if ($isValid) {
 
-            $customerEntity = $cartCustomer->getId()
-                ? $this->getEntityService()->find(EntityConstants::CUSTOMER, $cartCustomer->getId())
-                : $this->getEntityService()->getInstance(EntityConstants::CUSTOMER);
+            // currently, there is only a customer entity if you are logged in
+            //  but, the logic here is ready for customer registration during checkout also
+            $customerEntity = $customerId
+                ? $this->getEntityService()->find(EntityConstants::CUSTOMER, $customerId)
+                : null;
 
             $formData = $form->getData();
             foreach($form->all() as $childKey => $child) {
 
                 // security concerns
-                //  blacklist security-related fields
-                //  and other fields which should not be updated here
+                //  blacklist some fields as an extra security measure
 
                 if (in_array($childKey, [
                     'id',
@@ -196,10 +231,12 @@ class CheckoutUpdateBillingAddress
                     continue;
                 }
 
-                $value = $formData->get($childKey);
+                //$value = $formData->get($childKey);
+                $value = $formData[$childKey];
                 switch($childKey) {
                     case 'password':
-                        if (!$customerEntity->getId()
+                        // note: this isn't currently enabled. You would need to add this field to the form type
+                        if ($customerEntity
                             && $value
                             && strlen($value) >= 6
                         ) {
@@ -226,31 +263,35 @@ class CheckoutUpdateBillingAddress
                             $lastName = implode(' ', $parts);
                         }
 
-                        if (!$customerEntity->getFirstName() && $firstName) {
-                            $customerEntity->set('first_name', $firstName);
-                        }
-
-                        if (!$customerEntity->getLastName() && $lastName) {
-                            $customerEntity->set('last_name', $lastName);
-                        }
-
-                        if ($value != $customerEntity->getBillingName()) {
-                            $customerEntity->set('billing_name', $value);
-                        }
-
                         $cartCustomer->set('first_name', $firstName);
                         $cartCustomer->set('last_name', $lastName);
                         $cartCustomer->set('billing_name', $value);
 
+                        if ($customerEntity && !$customerEntity->getFirstName() && $firstName) {
+                            $customerEntity->set('first_name', $firstName);
+                        }
+
+                        if ($customerEntity && !$customerEntity->getLastName() && $lastName) {
+                            $customerEntity->set('last_name', $lastName);
+                        }
+
+                        if ($customerEntity && ($value != $customerEntity->getBillingName())) {
+                            $customerEntity->set('billing_name', $value);
+                        }
+
                         break;
                     case 'email':
-                        // this field will only be here when guest checkout is enabled
-                        if (!$customerEntity->getId()
+
+                        $cartCustomer->set('email', $value);
+
+                        // note: this logic isn't currently enabled,
+                        //  you would need to create a new customer instance before this
+                        if ($customerEntity
                             && strlen($value) > 5
                         ) {
                             $customerEntity->set('email', $value);
-                            $cartCustomer->set('email', $value);
                         }
+
                         break;
                     default:
 
@@ -258,21 +299,28 @@ class CheckoutUpdateBillingAddress
                             continue;
                         }
 
-                        $customerEntity->set($childKey, $value);
                         $cartCustomer->set($childKey, $value);
+
+                        // note : currently only updates customer if you are logged in
+                        if ($customerEntity) {
+                            $customerEntity->set($childKey, $value);
+                        }
+
                         break;
                 }
             }
 
-            // we do not check for ID here, only email address
-            //  because it could be a new customer being created
-            if (strlen($customerEntity->getEmail()) > 5) {
+            // todo : in the future, handle new registrations during checkout
+
+            if ($customerEntity) {
                 try {
                     $this->getEntityService()->persist($customerEntity);
                     if ($customerEntity->getId()) {
                         $this->getCheckoutSessionService()->getCartSessionService()->setCustomerEntity($customerEntity);
                     }
-                } catch(\Exception $e) { }
+                } catch(\Exception $e) {
+                    $event->addErrorMessage('An exception occurred while saving the customer account.');
+                }
             }
 
             // todo: if tax is enabled and shipping is disabled, then apply tax to billing
@@ -285,7 +333,7 @@ class CheckoutUpdateBillingAddress
                 ->collectTotals()
                 ->getCart();
 
-            $returnData['cart'] = $cart;
+            $event->setReturnData('cart', $cart);
 
         } else {
 
@@ -302,24 +350,21 @@ class CheckoutUpdateBillingAddress
             }
         }
 
-        $this->getCheckoutSessionService()->setIsValidBillingAddress($isValid);
+        $this->getCheckoutSessionService()->setSectionIsValid(CheckoutConstants::STEP_BILLING_ADDRESS, $isValid);
 
-        $returnData['success'] = $isValid;
-        $returnData['messages'] = $messages;
-        $returnData['invalid'] = $invalid;
+        $event->setReturnData('success', $isValid);
+        $event->setReturnData('messages', $event->getMessages());
+        $event->setReturnData('invalid', $invalid);
+        $event->setReturnData('next_section', $nextSection);
 
-        $cartService = $this->getCheckoutSessionService()->getCartSessionService()->getCartService();
-        if ($isValid && !$cartService->getIsSpaEnabled()) {
-            if ($cartService->getShippingService()->getIsShippingEnabled()) {
-                $returnData['redirect_url'] = $this->getRouter()->generate('cart_checkout_shipping_address', []);
-            } else {
-                $returnData['redirect_url'] = $this->getRouter()->generate('cart_checkout_totals_discounts', []);
-            }
+        if ($isValid && strlen($nextSection)) {
+
+            $event->setReturnData('redirect_url', $this->getRouter()->generate(
+                'cart_checkout_section', [
+                'section' => $nextSection
+            ]));
         }
 
-        $response = new JsonResponse($returnData);
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
+        $event->setResponse(new JsonResponse($event->getReturnData()));
     }
 }

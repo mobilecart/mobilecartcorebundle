@@ -177,11 +177,6 @@ class CustomerType extends AbstractType
         });
     }
 
-    public function getName()
-    {
-        return 'customer';
-    }
-
     public function getBlockPrefix()
     {
         return 'customer';

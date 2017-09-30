@@ -138,26 +138,18 @@ class CheckoutConfirmOrder
      */
     public function onCheckoutConfirmOrder(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
+        $event->setReturnData('cart', $this->getCartSession()->collectTotals()->getCart());
 
-        $cart = $this->getCartSession()
-            ->collectTotals()
-            ->getCart();
-
-        $returnData['cart'] = $cart;
-
-        $returnData['is_shipping_enabled'] = $this->getCartSession()
-            ->getShippingService()
-            ->getIsShippingEnabled();
+        $event->setReturnData('is_shipping_enabled', $this->getCartSession()->getShippingService()->getIsShippingEnabled());
 
         $template = $event->getTemplate()
             ? $event->getTemplate()
             : $this->defaultTemplate;
 
-        $response = $this->getThemeService()
-            ->render($this->getLayout(), $template, $returnData);
-
-        $event->setResponse($response)
-            ->setReturnData($returnData);
+        $event->setResponse($this->getThemeService()->render(
+            $this->getLayout(),
+            $template,
+            $event->getReturnData()
+        ));
     }
 }

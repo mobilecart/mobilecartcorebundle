@@ -99,7 +99,6 @@ class CheckoutUpdatePaymentMethods
      */
     public function onCheckoutUpdateBillingAddress(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $checkoutSession = $this->getCheckoutSessionService();
         $cartCustomer = $checkoutSession->getCartSessionService()->getCustomer();
 
@@ -112,7 +111,5 @@ class CheckoutUpdatePaymentMethods
 
             $this->getPaymentService()->collectPaymentMethods($methodRequest);
         }
-
-        $event->setReturnData($returnData);
     }
 }

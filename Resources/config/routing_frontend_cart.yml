@@ -43,63 +43,28 @@ cart_checkout:
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:index' }
     methods: [GET]
 
-cart_checkout_update_billing_address:
-    path: /cart/checkout/update/billing_address
-    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:updateBillingAddress' }
-    methods: [POST]
-
-cart_checkout_shipping_address:
-    path: /cart/checkout/shipping_address
-    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:shippingAddress' }
+cart_checkout_section:
+    path: /cart/checkout/{section}
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:viewSection' }
     methods: [GET]
 
-cart_checkout_payment:
-    path: /cart/checkout/payment
-    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:paymentMethods' }
-    methods: [GET]
-
-cart_checkout_update_shipping_address:
-    path: /cart/checkout/update/shipping_address
-    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:updateShippingAddress' }
-    methods: [POST]
-
-cart_checkout_update_shipping_method:
-    path: /cart/checkout/update/shipping_method
-    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:updateShippingMethod' }
-    methods: [POST]
-
-cart_checkout_totals_discounts:
-    path: /cart/checkout/totals_discounts
-    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:totalsDiscounts' }
-    methods: [GET]
-
-cart_checkout_update_totals_discounts:
-    path: /cart/checkout/update/totals_discounts
-    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:updateTotalsDiscounts' }
+cart_checkout_update_section:
+    path: /cart/checkout/update/{section}
+    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:updateSection' }
     methods: [POST]
 
 cart_checkout_confirm_order:
-    path: /cart/checkout/confirm_order
+    path: /cart/checkout/order/confirm
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:confirmOrder' }
     methods: [GET]
 
-cart_checkout_update_discount:
-    path: /cart/checkout/update/discount
-    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:updateDiscount' }
-    methods: [POST]
-
-cart_checkout_update_payment:
-    path: /cart/checkout/update/payment
-    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:updatePaymentMethod' }
-    methods: [POST]
-
 cart_checkout_submit_order:
-    path: /cart/checkout/post
+    path: /cart/checkout/order/submit
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:submitOrder' }
     methods: [POST]
 
 cart_checkout_success:
-    path: /cart/checkout/success
+    path: /cart/checkout/order/success
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:success' }
     methods: [GET]
 

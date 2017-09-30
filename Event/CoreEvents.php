@@ -35,20 +35,31 @@ final class CoreEvents
 
     const CHECKOUT_FORM = 'checkout.form';
     const CHECKOUT_VIEW_RETURN = 'checkout.view.return';
-    const CHECKOUT_BILLING_ADDRESS_VIEW_RETURN = 'checkout.billing.address.view.return';
-    const CHECKOUT_SHIPPING_ADDRESS_VIEW_RETURN = 'checkout.shipping.address.view.return';
-    const CHECKOUT_PAYMENT_METHODS_VIEW_RETURN = 'checkout.payment.methods.view.return';
-    const CHECKOUT_UPDATE_BILLING_ADDRESS = 'checkout.update.billing.address';
-    const CHECKOUT_UPDATE_SHIPPING_ADDRESS = 'checkout.update.shipping.address';
-    const CHECKOUT_UPDATE_SHIPPING_METHOD = 'checkout.update.shipping.method';
-    const CHECKOUT_TOTALS_DISCOUNTS = 'checkout.totals.discounts';
-    const CHECKOUT_UPDATE_TOTALS_DISCOUNTS = 'checkout.update.totals.discounts';
+    const CHECKOUT_BILLING_ADDRESS_VIEW_RETURN = 'checkout.billing_address.view.return';
+    const CHECKOUT_SHIPPING_ADDRESS_VIEW_RETURN = 'checkout.shipping_address.view.return';
+    const CHECKOUT_PAYMENT_METHODS_VIEW_RETURN = 'checkout.payment_method.view.return';
+    const CHECKOUT_UPDATE_BILLING_ADDRESS = 'checkout.update.billing_address';
+    const CHECKOUT_UPDATE_SHIPPING_ADDRESS = 'checkout.update.shipping_address';
+    const CHECKOUT_UPDATE_SHIPPING_METHOD = 'checkout.update.shipping_method';
+    const CHECKOUT_TOTALS_DISCOUNTS = 'checkout.totals_discounts';
+    const CHECKOUT_UPDATE_TOTALS_DISCOUNTS = 'checkout.update.totals_discounts';
     const CHECKOUT_ORDER_SUMMARY = 'checkout.summary';
-    const CHECKOUT_UPDATE_PAYMENT_METHOD = 'checkout.update.payment.method';
+    const CHECKOUT_UPDATE_PAYMENT_METHOD = 'checkout.update.payment_method';
     const CHECKOUT_CONFIRM_ORDER = 'checkout.confirm.order';
     const CHECKOUT_SUBMIT_ORDER = 'checkout.submit.order';
     const CHECKOUT_SUBMIT_ORDER_SUCCESS = 'checkout.submit.order.success';
     const CHECKOUT_SUCCESS_RETURN = 'checkout.success.return';
+
+    /**
+     * Used for keying event names on dynamic checkout sections
+     *
+     * @param $section
+     * @return string
+     */
+    static function checkoutUpdate($section)
+    {
+        return 'checkout.update.' . $section;
+    }
 
     const PRODUCT_LIST = 'product.list';
     const PRODUCT_SEARCH = 'product.search';

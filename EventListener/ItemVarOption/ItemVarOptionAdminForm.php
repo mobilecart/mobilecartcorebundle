@@ -121,10 +121,10 @@ class ItemVarOptionAdminForm
                 'fields' => [
                     'item_var',
                     'value',
+                    'url_value',
                     'sort_order',
                     'additional_price',
                     'is_in_stock',
-                    'url_value',
                 ],
             ],
         ]);
