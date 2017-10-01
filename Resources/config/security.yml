@@ -15,11 +15,11 @@ security:
 
     encoders:
         MobileCart\CoreBundle\Entity\Customer:
-            algorithm:   sha1
+            algorithm: sha512
             iterations: 1
             encode_as_base64: false
         MobileCart\CoreBundle\Entity\AdminUser:
-            algorithm:   sha1
+            algorithm: sha512
             iterations: 1
             encode_as_base64: false
 
