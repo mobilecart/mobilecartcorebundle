@@ -105,24 +105,26 @@ class ProductType extends AbstractType
             ->add('weight', TextType::class, ['required' => false])
             ->add('weight_unit', ChoiceType::class, [
                 'required' => false,
-                'choices' => [
+                'choices' => array_flip([
                     'lb' => 'LB',
                     'oz' => 'Ounce',
                     'kg' => 'Kilogram',
                     'g' => 'Gram',
-                ]
+                ]),
+                'choices_as_values' => true,
             ])
             ->add('width', TextType::class, ['required' => false])
             ->add('height', TextType::class, ['required' => false])
             ->add('length', TextType::class, ['required' => false])
             ->add('measure_unit', ChoiceType::class, [
                 'required' => false,
-                'choices' => [
+                'choices' => array_flip([
                     'in' => 'Inch',
                     'ft' => 'Foot',
                     'cm' => 'Centimeter',
                     'm' => 'Meter',
-                ]
+                ]),
+                'choices_as_values' => true,
             ])
             ->add('qty', NumberType::class, [
                 'required' => true,
@@ -132,11 +134,12 @@ class ProductType extends AbstractType
             ])
             ->add('qty_unit', ChoiceType::class, [
                 'required' => false,
-                'choices' => [
+                'choices' => array_flip([
                     'EA' => 'Each',
                     'CASE' => 'Case',
                     '10-Pack' => '10 Pack',
-                ]
+                ]),
+                'choices_as_values' => true,
             ])
             ->add('upc', TextType::class, ['required' => false])
             ->add('min_qty', NumberType::class, ['required' => false])
@@ -172,7 +175,8 @@ class ProductType extends AbstractType
             ])
             ->add('custom_template', ChoiceType::class, [
                 'required' => false,
-                'choices' => $this->getCustomTemplates(),
+                'choices' => array_flip($this->getCustomTemplates()),
+                'choices_as_values' => true,
             ]);
     }
 

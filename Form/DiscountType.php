@@ -28,23 +28,25 @@ class DiscountType extends AbstractType
             ->add('priority', IntegerType::class)
             ->add('value', NumberType::class)
             ->add('applied_as', ChoiceType::class, [
-                'choices' => [
+                'choices' => array_flip([
                     Discount::$asFlat => 'Flat',
                     Discount::$asPercent => 'Percentage',
-                ],
+                ]),
                 'attr' => [
                     'class' => 'discount-condition',
-                ]
+                ],
+                'choices_as_values' => true,
             ])
             ->add('applied_to', ChoiceType::class, [
-                'choices' => [
+                'choices' => array_flip([
                     Discount::$toSpecified => 'Specified',
                     Discount::$toItems => 'All Products',
                     Discount::$toShipments => 'All Shipments',
-                ],
+                ]),
                 'attr' => [
                     'class' => 'discount-condition',
-                ]
+                ],
+                'choices_as_values' => true,
             ])
             ->add('is_compound', CheckboxType::class, [
                 'required' => false,

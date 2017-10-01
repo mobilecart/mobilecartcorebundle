@@ -109,10 +109,11 @@ class CustomerProfileType extends AbstractType
                 ]
             ])
             ->add('billing_country_id', ChoiceType::class, [
-                'choices' => $this->getCountries(),
+                'choices' => array_flip($this->getCountries()),
                 'attr' => [
                     'class' => 'country-input billing-input',
                 ],
+                'choices_as_values' => true,
             ])
             ->add('is_shipping_same', CheckboxType::class)
             ->add('shipping_name', TextType::class, [
@@ -156,10 +157,11 @@ class CustomerProfileType extends AbstractType
                 ]
             ])
             ->add('shipping_country_id', ChoiceType::class, [
-                'choices' => $this->getCountries(),
+                'choices' => array_flip($this->getCountries()),
                 'attr' => [
                     'class' => 'country-input shipping-input',
                 ],
+                'choices_as_values' => true,
             ])
             ->add('password', RepeatedType::class, array(
                 'type' => PasswordType::class,

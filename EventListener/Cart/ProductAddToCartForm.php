@@ -2,6 +2,8 @@
 
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
@@ -46,8 +48,8 @@ class ProductAddToCartForm
         $options = [];
         $type = 'Symfony\Component\Form\Extension\Core\Type\FormType';
         $form = $this->getFormFactory()->createBuilder($type, $data, $options)
-            ->add('id', 'hidden')
-            ->add('qty', 'text')
+            ->add('id', HiddenType::class)
+            ->add('qty', TextType::class)
             ->getForm();
 
         $event->setReturnData('form', $form);

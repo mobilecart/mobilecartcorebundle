@@ -51,8 +51,9 @@ class ExportOptionsType extends AbstractType
     {
         $builder
             ->add('export_option', ChoiceType::class, [
-                'choices' => $this->getExportOptions(),
+                'choices' => array_flip($this->getExportOptions()),
                 'mapped' => false,
+                'choices_as_values' => true,
             ])
             ->add('start_date', DateType::class, [
                 'mapped' => false,

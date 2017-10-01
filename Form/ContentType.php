@@ -84,7 +84,8 @@ class ContentType extends AbstractType
             ->add('is_public', CheckboxType::class, ['required' => false])
             ->add('custom_template', ChoiceType::class, [
                 'required' => false,
-                'choices' => $this->getCustomTemplates(),
+                'choices' => array_flip($this->getCustomTemplates()),
+                'choices_as_values' => true,
             ])
         ;
     }

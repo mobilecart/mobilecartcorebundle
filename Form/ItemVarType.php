@@ -40,8 +40,14 @@ class ItemVarType extends AbstractType
                     new NotBlank(),
                 ],
             ])
-            ->add('datatype', ChoiceType::class, ['choices' => ItemVar::$types])
-            ->add('form_input', ChoiceType::class, ['choices' => ItemVar::$formInputs])
+            ->add('datatype', ChoiceType::class, [
+                'choices' => array_flip(ItemVar::$types),
+                'choices_as_values' => true,
+            ])
+            ->add('form_input', ChoiceType::class, [
+                'choices' => array_flip(ItemVar::$formInputs),
+                'choices_as_values' => true,
+            ])
             ->add('is_required')
             ->add('is_displayed')
             ->add('sort_order')

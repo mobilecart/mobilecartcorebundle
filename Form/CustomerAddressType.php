@@ -79,10 +79,11 @@ class CustomerAddressType extends AbstractType
             ])
             ->add('postcode', TextType::class)
             ->add('country_id', ChoiceType::class, [
-                'choices' => $this->getCountries(),
+                'choices' => array_flip($this->getCountries()),
                 'attr' => [
                     'class' => 'country-input',
                 ],
+                'choices_as_values' => true,
             ])
         ;
     }

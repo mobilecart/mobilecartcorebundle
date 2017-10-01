@@ -55,7 +55,8 @@ class ItemVarSetType extends AbstractType
                 ],
             ])
             ->add('object_type', ChoiceType::class, [
-                'choices' => EntityConstants::getEavObjects(),
+                'choices' => array_flip(EntityConstants::getEavObjects()),
+                'choices_as_values' => true,
             ]);
     }
 

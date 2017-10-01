@@ -100,11 +100,12 @@ class OrderType extends AbstractType
     {
         $builder
             ->add('status', ChoiceType::class, [
-                'choices' => $this->getStatusOptions(),
+                'choices' => array_flip($this->getStatusOptions()),
                 'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
+                'choices_as_values' => true,
             ])
             ->add('json', HiddenType::class)
             ->add('billing_name', TextType::class, [
@@ -143,7 +144,7 @@ class OrderType extends AbstractType
                 ],
             ])
             ->add('billing_country_id', ChoiceType::class, [
-                'choices' => $this->getCountries(),
+                'choices' => array_flip($this->getCountries()),
                 'attr' => [
                     'class' => 'country-input',
                 ],
@@ -151,6 +152,7 @@ class OrderType extends AbstractType
                 'constraints' => [
                     new NotBlank(),
                 ],
+                'choices_as_values' => true,
             ]);
     }
 

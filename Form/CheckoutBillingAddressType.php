@@ -139,11 +139,12 @@ class CheckoutBillingAddressType extends AbstractType
             ->add('billing_country_id', ChoiceType::class, [
                 'attr' => ['class' => 'billing-input country-input'],
                 'label' => 'billing.country',
-                'choices' => $this->getCountries(),
+                'choices' => array_flip($this->getCountries()),
                 'required' => true,
                 'constraints' => [
                     new NotBlank(),
                 ],
+                'choices_as_values' => true,
             ])
             ->add('billing_phone', TextType::class, [
                 'attr' => ['class' => 'billing-input'],

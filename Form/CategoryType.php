@@ -75,11 +75,13 @@ class CategoryType extends AbstractType
             ->add('sort_order', TextType::class, ['required' => false])
             ->add('custom_template', ChoiceType::class, [
                 'required' => false,
-                'choices' => $this->getCustomTemplates(),
+                'choices' => array_flip($this->getCustomTemplates()),
+                'choices_as_values' => true,
             ])
             ->add('display_mode', ChoiceType::class, [
                 'required' => false,
-                'choices' => EntityConstants::getDisplayModes()
+                'choices' => array_flip(EntityConstants::getDisplayModes()),
+                'choices_as_values' => true,
             ])
         ;
     }

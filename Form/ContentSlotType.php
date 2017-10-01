@@ -9,9 +9,12 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * Class ContentSlotType
+ * @package MobileCart\CoreBundle\Form
+ */
 class ContentSlotType extends AbstractType
 {
-
     /**
      * @param FormBuilderInterface $builder
      * @param array $options

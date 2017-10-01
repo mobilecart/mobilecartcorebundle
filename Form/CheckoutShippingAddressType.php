@@ -118,7 +118,7 @@ class CheckoutShippingAddressType extends AbstractType
         ;
     }
 
-    public function getBuildPrefix()
+    public function getBlockPrefix()
     {
         return CheckoutConstants::STEP_SHIPPING_ADDRESS;
     }

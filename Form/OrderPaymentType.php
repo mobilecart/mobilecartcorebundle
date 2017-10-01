@@ -54,7 +54,11 @@ class OrderPaymentType extends AbstractType
 
         $builder
             ->add('base_amount', TextType::class, ['required'  => true])
-            ->add('code', ChoiceType::class, ['required'  => true, 'choices' => $serviceOptions])
+            ->add('code', ChoiceType::class, [
+                'required'  => true,
+                'choices' => array_flip($serviceOptions),
+                'choices_as_values' => true,
+            ])
         ;
     }
 

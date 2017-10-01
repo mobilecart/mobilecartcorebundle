@@ -85,10 +85,11 @@ class CustomerType extends AbstractType
             ])
             ->add('billing_postcode', TextType::class)
             ->add('billing_country_id', ChoiceType::class, [
-                'choices' => $this->getCountries(),
+                'choices' => array_flip($this->getCountries()),
                 'attr' => [
                     'class' => 'country-input',
                 ],
+                'choices_as_values' => true,
             ])
             ->add('is_shipping_same', CheckboxType::class)
             ->add('shipping_name', TextType::class, [
@@ -125,6 +126,7 @@ class CustomerType extends AbstractType
                 'attr' => [
                     'class' => 'country-input',
                 ],
+                'choices_as_values' => true,
             ])
             ->add('is_locked', CheckboxType::class, [
                 'required' => false,
