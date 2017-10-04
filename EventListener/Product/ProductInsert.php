@@ -13,12 +13,12 @@ use MobileCart\CoreBundle\Entity\Product;
 class ProductInsert
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @var \MobileCart\CoreBundle\Service\DoctrineEntityService
      */
     protected $entityService;
 
     /**
-     * @param $entityService
+     * @param \MobileCart\CoreBundle\Service\DoctrineEntityService $entityService
      * @return $this
      */
     public function setEntityService($entityService)
@@ -28,7 +28,7 @@ class ProductInsert
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @return \MobileCart\CoreBundle\Service\DoctrineEntityService
      */
     public function getEntityService()
     {
@@ -41,6 +41,7 @@ class ProductInsert
     public function onProductInsert(CoreEvent $event)
     {
         $request = $event->getRequest();
+        /** @var \MobileCart\CoreBundle\Entity\Product $entity */
         $entity = $event->getEntity();
         if (!$entity->getCurrency()) {
             // todo : use currency service
@@ -48,7 +49,6 @@ class ProductInsert
         }
 
         $formData = $event->getFormData();
-
         $fulltextData = $entity->getBaseData();
         foreach($fulltextData as $k => $v) {
             if (is_numeric($fulltextData[$k]) || is_array($v)) {

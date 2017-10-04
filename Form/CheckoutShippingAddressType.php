@@ -107,8 +107,9 @@ class CheckoutShippingAddressType extends AbstractType
             ->add('shipping_country_id', ChoiceType::class, [
                 'attr' => ['class' => 'shipping-input country-input'],
                 'label' => 'shipping.country',
-                'choices' => $this->getCountries(),
+                'choices' => array_flip($this->getCountries()),
                 //'mapped' => false,
+                'choices_as_values' => true,
             ])
             ->add('shipping_phone', TextType::class, [
                 'attr' => ['class' => 'shipping-input'],
