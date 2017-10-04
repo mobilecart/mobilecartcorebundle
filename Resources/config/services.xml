@@ -192,13 +192,10 @@
         <parameter key="cart.listener.checkout.form.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutForm</parameter>
         <parameter key="cart.listener.checkout.form.totals_discounts.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutTotalsDiscountsViewReturn</parameter>
         <parameter key="cart.listener.checkout.form.payment_method.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutPaymentMethods</parameter>
-        <parameter key="cart.listener.checkout.payment_method.view.return.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutPaymentMethodsViewReturn</parameter>
-        <parameter key="cart.listener.checkout.view.return.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutViewReturn</parameter>
         <parameter key="cart.listener.checkout.update.billing_address.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdateBillingAddress</parameter>
         <parameter key="cart.listener.checkout.confirm.order.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutConfirmOrder</parameter>
         <parameter key="cart.listener.checkout.update.payment_methods.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdatePaymentMethods</parameter>
         <parameter key="cart.listener.checkout.update.shipping_address.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdateShippingAddress</parameter>
-        <parameter key="cart.listener.checkout.update.shipping_method.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdateShippingMethod</parameter>
         <parameter key="cart.listener.checkout.update.totals_discounts.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdateTotalsDiscounts</parameter>
         <parameter key="cart.listener.checkout.update.payment_method.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdatePaymentMethod</parameter>
         <parameter key="cart.listener.checkout.submit.order.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutSubmitOrder</parameter>
