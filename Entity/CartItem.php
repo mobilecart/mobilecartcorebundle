@@ -182,6 +182,13 @@ class CartItem
      */
     protected $source_address_key;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="custom", type="text", nullable=true)
+     */
+    protected $custom;
+
     public function __construct()
     {
         $this->source_address_key = 'main';
@@ -240,6 +247,7 @@ class CartItem
             'length' => $this->getLength(),
             'measure_unit' => $this->getMeasureUnit(),
             'source_address_key' => $this->getSourceAddressKey(),
+            'custom' => $this->getCustom(),
         ];
     }
 
@@ -668,5 +676,23 @@ class CartItem
     public function getSourceAddressKey()
     {
         return $this->source_address_key;
+    }
+
+    /**
+     * @param string $custom
+     * @return $this
+     */
+    public function setCustom($custom)
+    {
+        $this->custom = $custom;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCustom()
+    {
+        return $this->custom;
     }
 }
