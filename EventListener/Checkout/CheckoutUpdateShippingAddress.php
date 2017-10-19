@@ -202,7 +202,6 @@ class CheckoutUpdateShippingAddress
                     continue;
                 }
 
-                //$value = $formData->get($childKey);
                 $value = $formData[$childKey];
 
                 switch($childKey) {

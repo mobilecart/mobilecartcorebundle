@@ -86,24 +86,18 @@ class CheckoutSubmitOrder
      */
     public function onCheckoutSubmitOrder(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $isValid = false;
-        //$returnData['messages'] = []; // r[messages] = [msg, msg, msg]
-        //$returnData['invalid_sections'] = []; // r[invalid_sections] = [a, b, c]
-        //$returnData['invalid_sections'] = $this->getCheckoutSessionService()->getInvalidSections(); // r[invalid_sections] = [a, b, c]
-        $returnData['invalid'] = []; // r[invalid][section][field] = [msg, msg, msg]
 
         // todo : keep a count of invalid requests, logout/lockout user if excessive
 
-        $invalid = $this->getCheckoutSessionService()->getInvalidSections();
-        $event->setReturnData('invalid_sections', $invalid);
-        if ($invalid) {
+        $invalidSections = $this->getCheckoutSessionService()->getInvalidSections();
+        $event->setReturnData('invalid_sections', $invalidSections);
+        if ($invalidSections) {
 
             $event->setResponse(new JsonResponse([
                 'success' => false,
                 'messages' => $event->getMessages(),
-                'invalid_sections' => $invalid,
+                'invalid_sections' => $invalidSections,
                 'invalid' => [],
             ]));
 
@@ -122,8 +116,9 @@ class CheckoutSubmitOrder
             ->getPaymentData();
 
         // merge data
-        if (isset($returnData['payment_data']) && is_array($returnData['payment_data'])) {
-            foreach($returnData['payment_data'] as $k => $v) {
+        $returnPaymentData = $event->getReturnData('payment_data', []);
+        if ($returnPaymentData) {
+            foreach($returnPaymentData as $k => $v) {
                 $paymentData[$k] = $v;
             }
         }
@@ -149,6 +144,11 @@ class CheckoutSubmitOrder
         }
 
         $event->set('is_valid', $isValid);
+        if ($orderService->getErrors()) {
+            foreach($orderService->getErrors() as $error) {
+                $event->addErrorMessage($error);
+            }
+        }
 
         if ($isValid) {
 
@@ -171,7 +171,7 @@ class CheckoutSubmitOrder
             $event->setResponse(new JsonResponse([
                 'success' => false,
                 'messages' => $event->getMessages(),
-                'invalid' => $invalid,
+                'invalid' => $invalidSections,
             ]));
         }
     }

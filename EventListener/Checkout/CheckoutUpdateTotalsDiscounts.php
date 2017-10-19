@@ -112,6 +112,7 @@ class CheckoutUpdateTotalsDiscounts
         }
 
         $this->getCheckoutSessionService()->setIsValidTotals($isValid);
+        $this->getCheckoutSessionService()->setSectionIsValid(CheckoutConstants::STEP_TOTALS_DISCOUNTS, $isValid);
 
         $event->setResponse(new JsonResponse($event->getReturnData()));
     }

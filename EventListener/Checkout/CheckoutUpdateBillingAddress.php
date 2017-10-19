@@ -156,11 +156,7 @@ class CheckoutUpdateBillingAddress
             ? $sectionData['next_section']
             : '';
 
-        //$returnData = $event->getReturnData();
-
         $request = $event->getRequest();
-        //$formType = $event->getForm();
-        //$entity = $event->getEntity();
 
         $cart = $this->getCheckoutSessionService()
             ->getCartSessionService()
@@ -169,14 +165,6 @@ class CheckoutUpdateBillingAddress
         $customerId = $this->getCheckoutSessionService()->getCartSessionService()->getCustomerId();
 
         $cartCustomer = $cart->getCustomer();
-
-        /*
-        $form = $this->getFormFactory()->create($formType, $entity, [
-            'action' => $event->getAction(),
-            'method' => $event->getMethod(),
-            'translation_domain' => 'checkout',
-            'validation_groups' => 'billing_address',
-        ]); //*/
 
         $requestData = $request->request->all();
         $form->submit($requestData);
@@ -322,10 +310,6 @@ class CheckoutUpdateBillingAddress
                     $event->addErrorMessage('An exception occurred while saving the customer account.');
                 }
             }
-
-            // todo: if tax is enabled and shipping is disabled, then apply tax to billing
-
-            // todo : set totals to returnData
 
             $cart = $this->getCheckoutSessionService()
                 ->getCartSessionService()

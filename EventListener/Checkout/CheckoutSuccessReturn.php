@@ -2,8 +2,8 @@
 
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
-use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
@@ -27,6 +27,9 @@ class CheckoutSuccessReturn
      */
     protected $entityService;
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -83,12 +86,19 @@ class CheckoutSuccessReturn
         return $this->entityService;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -109,8 +119,6 @@ class CheckoutSuccessReturn
             return false;
         }
 
-        $returnData = $event->getReturnData();
-
         // get cart customer
         $cartCustomer = $this->getCheckoutSessionService()
             ->getCartSessionService()
@@ -125,12 +133,12 @@ class CheckoutSuccessReturn
 
         $order = $this->getEntityService()->find(EntityConstants::ORDER, $orderId);
 
-        $returnData['order'] = $order;
+        $event->setReturnData('order', $order);
 
-        $response = $this->getThemeService()
-            ->render('frontend', 'Checkout:success.html.twig', $returnData);
-
-        $event->setResponse($response)
-            ->setReturnData($returnData);
+        $event->setResponse($this->getThemeService()->render(
+            'frontend',
+            'Checkout:success.html.twig',
+            $event->getReturnData()
+        ));
     }
 }
