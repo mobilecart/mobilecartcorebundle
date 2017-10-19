@@ -1704,6 +1704,9 @@
             <call method="setTaxService">
                 <argument type="service" id="cart.tax" />
             </call>
+            <call method="setCurrencyService">
+                <argument type="service" id="cart.currency" />
+            </call>
         </service>
 
         <!-- Event Listener: Cart Total : Discount -->
