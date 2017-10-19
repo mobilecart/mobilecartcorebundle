@@ -214,6 +214,7 @@ class CartSessionService
         }
 
         $cart = $this->getCartInstance();
+        $cart->setCurrency($this->getCurrencyService()->getBaseCurrency());
         $this->setCart($cart);
         return $this;
     }
@@ -545,6 +546,7 @@ class CartSessionService
             'name' => $entity->getShippingName(),
             'company' => $entity->getShippingCompany(),
             'street' => $entity->getShippingStreet(),
+            'street2' => $entity->getShippingStreet2(),
             'city' => $entity->getShippingCity(),
             'region' => $entity->getShippingRegion(),
             'postcode' => $entity->getShippingPostcode(),
