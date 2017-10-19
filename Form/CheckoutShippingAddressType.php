@@ -65,7 +65,7 @@ class CheckoutShippingAddressType extends AbstractType
     {
         $builder
             ->add('is_shipping_same', CheckboxType::class, [
-                'required' => 0,
+                'required' => false,
                 'label' => 'shipping.same',
                 //'mapped' => false,
             ])
