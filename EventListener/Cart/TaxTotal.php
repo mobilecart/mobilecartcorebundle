@@ -4,6 +4,8 @@ namespace MobileCart\CoreBundle\EventListener\Cart;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\CartComponent\Total;
+use MobileCart\CoreBundle\Service\TaxService;
+use MobileCart\CoreBundle\Service\CurrencyService;
 
 /**
  * Class TaxTotal
@@ -20,10 +22,15 @@ class TaxTotal extends Total
     protected $taxService;
 
     /**
-     * @param $taxService
+     * @var \MobileCart\CoreBundle\Service\CurrencyService
+     */
+    protected $currencyService;
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\TaxService $taxService
      * @return $this
      */
-    public function setTaxService($taxService)
+    public function setTaxService(TaxService $taxService)
     {
         $this->taxService = $taxService;
         return $this;
@@ -38,18 +45,42 @@ class TaxTotal extends Total
     }
 
     /**
+     * @param CurrencyService $currencyService
+     * @return $this
+     */
+    public function setCurrencyService(CurrencyService $currencyService)
+    {
+        $this->currencyService = $currencyService;
+        return $this;
+    }
+
+    /**
+     * @return CurrencyService
+     */
+    public function getCurrencyService()
+    {
+        return $this->currencyService;
+    }
+
+    /**
      * @param CoreEvent $event
      * @return bool
      */
     public function onCartTotalCollect(CoreEvent $event)
     {
-        if (!$event->getIsTaxEnabled()) {
+        if (!$this->getTaxService()->getIsTaxEnabled()) {
             return false;
         }
 
+        // if tax is enabled and shipping is disabled, then apply tax to billing
+
         $cart = $event->getCart();
         $cart->setIncludeTax(1);
-        $currency = $cart->getCurrency() ? $cart->getCurrency() : 'USD';
+
+        $currency = $cart->getCurrency()
+            ? $cart->getCurrency()
+            : $this->getCurrencyService()->getBaseCurrency();
+
         $countryId = $cart->getCustomer()->getBillingCountryId();
         $region = $cart->getCustomer()->getBillingRegion();
 

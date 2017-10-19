@@ -963,6 +963,7 @@ class AddProduct
 
         if (!$event->getMessages()
             && $this->getSuccess()
+            && !$event->getIsMassUpdate()
         ) {
             $event->addSuccessMessage('Product Added to Cart');
         }
