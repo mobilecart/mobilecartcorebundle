@@ -441,7 +441,7 @@ class Calculator
                             continue;
                         }
 
-                        if ($discount->isToSpecified() && !$discount->hasShipment($shipmentKey)) {
+                        if ($discount->isToSpecified() && !$discount->hasShipmentCode($shipment->getCode())) {
                             continue;
                         }
                         

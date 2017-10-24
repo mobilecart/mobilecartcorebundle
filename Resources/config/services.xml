@@ -1083,6 +1083,9 @@
                 <argument type="string">method</argument>
                 <argument type="string">Method</argument>
             </call>
+            <call method="setIsDiscountable">
+                <argument type="string">1</argument>
+            </call>
         </service>
 
         <!-- Event Listener: Shipping Methods from Database (example: Flat Rate can be imported and have conditions saved/edited) in admin -->

@@ -156,13 +156,14 @@ class AddDiscount
                         unset($data['id']);
                         $item->fromArray($data);
                         $item->setQty($qty);
+                        //$item->setPrice('0.00'); // dont need to assume zero price for coupon promos, like we do in DiscountTotal
                         $cart->addItem($item);
                         $event->setProductId($product->getId());
 
                     } else {
 
-                        switch($discount->get('to')) {
-                            case CartDiscount::$toItems:
+                        switch($discount->getAppliedTo()) {
+                            case CartDiscount::APPLIED_TO_ITEMS:
                                 if (
                                     !$cart->hasItems()
                                     && !$discount->hasPromoSkus()
@@ -170,12 +171,12 @@ class AddDiscount
                                     $cart->removeDiscount($discount);
                                 }
                                 break;
-                            case CartDiscount::$toShipments:
+                            case CartDiscount::APPLIED_TO_SHIPMENTS:
                                 if (!$cart->hasShipments()) {
                                     $cart->removeDiscount($discount);
                                 }
                                 break;
-                            case CartDiscount::$toSpecified:
+                            case CartDiscount::APPLIED_TO_SPECIFIED:
                                 if (!$cart->hasItems() && !$cart->hasShipments()) {
                                     $cart->removeDiscount($discount);
                                 }

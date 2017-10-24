@@ -18,14 +18,7 @@ namespace MobileCart\CoreBundle\CartComponent;
 class Discount extends ArrayWrapper
     implements \ArrayAccess, \Serializable, \IteratorAggregate, \JsonSerializable
 {
-    /*
-
-    TODO:
-    - look at applying to cart rather than items
-     - related options would follow
-    - Cheapest, Lowest/Highest Qty, etc
-
-    //*/
+    // TODO: Adv. Conditions: Cheapest, Lowest/Highest Qty, etc
 
     // array key values
     static $defaultPriority = 1000;
@@ -44,10 +37,10 @@ class Discount extends ArrayWrapper
     const MAX_QTY = 'max_qty';
     const MAX_AMOUNT = 'max_amount';
     const IS_MAX_PER_ITEM = 'is_max_per_item';
-    const APPLIED_AS = 'as';
+    const APPLIED_AS = 'applied_as';
     const APPLIED_AS_FLAT = 'flat';
     const APPLIED_AS_PERCENT = 'percent';
-    const APPLIED_TO = 'to';
+    const APPLIED_TO = 'applied_to';
     const APPLIED_TO_SPECIFIED = 'specified';
     const APPLIED_TO_SHIPMENTS = 'shipments';
     const APPLIED_TO_ITEMS = 'items';
@@ -89,7 +82,7 @@ class Discount extends ArrayWrapper
             self::MAX_AMOUNT        => 0,
             self::IS_MAX_PER_ITEM   => false,
             self::APPLIED_AS        => self::APPLIED_AS_PERCENT,
-            self::APPLIED_TO       => self::APPLIED_TO_SPECIFIED,
+            self::APPLIED_TO        => self::APPLIED_TO_SPECIFIED,
             self::IS_COMPOUND       => false,
             self::IS_PROPORTIONAL   => false,
             self::IS_PRE_TAX        => false,
@@ -102,10 +95,10 @@ class Discount extends ArrayWrapper
             self::PRIORITY          => self::$defaultPriority,
             self::START_TIME        => '',
             self::END_TIME          => '',
-            self::PRE_CONDITIONS    => [],
-            self::TARGET_CONDITIONS => [],
-            self::PRE_CONDITION_COMPARE => null,
-            self::TARGET_CONDITION_COMPARE => null,
+            self::PRE_CONDITIONS    => '', // json string from db
+            self::TARGET_CONDITIONS => '', // json string from db
+            self::PRE_CONDITION_COMPARE => null, // RuleConditionCompare object
+            self::TARGET_CONDITION_COMPARE => null, // RuleConditionCompare object
         ];
     }
 
@@ -343,6 +336,10 @@ class Discount extends ArrayWrapper
         return $this->data[self::COUPON_CODE];
     }
 
+    /**
+     * @param int|Item $item
+     * @return $this
+     */
     public function addItem($item)
     {
         $productId = is_object($item) && $item instanceof Item
@@ -353,15 +350,21 @@ class Discount extends ArrayWrapper
         return $this;
     }
 
+    /**
+     * @param array $items
+     * @return $this
+     */
     public function setItems(array $items)
     {
-        $this->data[self::ITEMS] = $items;
-        return $this;
+        return $this->setProductIds($items);
     }
 
+    /**
+     * @return array
+     */
     public function getItems()
     {
-        return $this->data[self::ITEMS];
+        return $this->getProductIds();
     }
 
     /**
@@ -392,6 +395,10 @@ class Discount extends ArrayWrapper
         return $this->data[self::ITEMS];
     }
 
+    /**
+     * @param string|Shipment $shipment
+     * @return $this
+     */
     public function addShipment($shipment)
     {
         $shipmentCode = is_object($shipment) && $shipment instanceof Shipment
@@ -402,15 +409,21 @@ class Discount extends ArrayWrapper
         return $this;
     }
 
+    /**
+     * @param array $shipments
+     * @return $this
+     */
     public function setShipments(array $shipments)
     {
-        $this->data[self::SHIPMENTS] = $shipments;
-        return $this;
+        return $this->setShipmentCodes($shipments);
     }
 
+    /**
+     * @return array
+     */
     public function getShipments()
     {
-        return $this->data[self::SHIPMENTS];
+        return $this->getShipmentCodes();
     }
 
     /**
@@ -429,6 +442,7 @@ class Discount extends ArrayWrapper
      */
     public function addShipmentCode($shipmentCode)
     {
+        $this->initShipments();
         $this->data[self::SHIPMENTS][] = $shipmentCode;
         return $this;
     }
@@ -438,40 +452,77 @@ class Discount extends ArrayWrapper
      */
     public function getShipmentCodes()
     {
+        $this->initShipments();
         return $this->data[self::SHIPMENTS];
     }
 
+    /**
+     * @return $this
+     */
+    public function initPromoSkus()
+    {
+        if (!isset($this->data[self::PROMO_SKUS]) || !is_array($this->data[self::PROMO_SKUS])) {
+            $this->data[self::PROMO_SKUS] = [];
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param $sku
+     * @return $this
+     */
     public function addPromoSku($sku)
     {
+        $this->initPromoSkus();
         $this->data[self::PROMO_SKUS][] = $sku;
         return $this;
     }
 
+    /**
+     * @param array $promoSkus
+     * @return $this
+     */
     public function setPromoSkus(array $promoSkus)
     {
         $this->data[self::PROMO_SKUS] = $promoSkus;
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
     public function getPromoSkus()
     {
+        $this->initPromoSkus();
         return $this->data[self::PROMO_SKUS];
     }
 
+    /**
+     * @return bool
+     */
     public function hasPromoSkus()
     {
+        $this->initPromoSkus();
         return count($this->getPromoSkus()) > 0;
     }
 
+    /**
+     * @param $isStopper
+     * @return $this
+     */
     public function setIsStopper($isStopper)
     {
-        $this->data[self::IS_STOPPER] = $isStopper;
+        $this->data[self::IS_STOPPER] = (bool) $isStopper;
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function getIsStopper()
     {
-        return $this->data[self::IS_STOPPER];
+        return (bool) $this->data[self::IS_STOPPER];
     }
 
     public function setPriority($priority)
@@ -839,7 +890,7 @@ class Discount extends ArrayWrapper
         $newItems = array_flip($this->getItems());
         unset($newItems[$key]);
         $newItems = array_flip($newItems);
-        $this->data[self::ITEMS] = $newItems;
+        $this->data[self::ITEMS] = array_values($newItems);
         
         return $this;
     }
@@ -875,7 +926,7 @@ class Discount extends ArrayWrapper
     public function hasProductId($productId)
     {
         if ($this->hasItems()) {
-            foreach($this->getItems() as $aProductId) {
+            foreach($this->getProductIds() as $aProductId) {
                 if (!is_numeric($aProductId)) {
                     continue;
                 }
@@ -895,11 +946,7 @@ class Discount extends ArrayWrapper
     public function hasShipmentCode($code)
     {
         if ($this->hasShipments()) {
-            foreach($this->getShipments() as $shipment) {
-                if ($shipment->getCode() == $code) {
-                    return true;
-                }
-            }
+            return in_array($code, $this->data[self::SHIPMENTS]);
         }
 
         return false;
@@ -920,7 +967,7 @@ class Discount extends ArrayWrapper
         $newShipments = array_flip($this->getShipments());
         unset($newShipments[$key]);
         $newShipments = array_flip($newShipments);
-        $this->data[self::SHIPMENTS] = $newShipments;
+        $this->data[self::SHIPMENTS] = array_values($newShipments);
         return $this;
     }
 
@@ -944,7 +991,8 @@ class Discount extends ArrayWrapper
      */
     public function hasShipment($key)
     {
-        return in_array($key, $this->getShipments());
+        $shipments = $this->getShipments();
+        return isset($shipments[$key]);
     }
 
     /**

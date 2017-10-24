@@ -1155,7 +1155,7 @@ class Cart extends ArrayWrapper
         if (count($this->getDiscounts()) > 0) {
             foreach($this->getDiscounts() as $discount) {
 
-                if ($discount->getTo() != Discount::$toSpecified) {
+                if ($discount->getAppliedTo() != Discount::APPLIED_TO_SPECIFIED) {
                     continue;
                 }
 
@@ -1625,7 +1625,7 @@ class Cart extends ArrayWrapper
         $keys = [];
         if ($this->hasDiscounts()) {
             foreach($this->getDiscounts() as $key => $discount) {
-                if ($discount->getTo() != Discount::$toSpecified) {
+                if ($discount->getTo() != Discount::APPLIED_TO_SPECIFIED) {
                     continue;
                 }
 
