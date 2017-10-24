@@ -11,9 +11,8 @@
 
 namespace MobileCart\CoreBundle\Service;
 
-use MobileCart\CoreBundle\Entity\Product;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
-
+use MobileCart\CoreBundle\Entity\Product;
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
