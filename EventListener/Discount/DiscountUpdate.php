@@ -40,7 +40,7 @@ class DiscountUpdate
     public function onDiscountUpdate(CoreEvent $event)
     {
         $entity = $event->getEntity();
-        if ($entity->getAppliedTo() != Discount::$toSpecified) {
+        if ($entity->getAppliedTo() != Discount::APPLIED_TO_SPECIFIED) {
             $entity->setPreConditions('{}');
             $entity->setTargetConditions('{}');
         }

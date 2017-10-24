@@ -40,7 +40,7 @@ class DiscountInsert
     public function onDiscountInsert(CoreEvent $event)
     {
         $entity = $event->getEntity();
-        if ($entity->getAppliedTo() != Discount::$toSpecified) {
+        if ($entity->getAppliedTo() != Discount::APPLIED_TO_SPECIFIED) {
             $entity->setPreConditions('{}');
             $entity->setTargetConditions('{}');
         }

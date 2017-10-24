@@ -72,9 +72,12 @@ class DiscountTotal extends Total
         //  call $cart->getCalculator():
         // getPreTaxDiscountTotal() and getPostTaxDiscountTotal()
 
+        /** @var \MobileCart\CoreBundle\CartComponent\Cart $cart */
         $cart = $event->getCart();
 
-        if ($event->getApplyAutoDiscounts()) {
+        if ($cart->hasItems()
+            && $event->getApplyAutoDiscounts()
+        ) {
 
             $asComponent = true;
             $discounts = $this->getDiscountService()
@@ -82,10 +85,15 @@ class DiscountTotal extends Total
                 ->getAutoDiscounts($asComponent);
 
             if ($discounts) {
+                /** @var \MobileCart\CoreBundle\CartComponent\Discount $discount */
                 foreach($discounts as $discount) {
                     if ($discount->reapplyIfValid($cart)
                         && $discount->hasPromoSkus()
                     ) {
+
+                        // todo: find a better place for handling promo skus
+                        //  this assumes the sku price is zero
+
                         foreach($discount->getPromoSkus() as $sku) {
 
                             if ($cart->hasSku($sku)) {
@@ -104,6 +112,7 @@ class DiscountTotal extends Total
                                 $data['product_id'] = $data['id'];
                                 unset($data['id']);
                                 $item->fromArray($data);
+                                $item->setPrice(0);
                                 $cart->addItem($item);
 
                             } else {

@@ -11,6 +11,10 @@
 
 namespace MobileCart\CoreBundle\CartComponent;
 
+/**
+ * Class Discount
+ * @package MobileCart\CoreBundle\CartComponent
+ */
 class Discount extends ArrayWrapper
     implements \ArrayAccess, \Serializable, \IteratorAggregate, \JsonSerializable
 {
@@ -25,61 +29,554 @@ class Discount extends ArrayWrapper
 
     // array key values
     static $defaultPriority = 1000;
-    static $asFlat = 'flat';
-    static $asPercent = 'percent';
-    static $toSpecified = 'specified';
-    static $toShipments = 'shipments';
-    static $toItems = 'items';
-    static $prefix = 'discount-'; // array key prefix
 
     const PRODUCT = 'product';
     const SHIPMENT = 'shipment';
+    const CUSTOMER = 'customer';
+    const CART = 'cart';
 
-    /**
-     * Constructor
-     */
+    const OPERATOR_AND = 'and';
+    const OPERATOR_OR = 'or';
+
+    const ID = 'id';
+    const NAME = 'name';
+    const VALUE = 'value';
+    const MAX_QTY = 'max_qty';
+    const MAX_AMOUNT = 'max_amount';
+    const IS_MAX_PER_ITEM = 'is_max_per_item';
+    const APPLIED_AS = 'as';
+    const APPLIED_AS_FLAT = 'flat';
+    const APPLIED_AS_PERCENT = 'percent';
+    const APPLIED_TO = 'to';
+    const APPLIED_TO_SPECIFIED = 'specified';
+    const APPLIED_TO_SHIPMENTS = 'shipments';
+    const APPLIED_TO_ITEMS = 'items';
+    const IS_COMPOUND = 'is_compound';
+    const IS_PROPORTIONAL = 'is_proportional';
+    const IS_PRE_TAX = 'is_pre_tax';
+    const IS_AUTO = 'is_auto';
+    const COUPON_CODE = 'coupon_code';
+    const ITEMS = 'items';
+    const SHIPMENTS = 'shipments';
+    const PROMO_SKUS = 'promo_skus';
+    const IS_STOPPER = 'is_stopper';
+    const PRIORITY = 'priority';
+    const START_TIME = 'start_time';
+    const END_TIME = 'end_time';
+    const PRE_CONDITIONS = 'pre_conditions';
+    const TARGET_CONDITIONS = 'target_conditions';
+    const PRE_CONDITION_COMPARE = 'pre_condition_compare';
+    const TARGET_CONDITION_COMPARE = 'target_condition_compare';
+
+    const TARGET_ALL_ITEMS = 'target_all_items';
+    const TARGET_ALL_SHIPMENTS = 'target_all_shipments';
+
     public function __construct()
     {
         parent::__construct($this->getDefaults());
     }
 
     /**
-     * Get a prefixed key for associative arrays
-     *
-     * @param int
-     * @return string
+     * @return array
      */
-    static function getKey($id)
-    {
-        return self::$prefix . $id;
-    }
-
     public function getDefaults()
     {
         return [
-            'id'                => 0,
-            'name'              => '',
-            'value'             => 0,
-            'max_qty'           => 0,
-            'max_amount'        => 0,
-            'is_max_per_item'   => false,
-            'as'                => self::$asPercent,
-            'to'                => self::$toSpecified,
-            'is_compound'       => false,
-            'is_proportional'   => false,
-            'is_pre_tax'        => false,
-            'is_auto'           => false,
-            'coupon_code'       => '',
-            'items'             => [],
-            'shipments'         => [],
-            'promo_skus'        => [],
-            'is_stopper'        => false,
-            'priority'          => self::$defaultPriority,
-            'start_time'        => '',
-            'end_time'          => '',
-            'pre_conditions'    => [],
-            'target_conditions' => [],
+            self::ID                => 0,
+            self::NAME              => '',
+            self::VALUE             => 0,
+            self::MAX_QTY           => 0,
+            self::MAX_AMOUNT        => 0,
+            self::IS_MAX_PER_ITEM   => false,
+            self::APPLIED_AS        => self::APPLIED_AS_PERCENT,
+            self::APPLIED_TO       => self::APPLIED_TO_SPECIFIED,
+            self::IS_COMPOUND       => false,
+            self::IS_PROPORTIONAL   => false,
+            self::IS_PRE_TAX        => false,
+            self::IS_AUTO           => false,
+            self::COUPON_CODE       => '',
+            self::ITEMS             => [],
+            self::SHIPMENTS         => [],
+            self::PROMO_SKUS        => [],
+            self::IS_STOPPER        => false,
+            self::PRIORITY          => self::$defaultPriority,
+            self::START_TIME        => '',
+            self::END_TIME          => '',
+            self::PRE_CONDITIONS    => [],
+            self::TARGET_CONDITIONS => [],
+            self::PRE_CONDITION_COMPARE => null,
+            self::TARGET_CONDITION_COMPARE => null,
         ];
+    }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->data[self::ID] = $id;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->data[self::ID];
+    }
+
+    /**
+     * @param string $name
+     * @return $this
+     */
+    public function setName($name)
+    {
+        $this->data[self::NAME] = $name;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->data[self::NAME];
+    }
+
+    /**
+     * @param $value
+     * @return $this
+     */
+    public function setValue($value)
+    {
+        $this->data[self::VALUE] = $value;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getValue()
+    {
+        return $this->data[self::VALUE];
+    }
+
+    /**
+     * @param $maxQty
+     * @return $this
+     */
+    public function setMaxQty($maxQty)
+    {
+        $this->data[self::MAX_QTY] = $maxQty;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMaxQty()
+    {
+        return $this->data[self::MAX_QTY];
+    }
+
+    /**
+     * @param $maxAmount
+     * @return $this
+     */
+    public function setMaxAmount($maxAmount)
+    {
+        $this->data[self::MAX_AMOUNT] = $maxAmount;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMaxAmount()
+    {
+        return $this->data[self::MAX_AMOUNT];
+    }
+
+    /**
+     * @param $isMaxPerItem
+     * @return $this
+     */
+    public function setIsMaxPerItem($isMaxPerItem)
+    {
+        $this->data[self::IS_MAX_PER_ITEM] = $isMaxPerItem;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIsMaxPerItem()
+    {
+        return $this->data[self::IS_MAX_PER_ITEM];
+    }
+
+    /**
+     * @param string $appliedAs
+     * @return $this
+     */
+    public function setAppliedAs($appliedAs)
+    {
+        $this->data[self::APPLIED_AS] = $appliedAs;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAppliedAs()
+    {
+        return $this->data[self::APPLIED_AS];
+    }
+
+    /**
+     * @param string $appliedTo
+     * @return $this
+     */
+    public function setAppliedTo($appliedTo)
+    {
+        $this->data[self::APPLIED_TO] = $appliedTo;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAppliedTo()
+    {
+        return $this->data[self::APPLIED_TO];
+    }
+
+    /**
+     * @param bool $isCompound
+     * @return $this
+     */
+    public function setIsCompound($isCompound)
+    {
+        $this->data[self::IS_COMPOUND] = (bool) $isCompound;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsCompound()
+    {
+        return (bool) $this->data[self::IS_COMPOUND];
+    }
+
+    /**
+     * @param bool $isProportional
+     * @return $this
+     */
+    public function setIsProportional($isProportional)
+    {
+        $this->data[self::IS_PROPORTIONAL] = (bool) $isProportional;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsProportional()
+    {
+        return (bool) $this->data[self::IS_PROPORTIONAL];
+    }
+
+    /**
+     * @param bool $isPreTax
+     * @return $this
+     */
+    public function setIsPreTax($isPreTax)
+    {
+        $this->data[self::IS_PRE_TAX] = $isPreTax;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsPreTax()
+    {
+        return (bool) $this->data[self::IS_PRE_TAX];
+    }
+
+    /**
+     * @param bool $isAuto
+     * @return $this
+     */
+    public function setIsAuto($isAuto)
+    {
+        $this->data[self::IS_AUTO] = (bool) $isAuto;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsAuto()
+    {
+        return (bool) $this->data[self::IS_AUTO];
+    }
+
+    /**
+     * @param string $couponCode
+     * @return $this
+     */
+    public function setCouponCode($couponCode)
+    {
+        $this->data[self::COUPON_CODE] = $couponCode;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCouponCode()
+    {
+        return $this->data[self::COUPON_CODE];
+    }
+
+    public function addItem($item)
+    {
+        $productId = is_object($item) && $item instanceof Item
+            ? $item->getProductId()
+            : $item;
+
+        $this->data[self::ITEMS][] = $productId;
+        return $this;
+    }
+
+    public function setItems(array $items)
+    {
+        $this->data[self::ITEMS] = $items;
+        return $this;
+    }
+
+    public function getItems()
+    {
+        return $this->data[self::ITEMS];
+    }
+
+    /**
+     * @param array $productIds
+     * @return $this
+     */
+    public function setProductIds(array $productIds)
+    {
+        $this->data[self::ITEMS] = $productIds;
+        return $this;
+    }
+
+    /**
+     * @param $productId
+     * @return $this
+     */
+    public function addProductId($productId)
+    {
+        $this->data[self::ITEMS][] = $productId;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getProductIds()
+    {
+        return $this->data[self::ITEMS];
+    }
+
+    public function addShipment($shipment)
+    {
+        $shipmentCode = is_object($shipment) && $shipment instanceof Shipment
+            ? $shipment->getCode()
+            : $shipment;
+
+        $this->data[self::SHIPMENTS][] = $shipmentCode;
+        return $this;
+    }
+
+    public function setShipments(array $shipments)
+    {
+        $this->data[self::SHIPMENTS] = $shipments;
+        return $this;
+    }
+
+    public function getShipments()
+    {
+        return $this->data[self::SHIPMENTS];
+    }
+
+    /**
+     * @param array $shipmentCodes
+     * @return $this
+     */
+    public function setShipmentCodes(array $shipmentCodes)
+    {
+        $this->data[self::SHIPMENTS] = $shipmentCodes;
+        return $this;
+    }
+
+    /**
+     * @param string $shipmentCode
+     * @return $this
+     */
+    public function addShipmentCode($shipmentCode)
+    {
+        $this->data[self::SHIPMENTS][] = $shipmentCode;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getShipmentCodes()
+    {
+        return $this->data[self::SHIPMENTS];
+    }
+
+    public function addPromoSku($sku)
+    {
+        $this->data[self::PROMO_SKUS][] = $sku;
+        return $this;
+    }
+
+    public function setPromoSkus(array $promoSkus)
+    {
+        $this->data[self::PROMO_SKUS] = $promoSkus;
+        return $this;
+    }
+
+    public function getPromoSkus()
+    {
+        return $this->data[self::PROMO_SKUS];
+    }
+
+    public function hasPromoSkus()
+    {
+        return count($this->getPromoSkus()) > 0;
+    }
+
+    public function setIsStopper($isStopper)
+    {
+        $this->data[self::IS_STOPPER] = $isStopper;
+        return $this;
+    }
+
+    public function getIsStopper()
+    {
+        return $this->data[self::IS_STOPPER];
+    }
+
+    public function setPriority($priority)
+    {
+        $this->data[self::PRIORITY] = $priority;
+        return $this;
+    }
+
+    public function getPriority()
+    {
+        return $this->data[self::PRIORITY];
+    }
+
+    public function setStartTime($startTime)
+    {
+        $this->data[self::START_TIME] = $startTime;
+        return $this;
+    }
+
+    public function getStartTime()
+    {
+        return $this->data[self::START_TIME];
+    }
+
+    public function setEndTime($endTime)
+    {
+        $this->data[self::END_TIME] = $endTime;
+        return $this;
+    }
+
+    public function getEndTime()
+    {
+        return $this->data[self::END_TIME];
+    }
+
+    /**
+     * @param string $preConditions JSON string
+     * @return $this
+     */
+    public function setPreConditions($preConditions)
+    {
+        $this->data[self::PRE_CONDITIONS] = $preConditions;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPreConditions()
+    {
+        return $this->data[self::PRE_CONDITIONS];
+    }
+
+    /**
+     * @param string $targetConditions JSON string
+     * @return $this
+     */
+    public function setTargetConditions($targetConditions)
+    {
+        $this->data[self::TARGET_CONDITIONS] = $targetConditions;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTargetConditions()
+    {
+        return $this->data[self::TARGET_CONDITIONS];
+    }
+
+    /**
+     * @param RuleConditionCompare $preConditionCompare
+     * @return $this
+     */
+    public function setPreConditionCompare(RuleConditionCompare $preConditionCompare)
+    {
+        $this->data[self::PRE_CONDITION_COMPARE] = $preConditionCompare;
+        return $this;
+    }
+
+    /**
+     * @return RuleConditionCompare
+     */
+    public function getPreConditionCompare()
+    {
+        return $this->data[self::PRE_CONDITION_COMPARE];
+    }
+
+    /**
+     * @param RuleConditionCompare $targetConditionCompare
+     * @return $this
+     */
+    public function setTargetConditionCompare(RuleConditionCompare $targetConditionCompare)
+    {
+        $this->data[self::TARGET_CONDITION_COMPARE] = $targetConditionCompare;
+        return $this;
+    }
+
+    /**
+     * @return RuleConditionCompare
+     */
+    public function getTargetConditionCompare()
+    {
+        return $this->data[self::TARGET_CONDITION_COMPARE];
     }
 
     /**
@@ -99,10 +596,10 @@ class Discount extends ArrayWrapper
             $targetConditionCompareData = $this->getTargetConditionCompare()->toArray();
         }
 
-        return array_merge(parent::toArray(), array(
-            'pre_conditions' => $preConditionCompareData,
-            'target_conditions' => $targetConditionCompareData,
-        ));
+        return array_merge(parent::toArray(), [
+            self::PRE_CONDITIONS => $preConditionCompareData,
+            self::TARGET_CONDITIONS => $targetConditionCompareData,
+        ]);
     }
 
     /**
@@ -113,43 +610,47 @@ class Discount extends ArrayWrapper
     {
         parent::fromArray($data);
 
-        $as = isset($data['as'])
-            ? $data['as']
+        $as = isset($data[self::APPLIED_AS])
+            ? $data[self::APPLIED_AS]
             : '';
 
-        $this->data['as'] = ($as == self::$asFlat)
-            ? self::$asFlat
-            : self::$asPercent;
+        $this->data[self::APPLIED_AS] = ($as == self::APPLIED_AS_FLAT)
+            ? self::APPLIED_AS_FLAT
+            : self::APPLIED_AS_PERCENT;
 
-        $to = isset($data['to'])
-            ? $data['to']
+        $to = isset($data[self::APPLIED_TO])
+            ? $data[self::APPLIED_TO]
             : '';
 
-        if (!in_array($to, [self::$toSpecified, self::$toItems, self::$toShipments])) {
-            $this->data['to'] = self::$toItems;
+        if (!in_array($to, [
+            self::APPLIED_TO_SPECIFIED,
+            self::APPLIED_TO_ITEMS,
+            self::APPLIED_TO_SHIPMENTS
+        ])) {
+            $this->data[self::APPLIED_TO] = self::APPLIED_TO_ITEMS;
         }
 
-        $startDatetime = isset($data['start_time'])
-            ? strtotime($data['start_time'])
+        $startDatetime = isset($data[self::START_TIME])
+            ? strtotime($data[self::START_TIME])
             : false;
 
-        $endDatetime = isset($data['end_time'])
-            ? strtotime($data['end_time'])
+        $endDatetime = isset($data[self::END_TIME])
+            ? strtotime($data[self::END_TIME])
             : false;
 
-        $this->data['start_time'] = $startDatetime;
-        $this->data['end_time'] = $endDatetime;
+        $this->data[self::START_TIME] = $startDatetime;
+        $this->data[self::END_TIME] = $endDatetime;
 
-        $toItems = isset($data['items'])
-            ? $data['items']
+        $toItems = isset($data[self::ITEMS])
+            ? $data[self::ITEMS]
             : [];
 
-        $toShipments = isset($data['shipments'])
-            ? $data['shipments']
+        $toShipments = isset($data[self::SHIPMENTS])
+            ? $data[self::SHIPMENTS]
             : [];
 
-        $promoSkus = isset($data['promo_skus'])
-            ? $data['promo_skus']
+        $promoSkus = isset($data[self::PROMO_SKUS])
+            ? $data[self::PROMO_SKUS]
             : [];
 
         if (is_string($promoSkus)) {
@@ -209,7 +710,7 @@ class Discount extends ArrayWrapper
 
             $promoSkus = $newPromoSkus;
         }
-        $this->data['promo_skus'] = $promoSkus;
+        $this->data[self::PROMO_SKUS] = $promoSkus;
 
         $items = [];
         if (count($toItems) > 0) {
@@ -217,7 +718,7 @@ class Discount extends ArrayWrapper
                 $items[] = $key;
             }
         }
-        $this->data['items'] = $items;
+        $this->data[self::ITEMS] = $items;
 
         $shipments = [];
         if (count($toShipments) > 0) {
@@ -225,44 +726,44 @@ class Discount extends ArrayWrapper
                 $shipments[] = $key;
             }
         }
-        $this->data['shipments'] = $shipments;
+        $this->data[self::SHIPMENTS] = $shipments;
 
-        $preConditionObj = isset($data['pre_conditions'])
-            ? $data['pre_conditions']
-            : null;
-
-        $preCondition = null;
-        if (!is_null($preConditionObj)) {
-            $preCondition = new RuleConditionCompare();
-            $preCondition->fromJson(json_encode($preConditionObj));
-        }
-        $this->data['pre_condition_compare'] = $preCondition;
-
-        $targetConditionObj = isset($data['target_conditions'])
-            ? $data['target_conditions']
-            : null;
-
-        $targetCondition = null;
-        if (!is_null($targetConditionObj)) {
-            $targetCondition = new RuleConditionCompare();
-            $targetCondition->fromJson(json_encode($targetConditionObj));
-        }
-        $this->data['target_condition_compare'] = $targetCondition;
-
-        $this->data['coupon_code'] = isset($data['coupon_code'])
-            ? $data['coupon_code']
+        $preConditionJson = isset($data[self::PRE_CONDITIONS])
+            ? $data[self::PRE_CONDITIONS]
             : '';
 
-        $this->data['is_auto'] = isset($data['is_auto'])
-            ? $data['is_auto']
+        $preCondition = null;
+        if (strlen($preConditionJson)) {
+            $preCondition = new RuleConditionCompare();
+            $preCondition->fromJson($preConditionJson);
+        }
+        $this->data[self::PRE_CONDITION_COMPARE] = $preCondition;
+
+        $targetConditionJson = isset($data[self::TARGET_CONDITIONS])
+            ? $data[self::TARGET_CONDITIONS]
+            : '';
+
+        $targetCondition = null;
+        if (strlen($targetConditionJson)) {
+            $targetCondition = new RuleConditionCompare();
+            $targetCondition->fromJson($targetConditionJson);
+        }
+        $this->data[self::TARGET_CONDITION_COMPARE] = $targetCondition;
+
+        $this->data[self::COUPON_CODE] = isset($data[self::COUPON_CODE])
+            ? $data[self::COUPON_CODE]
+            : '';
+
+        $this->data[self::IS_AUTO] = isset($data[self::IS_AUTO])
+            ? $data[self::IS_AUTO]
             : false;
 
-        $this->data['is_stopper'] = (bool) isset($data['is_stopper'])
-            ? $data['is_stopper']
+        $this->data[self::IS_STOPPER] = (bool) isset($data[self::IS_STOPPER])
+            ? $data[self::IS_STOPPER]
             : false;
 
-        $this->data['priority'] = isset($data['priority'])
-            ? $data['priority']
+        $this->data[self::PRIORITY] = isset($data[self::PRIORITY])
+            ? $data[self::PRIORITY]
             : self::$defaultPriority;
 
         return $this;
@@ -275,7 +776,7 @@ class Discount extends ArrayWrapper
      */
     public function isFlat()
     {
-        return ($this->getAs() == self::$asFlat);
+        return ($this->getAppliedAs() == self::APPLIED_AS_FLAT);
     }
     
     /**
@@ -285,7 +786,7 @@ class Discount extends ArrayWrapper
      */
     public function isPercent()
     {
-        return ($this->getAs() == self::$asPercent);
+        return ($this->getAppliedAs() == self::APPLIED_AS_PERCENT);
     }
     
     /**
@@ -293,7 +794,7 @@ class Discount extends ArrayWrapper
      */
     public function isToItems()
     {
-        return ($this->getTo() == self::$toItems);
+        return ($this->getAppliedTo() == self::APPLIED_TO_ITEMS);
     }
     
     /**
@@ -301,7 +802,7 @@ class Discount extends ArrayWrapper
      */
     public function isToShipments()
     {
-        return ($this->getTo() == self::$toShipments);
+        return ($this->getAppliedTo() == self::APPLIED_TO_SHIPMENTS);
     }
     
     /**
@@ -309,7 +810,7 @@ class Discount extends ArrayWrapper
      */
     public function isToSpecified()
     {
-        return ($this->getTo() == self::$toSpecified);
+        return ($this->getAppliedTo() == self::APPLIED_TO_SPECIFIED);
     }
 
     /**
@@ -319,7 +820,7 @@ class Discount extends ArrayWrapper
      */
     public function setPromoSku($sku, $qty = 1)
     {
-        $this->data['promo_skus'][$sku] = $qty;
+        $this->data[self::PROMO_SKUS][$sku] = $qty;
         return $this;
     }
 
@@ -338,7 +839,7 @@ class Discount extends ArrayWrapper
         $newItems = array_flip($this->getItems());
         unset($newItems[$key]);
         $newItems = array_flip($newItems);
-        $this->data['items'] = $newItems;
+        $this->data[self::ITEMS] = $newItems;
         
         return $this;
     }
@@ -349,8 +850,8 @@ class Discount extends ArrayWrapper
      */
     public function unsetItem($key)
     {
-        if (isset($this->data['items'][$key])) {
-            unset($this->data['items'][$key]);
+        if (isset($this->data[self::ITEMS][$key])) {
+            unset($this->data[self::ITEMS][$key]);
         }
         return $this;
     }
@@ -419,7 +920,7 @@ class Discount extends ArrayWrapper
         $newShipments = array_flip($this->getShipments());
         unset($newShipments[$key]);
         $newShipments = array_flip($newShipments);
-        $this->data['shipments'] = $newShipments;
+        $this->data[self::SHIPMENTS] = $newShipments;
         return $this;
     }
 
@@ -429,8 +930,8 @@ class Discount extends ArrayWrapper
      */
     public function unsetShipment($key)
     {
-        if (isset($this->data['shipments'][$key])) {
-            unset($this->data['shipments'][$key]);
+        if (isset($this->data[self::SHIPMENTS][$key])) {
+            unset($this->data[self::SHIPMENTS][$key]);
         }
         return $this;
     }
@@ -444,6 +945,48 @@ class Discount extends ArrayWrapper
     public function hasShipment($key)
     {
         return in_array($key, $this->getShipments());
+    }
+
+    /**
+     * @return $this
+     */
+    public function initShipments()
+    {
+        if (!isset($this->data[self::SHIPMENTS]) || !is_array($this->data[self::SHIPMENTS])) {
+            $this->data[self::SHIPMENTS] = [];
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasShipments()
+    {
+        $this->initShipments();
+        return count($this->data[self::SHIPMENTS]) > 0;
+    }
+
+    /**
+     * @return $this
+     */
+    protected function initItems()
+    {
+        if (!isset($this->data[self::ITEMS]) || !is_array($this->data[self::ITEMS])) {
+            $this->data[self::ITEMS] = [];
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasItems()
+    {
+        $this->initItems();
+        return count($this->data[self::ITEMS]) > 0;
     }
 
     /**
@@ -478,7 +1021,7 @@ class Discount extends ArrayWrapper
                             $item
                             && !$this->hasProductId($productId)
                         ) {
-                            $this->addItem($productId);
+                            $this->addProductId($productId);
                         }
                     }
                 }
@@ -491,29 +1034,44 @@ class Discount extends ArrayWrapper
                         $shipment
                         && !$this->hasShipmentCode($methodCode)
                     ) {
-                        $this->addShipment($methodCode);
+                        $this->addShipmentCode($methodCode);
                     }
                 }
             }
 
-            switch($this->get('to')) {
-                case self::$toItems:
+            switch($this->get(self::APPLIED_TO)) {
+                case self::APPLIED_TO_ITEMS:
+
+                    // handle discount codes with promo skus
+                    //  this is handled later in DiscountTotal
                     if ($this->getCouponCode() && $this->hasPromoSkus()) {
+                        $cart->addDiscount($this);
                         return true;
                     }
-                    return $cart->hasItems();
+
+                    // handle general item discount
+                    if ($cart->hasItems()) {
+                        $cart->addDiscount($this);
+                        return true;
+                    }
+
                     break;
-                case self::$toShipments:
-                    return $cart->hasShipments();
+                case self::APPLIED_TO_SHIPMENTS:
+                    if ($cart->hasShipments()) {
+                        $cart->addDiscount($this);
+                        return true;
+                    }
                     break;
-                case self::$toSpecified:
-                    return $cart->hasShipments() || $cart->hasItems();
+                case self::APPLIED_TO_SPECIFIED:
+                    if ($cart->hasShipments() || $cart->hasItems()) {
+                        $cart->addDiscount($this);
+                        return true;
+                    }
                     break;
                 default:
 
                     break;
             }
-
         }
 
         return false;
@@ -524,7 +1082,7 @@ class Discount extends ArrayWrapper
      * @param array $targets , array of product IDs and shipment Codes
      * @return bool
      */
-    public function isValid(Cart &$cart, array &$targets = [])
+    public function isValid(Cart $cart, array &$targets = [])
     {
         $targets[self::PRODUCT] = [];
         $targets[self::SHIPMENT] = [];
@@ -537,8 +1095,8 @@ class Discount extends ArrayWrapper
             return false;
         }
 
-        switch($this->getTo()) {
-            case self::$toItems:
+        switch($this->getAppliedTo()) {
+            case self::APPLIED_TO_ITEMS:
                 if (!$cart->hasItems()) {
                     return false;
                 }
@@ -552,7 +1110,7 @@ class Discount extends ArrayWrapper
                     return false;
                 }
                 break;
-            case self::$toShipments:
+            case self::APPLIED_TO_SHIPMENTS:
                 if (!$cart->hasShipments()) {
                     return false;
                 }
@@ -572,20 +1130,21 @@ class Discount extends ArrayWrapper
         }
 
         $data = $this->data;
-        $targetItems = [];
-        $targetShipments = [];
 
         // assuming:
         //  top level is and/or : RuleConditionCompare
         //  second level is product/shipment/customer : RuleConditionCompare
         //  3rd level is conditions : RuleCondition
 
-        $preConditionObj = isset($data['pre_conditions'])
-            ? $data['pre_conditions']
+        $preConditionObj = isset($data[self::PRE_CONDITIONS])
+            ? $data[self::PRE_CONDITIONS]
             : null;
 
         $preCondition = null;
         if ($this->isToSpecified() && !is_null($preConditionObj)) {
+
+            $conditionItems = []; // r[a] = [x, y, z] , a=index, x, y and z are Product IDs
+            $conditionShipments = []; // r[a] = [x, y, z] , a=index, x, y and z are Shipment Codes
 
             $preCondition = new RuleConditionCompare();
             $preCondition->fromJson($preConditionObj);
@@ -597,8 +1156,6 @@ class Discount extends ArrayWrapper
                 case RuleConditionCompare::OP_AND:
 
                     $x = 0;
-                    $conditionItems = []; // r[a] = [x, y, z] , a=index, x, y and z are Product IDs
-                    $conditionShipments = []; // r[a] = [x, y, z] , a=index, x, y and z are Shipment Codes
 
                     // _all_ of the conditions must be valid, so we can return false on the first invalid condition
                     if ($preConditions = $preCondition->getConditions()) {
@@ -624,7 +1181,6 @@ class Discount extends ArrayWrapper
                                         break;
                                     case RuleConditionCompare::OP_HAS_SHIPMENT:
 
-                                        // note: default store only supports a single shipment
                                         if ($shipments = $cart->getShipments()) {
                                             $conditionShipments[$x] = [];
                                             foreach($shipments as $shipment) {
@@ -633,7 +1189,7 @@ class Discount extends ArrayWrapper
                                                 }
                                             }
 
-                                            if (!$conditionItems[$x]) {
+                                            if (!$conditionShipments[$x]) {
                                                 return false;
                                             }
                                         } else {
@@ -658,6 +1214,11 @@ class Discount extends ArrayWrapper
                                             return false;
                                         }
 
+                                        break;
+                                    case RuleConditionCompare::OP_CART_HAS:
+                                        if (!$cart->isValidConditionCompare($subCondition)) {
+                                            return false;
+                                        }
                                         break;
                                     case RuleConditionCompare::OP_AND: // widget doesnt allow this value here
                                         return false;
@@ -694,8 +1255,6 @@ class Discount extends ArrayWrapper
                     $conditionsMet = false;
 
                     $x = 0;
-                    $conditionItems = []; // r[a] = [x, y, z] , a=index, x, y and z are Product IDs
-                    $conditionShipments = []; // r[a] = [x, y, z] , a=index, x, y and z are Shipment Codes
 
                     if ($preConditions = $preCondition->getConditions()) {
 
@@ -729,7 +1288,7 @@ class Discount extends ArrayWrapper
                                                 }
                                             }
 
-                                            if ($conditionItems[$x]) {
+                                            if ($conditionShipments[$x]) {
                                                 $conditionsMet = true;
                                             }
                                         }
@@ -777,6 +1336,8 @@ class Discount extends ArrayWrapper
                         // TODO: make an option which enables a unique filter to be executed
                         // eg 'product_unique' , 'shipment_unique'
 
+                    } else {
+                        $conditionsMet = true;
                     }
 
                     if (!$conditionsMet) {
@@ -790,14 +1351,19 @@ class Discount extends ArrayWrapper
             }
         }
 
-        $this->data['pre_condition_compare'] = $preCondition;
+        $this->data[self::PRE_CONDITION_COMPARE] = $preCondition;
 
-        $targetConditionObj = isset($data['target_conditions'])
-            ? $data['target_conditions']
+        $targetConditionObj = isset($data[self::TARGET_CONDITIONS])
+            ? $data[self::TARGET_CONDITIONS]
             : null;
 
         $targetCondition = null;
+
+        $targetItems = []; // r[a] = [x, y, z] , a=index, x, y and z are Product IDs
+        $targetShipments = []; // r[a] = [x, y, z] , a=index, x, y and z are Shipment Codes
+
         if ($this->isToSpecified() && !is_null($targetConditionObj)) {
+
             $targetCondition = new RuleConditionCompare();
             $targetCondition->fromJson($targetConditionObj);
 
@@ -835,14 +1401,14 @@ class Discount extends ArrayWrapper
 
                                         // note: default store only supports a single shipment
                                         if ($shipments = $cart->getShipments()) {
-                                            $conditionShipments[$x] = [];
+                                            $targetShipments[$x] = [];
                                             foreach($shipments as $shipment) {
                                                 if ($shipment->isValidConditionCompare($subCondition)) {
-                                                    $conditionShipments[$x][] = $shipment->getCode();
+                                                    $targetShipments[$x][] = $shipment->getCode();
                                                 }
                                             }
 
-                                            if (!$targetItems[$x]) {
+                                            if (!$targetShipments[$x]) {
                                                 return false;
                                             }
                                         } else {
@@ -928,16 +1494,15 @@ class Discount extends ArrayWrapper
                                         break;
                                     case RuleConditionCompare::OP_HAS_SHIPMENT:
 
-                                        // note: default store only supports a single shipment
                                         if ($shipments = $cart->getShipments()) {
-                                            $conditionShipments[$x] = [];
+                                            $targetShipments[$x] = [];
                                             foreach($shipments as $shipment) {
                                                 if ($shipment->isValidConditionCompare($subCondition)) {
-                                                    $conditionShipments[$x][] = $shipment->getCode();
+                                                    $targetShipments[$x][] = $shipment->getCode();
                                                 }
                                             }
 
-                                            if ($targetItems[$x]) {
+                                            if ($targetShipments[$x]) {
                                                 $conditionsMet = true;
                                             }
                                         }
@@ -985,6 +1550,8 @@ class Discount extends ArrayWrapper
                         // TODO: make an option which enables a unique filter to be executed
                         // eg 'product_unique' , 'shipment_unique'
 
+                    } else {
+                        $conditionsMet = true;
                     }
 
                     if (!$conditionsMet) {
@@ -992,12 +1559,47 @@ class Discount extends ArrayWrapper
                     }
 
                     break;
+                case Discount::TARGET_ALL_ITEMS:
+                    if ($items = $cart->getItems()) {
+                        $x = 0;
+                        $targetItems[$x] = [];
+                        foreach($items as $item) {
+                            if ($item->getIsDiscountable()) {
+                                $targetItems[$x][] = $item->getProductId();
+                            }
+                        }
+
+                        if (!$targetItems[$x]) {
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
+
+                    break;
+                case Discount::TARGET_ALL_SHIPMENTS:
+                    if ($shipments = $cart->getShipments()) {
+                        $x = 0;
+                        $targetShipments[$x] = [];
+                        foreach($shipments as $shipment) {
+                            if ($shipment->getIsDiscountable()) {
+                                $targetShipments[$x][] = $shipment->getCode();
+                            }
+                        }
+
+                        if (!$targetShipments[$x]) {
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
+                    break;
                 default:
 
                     break;
             }
         }
-        $this->data['target_condition_compare'] = $targetCondition;
+        $this->data[self::TARGET_CONDITION_COMPARE] = $targetCondition;
 
         $targets[self::PRODUCT] = $targetItems;
         $targets[self::SHIPMENT] = $targetShipments;

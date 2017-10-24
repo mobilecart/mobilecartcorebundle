@@ -11,9 +11,26 @@
 
 namespace MobileCart\CoreBundle\CartComponent;
 
+/**
+ * Class Cart
+ * @package MobileCart\CoreBundle\CartComponent
+ */
 class Cart extends ArrayWrapper
     implements \ArrayAccess, \Serializable, \IteratorAggregate, \JsonSerializable
 {
+    const ID = 'id';
+    const CURRENCY = 'currency';
+    const CUSTOMER = 'customer';
+    const DISCOUNTS = 'discounts';
+    const ITEMS = 'items';
+    const SHIPMENTS = 'shipments';
+    const SHIPPING_METHODS = 'shipping_methods';
+    const TOTALS = 'totals';
+    const INCLUDE_TAX = 'include_tax';
+    const TAX_RATE = 'tax_rate';
+    const PRECISION = 'precision';
+    const CALCULATOR_PRECISION = 'calculator_precision';
+    const DISCOUNT_TAXABLE_LAST = 'discount_taxable_last';
 
     public function __construct()
     {
@@ -26,19 +43,109 @@ class Cart extends ArrayWrapper
     public function getDefaults()
     {
         return [
-            'id' => 0,
-            'currency' => '',
-            'customer' => new Customer(),
-            'items' => [],
-            'discounts' => [],
-            'shipments' => [],
-            'shipping_methods' => [],
-            'include_tax' => false,
-            'tax_rate' => 0.0,
-            'precision' => 2,
-            'calculator_precision' => 4,
-            'discount_taxable_last' => true,
+            self::ID => 0,
+            self::CURRENCY => 'USD',
+            self::CUSTOMER => new Customer(),
+            self::ITEMS => [],
+            self::DISCOUNTS => [],
+            self::SHIPMENTS => [],
+            self::SHIPPING_METHODS => [],
+            self::INCLUDE_TAX => false,
+            self::TAX_RATE => 0.0,
+            self::PRECISION => 2,
+            self::CALCULATOR_PRECISION => 4,
+            self::DISCOUNT_TAXABLE_LAST => true,
         ];
+    }
+
+    /**
+     * @param int $id
+     * @return $this
+     */
+    public function setId($id)
+    {
+        $this->data[self::ID] = $id;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->data[self::ID];
+    }
+
+    /**
+     * @param string $currency
+     * @return $this
+     */
+    public function setCurrency($currency)
+    {
+        $this->data[self::CURRENCY] = $currency;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCurrency()
+    {
+        return $this->data[self::CURRENCY];
+    }
+
+    /**
+     * @param bool $includeTax
+     * @return $this
+     */
+    public function setIncludeTax($includeTax)
+    {
+        $this->data[self::INCLUDE_TAX] = (bool) $includeTax;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIncludeTax()
+    {
+        return (bool) $this->data[self::INCLUDE_TAX];
+    }
+
+    /**
+     * @param float $taxRate
+     * @return $this
+     */
+    public function setTaxRate($taxRate)
+    {
+        $this->data[self::TAX_RATE] = (float) $taxRate;
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getTaxRate()
+    {
+        return (float) $this->data[self::TAX_RATE];
+    }
+
+    /**
+     * @param bool $discountTaxableLast
+     * @return $this
+     */
+    public function setDiscountTaxableLast($discountTaxableLast)
+    {
+        $this->data[self::DISCOUNT_TAXABLE_LAST] = (bool) $discountTaxableLast;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getDiscountTaxableLast()
+    {
+        return (bool) $this->data[self::DISCOUNT_TAXABLE_LAST];
     }
 
     /**
@@ -58,6 +165,37 @@ class Cart extends ArrayWrapper
         }
 
         return false;
+    }
+
+    /**
+     * @return $this
+     */
+    protected function initTotals()
+    {
+        if (!isset($this->data[self::TOTALS]) || !is_array($this->data[self::TOTALS])) {
+            $this->data[self::TOTALS] = [];
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param array $totals
+     * @return $this
+     */
+    public function setTotals(array $totals)
+    {
+        $this->data[self::TOTALS] = $totals;
+        return $this;
+    }
+
+    /**
+     * @return Total[]
+     */
+    public function getTotals()
+    {
+        $this->initTotals();
+        return $this->data[self::TOTALS];
     }
 
     /**
@@ -121,11 +259,105 @@ class Cart extends ArrayWrapper
     }
 
     /**
+     * @return $this
+     */
+    protected function initItems()
+    {
+        if (!isset($this->data[self::ITEMS]) || !is_array($this->data[self::ITEMS])) {
+            $this->data[self::ITEMS] = [];
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Item $item
+     * @return $this
+     */
+    public function addItem(Item $item)
+    {
+        $this->initItems();
+        $this->data[self::ITEMS][] = $item;
+        return $this;
+    }
+
+    /**
+     * @return Item[]
+     */
+    public function getItems()
+    {
+        $this->initItems();
+        return $this->data[self::ITEMS];
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasItems()
+    {
+        $this->initItems();
+        return count($this->data[self::ITEMS]) > 0;
+    }
+
+    /**
      * @return Shipment
      */
     public function createShipment()
     {
         return new Shipment();
+    }
+
+    /**
+     * @return $this
+     */
+    public function initShipments()
+    {
+        if (!isset($this->data[self::SHIPMENTS]) || !is_array($this->data[self::SHIPMENTS])) {
+            $this->data[self::SHIPMENTS] = [];
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Shipment $shipment
+     * @return $this
+     */
+    public function addShipment(Shipment $shipment)
+    {
+        $this->initShipments();
+        $this->data[self::SHIPMENTS][] = $shipment;
+        return $this;
+    }
+
+    /**
+     * @return Shipment[]
+     */
+    public function getShipments()
+    {
+        $this->initShipments();
+        return $this->data[self::SHIPMENTS];
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasShipments()
+    {
+        $this->initShipments();
+        return count($this->data[self::SHIPMENTS]) > 0;
+    }
+
+    /**
+     * @return $this
+     */
+    protected function initDiscounts()
+    {
+        if (!isset($this->data[self::DISCOUNTS]) || !is_array($this->data[self::DISCOUNTS])) {
+            $this->data[self::DISCOUNTS] = [];
+        }
+
+        return $this;
     }
 
     /**
@@ -142,6 +374,24 @@ class Cart extends ArrayWrapper
     public function createCustomer()
     {
         return new Customer();
+    }
+
+    /**
+     * @param Customer $customer
+     * @return $this
+     */
+    public function setCustomer(Customer $customer)
+    {
+        $this->data[self::CUSTOMER] = $customer;
+        return $this;
+    }
+
+    /**
+     * @return Customer
+     */
+    public function getCustomer()
+    {
+        return $this->data[self::CUSTOMER];
     }
 
     /**
@@ -259,12 +509,12 @@ class Cart extends ArrayWrapper
      */
     public function fromArray(array $cart)
     {
-        if (isset($cart['id'])) {
-            $this->setId($cart['id']);
+        if (isset($cart[self::ID])) {
+            $this->setId($cart[self::ID]);
         }
 
-        if (isset($cart['customer'])) {
-            $customerObj = $cart['customer'];
+        if (isset($cart[self::CUSTOMER])) {
+            $customerObj = $cart[self::CUSTOMER];
             $customerData = ($customerObj instanceof \stdClass)
                 ? get_object_vars($customerObj)
                 : (array) $customerObj;
@@ -280,8 +530,8 @@ class Cart extends ArrayWrapper
             $this->setCustomer($customer);
         }
 
-        if (isset($cart['items']) && count($cart['items']) > 0) {
-            $items = $cart['items'];
+        if (isset($cart[self::ITEMS]) && count($cart[self::ITEMS]) > 0) {
+            $items = $cart[self::ITEMS];
             foreach($items as $itemObj) {
 
                 $itemData = ($itemObj instanceof \stdClass)
@@ -300,8 +550,8 @@ class Cart extends ArrayWrapper
             }
         }
 
-        if (isset($cart['shipments']) && count($cart['shipments']) > 0) {
-            $shipments = $cart['shipments'];
+        if (isset($cart[self::SHIPMENTS]) && count($cart[self::SHIPMENTS]) > 0) {
+            $shipments = $cart[self::SHIPMENTS];
             foreach($shipments as $shipmentObj) {
 
                 $shipmentData = ($shipmentObj instanceof \stdClass)
@@ -316,8 +566,8 @@ class Cart extends ArrayWrapper
 
         //should not be able to save/import shipment method quotes
 
-        if (isset($cart['discounts']) && count($cart['discounts']) > 0) {
-            $discounts = $cart['discounts'];
+        if (isset($cart[self::DISCOUNTS]) && count($cart[self::DISCOUNTS]) > 0) {
+            $discounts = $cart[self::DISCOUNTS];
             foreach($discounts as $discountObj) {
 
                 $discountData = ($discountObj instanceof \stdClass)
@@ -330,24 +580,34 @@ class Cart extends ArrayWrapper
             }
         }
 
-        if (isset($cart['include_tax'])) {
-            $includeTax = $cart['include_tax'];
+        if (isset($cart[self::INCLUDE_TAX])) {
+            $includeTax = $cart[self::INCLUDE_TAX];
             $this->setIncludeTax($includeTax);
         }
 
-        if (isset($cart['tax_rate'])) {
-            $taxRate = $cart['tax_rate'];
+        if (isset($cart[self::TAX_RATE])) {
+            $taxRate = $cart[self::TAX_RATE];
             $this->setTaxRate($taxRate);
         }
 
-        if (isset($cart['discount_taxable_last'])) {
-            $discountTaxableLast = $cart['discount_taxable_last'];
+        if (isset($cart[self::DISCOUNT_TAXABLE_LAST])) {
+            $discountTaxableLast = $cart[self::DISCOUNT_TAXABLE_LAST];
             $this->setDiscountTaxableLast($discountTaxableLast);
         }
 
         if ($cart) {
             foreach($cart as $k => $v) {
-                if (in_array($k, ['id', 'customer', 'items', 'shipments', 'discounts', 'include_tax', 'tax_rate', 'discount_taxable_last'])) {
+                if (in_array($k, [
+                    self::ID,
+                    self::CUSTOMER,
+                    self::ITEMS,
+                    self::SHIPMENTS,
+                    self::SHIPPING_METHODS,
+                    self::DISCOUNTS,
+                    self::INCLUDE_TAX,
+                    self::TAX_RATE,
+                    self::DISCOUNT_TAXABLE_LAST,
+                ])) {
                     continue;
                 }
 
@@ -386,17 +646,14 @@ class Cart extends ArrayWrapper
      */
     public function isValidCondition(RuleCondition $condition)
     {
-        /*
-        Note: the Discount system is not using this yet
-        */
-        switch($condition->getSourceField()) {
-            case 'total':
-                $condition->setSourceValue($this->getCalculator()->getTotal());
+        switch($condition->getEntityField()) {
+            case 'base_total':
+                $condition->setSourceValue($this->getCalculator()->getGrandTotal());
                 break;
-            case 'item_total':
+            case 'base_item_total':
                 $condition->setSourceValue($this->getCalculator()->getItemTotal());
                 break;
-            case 'shipment_total':
+            case 'base_shipment_total':
                 $condition->setSourceValue($this->getCalculator()->getShipmentTotal());
                 break;
             case 'discounted_item_total':
@@ -406,11 +663,22 @@ class Cart extends ArrayWrapper
                 $condition->setSourceValue($this->getCalculator()->getDiscountedShipmentTotal());
                 break;
             default:
-                //no-op
+                $condition->setSourceValue($this->get($condition->getEntityField()));
                 break;
         }
 
         return $condition->isValid();
+    }
+
+    /**
+     * Check if this item validates a tree of conditions
+     *
+     * @param RuleConditionCompare
+     * @return bool
+     */
+    public function isValidConditionCompare(RuleConditionCompare $compare)
+    {
+        return $compare->isValid($this);
     }
 
     /**
@@ -435,12 +703,12 @@ class Cart extends ArrayWrapper
 
     /**
      * @param $idx
-     * @return null
+     * @return Item|null
      */
     public function getItem($idx)
     {
-        return isset($this->data['items'][$idx])
-            ? $this->data['items'][$idx]
+        return isset($this->data[self::ITEMS][$idx])
+            ? $this->data[self::ITEMS][$idx]
             : null;
     }
 
@@ -458,14 +726,26 @@ class Cart extends ArrayWrapper
     }
 
     /**
+     * @param array $items
+     * @return $this
+     */
+    public function setItems(array $items = [])
+    {
+        $this->data[self::ITEMS] = array_values($items); // the array keys just make a mess in the json conversion
+        return $this;
+    }
+
+    /**
      * @param $idx
      * @return $this
      */
     public function unsetItem($idx)
     {
-        parent::unsetItem($idx); // magic method
-        $items = $this->getItems();
-        $this->setItems(array_values($items)); // array key handling for json encoding
+        if (isset($this->data[self::ITEMS]) && isset($this->data[self::ITEMS][$idx])) {
+            unset($this->data[self::ITEMS][$idx]);
+        }
+
+        $this->setItems($this->getItems()); // array key handling for json encoding
         $this->reapplyDiscounts();
         return $this;
     }
@@ -652,6 +932,17 @@ class Cart extends ArrayWrapper
     }
 
     /**
+     * @param Discount $discount
+     * @return $this
+     */
+    public function addDiscount(Discount $discount)
+    {
+        $this->initDiscounts();
+        $this->data[self::DISCOUNTS][] = $discount;
+        return $this;
+    }
+
+    /**
      * @param $key
      * @param $value
      * @return bool|null
@@ -722,7 +1013,7 @@ class Cart extends ArrayWrapper
      */
     public function hasItem($key)
     {
-        return isset($this->data['items'][$key]);
+        return isset($this->data[self::ITEMS][$key]);
     }
 
     /**
@@ -758,13 +1049,13 @@ class Cart extends ArrayWrapper
 
     /**
      * @param $productId
-     * @return bool|null
+     * @return Item|null
      */
     public function getItemByProductId($productId)
     {
         $idx = $this->findItemIdx('product_id', $productId);
         if (!is_numeric($idx)) {
-            return false;
+            return null;
         }
         return $this->getItem($idx);
     }
@@ -815,7 +1106,7 @@ class Cart extends ArrayWrapper
     {
         if ($this->hasProductId($productId)) {
             $idx = $this->findItemIdx('product_id', $productId);
-            $this->data['items'][$idx]->setQty($qty);
+            $this->data[self::ITEMS][$idx]->setQty($qty);
         }
         $this->reapplyDiscounts();
         return $this;
@@ -832,7 +1123,7 @@ class Cart extends ArrayWrapper
             $idx = $this->findItemIdx('product_id', $productId);
             $item = $this->getItemByProductId($productId);
             $qty += $item->getQty();
-            $this->data['items'][$idx]->setQty($qty);
+            $this->data[self::ITEMS][$idx]->setQty($qty);
         }
         $this->reapplyDiscounts();
         return $this;
@@ -879,11 +1170,20 @@ class Cart extends ArrayWrapper
     }
 
     /**
-     * @return array
+     * @return Discount[]
      */
     public function getDiscounts()
     {
-        return $this->data['discounts'];
+        $this->initDiscounts();
+        return $this->data[self::DISCOUNTS];
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasDiscounts()
+    {
+        return count($this->getDiscounts()) > 0;
     }
 
     /**
@@ -892,8 +1192,8 @@ class Cart extends ArrayWrapper
      */
     public function getDiscount($key)
     {
-        return isset($this->data['discounts'][$key])
-            ? $this->data['discounts'][$key]
+        return isset($this->data[self::DISCOUNTS][$key])
+            ? $this->data[self::DISCOUNTS][$key]
             : false;
     }
 
@@ -904,7 +1204,7 @@ class Cart extends ArrayWrapper
      */
     public function setDiscount($key, Discount $discount)
     {
-        $this->data['discounts'][$key] = $discount;
+        $this->data[self::DISCOUNTS][$key] = $discount;
         return $this;
     }
 
@@ -928,7 +1228,7 @@ class Cart extends ArrayWrapper
     {
         $idx = $this->findDiscountIdx('id', $discountId);
         if (is_numeric($idx)) {
-            unset($this->data['discounts'][$idx]);
+            unset($this->data[self::DISCOUNTS][$idx]);
         }
         return $this;
     }
@@ -939,24 +1239,24 @@ class Cart extends ArrayWrapper
      */
     public function unsetDiscount($key)
     {
-        if (isset($this->data['discounts'][$key])) {
-            unset($this->data['discounts'][$key]);
+        if (isset($this->data[self::DISCOUNTS][$key])) {
+            unset($this->data[self::DISCOUNTS][$key]);
         }
 
         return $this;
     }
 
     /**
-     * @param $key
+     * @param int $id
      * @return bool
      */
-    public function hasDiscountId($key)
+    public function hasDiscountId($id)
     {
-        return is_numeric($this->findDiscountIdx('id', $key));
+        return is_numeric($this->findDiscountIdx('id', $id));
     }
 
     /**
-     * @param $code
+     * @param string $code
      * @return bool
      */
     public function hasDiscountCouponCode($code)
@@ -970,8 +1270,8 @@ class Cart extends ArrayWrapper
      */
     public function getShipment($key)
     {
-        return isset($this->data['shipments'][$key])
-            ? $this->data['shipments'][$key]
+        return isset($this->data[self::SHIPMENTS][$key])
+            ? $this->data[self::SHIPMENTS][$key]
             : null;
     }
 
@@ -1013,9 +1313,9 @@ class Cart extends ArrayWrapper
      */
     public function setShipment($idx, Shipment $shipment)
     {
-        $this->data['shipments'][$idx] = $shipment;
+        $this->data[self::SHIPMENTS][$idx] = $shipment;
         // being tedious with json structure here
-        $this->data['shipments'] = array_values($this->data['shipments']);
+        $this->data[self::SHIPMENTS] = array_values($this->data[self::SHIPMENTS]);
         $this->reapplyDiscounts();
         return $this;
     }
@@ -1026,7 +1326,7 @@ class Cart extends ArrayWrapper
      */
     public function setShipments(array $shipments = [])
     {
-        $this->data['shipments'] = array_values($shipments);
+        $this->data[self::SHIPMENTS] = array_values($shipments);
         return $this;
     }
 
@@ -1040,11 +1340,11 @@ class Cart extends ArrayWrapper
     {
         $idx = $this->findShipmentIdx('id', $id, $addressId, $srcAddressKey);
         if (is_numeric($idx)
-            && isset($this->data['shipments'][$idx])) {
+            && isset($this->data[self::SHIPMENTS][$idx])) {
 
-            unset($this->data['shipments'][$idx]);
+            unset($this->data[self::SHIPMENTS][$idx]);
         }
-        $this->data['shipments'] = array_values($this->data['shipments']); // strip keys for json structure
+        $this->data[self::SHIPMENTS] = array_values($this->data[self::SHIPMENTS]); // strip keys for json structure
         $this->reapplyDiscounts();
         return $this;
     }
@@ -1059,11 +1359,11 @@ class Cart extends ArrayWrapper
     {
         $idx = $this->findShipmentIdx('code', $code, $addressId, $srcAddressKey);
         if (is_numeric($idx)
-            && isset($this->data['shipments'][$idx])) {
+            && isset($this->data[self::SHIPMENTS][$idx])) {
 
-            unset($this->data['shipments'][$idx]);
+            unset($this->data[self::SHIPMENTS][$idx]);
         }
-        $this->data['shipments'] = array_values($this->data['shipments']); // strip keys for json structure
+        $this->data[self::SHIPMENTS] = array_values($this->data[self::SHIPMENTS]); // strip keys for json structure
         $this->reapplyDiscounts();
         return $this;
     }
@@ -1074,10 +1374,10 @@ class Cart extends ArrayWrapper
      */
     public function unsetShipment($key)
     {
-        if (isset($this->data['shipments'][$key])) {
-            unset($this->data['shipments'][$key]);
+        if (isset($this->data[self::SHIPMENTS][$key])) {
+            unset($this->data[self::SHIPMENTS][$key]);
         }
-        $this->data['shipments'] = array_values($this->data['shipments']); // strip keys for json structure
+        $this->data[self::SHIPMENTS] = array_values($this->data[self::SHIPMENTS]); // strip keys for json structure
         $this->reapplyDiscounts();
         return $this;
     }
@@ -1099,7 +1399,7 @@ class Cart extends ArrayWrapper
         }
 
         // dont need to remove anything from discounts
-        $this->data['shipments'][$srcAddressKey][$addressId] = array_values($this->data['shipments'][$srcAddressKey][$addressId]); // strip keys for json structure
+        $this->data[self::SHIPMENTS][$srcAddressKey][$addressId] = array_values($this->data[self::SHIPMENTS][$srcAddressKey][$addressId]); // strip keys for json structure
 
         return $this;
     }
@@ -1157,11 +1457,11 @@ class Cart extends ArrayWrapper
                     if ($shipment->get('customer_address_id') == $addressId
                         && $shipment->get('source_address_key') == $srcAddressKey
                     ) {
-                        unset($this->data['shipments'][$idx]);
+                        unset($this->data[self::SHIPMENTS][$idx]);
                     }
                 }
 
-                $this->data['shipments'] = array_values($this->data['shipments']); // strip keys for json structure
+                $this->data[self::SHIPMENTS] = array_values($this->data[self::SHIPMENTS]); // strip keys for json structure
             }
         } else {
             $this->setShipments([]);

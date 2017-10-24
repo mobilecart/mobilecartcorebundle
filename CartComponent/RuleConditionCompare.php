@@ -11,15 +11,22 @@
 
 namespace MobileCart\CoreBundle\CartComponent;
 
+/**
+ * Class RuleConditionCompare
+ * @package MobileCart\CoreBundle\CartComponent
+ */
 class RuleConditionCompare extends ArrayWrapper
     implements \ArrayAccess, \Serializable, \IteratorAggregate, \JsonSerializable
 {
+    const OPERATOR = 'operator';
+    const CONDITIONS = 'conditions';
 
     const OP_AND = 'and';
     const OP_OR = 'or';
     const OP_HAS_PRODUCT = 'product';
     const OP_HAS_CUSTOMER = 'customer';
     const OP_HAS_SHIPMENT = 'shipment';
+    const OP_CART_HAS = 'cart';
 
     public function __construct()
     {
@@ -31,10 +38,51 @@ class RuleConditionCompare extends ArrayWrapper
      */
     public function getDefaults()
     {
-        return array(
-            'operator'   => self::OP_AND,
-            'conditions' => array(),
-        );
+        return [
+            self::OPERATOR   => self::OP_AND,
+            self::CONDITIONS => [],
+        ];
+    }
+
+    /**
+     * @param string $operator
+     * @return $this
+     * @throws \Exception
+     */
+    public function setOperator($operator)
+    {
+        if (!in_array($operator, $this->getValidOperators())) {
+            throw new \Exception("Invalid Operator Specified");
+        }
+
+        $this->data[self::OPERATOR] = $operator;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOperator()
+    {
+        return $this->data[self::OPERATOR];
+    }
+
+    /**
+     * @param array $conditions
+     * @return $this
+     */
+    public function setConditions(array $conditions)
+    {
+        $this->data[self::CONDITIONS] = $conditions;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getConditions()
+    {
+        return $this->data[self::CONDITIONS];
     }
 
     /**
@@ -60,7 +108,10 @@ class RuleConditionCompare extends ArrayWrapper
             self::OP_OR,
             self::OP_HAS_CUSTOMER,
             self::OP_HAS_PRODUCT,
-            self::OP_HAS_SHIPMENT
+            self::OP_HAS_SHIPMENT,
+            self::OP_CART_HAS,
+            Discount::TARGET_ALL_SHIPMENTS,
+            Discount::TARGET_ALL_ITEMS,
         ];
     }
 
@@ -88,8 +139,8 @@ class RuleConditionCompare extends ArrayWrapper
      */
     public function fromArray(array $data)
     {
-        $operator = isset($data['operator']) ? $data['operator'] : '';
-        $conditions = isset($data['conditions']) ? $data['conditions'] : array();
+        $operator = isset($data[self::OPERATOR]) ? $data[self::OPERATOR] : '';
+        $conditions = isset($data[self::CONDITIONS]) ? $data[self::CONDITIONS] : [];
 
         /*
 
@@ -125,7 +176,7 @@ class RuleConditionCompare extends ArrayWrapper
                     $data = get_object_vars($data);
                 }
 
-                if (isset($data['conditions'])) {
+                if (isset($data[self::CONDITIONS])) {
                     //we have RuleConditionCompare data
                     $compare = new RuleConditionCompare();
                     // "indirect" Recursion, dont want to over-write this current instance
@@ -138,6 +189,10 @@ class RuleConditionCompare extends ArrayWrapper
                     $newConditions[] = $condition;
                 }
             }
+        }
+
+        if (!in_array($operator, $this->getValidOperators())) {
+            $operator = self::OP_AND;
         }
 
         $this->setOperator($operator)
@@ -197,6 +252,16 @@ class RuleConditionCompare extends ArrayWrapper
                         }
                     }
                     return false;
+                }
+                return true;
+                break;
+            case self::OP_CART_HAS:
+                if (count($this->getConditions())) {
+                    foreach($this->getConditions() as $condition) {
+                        if (!$object->isValidCondition($condition)) {
+                            return false;
+                        }
+                    }
                 }
                 return true;
                 break;

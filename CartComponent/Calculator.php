@@ -11,8 +11,14 @@
 
 namespace MobileCart\CoreBundle\CartComponent;
 
+/**
+ * Class Calculator
+ * @package MobileCart\CoreBundle\CartComponent
+ */
 class Calculator 
 {
+    const ITEMS = 'items';
+    const SHIPMENTS = 'shipments';
 
     /**
      * @var Cart $cart
@@ -132,6 +138,7 @@ class Calculator
      *  
      *  This function assumes the discounts have already met conditions
      *
+     * @param bool $recalculate
      * @return array
      */
     public function getDiscountGrid($recalculate = false)
@@ -167,13 +174,13 @@ class Calculator
         
         //TODO: enforce maxAmount between items and shipments
 
-        $itemDiscounts = array(); // d[itemKey][discountKey] = amount
-        $shipmentDiscounts = array(); // d[shipmentKey][discountKey] = amount
+        $itemDiscounts = []; // d[itemKey][discountKey] = amount
+        $shipmentDiscounts = []; // d[shipmentKey][discountKey] = amount
 
-        $itemAmounts = array(); // populate with initial item totals: price x quantity
-        $shipmentAmounts = array(); // populate with initial shipment totals: flat
+        $itemAmounts = []; // populate with initial item totals: price x quantity
+        $shipmentAmounts = []; // populate with initial shipment totals: flat
         
-        $stopped = array(); // store item/shipment keys here when they are 'stopped'
+        $stopped = []; // store item/shipment keys here when they are 'stopped'
 
         // Load up Items
         if ($this->getCart()->hasItems()) {
@@ -208,10 +215,10 @@ class Calculator
                     ($discount->isToSpecified() && $discount->hasShipments()));
 
                 //get specified Items, if applicable
-                $discountItems = ($discount->hasItems()) ? $discount->getItems() : array();
+                $discountItems = ($discount->hasItems()) ? $discount->getProductIds() : [];
                 
                 //get specified Shipments, if applicable
-                $discountShipments = ($discount->hasShipments()) ? $discount->getShipments() : array();
+                $discountShipments = ($discount->hasShipments()) ? $discount->getShipments() : [];
                 
                 // fluid-like disperse for flat amounts, for generic amounts, percentage amounts
                 
@@ -231,8 +238,8 @@ class Calculator
                     //add up the quantities
                     $qtySum = 0;
                     if ($discountHasItems) {
-                        switch($discount->getTo()) {
-                            case Discount::$toItems:
+                        switch($discount->getAppliedTo()) {
+                            case Discount::APPLIED_TO_ITEMS:
                                 foreach($this->getCart()->getItems() as $item) {
                                     if (!$item->getIsDiscountable()) {
                                         continue;
@@ -240,8 +247,8 @@ class Calculator
                                     $qtySum += $item->getQty();
                                 }
                                 break;
-                            case Discount::$toSpecified:
-                                foreach($discount->getItems() as $productId) {
+                            case Discount::APPLIED_TO_SPECIFIED:
+                                foreach($discount->getProductIds() as $productId) {
                                     $qtySum += $this->getCart()->findItem('product_id', $productId)->getQty();
                                 }
                                 break;
@@ -265,7 +272,7 @@ class Calculator
                 $currentAmount = 0; //add amounts to this, then compare to max amount
                 $currentQty = 0; //add amounts to this, then compare to max qty
                 
-                $maxItemQtys = array();
+                $maxItemQtys = [];
                 
                 if ($discountHasItems && $itemAmounts) {
                     foreach($itemAmounts as $itemKey => $itemAmount) {
@@ -304,8 +311,14 @@ class Calculator
                         
                         // Percentage amount for a single quantity of this item
                         $percentUnitAmount = 0;
+
                         if ($discount->isPercent()) {
-                            $percentUnitAmount = $this->currency($discount->getValue() * $item->getPrice());
+                            $percent = $discount->getValue();
+                            if ($percent >= 1 && $percent <= 100) {
+                                $percent = ($discount->getValue() / 100);
+                            }
+
+                            $percentUnitAmount = $this->currency($percent * $item->getPrice());
                         }
 
                         // Figure out some quantity stuff, whether discount is flat or percentage
@@ -328,11 +341,11 @@ class Calculator
                             if ($discount->getIsMaxPerItem()) {
                                 
                                 //qty is not divided
-                                switch($discount->getAs()) {
-                                    case Discount::$asFlat:
+                                switch($discount->getAppliedAs()) {
+                                    case Discount::APPLIED_AS_FLAT:
                                         $discountAmount = $this->currency($flatAmount);
                                         break;
-                                    case Discount::$asPercent:
+                                    case Discount::APPLIED_AS_PERCENT:
                                         //use maxQty or itemQty, whichever is less
                                         $calcQty = min($maxQty, $item->getQty());
                                         $discountAmount = $this->currency($calcQty * $percentUnitAmount);
@@ -349,11 +362,11 @@ class Calculator
                                 
                                 $calcQty = $maxItemQtys[$itemKey];
                                 
-                                switch($discount->getAs()) {
-                                    case Discount::$asFlat:
+                                switch($discount->getAppliedAs()) {
+                                    case Discount::APPLIED_AS_FLAT:
                                         $discountAmount = $this->currency($calcQty * $flatAmount);
                                         break;
-                                    case Discount::$asPercent:
+                                    case Discount::APPLIED_AS_PERCENT:
                                         $discountAmount = $this->currency($calcQty * $percentUnitAmount);
                                         break;
                                     default:
@@ -365,20 +378,17 @@ class Calculator
                             }
                         } else {
 
-                            //no restriction on discounting full quantity
-
-                            //$calcQty = $maxItemQtys[$itemKey];
-                            $calcQty = $item->getQty();
-
-                            switch($discount->getAs()) {
-                                case Discount::$asFlat:
-                                    $discountAmount = $this->currency($calcQty * $flatAmount);
+                            switch($discount->getAppliedAs()) {
+                                case Discount::APPLIED_AS_FLAT:
+                                    $calcQty = 1;
+                                    $discountAmount = $this->currency($flatAmount);
                                     break;
-                                case Discount::$asPercent:
+                                case Discount::APPLIED_AS_PERCENT:
+                                    $calcQty = $item->getQty();
                                     $discountAmount = $this->currency($calcQty * $percentUnitAmount);
                                     break;
                                 default:
-                                    //no-op
+                                    $calcQty = 0;
                                     break;
                             }
 
@@ -453,9 +463,12 @@ class Calculator
 
                         if ($discount->isFlat()) {
                             $discountAmount = $discount->getValue();
-                        } else if ($discount->isPercent()) {
-                            //@todo: divide by 100
-                            $discountAmount = ($discount->getValue() * $shipmentAmount);
+                        } elseif ($discount->isPercent()) {
+                            $percent = $discount->getValue();
+                            if ($percent >= 1 && $percent <= 100) {
+                                $percent = ($discount->getValue() / 100);
+                            }
+                            $discountAmount = ($percent * $shipmentAmount);
                         }
 
                         //enforce ceiling value if a max is set
@@ -530,31 +543,37 @@ class Calculator
         )
         //*/
 
-        $discountGrid = array(
-            'items'     => $itemDiscounts,
-            'shipments' => $shipmentDiscounts,
-        );
+        $discountGrid = [
+            self::ITEMS     => $itemDiscounts,
+            self::SHIPMENTS => $shipmentDiscounts,
+        ];
         
         $this->discountGrid = $discountGrid;
         
         return $discountGrid;
     }
-    
+
     /**
      * Get maximum number of non-partial quantities based on current quantity
-     *  
+     *
+     * @param Discount $discount
+     * @param $currentQty
+     * @param $itemAmounts
+     * @param $flatAmount
+     * @param $percentUnitAmount
+     * @return array
      */
-    public function getMaxItemQtys($discount, $currentQty, $itemAmounts, $flatAmount, $percentUnitAmount)
+    public function getMaxItemQtys(Discount $discount, $currentQty, $itemAmounts, $flatAmount, $percentUnitAmount)
     {
         //ignore the maxAmount set on the discount
         //the discountAmount should only be quantity of 1
         
         $unitAmount = 0;
-        switch($discount->getAs()) {
-            case Discount::$asPercent:
+        switch($discount->getAppliedAs()) {
+            case Discount::APPLIED_AS_PERCENT:
                 $unitAmount = $percentUnitAmount;
                 break;
-            case Discount::$asFlat:
+            case Discount::APPLIED_AS_FLAT:
                 $unitAmount = $flatAmount;
                 break;
             default:
@@ -568,11 +587,11 @@ class Calculator
         //figure out max amount, whether we use it or not
         $maxAmount = min($discount->getMaxAmount(), $this->currency($unitAmount * $maxQty)); 
         
-        $items = $discount->getItems();
+        //$items = $discount->getItems();
         
-        $maxItemQtys = array();
+        $maxItemQtys = [];
         
-        foreach($discount->getItems() as $itemKey => $productId) {
+        foreach($discount->getProductIds() as $itemKey => $productId) {
             
             if (!$remainingQty) {
                 $maxItemQtys[$itemKey] = 0;
@@ -811,7 +830,7 @@ class Calculator
         $total = $this->currency(0);
 
         $discountGrid = $this->getDiscountGrid();
-        $shipmentDiscounts = (array) isset($discountGrid['shipments']) ? $discountGrid['shipments'] : array();
+        $shipmentDiscounts = (array) isset($discountGrid['shipments']) ? $discountGrid['shipments'] : [];
         
         if (count($shipmentDiscounts) > 0) {
             foreach($shipmentDiscounts as $shipmentKey => $discounts) {
@@ -846,7 +865,7 @@ class Calculator
         $total = $this->currency(0);
 
         $discountGrid = $this->getDiscountGrid();
-        $shipmentDiscounts = (array) isset($discountGrid['shipments']) ? $discountGrid['shipments'] : array();
+        $shipmentDiscounts = (array) isset($discountGrid['shipments']) ? $discountGrid['shipments'] : [];
         
         if (count($shipmentDiscounts) > 0) {
             foreach($shipmentDiscounts as $shipmentKey => $discounts) {
@@ -880,7 +899,7 @@ class Calculator
         $total = $this->currency(0);
 
         $discountGrid = $this->getDiscountGrid();
-        $itemDiscounts = (array) isset($discountGrid['items']) ? $discountGrid['items'] : array();
+        $itemDiscounts = (array) isset($discountGrid['items']) ? $discountGrid['items'] : [];
         
         if (count($itemDiscounts) > 0) {
             foreach($itemDiscounts as $itemKey => $discounts) {
@@ -914,7 +933,7 @@ class Calculator
         $total = $this->currency(0);
 
         $discountGrid = $this->getDiscountGrid();
-        $itemDiscounts = (array) isset($discountGrid['items']) ? $discountGrid['items'] : array();
+        $itemDiscounts = (array) isset($discountGrid['items']) ? $discountGrid['items'] : [];
         
         if (count($itemDiscounts) > 0) {
             foreach($itemDiscounts as $itemKey => $discounts) {

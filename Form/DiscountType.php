@@ -29,8 +29,8 @@ class DiscountType extends AbstractType
             ->add('value', NumberType::class)
             ->add('applied_as', ChoiceType::class, [
                 'choices' => array_flip([
-                    Discount::$asFlat => 'Flat',
-                    Discount::$asPercent => 'Percentage',
+                    Discount::APPLIED_AS_FLAT => 'Flat',
+                    Discount::APPLIED_AS_PERCENT => 'Percentage',
                 ]),
                 'attr' => [
                     'class' => 'discount-condition',
@@ -39,9 +39,9 @@ class DiscountType extends AbstractType
             ])
             ->add('applied_to', ChoiceType::class, [
                 'choices' => array_flip([
-                    Discount::$toSpecified => 'Specified',
-                    Discount::$toItems => 'All Products',
-                    Discount::$toShipments => 'All Shipments',
+                    Discount::APPLIED_TO_SPECIFIED => 'Specified',
+                    Discount::APPLIED_TO_ITEMS => 'All Products',
+                    Discount::APPLIED_TO_SHIPMENTS => 'All Shipments',
                 ]),
                 'attr' => [
                     'class' => 'discount-condition',

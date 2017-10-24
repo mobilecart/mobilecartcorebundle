@@ -118,14 +118,14 @@ class DiscountService
             $discount = new Discount();
 
             $discount->fromArray($entity->getData())
-                ->setAs($entity->getAppliedAs())
-                ->setTo($entity->getAppliedTo());
+                ->setAppliedAs($entity->getAppliedAs())
+                ->setAppliedTo($entity->getAppliedTo());
 
             $preCondition = new RuleConditionCompare();
-            $preCondition->importJson($entity->getPreConditions());
+            $preCondition->fromJson($entity->getPreConditions());
 
             $targetCondition = new RuleConditionCompare();
-            $targetCondition->importJson($entity->getTargetConditions());
+            $targetCondition->fromJson($entity->getTargetConditions());
 
             $discount->setPreConditionCompare($preCondition);
             $discount->setTargetConditionCompare($targetCondition);

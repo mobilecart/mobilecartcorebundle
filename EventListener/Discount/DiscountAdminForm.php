@@ -4,6 +4,7 @@ namespace MobileCart\CoreBundle\EventListener\Discount;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Constants\EntityConstants;
+use MobileCart\CoreBundle\CartComponent\Discount;
 
 /**
  * Class DiscountAdminForm
@@ -102,18 +103,25 @@ class DiscountAdminForm
             'starts' => ['label' => 'Starts With', 'types' => ['string']],
             'ends' => ['label' => 'Ends With', 'types' => ['string']],
             'contains' => ['label' => 'Contains', 'types' => ['string']],
-
         ];
 
         $logicalOperators = [
-            'and' => 'If ALL are True',
-            'or' => 'If ANY are True',
+            Discount::OPERATOR_AND => 'If ALL are True',
+            Discount::OPERATOR_OR => 'If ANY are True',
+        ];
+
+        $targetLogicalOperators = [
+            Discount::OPERATOR_AND => 'If ALL are True',
+            Discount::OPERATOR_OR => 'If ANY are True',
+            Discount::TARGET_ALL_ITEMS => 'All Discountable Items',
+            Discount::TARGET_ALL_SHIPMENTS => 'All Discountable Shipments',
         ];
 
         $containerOperators = [
-            'product'  => 'Cart Has a Product', // currently, this needs to line up with entity-type shortcodes also eg product, shipment, customer
-            'shipment' => 'Cart Has a Shipment', // so , don't change these without creating a mapper function of some sort
-            'customer' => 'Cart Has a Customer',
+            Discount::PRODUCT  => 'Cart Has a Product', // currently, this needs to line up with entity-type shortcodes also eg product, shipment, customer
+            Discount::SHIPMENT => 'Cart Has a Shipment', // so , don't change these without creating a mapper function of some sort
+            Discount::CUSTOMER => 'Cart Has a Customer',
+            Discount::CART     => 'Cart Has',
         ];
 
         $formSections = [
@@ -123,6 +131,8 @@ class DiscountAdminForm
                 'fields' => [
                     'is_auto',
                     'name',
+                    'priority',
+                    'is_stopper',
                     'applied_as',
                     'value',
                     'coupon_code',
@@ -138,13 +148,11 @@ class DiscountAdminForm
                 'fields' => [
                     'start_time',
                     'end_time',
-                    'priority',
-                    'is_stopper',
+                    'max_amount',
                     'is_pre_tax',
                     'is_compound',
                     'is_max_per_item',
                     'is_proportional',
-                    'max_amount',
                     'max_qty',
                 ],
             ],
@@ -155,18 +163,55 @@ class DiscountAdminForm
         $targetInput = '#discount_target_conditions';
 
         $varSetData = [];
-        $varSetData['product'] = ['name' => 'Product'];
-        $varSetData['product']['vars'] = [
-            'qty' => ['datatype' => 'number', 'name' => 'Quantity', 'object_type' => 'product'],
-            'product_id' => ['datatype' => 'number', 'name' => 'ID', 'object_type' => 'product'],
-            'sku' => ['datatype' => 'string', 'name' => 'SKU', 'object_type' => 'product'],
-            'price' => ['datatype' => 'number', 'name' => 'Price', 'object_type' => 'product'],
-            'weight' => ['datatype' => 'number', 'name' => 'Weight', 'object_type' => 'product'],
-            'category_ids_csv' => ['datatype' => 'string', 'name' => 'Category ID\'s', 'object_type' => 'product'],
+
+        $varSetData['cart'] = [
+            'name' => 'Shopping Cart',
+            'vars' => [
+                'base_item_total' => [
+                    'datatype' => 'number',
+                    'name' => 'Item Sub-Total',
+                    'object_type' => 'cart',
+                ],
+                'base_total' => [
+                    'datatype' => 'number',
+                    'name' => 'Grand Total',
+                    'object_type' => 'cart',
+                ],
+                'base_shipment_total' => [
+                    'datatype' => 'number',
+                    'name' => 'Shipping Total',
+                    'object_type' => 'cart',
+                ],
+                'discounted_item_total' => [
+                    'datatype' => 'number',
+                    'name' => 'Discounted Item Total',
+                    'object_type' => 'cart',
+                ],
+                'discounted_shipment_total' => [
+                    'datatype' => 'number',
+                    'name' => 'Discounted Shipping Total',
+                    'object_type' => 'cart',
+                ],
+            ],
+        ];
+
+        $varSetData['product'] = [
+            'name' => 'Product',
+            'vars' => [
+                'qty' => ['datatype' => 'number', 'name' => 'Quantity', 'object_type' => 'product'],
+                'product_id' => ['datatype' => 'number', 'name' => 'ID', 'object_type' => 'product'],
+                'sku' => ['datatype' => 'string', 'name' => 'SKU', 'object_type' => 'product'],
+                'price' => ['datatype' => 'number', 'name' => 'Price', 'object_type' => 'product'],
+                'weight' => ['datatype' => 'number', 'name' => 'Weight', 'object_type' => 'product'],
+                'category_ids_csv' => ['datatype' => 'string', 'name' => 'Category ID\'s', 'object_type' => 'product'],
+            ],
         ];
 
         $varSets = $this->getEntityService()->findBy(EntityConstants::ITEM_VAR_SET, [
-            'object_type' => [EntityConstants::PRODUCT, EntityConstants::CUSTOMER],
+            'object_type' => [
+                EntityConstants::PRODUCT,
+                EntityConstants::CUSTOMER
+            ],
         ]);
 
         // todo : condense vars from var_set's into object_types
@@ -217,22 +262,6 @@ class DiscountAdminForm
             }
         }
 
-        $varSetData['cart'] = [
-            'name' => 'Shopping Cart',
-            'vars' => [
-                'base_item_total' => [
-                    'datatype' => 'number',
-                    'name' => 'Subtotal',
-                    'object_type' => 'cart',
-                ],
-                'shipping_method' => [
-                    'datatype' => 'string',
-                    'name' => 'Shipping Method',
-                    'object_type' => 'cart',
-                ],
-            ],
-        ];
-
         $varSetData['shipment'] = [
             'name' => 'Shipments',
             'vars' => [
@@ -247,19 +276,39 @@ class DiscountAdminForm
         $varSetData['customer'] = [
             'name' => 'Customer',
             'vars' => [
-                'country_id' => [
+                'email' => [
                     'datatype' => 'string',
-                    'name' => 'Country',
+                    'name' => 'Email',
                     'object_type' => 'customer',
                 ],
-                'state' => [
+                'billing_region' => [
                     'datatype' => 'string',
-                    'name' => 'State',
+                    'name' => 'Billing State',
                     'object_type' => 'customer',
                 ],
-                'zipcode' => [
+                'billing_country_id' => [
                     'datatype' => 'string',
-                    'name' => 'Postal',
+                    'name' => 'Billing Country',
+                    'object_type' => 'customer',
+                ],
+                'billing_postcode' => [
+                    'datatype' => 'string',
+                    'name' => 'Billing Postcode',
+                    'object_type' => 'customer',
+                ],
+                'shipping_region' => [
+                    'datatype' => 'string',
+                    'name' => 'Shipping State',
+                    'object_type' => 'customer',
+                ],
+                'shipping_country_id' => [
+                    'datatype' => 'string',
+                    'name' => 'Shipping Country',
+                    'object_type' => 'customer',
+                ],
+                'shipping_postcode' => [
+                    'datatype' => 'string',
+                    'name' => 'Shipping Postcode',
                     'object_type' => 'customer',
                 ],
             ],
@@ -271,6 +320,7 @@ class DiscountAdminForm
             'form_sections' => $formSections,
             'operators_json' => json_encode($operators),
             'logical_operators_json' => json_encode($logicalOperators),
+            'target_logical_operators_json' => json_encode($targetLogicalOperators),
             'container_operators_json' => json_encode($containerOperators),
             'condition_input' => $conditionInput,
             'target_input' => $targetInput,

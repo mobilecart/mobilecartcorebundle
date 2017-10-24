@@ -51,8 +51,7 @@ class ProductUpdate
             }
         }
 
-        $entity->setFulltextSearch(implode(' ', $fulltextData))
-            ->setSlug($this->getEntityService()->slugify($entity->getSlug()));
+        $entity->setSlug($this->getEntityService()->slugify($entity->getSlug()));
 
         $this->getEntityService()->persist($entity);
 
