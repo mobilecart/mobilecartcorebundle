@@ -18,26 +18,11 @@ class CheckoutUpdatePaymentMethod
     protected $checkoutSessionService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    protected $entityService;
-
-    /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    /**
      * @return \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     public function getEntityService()
     {
-        return $this->entityService;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
@@ -59,13 +44,18 @@ class CheckoutUpdatePaymentMethod
     }
 
     /**
-     * @param CoreEvent $event
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
+    public function getCartService()
+    {
+        return $this->getCheckoutSessionService()->getCartService();
+    }
+
     public function onCheckoutUpdatePaymentMethod(CoreEvent $event)
     {
         $returnData = $event->getReturnData();
 
-        $isValid = 0;
+        $isValid = false;
 
         $returnData['messages'] = [];
         $returnData['invalid'] = [];
@@ -98,7 +88,7 @@ class CheckoutUpdatePaymentMethod
             }
 
             $form->submit($formData);
-            $isValid = (int) $form->isValid();
+            $isValid = (bool) $form->isValid();
 
             if ($isValid) {
 

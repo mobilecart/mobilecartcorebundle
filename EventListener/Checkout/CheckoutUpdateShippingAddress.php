@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
+use MobileCart\CoreBundle\Shipping\RateRequest;
 
 /**
  * Class CheckoutUpdateShippingAddress
@@ -27,11 +28,6 @@ class CheckoutUpdateShippingAddress
      * @var \Symfony\Component\Routing\RouterInterface
      */
     protected $router;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    protected $entityService;
 
     /**
      * @var \Psr\Log\LoggerInterface
@@ -75,6 +71,14 @@ class CheckoutUpdateShippingAddress
     }
 
     /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->getCheckoutSessionService()->getCartService();
+    }
+
+    /**
      * @param \Symfony\Component\Routing\RouterInterface $router
      * @return $this
      */
@@ -93,21 +97,11 @@ class CheckoutUpdateShippingAddress
     }
 
     /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    /**
      * @return \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     public function getEntityService()
     {
-        return $this->entityService;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
@@ -133,7 +127,7 @@ class CheckoutUpdateShippingAddress
      */
     public function getIsShippingEnabled()
     {
-        return $this->getCheckoutSessionService()->getCartSessionService()->getShippingService()->getIsShippingEnabled();
+        return $this->getCheckoutSessionService()->getCartService()->getShippingService()->getIsShippingEnabled();
     }
 
     /**
@@ -159,7 +153,7 @@ class CheckoutUpdateShippingAddress
         $request = $event->getRequest();
 
         $cartCustomer = $this->getCheckoutSessionService()
-            ->getCartSessionService()
+            ->getCartService()
             ->getCustomer();
 
         // only load a customer if we have a customer ID
@@ -244,7 +238,7 @@ class CheckoutUpdateShippingAddress
                 try {
                     $this->getEntityService()->persist($customerEntity);
                     if ($customerEntity->getId()) {
-                        $this->getCheckoutSessionService()->getCartSessionService()->setCustomerEntity($customerEntity);
+                        $this->getCheckoutSessionService()->getCartService()->setCustomerEntity($customerEntity);
                     }
                 } catch(\Exception $e) {
                     $event->addErrorMessage('An exception occurred while saving the customer.');
@@ -267,7 +261,8 @@ class CheckoutUpdateShippingAddress
 
         if ($isValid) {
             // only updating the main address
-            $this->getCheckoutSessionService()->getCartSessionService()->collectShippingMethods('main');
+            $rateRequest = $this->getCheckoutSessionService()->getCartService()->createRateRequest('main');
+            $this->getCheckoutSessionService()->getCartService()->collectShippingMethods($rateRequest);
         }
 
         $event->setReturnData('success', $isValid);

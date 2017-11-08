@@ -11,7 +11,9 @@ use MobileCart\CoreBundle\Payment\CollectPaymentMethodRequest;
  */
 class CheckoutUpdatePaymentMethods
 {
-
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
     protected $formFactory;
 
     /**
@@ -25,34 +27,26 @@ class CheckoutUpdatePaymentMethods
     protected $paymentService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    protected $entityService;
-
-    /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    /**
      * @return \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     public function getEntityService()
     {
-        return $this->entityService;
+        return $this->getCartService()->getEntityService();
     }
 
-    public function setFormFactory($formFactory)
+    /**
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @return $this
+     */
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
     {
         $this->formFactory = $formFactory;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
     public function getFormFactory()
     {
         return $this->formFactory;
@@ -74,6 +68,14 @@ class CheckoutUpdatePaymentMethods
     public function getCheckoutSessionService()
     {
         return $this->checkoutSessionService;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->getCheckoutSessionService()->getCartService();
     }
 
     /**
@@ -100,7 +102,7 @@ class CheckoutUpdatePaymentMethods
     public function onCheckoutUpdateBillingAddress(CoreEvent $event)
     {
         $checkoutSession = $this->getCheckoutSessionService();
-        $cartCustomer = $checkoutSession->getCartSessionService()->getCustomer();
+        $cartCustomer = $checkoutSession->getCartService()->getCustomer();
 
         if ($checkoutSession->getIsValidBillingAddress()) {
 

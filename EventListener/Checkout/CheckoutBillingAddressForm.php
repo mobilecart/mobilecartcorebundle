@@ -131,7 +131,7 @@ class CheckoutBillingAddressForm
      */
     public function getCustomerId()
     {
-        return (int) $this->getCheckoutSessionService()->getCartSessionService()->getCustomerId();
+        return (int) $this->getCheckoutSessionService()->getCartService()->getCustomerId();
     }
 
     /**
@@ -184,10 +184,10 @@ class CheckoutBillingAddressForm
 
         $tplPath = $this->getThemeService()->getTemplatePath($this->getThemeService()->getThemeConfig()->getFrontendTheme());
 
-        $cartSession = $this->getCheckoutSessionService()
-            ->getCartSessionService();
+        $cartService = $this->getCheckoutSessionService()
+            ->getCartService();
 
-        $cart = $cartSession->getCart();
+        $cart = $cartService->getCart();
         $customer = $cart->getCustomer();
 
         foreach($billingFields as $field) {
@@ -222,7 +222,7 @@ class CheckoutBillingAddressForm
             'post_url' => $this->getRouter()->generate('cart_checkout_update_section', ['section' => CheckoutConstants::STEP_BILLING_ADDRESS]),
             'form' => $form,
             'form_view' => $form->createView(),
-            'country_regions' => $this->getCheckoutSessionService()->getCartSessionService()->getCountryRegions(),
+            'country_regions' => $this->getCheckoutSessionService()->getCartService()->getCountryRegions(),
         ];
 
         if ($event->get('single_step', '')) {

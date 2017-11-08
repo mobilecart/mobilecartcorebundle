@@ -23,11 +23,6 @@ class CheckoutTotalsDiscountsViewReturn
     protected $checkoutSessionService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    protected $entityService;
-
-    /**
      * @var \Symfony\Component\Routing\RouterInterface
      */
     protected $router;
@@ -79,21 +74,11 @@ class CheckoutTotalsDiscountsViewReturn
     }
 
     /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    /**
      * @return \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     public function getEntityService()
     {
-        return $this->entityService;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
@@ -133,11 +118,11 @@ class CheckoutTotalsDiscountsViewReturn
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getCartSession()
+    public function getCartService()
     {
-        return $this->getCheckoutSessionService()->getCartSessionService();
+        return $this->getCheckoutSessionService()->getCartService();
     }
 
     /**
@@ -169,11 +154,11 @@ class CheckoutTotalsDiscountsViewReturn
             $event->set('step_number', 1);
         }
 
-        $customerId = $this->getCartSession()->getCustomerId();
+        $customerId = $this->getCartService()->getCustomerId();
         $addressOptions = [];
         if ($customerId) {
 
-            $customer = $this->getCartSession()->getCustomer();
+            $customer = $this->getCartService()->getCustomer();
 
             $addresses = $this->getEntityService()->findBy(EntityConstants::CUSTOMER_ADDRESS, [
                 'customer' => $customerId
@@ -212,9 +197,9 @@ class CheckoutTotalsDiscountsViewReturn
             'label' => 'Totals and Discounts',
             'post_url' => $this->getRouter()->generate('cart_checkout_update_section', ['section' => CheckoutConstants::STEP_TOTALS_DISCOUNTS]),
             'addresses' => $addressOptions,
-            'is_shipping_enabled' => $this->getCartSession()->getShippingService()->getIsShippingEnabled(),
-            'is_multi_shipping_enabled' => $this->getCartSession()->getShippingService()->getIsMultiShippingEnabled(),
-            'cart' => $this->getCartSession()->collectTotals()->getCart(),
+            'is_shipping_enabled' => $this->getCartService()->getShippingService()->getIsShippingEnabled(),
+            'is_multi_shipping_enabled' => $this->getCartService()->getShippingService()->getIsMultiShippingEnabled(),
+            'cart' => $this->getCartService()->collectTotals()->getCart(),
         ];
 
         if ($event->get('single_step', '')) {

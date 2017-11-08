@@ -124,7 +124,7 @@ class CheckoutSubmitOrder
         }
 
         $cart = $this->getCheckoutSessionService()
-            ->getCartSessionService()
+            ->getCartService()
             ->getCart();
 
         $orderService = $this->getOrderService()
@@ -155,7 +155,7 @@ class CheckoutSubmitOrder
             $event->setOrder($orderService->getOrder());
 
             $this->getCheckoutSessionService()
-                ->getCartSessionService()
+                ->getCartService()
                 ->removeItems()
                 ->getSession()
                 ->set('order_id', $orderService->getOrder()->getId());

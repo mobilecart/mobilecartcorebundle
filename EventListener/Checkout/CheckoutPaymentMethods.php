@@ -16,11 +16,6 @@ use MobileCart\CoreBundle\Constants\CheckoutConstants;
 class CheckoutPaymentMethods
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    protected $entityService;
-
-    /**
      * @var \Symfony\Component\Form\FormFactoryInterface
      */
     protected $formFactory;
@@ -56,21 +51,11 @@ class CheckoutPaymentMethods
     protected $theme = 'frontend';
 
     /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    /**
      * @return \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     public function getEntityService()
     {
-        return $this->entityService;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
@@ -146,11 +131,11 @@ class CheckoutPaymentMethods
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getCartSession()
+    public function getCartService()
     {
-        return $this->getCheckoutSessionService()->getCartSessionService();
+        return $this->getCheckoutSessionService()->getCartService();
     }
 
     /**
@@ -221,7 +206,7 @@ class CheckoutPaymentMethods
      */
     public function onCheckoutForm(CoreEvent $event)
     {
-        if (!$this->getCartSession()->hasItems()) {
+        if (!$this->getCartService()->hasItems()) {
             $response = new RedirectResponse($this->getRouter()->generate('cart_checkout', []));
             $event->setResponse($response);
             return;
@@ -262,7 +247,7 @@ class CheckoutPaymentMethods
                 }
             }
 
-            $this->getCartSession()->setPaymentMethodCodes($methodCodes);
+            $this->getCartService()->setPaymentMethodCodes($methodCodes);
         }
 
         $tplPath = $this->getThemeService()->getTemplatePath($this->getThemeService()->getThemeConfig()->getFrontendTheme());

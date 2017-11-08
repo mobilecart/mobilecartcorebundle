@@ -26,11 +26,6 @@ class CheckoutUpdateBillingAddress
     protected $passwordEncoder;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    protected $entityService;
-
-    /**
      * @var \Symfony\Component\Routing\RouterInterface
      */
     protected $router;
@@ -41,21 +36,11 @@ class CheckoutUpdateBillingAddress
     protected $logger;
 
     /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    /**
      * @return \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     public function getEntityService()
     {
-        return $this->entityService;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
@@ -92,6 +77,14 @@ class CheckoutUpdateBillingAddress
     public function getCheckoutSessionService()
     {
         return $this->checkoutSessionService;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->getCheckoutSessionService()->getCartService();
     }
 
     public function setSecurityPasswordEncoder($passwordEncoder)
@@ -158,11 +151,9 @@ class CheckoutUpdateBillingAddress
 
         $request = $event->getRequest();
 
-        $cart = $this->getCheckoutSessionService()
-            ->getCartSessionService()
-            ->getCart();
+        $cart = $this->getCartService()->getCart();
 
-        $customerId = $this->getCheckoutSessionService()->getCartSessionService()->getCustomerId();
+        $customerId = $this->getCartService()->getCustomerId();
 
         $cartCustomer = $cart->getCustomer();
 
@@ -304,7 +295,7 @@ class CheckoutUpdateBillingAddress
                 try {
                     $this->getEntityService()->persist($customerEntity);
                     if ($customerEntity->getId()) {
-                        $this->getCheckoutSessionService()->getCartSessionService()->setCustomerEntity($customerEntity);
+                        $this->getCheckoutSessionService()->getCartService()->setCustomerEntity($customerEntity);
                     }
                 } catch(\Exception $e) {
                     $event->addErrorMessage('An exception occurred while saving the customer account.');
@@ -312,7 +303,7 @@ class CheckoutUpdateBillingAddress
             }
 
             $cart = $this->getCheckoutSessionService()
-                ->getCartSessionService()
+                ->getCartService()
                 //->collectShippingMethods('main') // avoid collecting shipping methods unless cart changes or shipping info changes
                 ->collectTotals()
                 ->getCart();

@@ -23,11 +23,6 @@ class CheckoutSuccessReturn
     protected $themeService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    protected $entityService;
-
-    /**
      * @var \Symfony\Component\Routing\RouterInterface
      */
     protected $router;
@@ -51,6 +46,14 @@ class CheckoutSuccessReturn
     }
 
     /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->getCheckoutSessionService()->getCartService();
+    }
+
+    /**
      * @param $themeService
      * @return $this
      */
@@ -69,21 +72,11 @@ class CheckoutSuccessReturn
     }
 
     /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    /**
      * @return \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     public function getEntityService()
     {
-        return $this->entityService;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
@@ -110,7 +103,7 @@ class CheckoutSuccessReturn
      */
     public function onCheckoutSuccessReturn(CoreEvent $event)
     {
-        $orderId = $this->getCheckoutSessionService()->getCartSessionService()->getSession()->get('order_id', 0);
+        $orderId = $this->getCheckoutSessionService()->getCartService()->getSession()->get('order_id', 0);
         if (!$orderId) {
             // redirect to checkout page
             $url = $this->getRouter()->generate('cart_checkout', []);
@@ -121,13 +114,13 @@ class CheckoutSuccessReturn
 
         // get cart customer
         $cartCustomer = $this->getCheckoutSessionService()
-            ->getCartSessionService()
+            ->getCartService()
             ->getCart()
             ->getCustomer();
 
         // clear cart and set customer
         $this->getCheckoutSessionService()
-            ->getCartSessionService()
+            ->getCartService()
             ->resetCart()
             ->setCustomer($cartCustomer);
 

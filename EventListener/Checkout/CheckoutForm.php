@@ -61,7 +61,7 @@ class CheckoutForm
      */
     public function getIsSpaEnabled()
     {
-        return (bool) $this->getCheckoutSessionService()->getCartSessionService()->getCartService()->getIsSpaEnabled();
+        return (bool) $this->getCheckoutSessionService()->getCartService()->getIsSpaEnabled();
     }
 
     /**

@@ -31,26 +31,11 @@ class CheckoutConfirmOrder
     protected $defaultTemplate = 'Checkout:confirm_order.html.twig';
 
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    protected $entityService;
-
-    /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    /**
      * @return \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     public function getEntityService()
     {
-        return $this->entityService;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
@@ -108,11 +93,11 @@ class CheckoutConfirmOrder
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getCartSession()
+    public function getCartService()
     {
-        return $this->getCheckoutSessionService()->getCartSessionService();
+        return $this->getCheckoutSessionService()->getCartService();
     }
 
     /**
@@ -138,9 +123,9 @@ class CheckoutConfirmOrder
      */
     public function onCheckoutConfirmOrder(CoreEvent $event)
     {
-        $event->setReturnData('cart', $this->getCartSession()->collectTotals()->getCart());
+        $event->setReturnData('cart', $this->getCartService()->collectTotals()->getCart());
 
-        $event->setReturnData('is_shipping_enabled', $this->getCartSession()->getShippingService()->getIsShippingEnabled());
+        $event->setReturnData('is_shipping_enabled', $this->getCartService()->getShippingService()->getIsShippingEnabled());
 
         $template = $event->getTemplate()
             ? $event->getTemplate()

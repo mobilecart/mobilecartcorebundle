@@ -18,11 +18,6 @@ class CheckoutUpdateTotalsDiscounts
     protected $checkoutSessionService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    protected $entityService;
-
-    /**
      * @var \Symfony\Component\Routing\RouterInterface
      */
     protected $router;
@@ -46,13 +41,11 @@ class CheckoutUpdateTotalsDiscounts
     }
 
     /**
-     * @param $entityService
-     * @return $this
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function setEntityService($entityService)
+    public function getCartService()
     {
-        $this->entityService = $entityService;
-        return $this;
+        return $this->getCheckoutSessionService()->getCartService();
     }
 
     /**
@@ -60,7 +53,7 @@ class CheckoutUpdateTotalsDiscounts
      */
     public function getEntityService()
     {
-        return $this->entityService;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
@@ -101,7 +94,7 @@ class CheckoutUpdateTotalsDiscounts
         $event->setReturnData('messages', $event->getMessages());
         $event->setReturnData('invalid', $invalid);
 
-        $cartService = $this->getCheckoutSessionService()->getCartSessionService()->getCartService();
+        $cartService = $this->getCheckoutSessionService()->getCartService();
         if ($isValid && !$cartService->getIsSpaEnabled()) {
 
             $event->setReturnData('redirect_url', $this->getRouter()->generate(

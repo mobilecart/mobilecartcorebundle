@@ -131,7 +131,7 @@ class CheckoutShippingAddressForm
      */
     public function getIsShippingEnabled()
     {
-        return $this->getCheckoutSessionService()->getCartSessionService()->getShippingService()->getIsShippingEnabled();
+        return $this->getCheckoutSessionService()->getCartService()->getShippingService()->getIsShippingEnabled();
     }
 
     /**
@@ -174,10 +174,10 @@ class CheckoutShippingAddressForm
 
         $tplPath = $this->getThemeService()->getTemplatePath($this->getThemeService()->getThemeConfig()->getFrontendTheme());
 
-        $cartSession = $this->getCheckoutSessionService()
-            ->getCartSessionService();
+        $cartService = $this->getCheckoutSessionService()
+            ->getCartService();
 
-        $cart = $cartSession->getCart();
+        $cart = $cartService->getCart();
         $customer = $cart->getCustomer();
 
         foreach($shippingFields as $field) {
