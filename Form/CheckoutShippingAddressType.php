@@ -42,7 +42,7 @@ class CheckoutShippingAddressType extends AbstractType
      */
     public function getCartService()
     {
-        return $this->getCheckoutSessionService()->getCartSessionService()->getCartService();
+        return $this->getCheckoutSessionService()->getCartService();
     }
 
     /**

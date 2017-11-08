@@ -46,7 +46,7 @@ class CheckoutBillingAddressType extends AbstractType
      */
     public function getCartService()
     {
-        return $this->getCheckoutSessionService()->getCartSessionService()->getCartService();
+        return $this->getCheckoutSessionService()->getCartService();
     }
 
     /**
@@ -54,7 +54,7 @@ class CheckoutBillingAddressType extends AbstractType
      */
     public function getCustomerId()
     {
-        return (int) $this->getCheckoutSessionService()->getCartSessionService()->getCustomerId();
+        return (int) $this->getCartService()->getCustomerId();
     }
 
     /**
