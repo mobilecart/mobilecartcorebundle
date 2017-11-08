@@ -2,12 +2,9 @@
 
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\Event\CoreEvent;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
  * Class AddProduct
@@ -16,44 +13,9 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
 class AddProduct
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\DoctrineEntityService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $entityService;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\CartSessionService
-     */
-    protected $cartSessionService;
-
-    /**
-     * @var int|bool
-     */
-    protected $redirectToCart = 1;
-
-    /**
-     * @var \Symfony\Component\Routing\RouterInterface
-     */
-    protected $router;
-
-    /**
-     * @var \MobileCart\CoreBundle\Entity\Cart
-     */
-    protected $cartEntity;
-
-    /**
-     * @var \MobileCart\CoreBundle\Entity\Customer
-     */
-    protected $customerEntity;
-
-    /**
-     * @var \MobileCart\CoreBundle\CartComponent\Item
-     */
-    protected $cartItem;
-
-    /**
-     * @var \MobileCart\CoreBundle\Entity\CartItem
-     */
-    protected $cartItemEntity;
+    protected $cartService;
 
     /**
      * @var \MobileCart\CoreBundle\Entity\Product
@@ -73,11 +35,6 @@ class AddProduct
     /**
      * @var bool
      */
-    protected $hasTierPriceChange = false;
-
-    /**
-     * @var bool
-     */
     protected $enableQtyCheck = true;
 
     /**
@@ -86,159 +43,34 @@ class AddProduct
     protected $qty = 1;
 
     /**
-     * @var array
-     */
-    protected $errors = [];
-
-    /**
      * @var bool
      */
     protected $success = false;
-
-    /**
-     * @param \Symfony\Component\Routing\RouterInterface $router
-     * @return $this
-     */
-    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
-    {
-        $this->router = $router;
-        return $this;
-    }
-
-    /**
-     * @return \Symfony\Component\Routing\RouterInterface
-     */
-    public function getRouter()
-    {
-        return $this->router;
-    }
-
-    /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
 
     /**
      * @return \MobileCart\CoreBundle\Service\DoctrineEntityService
      */
     public function getEntityService()
     {
-        return $this->entityService;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
-     * @param $cartSessionService
+     * @param $cartService
      * @return $this
      */
-    public function setCartSessionService($cartSessionService)
+    public function setCartService($cartService)
     {
-        $this->cartSessionService = $cartSessionService;
+        $this->cartService = $cartService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getCartSessionService()
+    public function getCartService()
     {
-        return $this->cartSessionService;
-    }
-
-    /**
-     * @param $yesNo
-     * @return $this
-     */
-    public function setRedirectToCart($yesNo)
-    {
-        $this->redirectToCart = $yesNo;
-        return $this;
-    }
-
-    /**
-     * @return bool|int
-     */
-    public function getRedirectToCart()
-    {
-        return $this->redirectToCart;
-    }
-
-    /**
-     * @return $this
-     */
-    public function initCartEntity()
-    {
-        $cart = $this->getCartSessionService()->getCart();
-        $cartId = $cart->getId();
-        $customerId = $cart->getCustomer()->getId();
-
-        $cartEntity = $this->getEntityService()->getInstance(EntityConstants::CART);
-        if ($cartId) {
-            $cartEntity = $this->getEntityService()->find(EntityConstants::CART, $cartId);
-            if (!$cartEntity) {
-                $cartEntity = $this->getEntityService()->getInstance(EntityConstants::CART);
-                $cartEntity->setJson($cart->toJson())
-                    ->setCreatedAt(new \DateTime('now'));
-            }
-        } else {
-            $cartEntity->setJson($cart->toJson())
-                ->setCreatedAt(new \DateTime('now'));
-        }
-
-        if ($customerId) {
-            $customerEntity = $this->getEntityService()->find(EntityConstants::CUSTOMER, $customerId);
-            if ($customerEntity) {
-                $cartEntity->setCustomer($customerEntity);
-            }
-        }
-
-        // always save the cart
-        $this->getEntityService()->persist($cartEntity);
-        $cartId = $cartEntity->getId();
-        $cart->setId($cartId);
-
-        $this->setCartEntity($cartEntity);
-        return $this;
-    }
-
-    /**
-     * @param $cartEntity
-     * @return $this
-     */
-    public function setCartEntity($cartEntity)
-    {
-        $this->cartEntity = $cartEntity;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Entity\Cart
-     */
-    public function getCartEntity()
-    {
-        return $this->cartEntity;
-    }
-
-    /**
-     * @param $customerEntity
-     * @return $this
-     */
-    public function setCustomerEntity($customerEntity)
-    {
-        $this->customerEntity = $customerEntity;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Entity\Customer
-     */
-    public function getCustomerEntity()
-    {
-        return $this->customerEntity;
+        return $this->cartService;
     }
 
     /**
@@ -334,78 +166,6 @@ class AddProduct
     }
 
     /**
-     * @param $yesNo
-     * @return $this
-     */
-    public function setHasTierPriceChange($yesNo)
-    {
-        $this->hasTierPriceChange = $yesNo;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getHasTierPriceChange()
-    {
-        return $this->hasTierPriceChange;
-    }
-
-    /**
-     * @param array $errors
-     * @return $this
-     */
-    public function setErrors(array $errors)
-    {
-        $this->errors = $errors;
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getErrors()
-    {
-        return $this->errors;
-    }
-
-    /**
-     * @param $cartItem
-     * @return $this
-     */
-    public function setCartItem($cartItem)
-    {
-        $this->cartItem = $cartItem;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\CartComponent\Item
-     */
-    public function getCartItem()
-    {
-        return $this->cartItem;
-    }
-
-    /**
-     * @param $cartItemEntity
-     * @return $this
-     */
-    public function setCartItemEntity($cartItemEntity)
-    {
-        $this->cartItemEntity = $cartItemEntity;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Entity\CartItem
-     */
-    public function getCartItemEntity()
-    {
-        return $this->cartItemEntity;
-    }
-
-    /**
      * @param $success
      * @return $this
      */
@@ -442,42 +202,43 @@ class AddProduct
     }
 
     /**
-     * @param $cartItem
+     * @param $item
      * @param CoreEvent $event
      * @return bool
      */
-    public function meetsCriteria($cartItem, CoreEvent &$event)
+    public function meetsCriteria(\MobileCart\CoreBundle\CartComponent\Item $item, CoreEvent &$event)
     {
-        $minQty = (int) $cartItem->getMinQty();
-        $availQty = $cartItem->getAvailQty();
-        $isQtyManaged = $cartItem->getIsQtyManaged();
+        $minQty = (int) $item->getMinQty();
+        $availQty = $item->getAvailQty();
+        $isQtyManaged = $item->getIsQtyManaged();
 
-        $newQty = $this->getIsAdd()
-            ? $cartItem->getQty() + $this->getQty()
-            : $this->getQty();
+        $minQtyMet = $minQty == 0 || ($minQty > 0 && $item->getQty() >= $minQty);
+        $maxQtyMet = !$isQtyManaged || ($isQtyManaged && $item->getQty() < $availQty);
 
-        $minQtyMet = $minQty == 0 || ($minQty > 0 && $newQty >= $minQty);
-        $maxQtyMet = !$isQtyManaged || ($isQtyManaged && $newQty < $availQty);
-
-        if (!$cartItem->getIsEnabled()) {
-            $event->addErrorMessage("Product is not enabled : {$cartItem->getSku()}");
+        if (!$item->getIsEnabled()) {
+            $event->addErrorMessage("Product is not enabled : {$item->getSku()}");
             return false;
         }
 
-        if (!$cartItem->getIsInStock()) {
-            $event->addErrorMessage("Product is not in stock : {$cartItem->getSku()}");
+        if (!$item->getIsInStock()) {
+            $event->addErrorMessage("Product is not in stock : {$item->getSku()}");
+            return false;
+        }
+
+        if ($item->getPromoQty() > 0 && $item->getQty() !== $item->getPromoQty()) {
+            $event->addInfoMessage('Cannot change qty on promo item');
             return false;
         }
 
         if ($this->getEnableQtyCheck()) {
 
             if (!$minQtyMet) {
-                $event->addErrorMessage("Minimum Qty is not met : {$cartItem->getSku()}, Qty: {$cartItem->getMinQty()}");
+                $event->addErrorMessage("Minimum Qty is not met : {$item->getSku()}, Qty: {$item->getMinQty()}");
                 return false;
             }
 
             if (!$maxQtyMet) {
-                $event->addErrorMessage("Insufficient stock level : {$cartItem->getSku()}, Available: {$cartItem->getAvailQty()}");
+                $event->addErrorMessage("Insufficient stock level : {$item->getSku()}, Available: {$item->getAvailQty()}");
                 return false;
             }
         }
@@ -534,157 +295,6 @@ class AddProduct
     }
 
     /**
-     * @return $this
-     * @throws \Exception
-     */
-    public function saveCartItem()
-    {
-
-        $cartEntity = $this->initCartEntity()->getCartEntity();
-        $cartItem = $this->getCartItem();
-
-        $customerAddressId = $cartItem->get('customer_address_id', 'main');
-        if (is_numeric($customerAddressId)) {
-            $customerAddressId = (int) $customerAddressId;
-        } elseif (is_int(strpos($customerAddressId, '_'))) {
-
-            $addressParts = explode('_', $cartItem->getCustomerAddressId()); // eg 'address_3'
-            $customerAddressId = count($addressParts) == 2
-                ? $addressParts[1]
-                : null;
-
-        } elseif ($customerAddressId == 'main') {
-            $customerAddressId = null;
-        }
-
-        $currencyService = $this->getCartSessionService()->getCurrencyService();
-        $baseCurrency = $this->getCartSessionService()->getBaseCurrency();
-        $customerCurrency = $this->getCartSessionService()->getCurrency();
-        if (!strlen($customerCurrency)) {
-            $customerCurrency = $baseCurrency;
-        }
-
-        $cartItemEntity = $this->getEntityService()->getInstance(EntityConstants::CART_ITEM);
-
-        // get or create cartItemEntity
-
-        if ($cartItem->getId()) {
-
-            $cartItemEntity = $this->getEntityService()->find(EntityConstants::CART_ITEM, $cartItem->getId());
-
-            if (!$cartItemEntity) {
-                throw new \Exception("Something terrible happened.");
-            }
-
-            // update customer_address_id , if necessary
-            if ($cartItemEntity->getCustomerAddressId() != $customerAddressId) {
-                $cartItemEntity->setCustomerAddressId($customerAddressId);
-            }
-
-        } else {
-
-            $itemJson = $cartItem
-                ? $cartItem->toJson()
-                : '{}';
-
-            $cartItemEntity
-                ->setCart($cartEntity)
-                ->setCreatedAt(new \DateTime('now'))
-                ->setSku($cartItem->getSku())
-                ->setProductId($cartItem->getProductId())
-                ->setQty($cartItem->getQty())
-                ->setWeight($cartItem->getWeight())
-                ->setWeightUnit($cartItem->getWeightUnit())
-                ->setWidth($cartItem->getWidth())
-                ->setHeight($cartItem->getHeight())
-                ->setLength($cartItem->getLength())
-                ->setMeasureUnit($cartItem->getMeasureUnit())
-                ->setCustomerAddressId($customerAddressId)
-                ->setSourceAddressKey($cartItem->getSourceAddressKey())
-                ->setJson($itemJson);
-        }
-
-        if ($cartItemEntity) {
-
-            $this->setCartItemEntity($cartItemEntity);
-
-            $cartItemEntity->setQty($cartItem->getQty());
-
-            // if existing row with price change, or inserting new row
-            if (
-                ($cartItemEntity->getId() && $this->getHasTierPriceChange())
-                || !$cartItemEntity->getId()
-            ) {
-
-                $productCurrency = $cartItem->getCurrency();
-                if (!$productCurrency) {
-                    $productCurrency = $baseCurrency;
-                }
-
-                if ($baseCurrency == $productCurrency) {
-                    if ($customerCurrency == $baseCurrency) {
-
-                        $cartItemEntity->setPrice($cartItem->getPrice())
-                            //->setTax() todo : update this during total collection, tax collector, create a tax grid function
-                            //->setDiscount() todo : update this during total collection, retrieve from the discount grid function
-                            ->setCurrency($baseCurrency)
-                            ->setBasePrice($cartItem->getPrice())
-                            //->setBaseTax() todo
-                            //->setBaseDiscount() todo
-                            ->setBaseCurrency($baseCurrency);
-
-                    } else {
-
-                        $cartItemEntity->setPrice($currencyService->convert($cartItem->getPrice(), $customerCurrency))
-                            //->setTax() todo
-                            //->setDiscount() todo
-                            ->setCurrency($customerCurrency)
-                            ->setBasePrice($cartItem->getPrice())
-                            //->setBaseTax() todo
-                            //->setBaseDiscount() todo
-                            ->setBaseCurrency($baseCurrency);
-
-                    }
-                } else {
-                    if ($productCurrency == $customerCurrency) {
-
-                        $cartItemEntity->setPrice($cartItem->getPrice())
-                            //->setTax() todo
-                            //->setDiscount() todo
-                            ->setCurrency($customerCurrency)
-                            ->setBasePrice($currencyService->convert($cartItem->getPrice(), $baseCurrency, $customerCurrency))
-                            //->setBaseTax() todo
-                            //->setBaseDiscount() todo
-                            ->setBaseCurrency($baseCurrency);
-
-                    } else {
-
-                        $cartItemEntity->setPrice($currencyService->convert($cartItem->getPrice(), $customerCurrency, $productCurrency))
-                            //->setTax() todo
-                            //->setDiscount() todo
-                            ->setCurrency($customerCurrency)
-                            ->setBasePrice($currencyService->convert($cartItem->getPrice(), $baseCurrency, $productCurrency))
-                            //->setBaseTax() todo
-                            //->setBaseDiscount() todo
-                            ->setBaseCurrency($baseCurrency);
-                    }
-                }
-            }
-
-            try {
-                $this->getEntityService()->persist($cartItemEntity);
-                $this->setSuccess(true);
-                $cartItem->setId($cartItemEntity->getId());
-                $this->setCartItemEntity($cartItemEntity);
-            } catch(\Exception $e) {
-
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * @param $event
      * @param $cartItem
      * @param array $recollectShipping
@@ -697,7 +307,7 @@ class AddProduct
         $productAddresses = $request->get('product_address', []);
 
         // update shipping address
-        if ($event->get('is_multi_shipping_enabled')) {
+        if ($this->getCartService()->getIsMultiShippingEnabled()) {
 
             // get customer_address_id from request
             if (isset($productAddresses[$productId])) {
@@ -754,10 +364,10 @@ class AddProduct
      */
     public function onCartAddProduct(CoreEvent $event)
     {
-        $this->setCartItem(null); // need to reset, because this is a Singleton
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $cart = $this->getCartSessionService()->getCart();
+        $event->set('format', $format);
+        $cart = $this->getCartService()->initCart()->getCart();
 
         /**
          * Strategy:
@@ -779,70 +389,72 @@ class AddProduct
         // First, get keys from Request
         $keyValue = $request->get('id', ''); // this could be a sku
         $keyField = $request->get('key', 'product_id');
-        $qty = $request->get('qty', 1);
-
-        // Second, check Event for keys, and use them if they exist
-        if ($event->get('product_id')) {
-            $keyValue = $event->get('product_id');
-            $keyField = 'product_id';
-            $qty = $event->get('qty');
-        }
-
-        // this is used in meetsCriteria()
-        $this->setQty($qty);
-        $this->setIsAdd((bool) $event->get('is_add'));
-
         $keyFields = ['id', 'product_id', 'sku']; // product.id , cart_item.product_id, product.sku, cart_item.sku
         if (!in_array($keyField, $keyFields)) {
             $keyField = 'product_id';
         }
 
+        $qty = (int) $request->get('qty', 1);
+
+        // Second, check Event for keys, and use them if they exist
+        if ($event->get('product_id')) {
+            $keyValue = $event->get('product_id');
+            $keyField = 'product_id';
+            $qty = (int) $event->get('qty');
+        }
+
+        // this is used in meetsCriteria()
+
+        $this->setQty($qty);
+        $this->setIsAdd((bool) $event->get('is_add'));
+
         /** @var \MobileCart\CoreBundle\Entity\Product $product */
         $product = $this->loadProduct($keyValue, $keyField);
         if (!$product) {
             $event->addErrorMessage('Product not found');
-            $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_view', [])));
             return;
         }
 
-        $recollectShipping = []; // r = [object, object] , object:{'customer_address_id':'','source_address_key':''}
+        $simpleProductId = (int) $request->get('simple_id', 0)
+            ? $request->get('simple_id', 0)
+            : $product->getId();
+
+        $recollectShipping = $event->get('recollect_shipping', []); // r = [object, object] , object:{'customer_address_id':'','source_address_key':''}
         switch($product->getType()) {
             case EntityConstants::PRODUCT_TYPE_CONFIGURABLE:
 
                 $event->set('product_type', $product->getType());
 
-                $simpleProductId = (int) $request->get('simple_id', 0)
-                    ? $request->get('simple_id', 0)
-                    : $product->getId();
-
                 $item = $cart->findItem('product_id', $simpleProductId);
                 if ($item) {
+
+                    $origQty = $item->getQty();
+
+                    $totalQty = $this->getIsAdd()
+                        ? $origQty + $this->getQty()
+                        : $this->getQty();
+
+                    $item->setQty($totalQty);
+
                     if ($this->meetsCriteria($item, $event)) {
 
-                        $totalQty = $this->getIsAdd()
-                            ? $item->getQty() + $this->getQty()
-                            : $this->getQty();
-
-                        $item->setQty($totalQty);
-
                         // update quantity
-                        $this->getCartSessionService()
-                            ->setProductQty($simpleProductId, $totalQty);
+                        $this->getCartService()
+                            ->setProductQty($simpleProductId, $totalQty)
+                            ->updateItemEntityQty($product->getId(), $totalQty);
 
                         // update tier price
                         $this->updateTierPrice($item);
 
-                        // update shipping address
                         $this->collectAddresses($event, $item, $recollectShipping);
-
-                        // update cart item and totals
-                        $this->setCartItem($item)->saveCartItem();
 
                         if ($simpleProductId) {
                             $event->setSimpleProductId($simpleProductId);
                         }
 
                         $this->setSuccess(true);
+                    } else {
+                        $item->setQty($origQty);
                     }
                 } else {
 
@@ -859,28 +471,17 @@ class AddProduct
                         ? $simpleProduct
                         : $product;
 
-                    $item = $this->getCartSessionService()
-                        ->createCartItem($itemProduct, $parentOptions)
-                        ->setQty(0) // this is set after meetsCriteria() passes
-                        ->setQtyAvail($itemProduct->getQty())
-                        ->setIsQtyManaged((bool) $itemProduct->getIsQtyManaged())
-                        ->setCustomerAddressId('main');
-
+                    $item = $this->getCartService()->convertProductToItem($itemProduct, $parentOptions, $this->getQty());
                     if ($this->meetsCriteria($item, $event)) {
-
-                        $item->setQty($this->getQty());
 
                         // update tier price
                         $this->updateTierPrice($item);
 
-                        // add to cart
-                        $this->getCartSessionService()->addItem($item, $this->getQty());
+                        $this->getCartService()->addItem($item);
+                        $itemEntity = $this->getCartService()->convertItemToEntity($item);
+                        $this->getCartService()->addNewCartItemEntity($itemEntity);
 
-                        // update shipping address
                         $this->collectAddresses($event, $item, $recollectShipping);
-
-                        // update cart totals
-                        $this->setCartItem($item)->saveCartItem();
 
                         if ($simpleProductId) {
                             $event->setSimpleProductId($simpleProductId);
@@ -895,53 +496,45 @@ class AddProduct
                 $event->set('product_type', $product->getType());
                 $item = $cart->findItem('product_id', $product->getId());
                 if ($item) {
+
+                    $origQty = $item->getQty();
+
+                    $totalQty = $this->getIsAdd()
+                        ? $item->getQty() + $this->getQty()
+                        : $this->getQty();
+
+                    $item->setQty($totalQty);
+
                     if ($this->meetsCriteria($item, $event)) {
-
-                        $totalQty = $this->getIsAdd()
-                            ? $item->getQty() + $this->getQty()
-                            : $this->getQty();
-
-                        $item->setQty($totalQty);
-
-                        // update quantity
-                        $this->getCartSessionService()
-                            ->setProductQty($product->getId(), $totalQty);
 
                         // update tier price
                         $this->updateTierPrice($item);
 
-                        // update shipping address
+                        // update quantity
+                        $this->getCartService()
+                            ->setProductQty($product->getId(), $totalQty)
+                            ->updateItemEntityQty($product->getId(), $totalQty);
+
                         $this->collectAddresses($event, $item, $recollectShipping);
 
-                        // update cart item and totals
-                        $this->setCartItem($item)->saveCartItem();
-
                         $this->setSuccess(true);
+                    } else {
+                        $item->setQty($origQty);
                     }
                 } else {
 
-                    $item = $this->getCartSessionService()
-                        ->createCartItem($product, [])
-                        ->setQty(0) // this is set after meetsCriteria() passes
-                        ->setQtyAvail($product->getQty())
-                        ->setIsQtyManaged((bool) $product->getIsQtyManaged())
-                        ->setCustomerAddressId('main');
-
+                    $item = $this->getCartService()->convertProductToItem($product, [], $this->getQty());
                     if ($this->meetsCriteria($item, $event)) {
-
-                        $item->setQty($this->getQty());
 
                         // update tier price
                         $this->updateTierPrice($item);
 
-                        // add to cart
-                        $this->getCartSessionService()->addItem($item, $this->getQty());
+                        $this->getCartService()->addItem($item);
 
-                        // update shipping address
+                        $itemEntity = $this->getCartService()->convertItemToEntity($item);
+                        $this->getCartService()->addNewCartItemEntity($itemEntity);
+
                         $this->collectAddresses($event, $item, $recollectShipping);
-
-                        // update cart totals
-                        $this->setCartItem($item)->saveCartItem();
 
                         $this->setSuccess(true);
                     }
@@ -954,11 +547,8 @@ class AddProduct
         }
 
         $event->set('product_id', $product->getId())
-            ->set('cart_entity', $this->getCartEntity())
             ->set('recollect_shipping', $recollectShipping) // this is handled in UpdateTotalsShipping
-            ->set('cart_item_entity', $this->getCartItemEntity())
-            ->set('cart_item', $this->getCartItem())
-            ->setReturnData('cart', $this->getCartSessionService()->getCart())
+            ->setReturnData('cart', $this->getCartService()->getCart())
             ->setReturnData('success', (bool) $this->getSuccess());
 
         if (!$event->getMessages()
@@ -966,34 +556,6 @@ class AddProduct
             && !$event->getIsMassUpdate()
         ) {
             $event->addSuccessMessage('Product Added to Cart');
-        }
-
-        if ($event->getRequest()->getSession() && $event->getMessages()) {
-            foreach($event->getMessages() as $code => $messages) {
-                if (!$messages) {
-                    continue;
-                }
-                foreach($messages as $message) {
-                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                }
-            }
-        }
-
-        switch($format) {
-            case 'json':
-                $event->setResponse(new JsonResponse($event->getReturnData()));
-                break;
-            default:
-                $route = 'cart_view';
-                $params = [];
-                if (!$event->getIsMassUpdate()
-                    && !$this->getRedirectToCart()
-                ) {
-                    $route = 'cart_product_view';
-                    $params = ['slug' => $product->getSlug()];
-                }
-                $event->setResponse(new RedirectResponse($this->getRouter()->generate($route, $params)));
-                break;
         }
     }
 }

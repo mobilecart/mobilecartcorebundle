@@ -2,7 +2,8 @@
 
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
-use MobileCart\CoreBundle\Constants\EntityConstants;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
@@ -12,14 +13,9 @@ use MobileCart\CoreBundle\Event\CoreEvent;
 class UpdateTotalsShipping
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\DoctrineEntityService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $entityService;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\CartSessionService
-     */
-    protected $cartSessionService;
+    protected $cartService;
 
     /**
      * @var \Symfony\Component\Routing\RouterInterface
@@ -27,9 +23,22 @@ class UpdateTotalsShipping
     protected $router;
 
     /**
-     * @var \Psr\Log\LoggerInterface
+     * @param $cartService
+     * @return $this
      */
-    protected $logger;
+    public function setCartService($cartService)
+    {
+        $this->cartService = $cartService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->cartService;
+    }
 
     /**
      * @param \Symfony\Component\Routing\RouterInterface $router
@@ -50,205 +59,40 @@ class UpdateTotalsShipping
     }
 
     /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\DoctrineEntityService
-     */
-    public function getEntityService()
-    {
-        return $this->entityService;
-    }
-
-    /**
-     * @param $cartSessionService
-     * @return $this
-     */
-    public function setCartSessionService($cartSessionService)
-    {
-        $this->cartSessionService = $cartSessionService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
-     */
-    public function getCartSessionService()
-    {
-        return $this->cartSessionService;
-    }
-
-    /**
-     * @param $logger
-     * @return $this
-     */
-    public function setLogger($logger)
-    {
-        $this->logger = $logger;
-        return $this;
-    }
-
-    /**
-     * @return \Psr\Log\LoggerInterface
-     */
-    public function getLogger()
-    {
-        return $this->logger;
-    }
-
-    /**
      * @param CoreEvent $event
      */
     public function onUpdateTotalsShipping(CoreEvent $event)
     {
-        if (!$event->getReturnData('success')) {
+        if ($event->getRequest()->getSession() && $event->getMessages()) {
+            foreach($event->getMessages() as $code => $messages) {
+                if (!$messages) {
+                    continue;
+                }
+                foreach($messages as $message) {
+                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                }
+            }
+        }
+
+        if (!$event->getReturnData('success', false)) {
+            $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_view', [])));
             return;
         }
 
-        $currencyService = $this->getCartSessionService()->getCurrencyService();
-        $cartItems = $this->getCartSessionService()->getCart()->getItems();
-
-        $customerId = ($this->getCartSessionService()->getCart()->getCustomer() && $this->getCartSessionService()->getCart()->getCustomer()->getId())
-            ? $this->getCartSessionService()->getCart()->getCustomer()->getId()
-            : 0;
-
-        // re-collect shipping methods , if necessary
-        $recollectAddresses = $event->getRecollectShipping();
-        if ($recollectAddresses) {
-            foreach($recollectAddresses as $recollectAddress) {
-
-                $customerAddressId = $recollectAddress->get('customer_address_id', 'main');
-                $srcAddressKey = $recollectAddress->get('source_address_key', 'main');
-                $hasItems = false;
-                if ($cartItems) {
-                    foreach($cartItems as $cartItem) {
-                        if ($cartItem->get('customer_address_id', 'main') == $customerAddressId
-                            && $cartItem->get('source_address_key', 'main') == $srcAddressKey
-                        ) {
-                            $hasItems = true;
-                        }
-                    }
-                }
-
-                // remove shipments and shipping methods
-                if (!$hasItems) {
-                    $this->getCartSessionService()->removeShipments();
-                    $this->getCartSessionService()->removeShippingMethods();
-                    continue;
-                }
-
-                // shipment quotes are stored in the cart json . they don't have their own table, so we dont need to persist
-                $this->getCartSessionService()
-                    ->collectShippingMethods($customerAddressId, $srcAddressKey);
-            }
+        if (is_array($event->getRecollectShipping())) {
+            $this->getCartService()->collectAddressShipments($event->getRecollectShipping());
         }
 
-        // collect totals
-        $cart = $this->getCartSessionService()
-            ->collectTotals()
-            ->getCart();
+        $this->getCartService()->saveCart();
+        $event->setReturnData('cart', $this->getCartService()->getCart());
 
-        $postcodes = [];
-        if ($customerId) {
-            $addresses = $this->getCartSessionService()->getCart()->getCustomer()->getAddresses();
-            if ($addresses) {
-                foreach($addresses as $address) {
-                    $postcodes[] = $address['postcode'];
-                }
-            }
+        switch($event->get('format')) {
+            case 'json':
+                $event->setResponse(new JsonResponse($event->getReturnData()));
+                break;
+            default:
+                $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_view', [])));
+                break;
         }
-        $this->getLogger()->info("UpdateTotalsShipment : Cart Customer ID: {$customerId} , postcodes: " . implode(', ', $postcodes));
-
-        $baseCurrency = $currencyService->getBaseCurrency();
-
-        $currency = strlen($cart->getCurrency())
-            ? $cart->getCurrency()
-            : $baseCurrency;
-
-        $cartEntity = $event->get('cart_entity')
-            ? $event->get('cart_entity')
-            : $this->getEntityService()->find(EntityConstants::CART, $cart->getId());
-
-        $customerId = $cart->getCustomer()->getId();
-        $customerEntity = $this->getEntityService()->find(EntityConstants::CUSTOMER, $customerId);
-
-        if ($customerEntity) {
-            $cartEntity->setCustomer($customerEntity);
-        }
-
-        // update cart row in db
-        $cartEntity->setJson($cart->toJson())
-            ->setCreatedAt(new \DateTime('now'))
-            ->setCurrency($currency)
-            ->setBaseCurrency($baseCurrency);
-
-        // set totals on cart entity
-        $totals = $cart->getTotals();
-        foreach($totals as $total) {
-            switch($total->getKey()) {
-                case 'items':
-                    $cartEntity->setBaseItemTotal($total->getValue());
-                    if ($baseCurrency == $currency) {
-                        $cartEntity->setItemTotal($total->getValue());
-                    } else {
-                        $cartEntity->setItemTotal($currencyService->convert($total->getValue(), $currency));
-                    }
-                    break;
-                case 'shipments':
-                    $cartEntity->setBaseShippingTotal($total->getValue());
-                    if ($baseCurrency == $currency) {
-                        $cartEntity->setShippingTotal($total->getValue());
-                    } else {
-                        $cartEntity->setShippingTotal($currencyService->convert($total->getValue(), $currency));
-                    }
-                    break;
-                case 'tax':
-                    $cartEntity->setBaseTaxTotal($total->getValue());
-                    if ($baseCurrency == $currency) {
-                        $cartEntity->setTaxTotal($total->getValue());
-                    } else {
-                        $cartEntity->setTaxTotal($currencyService->convert($total->getValue(), $currency));
-                    }
-                    break;
-                case 'discounts':
-                    $cartEntity->setBaseDiscountTotal($total->getValue());
-                    if ($baseCurrency == $currency) {
-                        $cartEntity->setDiscountTotal($total->getValue());
-                    } else {
-                        $cartEntity->setDiscountTotal($currencyService->convert($total->getValue(), $currency));
-                    }
-                    break;
-                case 'grand_total':
-                    $cartEntity->setBaseTotal($total->getValue());
-                    if ($baseCurrency == $currency) {
-                        $cartEntity->setTotal($total->getValue());
-                    } else {
-                        $cartEntity->setTotal($currencyService->convert($total->getValue(), $currency));
-                    }
-                    break;
-                default:
-                    // no-op
-                    break;
-            }
-        }
-
-        $cartEntity->setJson($cart->toJson());
-
-        // todo : update tax, discount values in cart items
-
-        // update Cart in database
-        $this->getEntityService()->persist($cartEntity);
-
-        $event->setCartEntity($cartEntity);
-
-        $cartId = $cartEntity->getId();
-        $cart->setId($cartId);
     }
 }

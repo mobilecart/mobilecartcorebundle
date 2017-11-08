@@ -4,9 +4,6 @@ namespace MobileCart\CoreBundle\EventListener\Cart;
 
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\Event\CoreEvent;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
  * Class RemoveProduct
@@ -15,72 +12,34 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
 class RemoveProduct
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $entityService;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\CartSessionService
-     */
-    protected $cartSessionService;
-
-    /**
-     * @var \Symfony\Component\Routing\RouterInterface
-     */
-    protected $router;
-
-    /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
+    protected $cartService;
 
     /**
      * @return \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     public function getEntityService()
     {
-        return $this->entityService;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
-     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @param $cartService
      * @return $this
      */
-    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
+    public function setCartService($cartService)
     {
-        $this->router = $router;
+        $this->cartService = $cartService;
         return $this;
     }
 
     /**
-     * @return \Symfony\Component\Routing\RouterInterface
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getRouter()
+    public function getCartService()
     {
-        return $this->router;
-    }
-
-    /**
-     * @param $cartSessionService
-     * @return $this
-     */
-    public function setCartSessionService($cartSessionService)
-    {
-        $this->cartSessionService = $cartSessionService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
-     */
-    public function getCartSessionService()
-    {
-        return $this->cartSessionService;
+        return $this->cartService;
     }
 
     /**
@@ -88,92 +47,47 @@ class RemoveProduct
      */
     public function onCartRemoveProduct(CoreEvent $event)
     {
-        $recollectShipping = [];
+        $recollectShipping = $event->get('recollect_shipping', []);
         $success = false;
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
+        $event->set('format', $format);
 
         $productId = $event->getProductId()
             ? $event->getProductId()
             : $request->get('product_id', '');
 
-        $cartSession = $this->getCartSessionService();
-        $cart = $cartSession->getCart();
-        $cartId = $cart->getId();
-        $customerId = $cart->getCustomer()->getId();
+        $cart = $this->getCartService()->getCart();
 
-        $cartEntity = $cartId
-            ? $this->getEntityService()->find(EntityConstants::CART, $cartId)
-            : $this->getEntityService()->getInstance(EntityConstants::CART);
-
-        if (!$cartId) {
-
-            $cartEntity->setJson($cart->toJson())
-                ->setCreatedAt(new \DateTime('now'));
-
-            if ($customerId) {
-
-                $customerEntity = $this->getEntityService()
-                    ->find(EntityConstants::CUSTOMER, $customerId);
-
-                if ($customerEntity) {
-                    $cartEntity->setCustomer($customerEntity);
-                }
-            }
-
-            $this->getEntityService()->persist($cartEntity);
-            $cartId = $cartEntity->getId();
-            $cart->setId($cartId);
-        }
-
-        $cartItem = $cartSession->getCart()->findItem('product_id', $productId);
+        $cartItem = $cart->findItem('product_id', $productId);
         if ($cartItem) {
 
             $customerAddressId = $cartItem->get('customer_address_id', 'main');
             $srcAddressKey = $cartItem->get('source_address_key', 'main');
 
-            $recollectShipping[] = new ArrayWrapper([
-                'customer_address_id' => $customerAddressId,
-                'source_address_key' => $srcAddressKey
-            ]);
+            $this->getCartService()->removeProductId($productId);
+            $this->getCartService()->deleteItemEntity('product_id', $productId);
 
-            $event->setRecollectShipping($recollectShipping);
+            if ($cart->getItems()) {
 
-            $cartItemEntities = $cartEntity->getCartItems();
-            if ($cartItemEntities) {
-                foreach($cartItemEntities as $cartItemEntity) {
-                    if ($cartItemEntity->getProductId() == $productId) {
-                        $this->getEntityService()->remove($cartItemEntity);
-                        break;
-                    }
-                }
-            }
+                $recollectShipping[] = new ArrayWrapper([
+                    'customer_address_id' => $customerAddressId,
+                    'source_address_key' => $srcAddressKey
+                ]);
 
-            $this->getCartSessionService()->removeProductId($productId);
-
-            // remove all shipments and methods if the cart is empty
-            if (!$cartSession->getCart()->getItems()) {
-                $this->getCartSessionService()->removeShipments();
-                $this->getCartSessionService()->removeShippingMethods();
+                $event->setRecollectShipping($recollectShipping);
+            } else {
+                // remove all shipments and methods if the cart is empty
+                $this->getCartService()->removeShipments();
+                $this->getCartService()->removeShippingMethods();
             }
 
             $success = true;
-            $this->getCartSessionService()->collectTotals();
-
         } else {
             $event->addErrorMessage("Specified item is not in your cart");
         }
 
         $event->setReturnData('cart', $cart);
         $event->setReturnData('success', $success);
-
-        switch($format) {
-            case 'json':
-                $event->setResponse(new JsonResponse($event->getReturnData()));
-                break;
-            default:
-                $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_view', [])));
-                break;
-        }
     }
 }

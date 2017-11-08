@@ -2,9 +2,8 @@
 
 namespace MobileCart\CoreBundle\EventListener\Cart;
 
-use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
-use MobileCart\CoreBundle\Event\CoreEvent;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
  * Class ViewReturn
@@ -13,9 +12,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class ViewReturn
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\CartSessionService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $cartSessionService;
+    protected $cartService;
 
     /**
      * @var \MobileCart\CoreBundle\Service\ThemeService
@@ -41,21 +40,21 @@ class ViewReturn
     }
 
     /**
-     * @param $cartSessionService
+     * @param $cartService
      * @return $this
      */
-    public function setCartSessionService($cartSessionService)
+    public function setCartService($cartService)
     {
-        $this->cartSessionService = $cartSessionService;
+        $this->cartService = $cartService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getCartSessionService()
+    public function getCartService()
     {
-        return $this->cartSessionService;
+        return $this->cartService;
     }
 
     /**
@@ -65,57 +64,35 @@ class ViewReturn
     {
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $cart = $this->getCartSessionService()->getCart();
+        $cart = $this->getCartService()->initCart()->getCart();
 
         $event->setReturnData('cart', $cart);
-        $event->setReturnData('is_shipping_enabled', $this->getCartSessionService()->getShippingService()->getIsShippingEnabled());
-        $event->setReturnData('is_multi_shipping_enabled', $this->getCartSessionService()->getShippingService()->getIsMultiShippingEnabled());
+        $event->setReturnData('is_shipping_enabled', $this->getCartService()->getShippingService()->getIsShippingEnabled());
+        $event->setReturnData('is_multi_shipping_enabled', $this->getCartService()->getShippingService()->getIsMultiShippingEnabled());
 
         $addressOptions = [];
-        if ($event->getReturnData('is_multi_shipping_enabled')
-            && $cart->getCustomer()->getId()
-        ) {
+        if ($cart->getCustomer()->getId()) {
 
             // get addresses from session
-            $addresses = $this->getCartSessionService()->getCustomerAddresses();
+            $addresses = $this->getCartService()->getCustomerAddresses();
             if ($addresses) {
                 foreach($addresses as $address) {
-
-                    if ($address instanceof \stdClass) {
-                        $address = get_object_vars($address);
-                    }
-
-                    if (is_array($address)) {
-                        $address = new ArrayWrapper($address);
-                    }
-
-                    if (strlen(trim($address->getStreet())) > 1) {
-                        $label = "{$address->getStreet()} {$address->getCity()}, {$address->getRegion()}";
-                        $value = $address->getId();
-                        $addressOptions[] = [
-                            'value' => $value,
-                            'label' => $label,
-                        ];
-                    }
+                    $addressOptions[] = [
+                        'value' => $address->getId(),
+                        'label' => $address->getLabel(),
+                    ];
                 }
             }
 
-            if ($addressOptions && $event->getUser()) {
-                if ($event->getUser()->getObjectTypeKey() == 'customer') {
-                    $customer = $event->getUser();
-                    if (strlen(trim($customer->getShippingStreet())) > 1) {
-                        $label = "{$customer->getShippingStreet()} {$customer->getShippingCity()}, {$customer->getShippingRegion()}";
-                        $addressOptions[] = [
-                            'value' => 'main',
-                            'label' => $label,
-                        ];
-                    }
-                }
-            }
+        } else {
+            $addressOptions[] = [
+                'value' => 'main',
+                'label' => "Main Address",
+            ];
         }
 
         $event->setReturnData('addresses', $addressOptions);
-        $event->setReturnData('is_discount_enabled', $this->getCartSessionService()->getDiscountService()->getIsDiscountEnabled());
+        $event->setReturnData('is_discount_enabled', (bool) $this->getCartService()->getDiscountService()->getIsDiscountEnabled());
 
         switch($format) {
             case 'json':

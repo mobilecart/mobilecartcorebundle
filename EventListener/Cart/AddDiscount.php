@@ -21,9 +21,9 @@ class AddDiscount
     public $entityService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\CartSessionService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    public $cartSessionService;
+    public $cartService;
 
     /**
      * @var \MobileCart\CoreBundle\Service\ShippingService
@@ -72,21 +72,21 @@ class AddDiscount
     }
 
     /**
-     * @param $cartSessionService
+     * @param $cartService
      * @return $this
      */
-    public function setCartSessionService($cartSessionService)
+    public function setCartService($cartService)
     {
-        $this->cartSessionService = $cartSessionService;
+        $this->cartService = $cartService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getCartSessionService()
+    public function getCartService()
     {
-        return $this->cartSessionService;
+        return $this->cartService;
     }
 
     /**
@@ -114,17 +114,8 @@ class AddDiscount
     {
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
+        $event->set('format', $format);
         $code = $request->get('code', '');
-
-        $cartSession = $this->getCartSessionService();
-        $cart = $cartSession->getCart();
-        $cartId = $cart->getId();
-
-        $cartEntity = $cartId
-            ? $this->getEntityService()->find(EntityConstants::CART, $cartId)
-            : $this->getEntityService()->getInstance(EntityConstants::CART);
-
-        $event->setCartEntity($cartEntity);
 
         $discountEntity = $this->getEntityService()->findOneBy(EntityConstants::DISCOUNT, [
             'coupon_code' => $code,
@@ -137,9 +128,9 @@ class AddDiscount
 
             $isValid = $discount->reapplyIfValid($cart);
             if ($isValid && $discount->hasPromoSkus()) {
-                foreach($discount->getPromoSkus() as $sku => $qty) {
+                foreach($discount->getPromoSkus() as $sku) {
 
-                    if ($cart->hasSku($sku)) {
+                    if ($this->getCartService()->hasSku($sku)) {
                         continue;
                     }
 
@@ -150,14 +141,13 @@ class AddDiscount
 
                     if ($product) {
 
-                        $item = $cart->createItem();
-                        $data = $product->getData();
-                        $data['product_id'] = $data['id'];
-                        unset($data['id']);
-                        $item->fromArray($data);
-                        $item->setQty($qty);
-                        //$item->setPrice('0.00'); // dont need to assume zero price for coupon promos, like we do in DiscountTotal
-                        $cart->addItem($item);
+                        $item = $this->getCartService()->convertProductToItem($product);
+
+                        $item->setPromoQty(1)
+                            ->setPrice(0.00)
+                            ->setBasePrice(0.00);
+
+                        $this->getCartService()->addItem($item);
                         $event->setProductId($product->getId());
 
                     } else {
@@ -165,20 +155,20 @@ class AddDiscount
                         switch($discount->getAppliedTo()) {
                             case CartDiscount::APPLIED_TO_ITEMS:
                                 if (
-                                    !$cart->hasItems()
+                                    !$this->getCartService()->hasItems()
                                     && !$discount->hasPromoSkus()
                                 ) {
-                                    $cart->removeDiscount($discount);
+                                    $this->getCartService()->removeDiscount($discount);
                                 }
                                 break;
                             case CartDiscount::APPLIED_TO_SHIPMENTS:
-                                if (!$cart->hasShipments()) {
-                                    $cart->removeDiscount($discount);
+                                if (!$this->getCartService()->hasShipments()) {
+                                    $this->getCartService()->removeDiscount($discount);
                                 }
                                 break;
                             case CartDiscount::APPLIED_TO_SPECIFIED:
-                                if (!$cart->hasItems() && !$cart->hasShipments()) {
-                                    $cart->removeDiscount($discount);
+                                if (!$this->getCartService()->hasItems() && !$this->getCartService()->hasShipments()) {
+                                    $this->getCartService()->removeDiscount($discount);
                                 }
                                 break;
                             default:
@@ -191,30 +181,11 @@ class AddDiscount
             }
         }
 
-        if ($isValid) {
-
-            $cart = $this->getCartSessionService()
-                ->setCart($cart)
-                //->collectShippingMethods() // shouldnt have to re-collect shipping methods
-                ->collectTotals()
-                ->getCart();
-        }
-
-        $event->setReturnData('cart', $cart);
         $event->setReturnData('is_valid_code', $isValid);
         $event->setReturnData('success', $isValid);
 
         if ($isValid) {
             $event->addSuccessMessage('Discount Successfully Added!');
-        }
-
-        switch($format) {
-            case 'json':
-                $event->setResponse(new JsonResponse($event->getReturnData()));
-                break;
-            default:
-                $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_view', [])));
-                break;
         }
     }
 }

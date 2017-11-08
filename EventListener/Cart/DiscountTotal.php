@@ -106,13 +106,15 @@ class DiscountTotal extends Total
                                 ]);
 
                             if ($product) {
-
+                                $qty = 1;
                                 $item = $cart->createItem();
                                 $data = $product->getData();
                                 $data['product_id'] = $data['id'];
                                 unset($data['id']);
                                 $item->fromArray($data);
-                                $item->setPrice(0);
+                                $item->setPrice(0.00);
+                                $item->setQty($qty);
+                                $item->set('promo_qty', $qty); // use this to block changing qty later
                                 $cart->addItem($item);
 
                             } else {

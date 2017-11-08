@@ -19,9 +19,9 @@ class UpdateMultiShipment
     protected $entityService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\CartSessionService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $cartSessionService;
+    protected $cartService;
 
     /**
      * @var \MobileCart\CoreBundle\Service\ShippingService
@@ -29,21 +29,21 @@ class UpdateMultiShipment
     protected $shippingService;
 
     /**
-     * @param $cartSessionService
+     * @param $cartService
      * @return $this
      */
-    public function setCartSessionService($cartSessionService)
+    public function setCartService($cartService)
     {
-        $this->cartSessionService = $cartSessionService;
+        $this->cartService = $cartService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getCartSessionService()
+    public function getCartService()
     {
-        return $this->cartSessionService;
+        return $this->cartService;
     }
 
     /**
@@ -69,7 +69,7 @@ class UpdateMultiShipment
      */
     public function getCurrencyService()
     {
-        return $this->getCartSessionService()->getCartService()->getCartTotalService()->getCurrencyService();
+        return $this->getCartService()->getCartTotalService()->getCurrencyService();
     }
 
     /**
@@ -98,7 +98,7 @@ class UpdateMultiShipment
     {
         $request = $event->getRequest();
         $products = $request->get('product_address', []);
-        $cart = $this->getCartSessionService()->getCart();
+        $cart = $this->getCartService()->getCart();
         $srcAddressKeys = [];
         $srcAddresses = $this->getShippingService()->getSourceAddresses();
         if (!$srcAddresses) {
@@ -143,7 +143,7 @@ class UpdateMultiShipment
         if ($addressProductIds) {
 
             // take note of previous selections, and set them as default after the new rates are ready
-            $shipments = $this->getCartSessionService()->getShipments();
+            $shipments = $this->getCartService()->getShipments();
             $defaults = []; // r[src_address_key][address_id] = shipping_method_code
             if ($shipments) {
                 foreach($shipments as $shipment) {
@@ -165,7 +165,7 @@ class UpdateMultiShipment
                         continue;
                     }
 
-                    $this->getCartSessionService()
+                    $this->getCartService()
                         ->removeShipments($addressId, $srcAddressKey)
                         ->removeShippingMethods($addressId, $srcAddressKey);
 
@@ -175,7 +175,7 @@ class UpdateMultiShipment
 
                     if ($addressId == 'main') {
 
-                        $customer = $this->getCartSessionService()->getCustomer();
+                        $customer = $this->getCartService()->getCustomer();
                         $postcode = $customer->getShippingPostcode();
                         $countryId = $customer->getShippingCountryId();
                         $region = $customer->getShippingRegion();
@@ -193,7 +193,7 @@ class UpdateMultiShipment
                     }
 
                     $cartItems = [];
-                    $items = $this->getCartSessionService()->getItems();
+                    $items = $this->getCartService()->getItems();
                     if ($items) {
                         foreach($items as $item) {
                             if (in_array($item->getProductId(), $productIds)) {
@@ -216,7 +216,7 @@ class UpdateMultiShipment
                     ]);
 
                     // collect shipping methods for the address
-                    $rates = $this->getCartSessionService()
+                    $rates = $this->getCartService()
                         ->getShippingService()
                         ->collectShippingRates($request);
 
@@ -233,7 +233,7 @@ class UpdateMultiShipment
                     }
 
                     // add the shipping methods to the cart
-                    $this->getCartSessionService()->setRates($rates, $addressId, $srcAddressKey);
+                    $this->getCartService()->setRates($rates, $addressId, $srcAddressKey);
                     if ($rates) {
                         $rate = $rates[0];
                         if (isset($defaults[$srcAddressKey][$addressId])) {
@@ -247,15 +247,15 @@ class UpdateMultiShipment
                         }
                         $shipment = new Shipment();
                         $shipment->fromArray($rate->getData());
-                        if (!$this->getCartSessionService()->addressHasShipment($addressId, $srcAddressKey)) {
-                            $this->getCartSessionService()->addShipment($shipment, $addressId, $srcAddressKey);
+                        if (!$this->getCartService()->addressHasShipment($addressId, $srcAddressKey)) {
+                            $this->getCartService()->addShipment($shipment, $addressId, $srcAddressKey);
                         }
                     }
                 }
             }
 
             // Collect Totals
-            $cart = $this->getCartSessionService()->collectTotals()->getCart();
+            $cart = $this->getCartService()->collectTotals()->getCart();
 
             $cartId = $cart->getId();
 
@@ -365,7 +365,7 @@ class UpdateMultiShipment
             $cartEntity->setJson($cart->toJson());
             // update Cart in database
             $this->getEntityService()->persist($cartEntity);
-            $this->getCartSessionService()->setCart($cart);
+            $this->getCartService()->setCart($cart);
         }
     }
 }
