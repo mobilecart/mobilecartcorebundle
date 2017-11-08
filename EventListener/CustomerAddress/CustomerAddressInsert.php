@@ -11,49 +11,34 @@ use MobileCart\CoreBundle\Event\CoreEvent;
 class CustomerAddressInsert
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $entityService;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\CartSessionService
-     */
-    protected $cartSessionService;
-
-    /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
+    protected $cartService;
 
     /**
      * @return \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     public function getEntityService()
     {
-        return $this->entityService;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
-     * @param $cartSessionService
+     * @param $cartService
      * @return $this
      */
-    public function setCartSessionService($cartSessionService)
+    public function setCartService($cartService)
     {
-        $this->cartSessionService = $cartSessionService;
+        $this->cartService = $cartService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getCartSessionService()
+    public function getCartService()
     {
-        return $this->cartSessionService;
+        return $this->cartService;
     }
 
     /**
@@ -61,15 +46,15 @@ class CustomerAddressInsert
      */
     public function onCustomerAddressInsert(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\CustomerAddress $entity */
         $entity = $event->getEntity();
-        $entity->setCustomer($event->getCustomer());
+        /** @var \MobileCart\CoreBundle\Entity\Customer $customer */
+        $customer = $event->getCustomer();
+        $entity->setCustomer($customer);
         $this->getEntityService()->persist($entity);
 
-        if ($event->getSection() == CoreEvent::SECTION_FRONTEND) {
-
-            // update session info
-            $this->getCartSessionService()
-                ->setCustomerEntity($event->getCustomer());
+        if (!$this->getCartService()->getIsAdminUser()) {
+            $this->getCartService()->setCustomerEntity($customer);
         }
 
         $event->addSuccessMessage('Customer Address Created!');

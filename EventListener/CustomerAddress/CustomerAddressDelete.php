@@ -14,14 +14,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 class CustomerAddressDelete
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $entityService;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\CartSessionService
-     */
-    protected $cartSessionService;
+    protected $cartService;
 
     /**
      * @var \Symfony\Component\Routing\RouterInterface
@@ -47,39 +42,29 @@ class CustomerAddressDelete
     }
 
     /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    /**
      * @return \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     public function getEntityService()
     {
-        return $this->entityService;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
-     * @param $cartSessionService
+     * @param $cartService
      * @return $this
      */
-    public function setCartSessionService($cartSessionService)
+    public function setCartService($cartService)
     {
-        $this->cartSessionService = $cartSessionService;
+        $this->cartService = $cartService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getCartSessionService()
+    public function getCartService()
     {
-        return $this->cartSessionService;
+        return $this->cartService;
     }
 
     /**
@@ -87,22 +72,26 @@ class CustomerAddressDelete
      */
     public function onCustomerAddressDelete(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\CustomerAddress $entity */
         $entity = $event->getEntity();
+        $customer = $entity->getCustomer();
         $request = $event->getRequest();
         $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
+        $success = false;
 
-        $this->getEntityService()->remove($entity, EntityConstants::CUSTOMER);
+        try {
+            $this->getEntityService()->remove($entity);
+            $success = true;
+            $event->addSuccessMessage('Customer Address Deleted!');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('Exception occurred during delete');
+        }
 
-        if ($event->getSection() == CoreEvent::SECTION_FRONTEND) {
-
-            // update session info
-            $this->getCartSessionService()
-                ->setCustomerEntity($event->getCustomer());
+        if (!$this->getCartService()->getIsAdminUser()) {
+            $this->getCartService()->setCustomerEntity($customer);
         }
 
         $url = $this->getRouter()->generate('customer_addresses', []);
-
-        $event->addSuccessMessage('Customer Address Deleted!');
 
         if ($event->getRequest()->getSession() && $event->getMessages()) {
             foreach($event->getMessages() as $code => $messages) {
@@ -115,14 +104,16 @@ class CustomerAddressDelete
             }
         }
 
+        $event->addReturnData([
+            'success' => $success,
+            'entity' => $entity->getData(),
+            'redirect_url' => $url,
+            'messages' => $event->getMessages(),
+        ]);
+
         switch($format) {
             case 'json':
-                $event->setResponse(new JsonResponse([
-                    'success' => true,
-                    'entity' => $entity->getData(),
-                    'redirect_url' => $url,
-                    'messages' => $event->getMessages(),
-                ]));
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
                 $event->setResponse(new RedirectResponse($url));

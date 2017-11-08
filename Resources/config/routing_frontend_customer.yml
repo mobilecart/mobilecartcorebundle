@@ -91,4 +91,4 @@ customer_address_update:
 customer_address_delete:
     path: /customer/address/{id}/delete
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\CustomerAddress:delete' }
-    methods: [DELETE]
+    methods: [GET]
