@@ -428,7 +428,8 @@ class Customer
             'id'                  => $this->getId(),
             'default_locale'      => $this->getDefaultLocale(),
             'default_currency'    => $this->getDefaultCurrency(),
-            // 'customer_groups'               => '', todo
+            'group_ids'           => $this->getGroupIds(),
+            'groups'              => $this->getGroupNames(), // this lines up with discount condition handling
             'email'               => $this->getEmail(),
             // 'hash'                => $this->getHash(),
             // 'confirm_hash'        => $this->getConfirmHash(),
@@ -1157,7 +1158,7 @@ class Customer
     }
 
     /**
-     * @return ArrayCollection|CustomerAddress
+     * @return ArrayCollection|CustomerAddress[]
      */
     public function getAddresses()
     {
@@ -1175,11 +1176,39 @@ class Customer
     }
 
     /**
-     * @return ArrayCollection|CustomerGroup
+     * @return ArrayCollection|CustomerGroup[]
      */
     public function getGroups()
     {
         return $this->groups;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGroupIds()
+    {
+        $ids = [];
+        if ($this->getGroups()) {
+            foreach($this->getGroups() as $group) {
+                $ids[] = $group->getId();
+            }
+        }
+        return $ids;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGroupNames()
+    {
+        $names = [];
+        if ($this->getGroups()) {
+            foreach($this->getGroups() as $group) {
+                $names[] = $group->getName();
+            }
+        }
+        return $names;
     }
 
     /**

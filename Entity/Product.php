@@ -492,9 +492,9 @@ class Product
             'old_id' => $this->getOldId(),
             'custom_template' => $this->getCustomTemplate(),
             'sort_order' => $this->getSortOrder(),
-            'is_public' => (bool) $this->getIsPublic(),
-            'is_searchable' => (bool) $this->getIsSearchable(),
-            'is_enabled' => (bool) $this->getIsEnabled(),
+            'is_public' => $this->getIsPublic(),
+            'is_searchable' => $this->getIsSearchable(),
+            'is_enabled' => $this->getIsEnabled(),
             'page_title' => $this->getPageTitle(),
             'name' => $this->getName(),
             'slug' => $this->getSlug(),
@@ -520,9 +520,9 @@ class Product
             'height' => $this->getHeight(),
             'length' => $this->getLength(),
             'measure_unit' => $this->getMeasureUnit(),
-            'is_in_stock' => (bool) $this->getIsInStock(),
-            'is_discountable' => (bool) $this->getIsDiscountable(),
-            'is_taxable' => (bool) $this->getIsTaxable(),
+            'is_in_stock' => $this->getIsInStock(),
+            'is_discountable' => $this->getIsDiscountable(),
+            'is_taxable' => $this->getIsTaxable(),
             'visibility' => $this->getVisibility(),
             'can_backorder' => $this->getCanBackorder(),
             'fulltext_search' => $this->getFulltextSearch(),
@@ -824,7 +824,7 @@ class Product
      */
     public function getIsPublic()
     {
-        return $this->is_public;
+        return (bool) $this->is_public;
     }
 
     /**
@@ -844,7 +844,7 @@ class Product
      */
     public function getIsSearchable()
     {
-        return $this->is_searchable;
+        return (bool) $this->is_searchable;
     }
 
     /**
@@ -1209,7 +1209,7 @@ class Product
      */
     public function getIsEnabled()
     {
-        return $this->is_enabled;
+        return (bool) $this->is_enabled;
     }
 
     /**
@@ -1361,7 +1361,7 @@ class Product
      */
     public function getIsTaxable()
     {
-        return $this->is_taxable;
+        return (bool) $this->is_taxable;
     }
 
     /**
@@ -1399,7 +1399,7 @@ class Product
      */
     public function getIsFlatShipping()
     {
-        return $this->is_flat_shipping;
+        return (bool) $this->is_flat_shipping;
     }
 
     /**
@@ -1545,7 +1545,7 @@ class Product
      */
     public function getIsDiscountable()
     {
-        return $this->is_discountable;
+        return (bool) $this->is_discountable;
     }
 
     /**
@@ -1565,7 +1565,7 @@ class Product
      */
     public function getIsInStock()
     {
-        return $this->is_in_stock;
+        return (bool) $this->is_in_stock;
     }
 
     /**
@@ -1585,7 +1585,7 @@ class Product
      */
     public function getIsQtyManaged()
     {
-        return $this->is_qty_managed;
+        return (bool) $this->is_qty_managed;
     }
 
     /**
@@ -1847,7 +1847,7 @@ class Product
     }
 
     /**
-     * @return ArrayCollection|ProductTierPrice
+     * @return ArrayCollection|ProductTierPrice[]
      */
     public function getTierPrices()
     {
@@ -1985,7 +1985,7 @@ class Product
     }
 
     /**
-     * @return \Doctrine\Common\Collections\Collection
+     * @return \Doctrine\Common\Collections\Collection|ProductImage[]
      */
     public function getImages()
     {

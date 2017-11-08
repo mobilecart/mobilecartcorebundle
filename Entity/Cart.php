@@ -275,7 +275,7 @@ class Cart
     }
 
     /**
-     * @return \Doctrine\Common\Collections\ArrayCollection|CartItem
+     * @return \Doctrine\Common\Collections\ArrayCollection|CartItem[]
      */
     public function getCartItems()
     {

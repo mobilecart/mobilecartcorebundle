@@ -16,7 +16,7 @@ class ProductTierPrice
     implements CartEntityInterface
 {
     /**
-     * @var integer $id
+     * @var int $id
      *
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
@@ -47,18 +47,6 @@ class ProductTierPrice
      * @ORM\Column(name="price", type="decimal", precision=12, scale=4)
      */
     protected $price;
-
-    /**
-     * @var string $currency
-     *
-     * @ORM\Column(name="currency", type="string", length=8)
-     */
-    protected $currency;
-
-    public function __construct()
-    {
-
-    }
 
     public function __toString()
     {
@@ -91,12 +79,15 @@ class ProductTierPrice
         return $this;
     }
 
+    /**
+     * @return array
+     */
     public function getBaseData()
     {
         return [
             'id' => $this->getId(),
+            'qty' => $this->getQty(),
             'price' => $this->getPrice(),
-            'currency' => $this->getPrice(),
         ];
     }
 
@@ -134,24 +125,6 @@ class ProductTierPrice
     public function getQty()
     {
         return $this->qty;
-    }
-
-    /**
-     * @param $currency
-     * @return Product
-     */
-    public function setCurrency($currency)
-    {
-        $this->currency = $currency;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCurrency()
-    {
-        return $this->currency;
     }
 
     /**
