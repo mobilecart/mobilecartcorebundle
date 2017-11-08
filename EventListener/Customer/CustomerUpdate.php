@@ -11,14 +11,9 @@ use MobileCart\CoreBundle\Event\CoreEvent;
 class CustomerUpdate
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $entityService;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\CartSessionService
-     */
-    protected $cartSessionService;
+    protected $cartService;
 
     protected $securityPasswordEncoder;
 
@@ -34,39 +29,29 @@ class CustomerUpdate
     }
 
     /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    /**
      * @return \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     public function getEntityService()
     {
-        return $this->entityService;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
-     * @param $cartSessionService
+     * @param $cartService
      * @return $this
      */
-    public function setCartSessionService($cartSessionService)
+    public function setCartService($cartService)
     {
-        $this->cartSessionService = $cartSessionService;
+        $this->cartService = $cartService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getCartSessionService()
+    public function getCartService()
     {
-        return $this->cartSessionService;
+        return $this->cartService;
     }
 
     /**
@@ -74,6 +59,7 @@ class CustomerUpdate
      */
     public function onCustomerUpdate(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\Customer $entity */
         $entity = $event->getEntity();
         $formData = $event->getFormData();
 
@@ -87,7 +73,7 @@ class CustomerUpdate
             $encoder = $this->getSecurityPasswordEncoder();
             $encoded = $encoder->encodePassword($entity, $formData['password']['first']);
             $entity->setHash($encoded);
-            $event->setIsPasswordChanged(1);
+            $event->setIsPasswordChanged(true);
         }
 
         $this->getEntityService()->persist($entity);
@@ -97,7 +83,10 @@ class CustomerUpdate
             // update var values
             $this->getEntityService()
                 ->persistVariants($entity, $formData);
+        }
 
+        if (!$this->getCartService()->getIsAdminUser()) {
+            $this->getCartService()->setCustomerEntity($entity);
         }
 
         $event->addSuccessMessage('Customer Updated!');
