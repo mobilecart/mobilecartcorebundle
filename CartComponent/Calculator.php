@@ -106,12 +106,10 @@ class Calculator
      */
     public function getDiscountedTotals()
     {
-        return array(
-            'items'       => $this->format($this->getDiscountedItemTotal()),
-            'shipments'   => $this->format($this->getDiscountedShipmentTotal()),
-            'tax'         => $this->format($this->getTaxTotal()),
-            'grand_total' => $this->format($this->getGrandTotal()),
-        );
+        return [
+            self::ITEMS     => $this->format($this->getDiscountedItemTotal()),
+            self::SHIPMENTS => $this->format($this->getDiscountedShipmentTotal()),
+        ];
     }
 
     /**
@@ -650,7 +648,7 @@ class Calculator
         }
         
         $itemTotal = 0;
-        foreach($this->getCart()->getItems() as $productKey => $item) {
+        foreach($this->getCart()->getItems() as $item) {
             $price = $this->currency($item->getPrice());
             $qty = $item->getQty();
             $itemTotal += $this->currency($price * $qty);
@@ -685,7 +683,7 @@ class Calculator
         }
 
         $total = 0;
-        foreach($this->getCart()->getShipments() as $shipmentKey => $shipment) {
+        foreach($this->getCart()->getShipments() as $shipment) {
             $total += $this->currency($shipment->getPrice());
         }
 

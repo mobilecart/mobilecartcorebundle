@@ -288,7 +288,7 @@ class Discount extends ArrayWrapper
      */
     public function setIsPreTax($isPreTax)
     {
-        $this->data[self::IS_PRE_TAX] = $isPreTax;
+        $this->data[self::IS_PRE_TAX] = (bool) $isPreTax;
         return $this;
     }
 
@@ -683,11 +683,11 @@ class Discount extends ArrayWrapper
 
         $startDatetime = isset($data[self::START_TIME])
             ? strtotime($data[self::START_TIME])
-            : false;
+            : null;
 
         $endDatetime = isset($data[self::END_TIME])
             ? strtotime($data[self::END_TIME])
-            : false;
+            : null;
 
         $this->data[self::START_TIME] = $startDatetime;
         $this->data[self::END_TIME] = $endDatetime;
@@ -713,7 +713,7 @@ class Discount extends ArrayWrapper
             ) {
                 $promoSkus = @ (array) json_decode($promoSkus);
                 // sku data should have been validated before it was saved
-            } else if (is_int(strpos($promoSkus, ','))) {
+            } elseif (is_int(strpos($promoSkus, ','))) {
                 $skus = explode(',', $promoSkus);
                 if ($skus) {
                     foreach($skus as $sku) {
@@ -781,7 +781,7 @@ class Discount extends ArrayWrapper
 
         $preConditionJson = isset($data[self::PRE_CONDITIONS])
             ? $data[self::PRE_CONDITIONS]
-            : '';
+            : '{}';
 
         $preCondition = null;
         if (strlen($preConditionJson)) {
@@ -792,7 +792,7 @@ class Discount extends ArrayWrapper
 
         $targetConditionJson = isset($data[self::TARGET_CONDITIONS])
             ? $data[self::TARGET_CONDITIONS]
-            : '';
+            : '{}';
 
         $targetCondition = null;
         if (strlen($targetConditionJson)) {
@@ -805,7 +805,7 @@ class Discount extends ArrayWrapper
             ? $data[self::COUPON_CODE]
             : '';
 
-        $this->data[self::IS_AUTO] = isset($data[self::IS_AUTO])
+        $this->data[self::IS_AUTO] = (bool) isset($data[self::IS_AUTO])
             ? $data[self::IS_AUTO]
             : false;
 
@@ -887,10 +887,10 @@ class Discount extends ArrayWrapper
             return $this;
         }
         
-        $newItems = array_flip($this->getItems());
-        unset($newItems[$key]);
-        $newItems = array_flip($newItems);
-        $this->data[self::ITEMS] = array_values($newItems);
+        $items = array_flip($this->getItems());
+        unset($items[$key]);
+        $items = array_flip($items);
+        $this->data[self::ITEMS] = array_values($items);
         
         return $this;
     }
@@ -925,18 +925,7 @@ class Discount extends ArrayWrapper
      */
     public function hasProductId($productId)
     {
-        if ($this->hasItems()) {
-            foreach($this->getProductIds() as $aProductId) {
-                if (!is_numeric($aProductId)) {
-                    continue;
-                }
-                if ($aProductId == $productId) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return in_array($productId, $this->getProductIds());
     }
 
     /**
@@ -945,11 +934,7 @@ class Discount extends ArrayWrapper
      */
     public function hasShipmentCode($code)
     {
-        if ($this->hasShipments()) {
-            return in_array($code, $this->data[self::SHIPMENTS]);
-        }
-
-        return false;
+        return in_array($code, $this->data[self::SHIPMENTS]);
     }
 
     /**
@@ -964,10 +949,10 @@ class Discount extends ArrayWrapper
             return $this;
         }
         
-        $newShipments = array_flip($this->getShipments());
-        unset($newShipments[$key]);
-        $newShipments = array_flip($newShipments);
-        $this->data[self::SHIPMENTS] = array_values($newShipments);
+        $shipments = array_flip($this->getShipments());
+        unset($shipments[$key]);
+        $shipments = array_flip($shipments);
+        $this->data[self::SHIPMENTS] = array_values($shipments);
         return $this;
     }
 
@@ -1654,6 +1639,5 @@ class Discount extends ArrayWrapper
 
         return true;
     }
-
 
 }

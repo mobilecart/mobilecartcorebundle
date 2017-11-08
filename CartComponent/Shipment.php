@@ -27,8 +27,13 @@ class Shipment extends ArrayWrapper
     const MAX_DAYS = 'max_days';
     const WEIGHT = 'weight';
     const PRICE = 'price';
+    const BASE_PRICE = 'base_price';
+    const PRODUCT_IDS = 'product_ids';
+    const SKUS = 'skus';
     const IS_TAXABLE = 'is_taxable';
     const IS_DISCOUNTABLE = 'is_discountable';
+    const CUSTOMER_ADDRESS_ID = 'customer_address_id';
+    const SOURCE_ADDRESS_KEY = 'source_address_key';
 
     public function __construct()
     {
@@ -41,18 +46,93 @@ class Shipment extends ArrayWrapper
     public function getDefaults()
     {
         return [
-            self::ID                 => 0,
-            self::SHIPPING_METHOD_ID => 0,
-            self::COMPANY            => '',
-            self::METHOD             => '',
-            self::CODE               => '',
-            self::MIN_DAYS           => 0,
-            self::MAX_DAYS           => 0,
-            self::WEIGHT             => 0,
-            self::PRICE              => 0,
-            self::IS_TAXABLE         => false,
-            self::IS_DISCOUNTABLE    => false,
+            self::ID                  => 0,
+            self::SHIPPING_METHOD_ID  => 0,
+            self::COMPANY             => '',
+            self::METHOD              => '',
+            self::CODE                => '',
+            self::MIN_DAYS            => 0,
+            self::MAX_DAYS            => 0,
+            self::WEIGHT              => 0,
+            self::PRICE               => 0,
+            self::BASE_PRICE          => 0,
+            self::PRODUCT_IDS         => [],
+            self::SKUS                => [],
+            self::IS_TAXABLE          => false,
+            self::IS_DISCOUNTABLE     => false,
+            self::CUSTOMER_ADDRESS_ID => 0,
+            self::SOURCE_ADDRESS_KEY  => '',
         ];
+    }
+
+    /**
+     * @param array $data
+     * @return $this
+     */
+    public function fromArray(array $data)
+    {
+        if ($data) {
+            foreach($data as $key => $value) {
+                switch($key) {
+                    case self::ID:
+                        $this->setId($value);
+                        break;
+                    case self::SHIPPING_METHOD_ID:
+                        $this->setShippingMethodId($value);
+                        break;
+                    case self::COMPANY:
+                        $this->setCompany($value);
+                        break;
+                    case self::METHOD:
+                        $this->setMethod($value);
+                        break;
+                    case self::CODE:
+                        // skip it, since it has its own getter
+                        break;
+                    case self::MIN_DAYS:
+                        $this->setMinDays($value);
+                        break;
+                    case self::MAX_DAYS:
+                        $this->setMaxDays($value);
+                        break;
+                    case self::WEIGHT:
+                        $this->setWeight($value);
+                        break;
+                    case self::PRICE:
+                        $this->setPrice($value);
+                        break;
+                    case self::BASE_PRICE:
+                        $this->setBasePrice($value);
+                        break;
+                    case self::PRODUCT_IDS:
+                        $this->setProductIds($value);
+                        break;
+                    case self::SKUS:
+                        $this->setSkus($value);
+                        break;
+                    case self::IS_TAXABLE:
+                        $this->setIsTaxable($value);
+                        break;
+                    case self::IS_DISCOUNTABLE:
+                        $this->setIsDiscountable($value);
+                        break;
+                    case self::CUSTOMER_ADDRESS_ID:
+                        $this->setCustomerAddressId($value);
+                        break;
+                    case self::SOURCE_ADDRESS_KEY:
+                        $this->setSourceAddressKey($value);
+                        break;
+                    default:
+                        if ($value instanceof \stdClass || is_object($value)) {
+                            $this->data[$key] = new ArrayWrapper(get_object_vars($value));
+                        } elseif (is_scalar($value) || is_array($value)) {
+                            $this->data[$key] = $value;
+                        }
+                        break;
+                }
+            }
+        }
+        return $this;
     }
 
     /**
@@ -202,6 +282,60 @@ class Shipment extends ArrayWrapper
     }
 
     /**
+     * @param $price
+     * @return $this
+     */
+    public function setBasePrice($price)
+    {
+        $this->data[self::BASE_PRICE] = $price;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBasePrice()
+    {
+        return $this->data[self::BASE_PRICE];
+    }
+
+    /**
+     * @param array $productIds
+     * @return $this
+     */
+    public function setProductIds(array $productIds)
+    {
+        $this->data[self::PRODUCT_IDS] = $productIds;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getProductIds()
+    {
+        return $this->data[self::PRODUCT_IDS];
+    }
+
+    /**
+     * @param array $skus
+     * @return $this
+     */
+    public function setSkus(array $skus)
+    {
+        $this->data[self::SKUS] = $skus;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSkus()
+    {
+        return $this->data[self::SKUS];
+    }
+
+    /**
      * @param $isTaxable
      * @return $this
      */
@@ -238,6 +372,42 @@ class Shipment extends ArrayWrapper
     }
 
     /**
+     * @param $customerAddressId
+     * @return $this
+     */
+    public function setCustomerAddressId($customerAddressId)
+    {
+        $this->data[self::CUSTOMER_ADDRESS_ID] = $customerAddressId;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCustomerAddressId()
+    {
+        return $this->data[self::CUSTOMER_ADDRESS_ID];
+    }
+
+    /**
+     * @param string $sourceAddressKey
+     * @return $this
+     */
+    public function setSourceAddressKey($sourceAddressKey)
+    {
+        $this->data[self::SOURCE_ADDRESS_KEY] = $sourceAddressKey;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSourceAddressKey()
+    {
+        return $this->data[self::SOURCE_ADDRESS_KEY];
+    }
+
+    /**
      * @return array
      */
     public function toArray()
@@ -255,15 +425,12 @@ class Shipment extends ArrayWrapper
      */
     public function isValidCondition(RuleCondition $condition)
     {
-        switch($condition->getSourceEntityField()) {
+        switch($condition->getEntityField()) {
             case 'code':
                 $condition->setSourceValue($this->getCode());
                 break;
-            case 'price':
-                $condition->setSourceValue($this->getPrice());
-                break;
             default:
-                //no-op
+                $condition->setSourceValue($this->get($condition->getEntityField()));
                 break;
         }
 

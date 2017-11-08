@@ -247,7 +247,15 @@ class ArrayWrapper
      */
     public function addData(array $data)
     {
-        return $this->fromArray($data);
+        if (!$data) {
+            return $this;
+        }
+
+        //ensuring that defaults are preserved
+        foreach($data as $key => $value) {
+            $this->data[$key] = $value;
+        }
+        return $this;
     }
 
     /**

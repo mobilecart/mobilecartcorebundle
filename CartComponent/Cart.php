@@ -31,6 +31,7 @@ class Cart extends ArrayWrapper
     const PRECISION = 'precision';
     const CALCULATOR_PRECISION = 'calculator_precision';
     const DISCOUNT_TAXABLE_LAST = 'discount_taxable_last';
+    const PAYMENT_METHOD_CODES = 'payment_method_codes';
 
     public function __construct()
     {
@@ -55,6 +56,7 @@ class Cart extends ArrayWrapper
             self::PRECISION => 2,
             self::CALCULATOR_PRECISION => 4,
             self::DISCOUNT_TAXABLE_LAST => true,
+            self::PAYMENT_METHOD_CODES => [],
         ];
     }
 
@@ -131,6 +133,42 @@ class Cart extends ArrayWrapper
     }
 
     /**
+     * @param int $precision
+     * @return $this
+     */
+    public function setPrecision($precision)
+    {
+        $this->data[self::PRECISION] = (int) $precision;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPrecision()
+    {
+        return (int) $this->data[self::PRECISION];
+    }
+
+    /**
+     * @param int $precision
+     * @return $this
+     */
+    public function setCalculatorPrecision($precision)
+    {
+        $this->data[self::CALCULATOR_PRECISION] = (int) $precision;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCalculatorPrecision()
+    {
+        return (int) $this->data[self::CALCULATOR_PRECISION];
+    }
+
+    /**
      * @param bool $discountTaxableLast
      * @return $this
      */
@@ -146,6 +184,24 @@ class Cart extends ArrayWrapper
     public function getDiscountTaxableLast()
     {
         return (bool) $this->data[self::DISCOUNT_TAXABLE_LAST];
+    }
+
+    /**
+     * @param array $paymentMethodCodes
+     * @return $this
+     */
+    public function setPaymentMethodCodes(array $paymentMethodCodes)
+    {
+        $this->data[self::PAYMENT_METHOD_CODES] = $paymentMethodCodes;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPaymentMethodCodes()
+    {
+        return $this->data[self::PAYMENT_METHOD_CODES];
     }
 
     /**
@@ -340,12 +396,30 @@ class Cart extends ArrayWrapper
     }
 
     /**
+     * @param string $addressId
+     * @param string $srcAddressKey
      * @return bool
      */
-    public function hasShipments()
+    public function hasShipments($addressId='', $srcAddressKey='main')
     {
         $this->initShipments();
-        return count($this->data[self::SHIPMENTS]) > 0;
+        if (!$addressId) {
+            return count($this->data[self::SHIPMENTS]) > 0;
+        }
+
+        $this->unprefixAddressId($addressId);
+
+        if ($shipments = $this->getShipments()) {
+            foreach($shipments as $shipment) {
+                if ($shipment->getCustomerAddressId() == $addressId
+                    && $shipment->getSourceAddressKey() == $srcAddressKey
+                ) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -454,35 +528,6 @@ class Cart extends ArrayWrapper
         }
         return $shipments;
     }
-
-    /**
-     * Export cart shipments as an associative array
-     *
-     * @return array of Shipments
-     */
-    public function getShippingMethodsData()
-    {
-        $shipments = [];
-        if ($this->hasShippingMethods()) {
-            foreach($this->getShippingMethods() as $srcAddressKey => $addressIds) {
-                if (!$addressIds) {
-                    continue;
-                }
-                $shipments[$srcAddressKey] = [];
-                foreach($addressIds as $addressId => $methods) {
-                    if (!$methods) {
-                        continue;
-                    }
-                    $shipments[$srcAddressKey][$addressId] = [];
-                    foreach($methods as $method) {
-                        $shipments[$srcAddressKey][$addressId][] = $method->toArray();
-                    }
-                }
-            }
-        }
-
-        return $shipments;
-    }
     
     /**
      * Import object data from json string.
@@ -519,12 +564,6 @@ class Cart extends ArrayWrapper
                 ? get_object_vars($customerObj)
                 : (array) $customerObj;
 
-            foreach($customerData as $k => $v) {
-                if ($v instanceof \stdClass) {
-                    $customerData[$k] = new ArrayWrapper(get_object_vars($v));
-                }
-            }
-
             $customer = new Customer();
             $customer->fromArray($customerData);
             $this->setCustomer($customer);
@@ -537,12 +576,6 @@ class Cart extends ArrayWrapper
                 $itemData = ($itemObj instanceof \stdClass)
                     ? get_object_vars($itemObj)
                     : (array) $itemObj;
-
-                foreach($itemData as $k => $v) {
-                    if (is_object($v)) {
-                        $itemData[$k] = new ArrayWrapper(get_object_vars($v));
-                    }
-                }
 
                 $item = new Item();
                 $item->fromArray($itemData);
@@ -596,27 +629,17 @@ class Cart extends ArrayWrapper
         }
 
         if ($cart) {
-            foreach($cart as $k => $v) {
-                if (in_array($k, [
-                    self::ID,
-                    self::CUSTOMER,
-                    self::ITEMS,
-                    self::SHIPMENTS,
-                    self::SHIPPING_METHODS,
-                    self::DISCOUNTS,
-                    self::INCLUDE_TAX,
-                    self::TAX_RATE,
-                    self::DISCOUNT_TAXABLE_LAST,
-                ])) {
+            $defaults = $this->getDefaults();
+            foreach($cart as $key => $value) {
+
+                if (isset($defaults[$key])) {
                     continue;
                 }
 
-                if ($v instanceof \stdClass) {
-                    $cart[$k] = new ArrayWrapper(get_object_vars($v));
-                } elseif (is_array($v)) {
-                    $cart[$k] = new ArrayWrapper($v);
-                } elseif (is_scalar($v)) {
-                    $cart[$k] = $v;
+                if (is_object($value)) {
+                    $this->data[$key] = new ArrayWrapper(get_object_vars($value));
+                } else {
+                    $this->data[$key] = $value;
                 }
             }
         }
@@ -684,12 +707,12 @@ class Cart extends ArrayWrapper
     /**
      * @param $key
      * @param $value
-     * @return int|null|string
+     * @return int|bool|string
      */
     public function findItemIdx($key, $value)
     {
         if (!$this->hasItems()) {
-            return null;
+            return false;
         }
 
         foreach($this->getItems() as $idx => $item) {
@@ -698,7 +721,7 @@ class Cart extends ArrayWrapper
             }
         }
 
-        return null;
+        return false;
     }
 
     /**
@@ -715,7 +738,7 @@ class Cart extends ArrayWrapper
     /**
      * @param $key
      * @param $value
-     * @return bool|null
+     * @return Item|null
      */
     public function findItem($key, $value)
     {
@@ -755,26 +778,28 @@ class Cart extends ArrayWrapper
      * @param $value
      * @param $addressId
      * @param $srcAddressKey
-     * @return int|null|string
+     * @return int|bool|string
      */
     public function findShipmentIdx($key, $value, $addressId='main', $srcAddressKey='main')
     {
         if (!$this->hasShipments()) {
-            return null;
+            return false;
         }
 
-        // note: the customer_address_id is either 'main' or an integer
-        //  it is not prefiex like in shipping_methods
+        if (is_int(strpos($addressId, 'address_'))) {
+            $addressId = (int) str_replace('address_', '', $addressId);
+        }
+
         foreach($this->getShipments() as $idx => $shipment) {
             if ($shipment->get($key) == $value
-                && $shipment->get('customer_address_id') == $addressId
-                && $shipment->get('source_address_key') == $srcAddressKey
+                && $shipment->getCustomerAddressId() == $addressId
+                && $shipment->getSourceAddressKey() == $srcAddressKey
             ) {
                 return $idx;
             }
         }
 
-        return null;
+        return false;
     }
 
     /**
@@ -782,7 +807,7 @@ class Cart extends ArrayWrapper
      * @param $value
      * @param $addressId
      * @param $srcAddressKey
-     * @return bool|null
+     * @return Shipment|null
      */
     public function findShipment($key, $value, $addressId='main', $srcAddressKey='main')
     {
@@ -793,6 +818,30 @@ class Cart extends ArrayWrapper
     }
 
     /**
+     * @param $addressId
+     * @return string
+     */
+    public function prefixAddressId($addressId)
+    {
+        if ($addressId != 'main' && is_numeric($addressId)) {
+            $addressId = 'address_' . $addressId; // prefixing integers
+        }
+        return $addressId;
+    }
+
+    /**
+     * @param $addressId
+     * @return int
+     */
+    public function unprefixAddressId($addressId)
+    {
+        if (is_int(strpos($addressId, 'address_'))) {
+            return (int) str_replace('address_', '', $addressId);
+        }
+        return $addressId;
+    }
+
+    /**
      * @param $method
      * @param string|int $addressId
      * @param string $srcAddressKey
@@ -800,29 +849,27 @@ class Cart extends ArrayWrapper
      */
     public function addShippingMethod($method, $addressId='main', $srcAddressKey='main')
     {
-        if (!isset($this->data['shipping_methods'])
-            || !is_array($this->data['shipping_methods'])
+        if (!isset($this->data[self::SHIPPING_METHODS])
+            || !is_array($this->data[self::SHIPPING_METHODS])
         ) {
-            $this->data['shipping_methods'] = [];
+            $this->data[self::SHIPPING_METHODS] = [];
         }
 
-        if ($addressId != 'main' && is_numeric($addressId)) {
-            $addressId = 'address_' . $addressId; // prefixing integers
-        }
+        $destAddressKey = $this->prefixAddressId($addressId);
 
-        if (!isset($this->data['shipping_methods'][$srcAddressKey])
-            || !is_array($this->data['shipping_methods'][$srcAddressKey])
+        if (!isset($this->data[self::SHIPPING_METHODS][$srcAddressKey])
+            || !is_array($this->data[self::SHIPPING_METHODS][$srcAddressKey])
         ) {
-            $this->data['shipping_methods'][$srcAddressKey] = [];
+            $this->data[self::SHIPPING_METHODS][$srcAddressKey] = [];
         }
 
-        if (!isset($this->data['shipping_methods'][$srcAddressKey][$addressId])
-            || !is_array($this->data['shipping_methods'][$srcAddressKey][$addressId])
+        if (!isset($this->data[self::SHIPPING_METHODS][$srcAddressKey][$destAddressKey])
+            || !is_array($this->data[self::SHIPPING_METHODS][$srcAddressKey][$destAddressKey])
         ) {
-            $this->data['shipping_methods'][$srcAddressKey][$addressId] = [];
+            $this->data[self::SHIPPING_METHODS][$srcAddressKey][$destAddressKey] = [];
         }
 
-        $this->data['shipping_methods'][$srcAddressKey][$addressId][] = $method;
+        $this->data[self::SHIPPING_METHODS][$srcAddressKey][$destAddressKey][] = $method;
         return $this;
     }
 
@@ -831,13 +878,13 @@ class Cart extends ArrayWrapper
      */
     public function getAllShippingMethods()
     {
-        if (!isset($this->data['shipping_methods'])
-            || !is_array($this->data['shipping_methods'])
+        if (!isset($this->data[self::SHIPPING_METHODS])
+            || !is_array($this->data[self::SHIPPING_METHODS])
         ) {
-            return [];
+            $this->data[self::SHIPPING_METHODS] = [];
         }
 
-        return $this->data['shipping_methods'];
+        return $this->data[self::SHIPPING_METHODS];
     }
 
     /**
@@ -847,23 +894,29 @@ class Cart extends ArrayWrapper
      */
     public function getShippingMethods($addressId='main', $srcAddressKey='main')
     {
-        if ($addressId != 'main' && is_numeric($addressId)) {
-            $addressId = 'address_' . $addressId; // prefixing integers
-        }
+        $destAddressKey = $this->prefixAddressId($addressId);
 
-        if (!isset($this->data['shipping_methods'][$srcAddressKey])
-            || !is_array($this->data['shipping_methods'][$srcAddressKey])
+        if (!isset($this->data[self::SHIPPING_METHODS][$srcAddressKey])
+            || !is_array($this->data[self::SHIPPING_METHODS][$srcAddressKey])
         ) {
             return [];
         }
 
-        if (!isset($this->data['shipping_methods'][$srcAddressKey][$addressId])
-            || !is_array($this->data['shipping_methods'][$srcAddressKey][$addressId])
+        if (!isset($this->data[self::SHIPPING_METHODS][$srcAddressKey][$destAddressKey])
+            || !is_array($this->data[self::SHIPPING_METHODS][$srcAddressKey][$destAddressKey])
         ) {
             return [];
         }
 
-        return $this->data['shipping_methods'][$srcAddressKey][$addressId];
+        return $this->data[self::SHIPPING_METHODS][$srcAddressKey][$destAddressKey];
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasShippingMethods()
+    {
+        return count($this->getAllShippingMethods()) > 0;
     }
 
     /**
@@ -871,18 +924,12 @@ class Cart extends ArrayWrapper
      * @param $value
      * @param $addressId
      * @param $srcAddressKey
-     * @return int|null|string
+     * @return int|bool|string
      */
     public function findShippingMethodIdx($key, $value, $addressId='main', $srcAddressKey='main')
     {
         if (!$this->hasShippingMethods()) {
-            return null;
-        }
-
-        // we prefix the integers so that we have a better string for a key
-        //  this is only in shipping_methods, not in shipments
-        if ($addressId != 'main' && is_numeric($addressId)) {
-            $addressId = 'address_' . $addressId; // prefixing integers
+            return false;
         }
 
         if ($methods = $this->getShippingMethods($addressId, $srcAddressKey)) {
@@ -893,7 +940,7 @@ class Cart extends ArrayWrapper
             }
         }
 
-        return null;
+        return false;
     }
 
     /**
@@ -1098,6 +1145,21 @@ class Cart extends ArrayWrapper
     }
 
     /**
+     * @param $key
+     * @param $value
+     * @return $this
+     */
+    public function removeItem($key, $value)
+    {
+        $idx = $this->findItemIdx($key, $value);
+        if (is_numeric($idx)) {
+            $this->unsetItem($idx);
+        }
+        $this->reapplyDiscounts();
+        return $this;
+    }
+
+    /**
      * @param $productId
      * @param $qty
      * @return $this
@@ -1105,8 +1167,12 @@ class Cart extends ArrayWrapper
     public function setProductQty($productId, $qty)
     {
         if ($this->hasProductId($productId)) {
-            $idx = $this->findItemIdx('product_id', $productId);
-            $this->data[self::ITEMS][$idx]->setQty($qty);
+            if ($qty > 0) {
+                $idx = $this->findItemIdx('product_id', $productId);
+                $this->data[self::ITEMS][$idx]->setQty($qty);
+            } else {
+                $this->removeProductId($productId);
+            }
         }
         $this->reapplyDiscounts();
         return $this;
@@ -1137,36 +1203,10 @@ class Cart extends ArrayWrapper
         $productIds = [];
         if ($this->hasItems()) {
             foreach($this->getItems() as $item) {
-                $productIds[] = $item->get('product_id');
+                $productIds[] = $item->getProductId();
             }
         }
         return $productIds;
-    }
-
-    /**
-     * Get keys of cart items that have been specified in discounts
-     * This helps with separating specific discounts
-     *
-     * @return array
-     */
-    public function getSpecifiedDiscountItemKeys()
-    {
-        $keys = [];
-        if (count($this->getDiscounts()) > 0) {
-            foreach($this->getDiscounts() as $discount) {
-
-                if ($discount->getAppliedTo() != Discount::APPLIED_TO_SPECIFIED) {
-                    continue;
-                }
-
-                if (count($discount->getItems()) > 0) {
-                    foreach($discount->getItems() as $itemKey => $qty) {
-                        $keys[$itemKey] = $itemKey;
-                    }
-                }
-            }
-        }
-        return $keys;
     }
 
     /**
@@ -1230,6 +1270,7 @@ class Cart extends ArrayWrapper
         if (is_numeric($idx)) {
             unset($this->data[self::DISCOUNTS][$idx]);
         }
+        $this->data[self::DISCOUNTS] = array_values($this->data[self::DISCOUNTS]);
         return $this;
     }
 
@@ -1283,24 +1324,22 @@ class Cart extends ArrayWrapper
      */
     public function getShippingMethod($key, $addressId='main', $srcAddressKey='main')
     {
-        if ($addressId != 'main' && is_numeric($addressId)) {
-            $addressId = 'address_' . $addressId; // prefixing integers
-        }
+        $destAddressKey = $this->prefixAddressId($addressId);
 
-        if (!isset($this->data['shipping_methods'][$srcAddressKey])
-            || !is_array($this->data['shipping_methods'][$srcAddressKey])
+        if (!isset($this->data[self::SHIPPING_METHODS][$srcAddressKey])
+            || !is_array($this->data[self::SHIPPING_METHODS][$srcAddressKey])
         ) {
             return null;
         }
 
-        if (!isset($this->data['shipping_methods'][$srcAddressKey][$addressId])
-            || !is_array($this->data['shipping_methods'][$srcAddressKey][$addressId])
+        if (!isset($this->data[self::SHIPPING_METHODS][$srcAddressKey][$destAddressKey])
+            || !is_array($this->data[self::SHIPPING_METHODS][$srcAddressKey][$destAddressKey])
         ) {
             return null;
         }
 
-        return isset($this->data['shipping_methods'][$srcAddressKey][$addressId][$key])
-            ? $this->data['shipping_methods'][$srcAddressKey][$addressId][$key]
+        return isset($this->data[self::SHIPPING_METHODS][$srcAddressKey][$destAddressKey][$key])
+            ? $this->data[self::SHIPPING_METHODS][$srcAddressKey][$destAddressKey][$key]
             : null;
     }
 
@@ -1390,16 +1429,14 @@ class Cart extends ArrayWrapper
      */
     public function unsetShippingMethod($key, $addressId='main', $srcAddressKey='main')
     {
-        if ($addressId != 'main' && is_numeric($addressId)) {
-            $addressId = 'address_' . $addressId; // prefixing integers
-        }
+        $destAddressKey = $this->prefixAddressId($addressId);
 
-        if (isset($this->data['shipping_methods'][$srcAddressKey][$addressId][$key])) {
-            unset($this->data['shipping_methods'][$srcAddressKey][$addressId][$key]);
+        if (isset($this->data[self::SHIPPING_METHODS][$srcAddressKey][$destAddressKey][$key])) {
+            unset($this->data[self::SHIPPING_METHODS][$srcAddressKey][$destAddressKey][$key]);
         }
 
         // dont need to remove anything from discounts
-        $this->data[self::SHIPMENTS][$srcAddressKey][$addressId] = array_values($this->data[self::SHIPMENTS][$srcAddressKey][$addressId]); // strip keys for json structure
+        $this->data[self::SHIPMENTS][$srcAddressKey][$destAddressKey] = array_values($this->data[self::SHIPMENTS][$srcAddressKey][$destAddressKey]); // strip keys for json structure
 
         return $this;
     }
@@ -1411,10 +1448,14 @@ class Cart extends ArrayWrapper
      */
     public function getAddressShipment($addressId, $srcAddressKey='main')
     {
+        if (is_int(strpos($addressId, 'address_'))) {
+            $addressId = (int) str_replace('address_', '', $addressId);
+        }
+
         if ($shipments = $this->getShipments()) {
             foreach($shipments as $shipment) {
-                if ($shipment->get('customer_address_id') == $addressId
-                    && $shipment->get('source_address_key') == $srcAddressKey
+                if ($shipment->getCustomerAddressId() == $addressId
+                    && $shipment->getSourceAddressKey() == $srcAddressKey
                 ) {
                     return $shipment;
                 }
@@ -1431,10 +1472,14 @@ class Cart extends ArrayWrapper
      */
     public function addressHasShipment($addressId, $srcAddressKey='main')
     {
+        if (is_int(strpos($addressId, 'address_'))) {
+            $addressId = (int) str_replace('address_', '', $addressId);
+        }
+
         if ($shipments = $this->getShipments()) {
             foreach($shipments as $shipment) {
-                if ($shipment->get('customer_address_id') == $addressId
-                    && $shipment->get('source_address_key') == $srcAddressKey
+                if ($shipment->getCustomerAddressId() == $addressId
+                    && $shipment->getSourceAddressKey() == $srcAddressKey
                 ) {
                     return true;
                 }
@@ -1452,10 +1497,10 @@ class Cart extends ArrayWrapper
     public function unsetShipments($addressId='', $srcAddressKey='main')
     {
         if ($addressId) {
-            if ($this->hasShipments()) {
+            if ($this->hasShipments($addressId, $srcAddressKey)) {
                 foreach($this->getShipments() as $idx => $shipment) {
-                    if ($shipment->get('customer_address_id') == $addressId
-                        && $shipment->get('source_address_key') == $srcAddressKey
+                    if ($shipment->getCustomerAddressId() == $addressId
+                        && $shipment->getSourceAddressKey() == $srcAddressKey
                     ) {
                         unset($this->data[self::SHIPMENTS][$idx]);
                     }
@@ -1478,11 +1523,10 @@ class Cart extends ArrayWrapper
      */
     public function unsetShippingMethods($addressId='', $srcAddressKey='main')
     {
-        if ($addressId != 'main' && is_numeric($addressId)) {
-            $addressId = 'address_' . $addressId;
-        }
-
         if ($addressId) {
+
+            $destAddressKey = $this->prefixAddressId($addressId);
+
             if ($this->getAllShippingMethods()) {
                 foreach($this->getAllShippingMethods() as $aSrcAddressKey => $addressIds) {
 
@@ -1496,20 +1540,18 @@ class Cart extends ArrayWrapper
 
                         // if there's nothing to do, continue
                         if (!$methods
-                            || $srcAddressKey != $aSrcAddressKey
                             || $addressId != $anAddressId
-                            || !isset($this->data['shipping_methods'][$aSrcAddressKey][$anAddressId])
+                            || !isset($this->data[self::SHIPPING_METHODS][$aSrcAddressKey][$anAddressId])
                         ) {
-
                             continue;
                         }
 
-                        $this->data['shipping_methods'][$aSrcAddressKey][$addressId] = [];
+                        $this->data[self::SHIPPING_METHODS][$aSrcAddressKey][$destAddressKey] = [];
                     }
                 }
             }
         } else {
-            $this->data['shipping_methods'] = [];
+            $this->data[self::SHIPPING_METHODS] = [];
         }
 
         $this->reapplyDiscounts();
@@ -1537,10 +1579,6 @@ class Cart extends ArrayWrapper
      */
     public function hasShipmentMethodCode($code, $addressId='main', $srcAddressKey='main')
     {
-        if ($addressId != 'main' && !is_numeric($addressId)) {
-            $addressId = (int) str_replace('address_', '', $addressId);
-        }
-
         return is_numeric($this->findShipmentIdx('code', $code, $addressId, $srcAddressKey));
     }
 
@@ -1574,45 +1612,17 @@ class Cart extends ArrayWrapper
      */
     public function addressLabel($addressId='main')
     {
-        if ($addressId == 'main') {
-
-            $customer = $this->getCustomer();
-            if (strlen(trim($customer->getShippingStreet())) > 3) {
-                $label = "{$customer->getShippingStreet()} {$customer->getShippingCity()}, {$customer->getShippingRegion()}";
-                return $label;
-            }
-
-            return 'Main Address';
-        } else {
-
-            if (!is_numeric($addressId)) {
-                $addressId = str_replace('address_', '', $addressId);
-            }
-
-            $addressId = (int) $addressId;
-
-            if ($addressId && $this->getCustomer()->getAddresses()) {
-                foreach($this->getCustomer()->getAddresses() as $address) {
-
-                    if ($address instanceof \stdClass) {
-                        $address = get_object_vars($address);
-                    }
-
-                    if (is_array($address)) {
-                        $address = new ArrayWrapper($address);
-                    }
-
-                    if ($addressId == $address->getId()
-                        && strlen(trim($address->getStreet())) > 3
-                    ) {
-                        $label = "{$address->getStreet()} {$address->getCity()}, {$address->getRegion()}";
-                        return $label;
-                    }
-                }
-            }
-
-            return 'Address';
+        if (is_int(strpos($addressId, 'address_'))) {
+            $addressId = (int) str_replace('address_', '', $addressId);
         }
+
+        if ($address = $this->getCustomer()->findAddressById($addressId)) {
+            return $address->getLabel();
+        }
+
+        return $addressId == 'main'
+            ? 'Main Address'
+            : '';
     }
 
     /**
@@ -1625,7 +1635,7 @@ class Cart extends ArrayWrapper
         $keys = [];
         if ($this->hasDiscounts()) {
             foreach($this->getDiscounts() as $key => $discount) {
-                if ($discount->getTo() != Discount::APPLIED_TO_SPECIFIED) {
+                if ($discount->getAppliedTo() != Discount::APPLIED_TO_SPECIFIED) {
                     continue;
                 }
 

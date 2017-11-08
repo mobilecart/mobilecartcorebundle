@@ -92,10 +92,10 @@ class RuleConditionCompare extends ArrayWrapper
      */
     public function toArray()
     {
-        return array(
-            'operator'   => $this->getOperator(),
-            'conditions' => $this->getConditionsAsArray(),
-        );
+        return [
+            self::OPERATOR   => $this->getOperator(),
+            self::CONDITIONS => $this->getConditionsAsArray(),
+        ];
     }
 
     /**

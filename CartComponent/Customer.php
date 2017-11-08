@@ -40,6 +40,7 @@ class Customer extends ArrayWrapper
     const SHIPPING_COUNTRY_ID = 'shipping_country_id';
     const SHIPPING_PHONE = 'shipping_phone';
     const GROUP = 'group';
+    const GROUP_IDS = 'group_ids';
     const GROUPS = 'groups';
     const ADDRESSES = 'addresses';
 
@@ -76,8 +77,107 @@ class Customer extends ArrayWrapper
             self::SHIPPING_POSTCODE   => '',
             self::SHIPPING_COUNTRY_ID => '',
             self::GROUPS              => [],
+            self::GROUP_IDS           => [],
             self::ADDRESSES           => [],
         ];
+    }
+
+    /**
+     * @param array $data
+     * @return $this
+     */
+    public function fromArray(array $data)
+    {
+        if ($data) {
+            foreach($data as $key => $value) {
+                switch($key) {
+                    case self::ID:
+                        $this->setId($value);
+                        break;
+                    case self::EMAIL:
+                        $this->setEmail($value);
+                        break;
+                    case self::FIRST_NAME:
+                        $this->setFirstName($value);
+                        break;
+                    case self::LAST_NAME:
+                        $this->setLastName($value);
+                        break;
+                    case self::BILLING_STREET:
+                        $this->setBillingStreet($value);
+                        break;
+                    case self::BILLING_STREET2:
+                        $this->setBillingStreet2($value);
+                        break;
+                    case self::BILLING_CITY:
+                        $this->setBillingCity($value);
+                        break;
+                    case self::BILLING_REGION:
+                        $this->setBillingRegion($value);
+                        break;
+                    case self::BILLING_POSTCODE:
+                        $this->setBillingPostcode($value);
+                        break;
+                    case self::BILLING_COUNTRY_ID:
+                        $this->setBillingCountryId($value);
+                        break;
+                    case self::BILLING_PHONE:
+                        $this->setBillingPhone($value);
+                        break;
+                    case self::IS_SHIPPING_SAME:
+                        $this->setIsShippingSame($value);
+                        break;
+                    case self::SHIPPING_STREET:
+                        $this->setShippingStreet($value);
+                        break;
+                    case self::SHIPPING_STREET2:
+                        $this->setShippingStreet2($value);
+                        break;
+                    case self::SHIPPING_CITY:
+                        $this->setShippingCity($value);
+                        break;
+                    case self::SHIPPING_REGION:
+                        $this->setShippingRegion($value);
+                        break;
+                    case self::SHIPPING_POSTCODE:
+                        $this->setShippingPostcode($value);
+                        break;
+                    case self::SHIPPING_COUNTRY_ID:
+                        $this->setShippingCountryId($value);
+                        break;
+                    case self::SHIPPING_PHONE:
+                        $this->setShippingPhone($value);
+                        break;
+                    case self::GROUP_IDS:
+                        $this->setGroupIds($value);
+                        break;
+                    case self::ADDRESSES:
+                        if (is_array($value) && count($value)) {
+                            foreach($value as $addressData) {
+
+                                if (is_object($addressData)) {
+                                    $addressData = get_object_vars($addressData);
+                                }
+
+                                $address = new CustomerAddress();
+                                $address->fromArray($addressData);
+                                $this->addAddress($address);
+                            }
+                        }
+                        break;
+                    default:
+                        if ($value instanceof \stdClass || is_object($value)) {
+                            $this->data[$key] = new ArrayWrapper(get_object_vars($value));
+                        } elseif (is_array($value)) {
+                            $this->data[$key] = $value;
+                        } elseif (is_scalar($value)) {
+                            $this->data[$key] = $value;
+                        }
+                        break;
+                }
+            }
+        }
+        return $this;
     }
 
     /**
@@ -461,7 +561,7 @@ class Customer extends ArrayWrapper
     }
 
     /**
-     * Set array of Group names
+     * Set array of Group
      *
      * @param array $groups
      * @return $this
@@ -473,13 +573,53 @@ class Customer extends ArrayWrapper
     }
 
     /**
-     * Return array of Group names
+     * Return array of Group
      *
      * @return array
      */
     public function getGroups()
     {
         return $this->data[self::GROUPS];
+    }
+
+    /**
+     * Set array of Group IDs
+     *
+     * @param array $groupIds
+     * @return $this
+     */
+    public function setGroupIds(array $groupIds)
+    {
+        $this->data[self::GROUP_IDS] = $groupIds;
+        return $this;
+    }
+
+    /**
+     * Return array of Group IDs
+     *
+     * @return array
+     */
+    public function getGroupIds()
+    {
+        return $this->data[self::GROUP_IDS];
+    }
+
+    /**
+     * @param $groupId
+     * @return bool
+     */
+    public function hasGroupId($groupId)
+    {
+        return in_array($groupId, $this->getGroupIds());
+    }
+
+    /**
+     * @param $groupName
+     * @return bool
+     */
+    public function hasGroupName($groupName)
+    {
+        return in_array($groupName, $this->getGroups());
     }
 
     /**
@@ -498,12 +638,12 @@ class Customer extends ArrayWrapper
      */
     public function isValidCondition(RuleCondition $condition)
     {
-        switch($condition->getSourceField()) {
+        switch($condition->getEntityField()) {
             case self::GROUP:
                 $condition->setSourceValue($this->getGroups()); // todo : make sure this works
                 break;
             default:
-                $condition->setSourceValue($this->get($condition->getSourceField()));
+                $condition->setSourceValue($this->get($condition->getEntityField()));
                 break;
         }
 
@@ -539,17 +679,17 @@ class Customer extends ArrayWrapper
     }
 
     /**
-     * @param $address
+     * @param CustomerAddress $address
      * @return $this
      */
-    public function addAddress($address)
+    public function addAddress(CustomerAddress $address)
     {
         $this->data[self::ADDRESSES][] = $address;
         return $this;
     }
 
     /**
-     * @return array
+     * @return array|CustomerAddress[]
      */
     public function getAddresses()
     {
@@ -557,7 +697,23 @@ class Customer extends ArrayWrapper
     }
 
     /**
-     * @param array $addresses
+     * @param $id
+     * @return CustomerAddress|null
+     */
+    public function findAddressById($id)
+    {
+        if ($addresses = $this->getAddresses()) {
+            foreach($addresses as $address) {
+                if ($address->getId() == $id) {
+                    return $address;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param array|CustomerAddress[] $addresses
      * @return $this
      */
     public function setAddresses(array $addresses)

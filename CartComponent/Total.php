@@ -18,7 +18,6 @@ namespace MobileCart\CoreBundle\CartComponent;
 class Total extends ArrayWrapper
     implements \ArrayAccess, \Serializable, \IteratorAggregate, \JsonSerializable
 {
-
     const IS_ADD = 'is_add';
     const VALUE = 'value';
     const LABEL = 'label';
@@ -26,12 +25,20 @@ class Total extends ArrayWrapper
 
     public function __construct()
     {
-        parent::__construct([
+        parent::__construct($this->getDefaults());
+    }
+
+    /**
+     * @return array
+     */
+    public function getDefaults()
+    {
+        return [
             self::IS_ADD => false,
             self::VALUE  => 0,
             self::LABEL  => '',
             self::KEY    => '',
-        ]);
+        ];
     }
 
     /**
