@@ -2,8 +2,8 @@
 
 namespace MobileCart\CoreBundle\Shipping;
 
-use MobileCart\CoreBundle\Shipping\Rate;
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\Shipping\FilterShippingRateEvent;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
  * Class DB
@@ -12,60 +12,48 @@ use Symfony\Component\EventDispatcher\Event;
  * This is a basic Shipping Rate collector
  *  This loads all Methods in the DB
  */
-class DB extends Rate
+class DB
 {
+    /**
+     * @var \MobileCart\CoreBundle\Service\DoctrineEntityService
+     */
     protected $entityService;
 
-    protected $event;
+    /**
+     * @var bool
+     */
+    protected $isEnabled = true;
 
-    protected $isEnabled = 1;
-
-    public function __construct()
+    /**
+     * @param bool $isEnabled
+     * @return $this
+     */
+    public function setIsEnabled($isEnabled)
     {
-        parent::__construct();
-    }
-
-    protected function setEvent($event)
-    {
-        $this->event = $event;
+        $this->isEnabled = (bool) $isEnabled;
         return $this;
-    }
-
-    protected function getEvent()
-    {
-        return $this->event;
-    }
-
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
-    }
-
-    public function setIsEnabled($yesNo = 1)
-    {
-        $this->isEnabled = $yesNo;
-        return $this;
-    }
-
-    public function getIsEnabled()
-    {
-        return $this->isEnabled;
     }
 
     /**
-     * @param $entityService
+     * @return bool
+     */
+    public function getIsEnabled()
+    {
+        return (bool) $this->isEnabled;
+    }
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\DoctrineEntityService $entityService
      * @return $this
      */
-    public function setEntityService($entityService)
+    public function setEntityService(\MobileCart\CoreBundle\Service\DoctrineEntityService $entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
     /**
-     * @return mixed
+     * @return \MobileCart\CoreBundle\Service\DoctrineEntityService
      */
     public function getEntityService()
     {
@@ -75,29 +63,24 @@ class DB extends Rate
     /**
      * Get rates while filtering on criteria
      *
-     * @param Event $event
+     * @param FilterShippingRateEvent $event
      */
-    public function onShippingRateCollect(Event $event)
+    public function onShippingRateCollect(FilterShippingRateEvent $event)
     {
-        $this->setEvent($event);
-        $returnData = $this->getReturnData();
+        if ($this->getIsEnabled()) {
+            if ($methods = $this->getEntityService()->findAll(EntityConstants::SHIPPING_METHOD)) {
 
-        // check criteria , load from db
+                /** @var \MobileCart\CoreBundle\Shipping\RateRequest $rateRequest */
+                $rateRequest = $event->getRateRequest();
 
-        $methods = $this->getEntityService()
-            ->findAll('shipping_method');
-
-        if ($this->getIsEnabled()
-            && $methods
-        ) {
-            foreach($methods as $method) {
-
-                $rate = new Rate();
-                $rate->addData($method->getData());
-                $event->addRate($rate);
+                foreach($methods as $method) {
+                    $rate = new Rate();
+                    $rate->addData($method->getData());
+                    $rate->setProductIds($rateRequest->getProductIds());
+                    $rate->setSkus($rateRequest->getSkus());
+                    $event->addRate($rate);
+                }
             }
         }
-
-        $event->setReturnData($returnData);
     }
 }

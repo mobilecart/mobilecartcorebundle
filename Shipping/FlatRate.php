@@ -2,8 +2,7 @@
 
 namespace MobileCart\CoreBundle\Shipping;
 
-use MobileCart\CoreBundle\Shipping\Rate;
-use Symfony\Component\EventDispatcher\Event;
+use MobileCart\CoreBundle\Event\Shipping\FilterShippingRateEvent;
 
 /**
  * Class FlatRate
@@ -15,58 +14,47 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class FlatRate extends Rate
 {
-    protected $event;
-
-    protected $isEnabled = 1;
+    /**
+     * @var bool
+     */
+    protected $isEnabled = true;
 
     public function __construct()
     {
         parent::__construct();
     }
 
-    protected function setEvent($event)
+    /**
+     * @param bool $isEnabled
+     * @return $this
+     */
+    public function setIsEnabled($isEnabled)
     {
-        $this->event = $event;
+        $this->isEnabled = (bool) $isEnabled;
         return $this;
     }
 
-    protected function getEvent()
-    {
-        return $this->event;
-    }
-
-    public function setIsEnabled($yesNo = 1)
-    {
-        $this->isEnabled = $yesNo;
-        return $this;
-    }
-
+    /**
+     * @return bool
+     */
     public function getIsEnabled()
     {
-        return $this->isEnabled;
-    }
-
-    protected function getReturnData()
-    {
-        return $this->getEvent()->getReturnData()
-            ? $this->getEvent()->getReturnData()
-            : [];
+        return (bool) $this->isEnabled;
     }
 
     /**
      * Get rates while filtering on criteria
      *
-     * @param Event $event
+     * @param FilterShippingRateEvent $event
      */
-    public function onShippingRateCollect(Event $event)
+    public function onShippingRateCollect(FilterShippingRateEvent $event)
     {
-        $this->setEvent($event);
-        $returnData = $this->getReturnData();
-
         if ($this->getIsEnabled()) {
+            /** @var \MobileCart\CoreBundle\Shipping\RateRequest $rateRequest */
+            $rateRequest = $event->getRateRequest();
+            $this->setProductIds($rateRequest->getProductIds());
+            $this->setSkus($rateRequest->getSkus());
             $event->addRate($this);
         }
-
-        $event->setReturnData($returnData);
     }
 }
