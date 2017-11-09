@@ -11,6 +11,9 @@ use MobileCart\CoreBundle\Event\CoreEvents;
  */
 class MenuService extends \Knp\Menu\MenuFactory
 {
+    /**
+     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+     */
     protected $eventDispatcher;
 
     public function setEventDispatcher($eventDispatcher)
@@ -19,6 +22,9 @@ class MenuService extends \Knp\Menu\MenuFactory
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\EventDispatcher\EventDispatcherInterface
+     */
     public function getEventDispatcher()
     {
         return $this->eventDispatcher;

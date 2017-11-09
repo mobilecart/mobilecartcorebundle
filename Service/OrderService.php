@@ -13,6 +13,7 @@ namespace MobileCart\CoreBundle\Service;
 
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
+use MobileCart\CoreBundle\CartComponent\Cart;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
 use MobileCart\CoreBundle\EventListener\Cart\DiscountTotal;
@@ -38,7 +39,7 @@ use MobileCart\CoreBundle\Payment\TokenPaymentMethodServiceInterface;
 class OrderService
 {
     /**
-     * @var EventDispatcher
+     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     protected $eventDispatcher;
 
@@ -46,6 +47,11 @@ class OrderService
      * @var \Symfony\Component\HttpFoundation\Request
      */
     protected $request;
+
+    /**
+     * @var array
+     */
+    protected $errors = [];
 
     /**
      * Passed into events, for event listeners
@@ -63,11 +69,6 @@ class OrderService
      * @var array
      */
     protected $statusOptions = []; // r[priority] = data
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    protected $entityService;
 
     /**
      * @var \MobileCart\CoreBundle\Service\CartService
@@ -215,7 +216,7 @@ class OrderService
     }
 
     /**
-     * @return EventDispatcher
+     * @return \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     public function getEventDispatcher()
     {
@@ -238,6 +239,24 @@ class OrderService
     public function getRequest()
     {
         return $this->request;
+    }
+
+    /**
+     * @param string $error
+     * @return $this
+     */
+    public function addError($error)
+    {
+        $this->errors[] = $error;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getErrors()
+    {
+        return $this->errors;
     }
 
     /**
@@ -303,21 +322,11 @@ class OrderService
     }
 
     /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    /**
      * @return mixed
      */
     public function getEntityService()
     {
-        return $this->entityService;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
@@ -385,10 +394,10 @@ class OrderService
     }
 
     /**
-     * @param $cart
+     * @param \MobileCart\CoreBundle\CartComponent\Cart $cart
      * @return $this
      */
-    public function setCart($cart)
+    public function setCart(Cart $cart)
     {
         $this->cart = $cart;
         return $this;
@@ -908,7 +917,15 @@ class OrderService
 
         switch($paymentMethodService->getAction()) {
             case PaymentMethodServiceInterface::ACTION_AUTHORIZE:
-                throw new \Exception("Error with Payment Handler"); // todo : replace this with logic
+
+                $isAuthorized = $paymentMethodService->authorize()
+                    ->getIsAuthorized();
+
+                if (!$isAuthorized) {
+                    $this->addError("Payment Authorization Failed");
+                    throw new \Exception("Payment Authorization Failed");
+                }
+
                 break;
             case PaymentMethodServiceInterface::ACTION_CAPTURE:
 
@@ -916,6 +933,7 @@ class OrderService
                     ->getIsCaptured();
 
                 if (!$isCaptured) {
+                    $this->addError("Payment Capture Failed");
                     throw new \Exception("Payment Capture Failed");
                 }
 
@@ -926,6 +944,7 @@ class OrderService
                     ->getIsPurchased();
 
                 if (!$isCaptured) {
+                    $this->addError('Payment failed');
                     throw new \Exception("Payment Failed");
                 }
 
@@ -936,6 +955,7 @@ class OrderService
                     ->getIsTokenCreated();
 
                 if (!$isTokenCreated) {
+                    $this->addError("Payment Token Failed");
                     throw new \Exception("Payment Token Failed");
                 }
 
@@ -976,6 +996,7 @@ class OrderService
                     ->getIsPurchasedStoredToken();
 
                 if (!$isPurchasedStoredToken) {
+                    $this->addError("Stored Token Payment Failed");
                     throw new \Exception("Stored Token Payment Failed");
                 }
 
@@ -985,6 +1006,7 @@ class OrderService
                 $customerId = $this->getCart()->getCustomer()->getId();
 
                 if (!$customerId) {
+                    $this->addError("Stored Token Payment Failed");
                     throw new \Exception("Stored Token Payment Failed");
                 }
 
@@ -994,6 +1016,7 @@ class OrderService
                     : '';
 
                 if (!$token) {
+                    $this->addError("Stored Token Payment Failed");
                     throw new \Exception("Stored Token Payment Failed");
                 }
 
@@ -1003,6 +1026,7 @@ class OrderService
                 ]);
 
                 if (!$customerToken) {
+                    $this->addError("Stored Token Payment Failed");
                     throw new \Exception("Stored Token Payment Failed");
                 }
 
@@ -1014,6 +1038,7 @@ class OrderService
                     ->getIsPurchasedStoredToken();
 
                 if (!$isPurchasedStoredToken) {
+                    $this->addError("Stored Token Payment Failed");
                     throw new \Exception("Stored Token Payment Failed");
                 }
 
@@ -1024,6 +1049,7 @@ class OrderService
                     ->getIsTokenCreated();
 
                 if (!$isTokenCreated) {
+                    $this->addError("Payment Token Failed");
                     throw new \Exception("Payment Token Failed");
                 }
 
@@ -1062,22 +1088,26 @@ class OrderService
                     ->getIsPurchasedAndSubscribedRecurring();
 
                 if (!$isSubscribed) {
+                    $this->addError("Subscription Failed");
                     throw new \Exception("Subscription Failed");
                 }
 
                 break;
             case PaymentMethodServiceInterface::ACTION_AUTHORIZE_REDIRECT:
+                $this->addError('Payment failed');
                 throw new \Exception("Error with Payment Handler"); // todo : replace this with logic
                 break;
             case PaymentMethodServiceInterface::ACTION_PURCHASE_CALLBACK:
+                $this->addError('Payment failed');
                 throw new \Exception("Error with Payment Handler"); // todo : replace this with logic
                 break;
             default:
+                $this->addError('Payment failed');
                 throw new \Exception("Error with Payment Configuration");
                 break;
         }
 
-        $this->setPaymentSuccess(1);
+        $this->setPaymentSuccess(true);
 
         return $this;
     }

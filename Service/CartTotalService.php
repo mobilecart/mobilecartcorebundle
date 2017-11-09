@@ -15,6 +15,10 @@ use MobileCart\CoreBundle\CartComponent\Cart;
 use MobileCart\CoreBundle\Event\CoreEvents;
 use MobileCart\CoreBundle\Event\CoreEvent;
 
+/**
+ * Class CartTotalService
+ * @package MobileCart\CoreBundle\Service
+ */
 class CartTotalService
 {
     /**
@@ -48,7 +52,7 @@ class CartTotalService
     protected $excludeDiscountIds = [];
 
     /**
-     * @var mixed
+     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     protected $eventDispatcher;
 
@@ -122,7 +126,7 @@ class CartTotalService
     }
 
     /**
-     * @return mixed
+     * @return \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     public function getEventDispatcher()
     {

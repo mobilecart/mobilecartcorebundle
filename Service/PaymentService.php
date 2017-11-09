@@ -15,10 +15,14 @@ use MobileCart\CoreBundle\Event\Payment\FilterPaymentMethodCollectEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
 use MobileCart\CoreBundle\Payment\CollectPaymentMethodRequest;
 
+/**
+ * Class PaymentService
+ * @package MobileCart\CoreBundle\Service
+ */
 class PaymentService
 {
     /**
-     * @var mixed
+     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     protected $eventDispatcher;
 
@@ -33,7 +37,7 @@ class PaymentService
     }
 
     /**
-     * @return mixed
+     * @return \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     public function getEventDispatcher()
     {

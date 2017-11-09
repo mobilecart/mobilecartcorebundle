@@ -5,10 +5,14 @@ namespace MobileCart\CoreBundle\Service;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
 
+/**
+ * Class ExportService
+ * @package MobileCart\CoreBundle\Service
+ */
 class ExportService
 {
     /**
-     * @var mixed
+     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     protected $eventDispatcher;
 
@@ -63,7 +67,7 @@ class ExportService
     }
 
     /**
-     * @return mixed
+     * @return \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     public function getEventDispatcher()
     {

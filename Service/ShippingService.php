@@ -17,6 +17,7 @@ use MobileCart\CoreBundle\Shipping\RateRequest;
 use MobileCart\CoreBundle\Shipping\SourceAddress;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Entity\ShippingMethod;
+use MobileCart\CoreBundle\CartComponent\Item;
 
 /**
  * Class ShippingService
@@ -40,7 +41,7 @@ class ShippingService
     protected $isMultiShippingEnabled = false;
 
     /**
-     * @var mixed
+     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     protected $eventDispatcher;
 
@@ -60,13 +61,12 @@ class ShippingService
     protected $rates = [];
 
     /**
-     * @param $yesNo
+     * @param $isEnabled
      * @return $this
      */
-    public function setIsShippingEnabled($yesNo)
+    public function setIsShippingEnabled($isEnabled)
     {
-        $isEnabled = ($yesNo != '0' && $yesNo != 'false');
-        $this->isShippingEnabled = $isEnabled;
+        $this->isShippingEnabled = (bool) $isEnabled;
         return $this;
     }
 
@@ -75,7 +75,7 @@ class ShippingService
      */
     public function getIsShippingEnabled()
     {
-        return $this->isShippingEnabled;
+        return (bool) $this->isShippingEnabled;
     }
 
     /**
@@ -84,7 +84,7 @@ class ShippingService
      */
     public function setIsCollectTotalEnabled($isEnabled)
     {
-        $this->isCollectTotalEnabled = $isEnabled;
+        $this->isCollectTotalEnabled = (bool) $isEnabled;
         return $this;
     }
 
@@ -93,7 +93,7 @@ class ShippingService
      */
     public function getIsCollectTotalEnabled()
     {
-        return $this->isCollectTotalEnabled;
+        return (bool) $this->isCollectTotalEnabled;
     }
 
     /**
@@ -102,7 +102,7 @@ class ShippingService
      */
     public function setIsMultiShippingEnabled($isEnabled)
     {
-        $this->isMultiShippingEnabled = $isEnabled;
+        $this->isMultiShippingEnabled = (bool) $isEnabled;
         return $this;
     }
 
@@ -111,21 +111,21 @@ class ShippingService
      */
     public function getIsMultiShippingEnabled()
     {
-        return $this->isMultiShippingEnabled;
+        return (bool) $this->isMultiShippingEnabled;
     }
 
     /**
-     * @param $eventDispatcher
+     * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
      * @return $this
      */
-    public function setEventDispatcher($eventDispatcher)
+    public function setEventDispatcher(\Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher)
     {
         $this->eventDispatcher = $eventDispatcher;
         return $this;
     }
 
     /**
-     * @return mixed
+     * @return \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     public function getEventDispatcher()
     {
@@ -152,7 +152,7 @@ class ShippingService
 
     /**
      * @param RateRequest $rateRequest
-     * @return mixed
+     * @return array|\MobileCart\CoreBundle\Shipping\Rate[]
      */
     public function collectShippingRates(RateRequest $rateRequest)
     {
@@ -168,9 +168,8 @@ class ShippingService
         ) {
             foreach($this->rates as $rate) {
 
-                $rate->set('price', '0.00')
-                    ->set('base_price', '0.00');
-
+                $rate->setPrice(0.00)
+                    ->setBasePrice(0.00);
             }
         }
 
@@ -210,22 +209,21 @@ class ShippingService
     public function setSourceAddress($key, $label, $street, $city, $province, $postcode, $country)
     {
         $sourceAddress = new SourceAddress();
-        $sourceAddress->fromArray([
-            'key' => $key,
-            'label' => $label,
-            'street' => $street,
-            'city' => $city,
-            'province' => $province,
-            'postcode' => $postcode,
-            'country' => $country,
-        ]);
+        $sourceAddress->setKey($key)
+            ->setLabel($label)
+            ->setStreet($street)
+            ->setCity($city)
+            ->setProvince($province)
+            ->setPostcode($postcode)
+            ->setCountry($country);
+
         $this->sourceAddresses[$key] = $sourceAddress;
         return $this;
     }
 
     /**
      * @param $key
-     * @return null
+     * @return SourceAddress|null
      */
     public function getSourceAddress($key)
     {
@@ -244,46 +242,54 @@ class ShippingService
 
     /**
      * @param $srcAddressKey
-     * @param array $cartItems
+     * @param array|Item[] $cartItems
      * @param float|string $addtlPrice for handling costs or flat shipping prices
-     * @return RateRequest|null
+     * @return RateRequest
      */
     public function createRateRequest($srcAddressKey, array $cartItems = [], $addtlPrice = 0.0)
     {
-        $request = new RateRequest();
+        $skus = [];
+        $productIds = [];
+        if ($cartItems) {
+            foreach($cartItems as $cartItem) {
+                $skus[] = $cartItem->getSku();
+                $productIds[] = $cartItem->getProductId();
+            }
+        }
+
+
         $sourceAddress = $this->getSourceAddress($srcAddressKey);
         if ($sourceAddress) {
+            // destination info is set later
 
-            $request->fromArray([
-                'to_array'    => 0,
-                'include_all' => 0,
-                'postcode' => '',
-                'country_id' => '',
-                'region' => '',
-                'src_postcode' => $sourceAddress->getPostcode(),
-                'src_country_id' => $sourceAddress->getCountry(),
-                'src_region' => $sourceAddress->getProvince(),
-                'source_address_key' => $sourceAddress->getKey(),
-                'cart_items' => $cartItems,
-                'addtl_price' => $addtlPrice,
-            ]);
+            $request = new RateRequest();
+            $request->setDestRegion('')
+                ->setDestPostcode('')
+                ->setDestCountryId('')
+                ->setSrcRegion($sourceAddress->getProvince())
+                ->setSrcPostcode($sourceAddress->getPostcode())
+                ->setSrcCountryId($sourceAddress->getCountry())
+                ->setSourceAddressKey($sourceAddress->getKey())
+                ->setAddtlPrice($addtlPrice)
+                ->setCartItems($cartItems)
+                ->setProductIds($productIds)
+                ->setSkus($skus);
 
             return $request;
         }
 
-        $request->fromArray([
-            'to_array'    => 0,
-            'include_all' => 0,
-            'postcode' => '',
-            'country_id' => '',
-            'region' => '',
-            'src_postcode' => '',
-            'src_country_id' => '',
-            'src_region' => '',
-            'source_address_key' => 'main',
-            'cart_items' => $cartItems,
-            'addtl_price' => $addtlPrice,
-        ]);
+        $request = new RateRequest();
+        $request->setDestRegion('')
+            ->setDestPostcode('')
+            ->setDestCountryId('')
+            ->setSrcPostcode('')
+            ->setSrcCountryId('')
+            ->setSrcRegion('')
+            ->setSourceAddressKey('main')
+            ->setAddtlPrice($addtlPrice)
+            ->setCartItems($cartItems)
+            ->setProductIds($productIds)
+            ->setSkus($skus);
 
         return $request;
     }
@@ -300,6 +306,7 @@ class ShippingService
     {
         $rates = $this->collectShippingRates($rateRequest);
 
+        /** @var \MobileCart\CoreBundle\Shipping\Rate $rate */
         $rate = isset($rates[$code])
             ? $rates[$code]
             : '';
@@ -309,8 +316,8 @@ class ShippingService
         }
 
         $id = $rate->getId()
-                ? $rate->getId()
-                : $rate->getCode();
+            ? $rate->getId()
+            : $rate->getCode();
 
         $method = new ShippingMethod();
         $method->setId($id);
@@ -335,8 +342,7 @@ class ShippingService
      */
     public function find($id)
     {
-        return $this->getEntityService()
-            ->find(EntityConstants::SHIPPING_METHOD, $id);
+        return $this->getEntityService()->find(EntityConstants::SHIPPING_METHOD, $id);
     }
 
     /**

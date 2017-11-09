@@ -232,6 +232,9 @@ class CurrencyService
         if (isset($this->displayMap["{$from}/{$to}"])) {
             $displayData = $this->displayMap["{$from}/{$to}"];
             $multiplierPrecision = $displayData[self::MULTIPLY_PRECISION];
+        } else {
+            $from = $this->baseCurrency;
+            $to = $this->baseCurrency;
         }
 
         if ($from == $to) {

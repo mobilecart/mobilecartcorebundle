@@ -12,7 +12,7 @@ use MobileCart\CoreBundle\Event\CoreEvents;
 class CheckoutFormService
 {
     /**
-     * @var mixed
+     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     protected $eventDispatcher;
 
@@ -47,7 +47,7 @@ class CheckoutFormService
     }
 
     /**
-     * @return mixed
+     * @return \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     public function getEventDispatcher()
     {

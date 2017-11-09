@@ -38,26 +38,26 @@ abstract class AbstractEntityService implements UserProviderInterface
     protected $productTypes = [];
 
     /**
-     * @var CartSessionService
+     * @var CartService
      */
-    protected $cartSessionService;
+    protected $cartService;
 
     /**
-     * @param CartSessionService $cartSessionService
+     * @param CartService $cartService
      * @return $this
      */
-    public function setCartSessionService(CartSessionService $cartSessionService)
+    public function setCartService(CartService $cartService)
     {
-        $this->cartSessionService = $cartSessionService;
+        $this->cartService = $cartService;
         return $this;
     }
 
     /**
-     * @return CartSessionService
+     * @return CartService
      */
-    public function getCartSessionService()
+    public function getCartService()
     {
-        return $this->cartSessionService;
+        return $this->cartService;
     }
 
     /**
@@ -113,7 +113,7 @@ abstract class AbstractEntityService implements UserProviderInterface
         if ($class === $this->getRepository(EntityConstants::CUSTOMER)->getClassName()) {
             $customer = $this->find(EntityConstants::CUSTOMER, $user->getId());
             if ($customer) {
-                $this->getCartSessionService()->setCustomerEntity($customer);
+                $this->getCartService()->setCustomerEntity($customer);
             }
             return $customer;
         } else if ($class === $this->getRepository(EntityConstants::ADMIN_USER)->getClassName()) {

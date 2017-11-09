@@ -20,8 +20,17 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
+/**
+ * Class GuardTokenAuthService
+ * @package MobileCart\CoreBundle\Service
+ */
 class GuardTokenAuthService extends AbstractGuardAuthenticator
 {
+    /**
+     * @var \MobileCart\CoreBundle\Service\CartService
+     */
+    protected $cartService;
+
     /**
      * @var \MobileCart\CoreBundle\Service\AbstractEntityService
      */
@@ -48,6 +57,24 @@ class GuardTokenAuthService extends AbstractGuardAuthenticator
     public function getEntityService()
     {
         return $this->entityService;
+    }
+
+    /**
+     * @param CartService $cartService
+     * @return $this
+     */
+    public function setCartService(CartService $cartService)
+    {
+        $this->cartService = $cartService;
+        return $this;
+    }
+
+    /**
+     * @return CartService
+     */
+    public function getCartService()
+    {
+        return $this->cartService;
     }
 
     /**
@@ -94,6 +121,8 @@ class GuardTokenAuthService extends AbstractGuardAuthenticator
     {
         $apiKey = $credentials['token'];
 
+        $this->getCartService()->setIsApiRequest(true);
+
         // if null, authentication will fail
         // if a User object, checkCredentials() is called
 
@@ -109,9 +138,16 @@ class GuardTokenAuthService extends AbstractGuardAuthenticator
             return null;
         }
 
-        return $this->getEntityService()->findOneBy(EntityConstants::ADMIN_USER, [
+        $adminUser = $this->getEntityService()->findOneBy(EntityConstants::ADMIN_USER, [
             'api_key' => $apiKey,
         ]);
+
+        if ($adminUser) {
+            $this->getCartService()->setIsAdminUser(true);
+            return $adminUser;
+        }
+
+        return null;
     }
 
     /**
@@ -149,7 +185,7 @@ class GuardTokenAuthService extends AbstractGuardAuthenticator
     {
         $data = array(
             'message' => strtr($exception->getMessageKey(), $exception->getMessageData()),
-            'success' => 0,
+            'success' => false,
             // or to translate this message
             // $this->translator->trans($exception->getMessageKey(), $exception->getMessageData())
         );
@@ -165,7 +201,7 @@ class GuardTokenAuthService extends AbstractGuardAuthenticator
         $data = [
             // you might translate this message
             'message' => 'Authentication Required',
-            'success' => 0,
+            'success' => false,
         ];
 
         return new JsonResponse($data, 401);

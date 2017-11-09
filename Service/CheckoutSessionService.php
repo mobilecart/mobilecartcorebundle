@@ -23,11 +23,6 @@ use MobileCart\CoreBundle\Constants\CheckoutConstants;
 class CheckoutSessionService
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\CartSessionService
-     */
-    protected $cartSessionService;
-
-    /**
      * @var \MobileCart\CoreBundle\Service\OrderService
      */
     protected $orderService;
@@ -57,7 +52,7 @@ class CheckoutSessionService
      */
     public function initSections()
     {
-        $sections = $this->getCartSessionService()->getSession()->get('checkout_sections', []);
+        $sections = $this->getCartService()->getSession()->get('checkout_sections', []);
         if (!$sections) {
             $sections = [];
             $sectionKeys = $this->getCheckoutFormService()->getSectionKeys();
@@ -66,7 +61,7 @@ class CheckoutSessionService
                     $sections[$sectionKey] = false;
                 }
             }
-            $this->getCartSessionService()->getSession()->set('checkout_sections', $sections);
+            $this->getCartService()->getSession()->set('checkout_sections', $sections);
         }
 
         return $this;
@@ -80,9 +75,9 @@ class CheckoutSessionService
     public function setSectionIsValid($section, $isValid = true)
     {
         $this->initSections();
-        $sections = $this->getCartSessionService()->getSession()->get('checkout_sections', []);
+        $sections = $this->getCartService()->getSession()->get('checkout_sections', []);
         $sections[$section] = $isValid;
-        $this->getCartSessionService()->getSession()->set('checkout_sections', $sections);
+        $this->getCartService()->getSession()->set('checkout_sections', $sections);
         return $this;
     }
 
@@ -93,7 +88,7 @@ class CheckoutSessionService
     public function getSectionIsValid($section)
     {
         $this->initSections();
-        $sections = $this->getCartSessionService()->getSession()->get('checkout_sections', []);
+        $sections = $this->getCartService()->getSession()->get('checkout_sections', []);
         return (bool) isset($sections[$section])
             ? $sections[$section]
             : false;
@@ -106,7 +101,7 @@ class CheckoutSessionService
     {
         $invalid = [];
         $this->initSections();
-        $sections = $this->getCartSessionService()->getSession()->get('checkout_sections', []);
+        $sections = $this->getCartService()->getSession()->get('checkout_sections', []);
         if ($sections) {
             foreach($sections as $section => $isValid) {
                 if (!$isValid) {
@@ -124,7 +119,7 @@ class CheckoutSessionService
     public function getIsAllValid()
     {
         $this->initSections();
-        $sections = $this->getCartSessionService()->getSession()->get('checkout_sections', []);
+        $sections = $this->getCartService()->getSession()->get('checkout_sections', []);
         if ($sections) {
             foreach($sections as $section => $isValid) {
                 if (!$isValid) {
@@ -196,7 +191,7 @@ class CheckoutSessionService
      */
     public function setIsValidTotals($isValid)
     {
-        $this->getCartSessionService()->getSession()->set('is_valid_totals', $isValid);
+        $this->getCartService()->getSession()->set('is_valid_totals', $isValid);
         return $this;
     }
 
@@ -205,7 +200,7 @@ class CheckoutSessionService
      */
     public function getIsValidTotals()
     {
-        return $this->getCartSessionService()->getSession()->get('is_valid_totals', false);
+        return $this->getCartService()->getSession()->get('is_valid_totals', false);
     }
 
     /**
@@ -214,7 +209,7 @@ class CheckoutSessionService
      */
     public function setIsValidPaymentMethod($isValid)
     {
-        $this->getCartSessionService()->getSession()->set('is_valid_payment_method', $isValid);
+        $this->getCartService()->getSession()->set('is_valid_payment_method', $isValid);
         return $this;
     }
 
@@ -223,7 +218,7 @@ class CheckoutSessionService
      */
     public function getIsValidPaymentMethod()
     {
-        return $this->getCartSessionService()->getSession()->get('is_valid_payment_method', false);
+        return $this->getCartService()->getSession()->get('is_valid_payment_method', false);
     }
 
     /**
@@ -232,7 +227,7 @@ class CheckoutSessionService
      */
     public function setPaymentData(array $paymentData)
     {
-        $this->getCartSessionService()->getSession()->set('payment_data', $paymentData);
+        $this->getCartService()->getSession()->set('payment_data', $paymentData);
         return $this;
     }
 
@@ -241,7 +236,7 @@ class CheckoutSessionService
      */
     public function getPaymentData()
     {
-        return $this->getCartSessionService()->getSession()->get('payment_data', []);
+        return $this->getCartService()->getSession()->get('payment_data', []);
     }
 
     /**
@@ -250,7 +245,7 @@ class CheckoutSessionService
      */
     public function setPaymentMethodCode($paymentMethodCode)
     {
-        $this->getCartSessionService()->getSession()->set('payment_method_code', $paymentMethodCode);
+        $this->getCartService()->getSession()->set('payment_method_code', $paymentMethodCode);
         return $this;
     }
 
@@ -259,32 +254,15 @@ class CheckoutSessionService
      */
     public function getPaymentMethodCode()
     {
-        return $this->getCartSessionService()->getSession()->get('payment_method_code', '');
+        return $this->getCartService()->getSession()->get('payment_method_code', '');
     }
 
     /**
-     * @param \MobileCart\CoreBundle\Service\CartSessionService $cartSessionService
-     * @return $this
+     * @return CartService
      */
-    public function setCartSessionService($cartSessionService)
+    public function getCartService()
     {
-        $this->cartSessionService = $cartSessionService;
-
-        if (!$cartSessionService->getCartService()->getShippingService()->getIsShippingEnabled()) {
-
-            $this->setIsValidShippingAddress(1)
-                ->setIsValidShippingMethod(1);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
-     */
-    public function getCartSessionService()
-    {
-        return $this->cartSessionService;
+        return $this->getOrderService()->getCartService();
     }
 
     /**
@@ -328,7 +306,7 @@ class CheckoutSessionService
      */
     public function getAllowGuestCheckout()
     {
-        return $this->getCartSessionService()->getCartService()->getAllowGuestCheckout();
+        return $this->getCartService()->getAllowGuestCheckout();
     }
 
     /**
@@ -354,7 +332,7 @@ class CheckoutSessionService
      */
     public function getAllowedCountryIds()
     {
-        return $this->getCartSessionService()->getAllowedCountryIds();
+        return $this->getCartService()->getAllowedCountryIds();
     }
 
     /**
