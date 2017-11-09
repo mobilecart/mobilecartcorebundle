@@ -12,14 +12,9 @@ use MobileCart\CoreBundle\CartComponent\Cart;
 class OrderNewReturn
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $entityService;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\CurrencyService
-     */
-    protected $currencyService;
+    protected $cartService;
 
     /**
      * @var \MobileCart\CoreBundle\Service\PaymentService
@@ -27,46 +22,34 @@ class OrderNewReturn
     protected $paymentService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\ShippingService
-     */
-    protected $shippingService;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\CartTotalService
-     */
-    protected $cartTotalService;
-
-    /**
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
 
     /**
-     * @param $themeService
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
      * @return $this
      */
-    public function setThemeService($themeService)
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
     {
-        $this->themeService = $themeService;
+        $this->cartService = $cartService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\ThemeService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getThemeService()
+    public function getCartService()
     {
-        return $this->themeService;
+        return $this->cartService;
     }
 
     /**
-     * @param $entityService
-     * @return $this
+     * @return \MobileCart\CoreBundle\Service\CartTotalService
      */
-    public function setEntityService($entityService)
+    public function getCartTotalService()
     {
-        $this->entityService = $entityService;
-        return $this;
+        return $this->getCartService()->getCartTotalService();
     }
 
     /**
@@ -74,17 +57,7 @@ class OrderNewReturn
      */
     public function getEntityService()
     {
-        return $this->entityService;
-    }
-
-    /**
-     * @param $currencyService
-     * @return $this
-     */
-    public function setCurrencyService($currencyService)
-    {
-        $this->currencyService = $currencyService;
-        return $this;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
@@ -92,7 +65,7 @@ class OrderNewReturn
      */
     public function getCurrencyService()
     {
-        return $this->currencyService;
+        return $this->getCartService()->getCurrencyService();
     }
 
     /**
@@ -114,39 +87,29 @@ class OrderNewReturn
     }
 
     /**
-     * @param $shippingService
-     * @return $this
-     */
-    public function setShippingService($shippingService)
-    {
-        $this->shippingService = $shippingService;
-        return $this;
-    }
-
-    /**
      * @return \MobileCart\CoreBundle\Service\ShippingService
      */
     public function getShippingService()
     {
-        return $this->shippingService;
+        return $this->getCartService()->getShippingService();
     }
 
     /**
-     * @param $cartTotalService
+     * @param $themeService
      * @return $this
      */
-    public function setCartTotalService($cartTotalService)
+    public function setThemeService($themeService)
     {
-        $this->cartTotalService = $cartTotalService;
+        $this->themeService = $themeService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CartTotalService
+     * @return \MobileCart\CoreBundle\Service\ThemeService
      */
-    public function getCartTotalService()
+    public function getThemeService()
     {
-        return $this->cartTotalService;
+        return $this->themeService;
     }
 
     /**

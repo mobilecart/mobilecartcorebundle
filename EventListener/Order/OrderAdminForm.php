@@ -15,16 +15,6 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
 class OrderAdminForm
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    protected $entityService;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\CurrencyService
-     */
-    protected $currencyService;
-
-    /**
      * @var \MobileCart\CoreBundle\Service\CartService
      */
     protected $cartService;
@@ -40,31 +30,11 @@ class OrderAdminForm
     protected $formTypeClass = '';
 
     /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    /**
      * @return \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     public function getEntityService()
     {
-        return $this->entityService;
-    }
-
-    /**
-     * @param $currencyService
-     * @return $this
-     */
-    public function setCurrencyService($currencyService)
-    {
-        $this->currencyService = $currencyService;
-        return $this;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
@@ -72,7 +42,7 @@ class OrderAdminForm
      */
     public function getCurrencyService()
     {
-        return $this->currencyService;
+        return $this->getCartService()->getCurrencyService();
     }
 
     /**
@@ -134,6 +104,7 @@ class OrderAdminForm
      */
     public function onOrderAdminForm(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\Order $entity */
         $entity = $event->getEntity();
         $form = $this->getFormFactory()->create($this->getFormTypeClass(), $entity, [
             'action' => $event->getFormAction(),

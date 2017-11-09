@@ -14,14 +14,9 @@ use MobileCart\CoreBundle\Payment\CollectPaymentMethodRequest;
 class OrderEditReturn
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $entityService;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\CurrencyService
-     */
-    protected $currencyService;
+    protected $cartService;
 
     /**
      * @var \MobileCart\CoreBundle\Service\PaymentService
@@ -29,28 +24,26 @@ class OrderEditReturn
     protected $paymentService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\ShippingService
-     */
-    protected $shippingService;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\CartTotalService
-     */
-    protected $cartTotalService;
-
-    /**
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
 
     /**
-     * @param $entityService
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
      * @return $this
      */
-    public function setEntityService($entityService)
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
     {
-        $this->entityService = $entityService;
+        $this->cartService = $cartService;
         return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->cartService;
     }
 
     /**
@@ -58,17 +51,7 @@ class OrderEditReturn
      */
     public function getEntityService()
     {
-        return $this->entityService;
-    }
-
-    /**
-     * @param $currencyService
-     * @return $this
-     */
-    public function setCurrencyService($currencyService)
-    {
-        $this->currencyService = $currencyService;
-        return $this;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
@@ -76,7 +59,7 @@ class OrderEditReturn
      */
     public function getCurrencyService()
     {
-        return $this->currencyService;
+        return $this->getCartService()->getCurrencyService();
     }
 
     /**
@@ -98,39 +81,11 @@ class OrderEditReturn
     }
 
     /**
-     * @param $shippingService
-     * @return $this
-     */
-    public function setShippingService($shippingService)
-    {
-        $this->shippingService = $shippingService;
-        return $this;
-    }
-
-    /**
      * @return \MobileCart\CoreBundle\Service\ShippingService
      */
     public function getShippingService()
     {
-        return $this->shippingService;
-    }
-
-    /**
-     * @param $cartTotalService
-     * @return $this
-     */
-    public function setCartTotalService($cartTotalService)
-    {
-        $this->cartTotalService = $cartTotalService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CartTotalService
-     */
-    public function getCartTotalService()
-    {
-        return $this->cartTotalService;
+        return $this->getCartService()->getShippingService();
     }
 
     /**
@@ -163,21 +118,6 @@ class OrderEditReturn
 
         // Totals _should_ be saved with cart, but they can be collected also
         $totals = $cart->getTotals();
-        if (!$cart->getTotals()) {
-
-            $totals = $this->getCartTotalService()
-                ->setCart($cart)
-                ->collectTotals()
-                ->getTotals();
-
-            $cart->setTotals($totals);
-        }
-
-        if ($totals) {
-            foreach($totals as $total) {
-                $total->setValue(number_format($total->getValue(), 2));
-            }
-        }
 
         // gather discount IDs
         $discounts = $cart->getDiscounts();

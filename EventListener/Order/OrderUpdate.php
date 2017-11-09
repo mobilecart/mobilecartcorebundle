@@ -12,41 +12,42 @@ use MobileCart\CoreBundle\Event\CoreEvent;
 class OrderUpdate
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $entityService;
+    protected $cartService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\CurrencyService
-     */
-    protected $currencyService;
-
-    /**
-     * @param $entityService
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
      * @return $this
      */
-    public function setEntityService($entityService)
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
     {
-        $this->entityService = $entityService;
+        $this->cartService = $cartService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getEntityService()
+    public function getCartService()
     {
-        return $this->entityService;
+        return $this->cartService;
     }
 
     /**
-     * @param $currencyService
-     * @return $this
+     * @return \MobileCart\CoreBundle\Service\CartTotalService
      */
-    public function setCurrencyService($currencyService)
+    public function getCartTotalService()
     {
-        $this->currencyService = $currencyService;
-        return $this;
+        return $this->getCartService()->getCartTotalService();
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\DiscountService
+     */
+    public function getDiscountService()
+    {
+        return $this->getCartService()->getDiscountService();
     }
 
     /**
@@ -54,7 +55,15 @@ class OrderUpdate
      */
     public function getCurrencyService()
     {
-        return $this->currencyService;
+        return $this->getCartService()->getCurrencyService();
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
+    public function getEntityService()
+    {
+        return $this->getCartService()->getEntityService();
     }
 
     /**
@@ -62,6 +71,7 @@ class OrderUpdate
      */
     public function onOrderUpdate(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\Order $entity */
         $entity = $event->getEntity();
         $formData = $event->getFormData();
         $request = $event->getRequest();

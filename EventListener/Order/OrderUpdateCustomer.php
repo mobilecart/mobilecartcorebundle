@@ -12,46 +12,26 @@ use MobileCart\CoreBundle\CartComponent\Customer;
 class OrderUpdateCustomer
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\CartSessionService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $cartSession;
+    protected $cartService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\CartTotalService
-     */
-    protected $cartTotalService;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\DiscountService
-     */
-    protected $discountService;
-
-    /**
-     * @param $cartSession
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
      * @return $this
      */
-    public function setCartSession($cartSession)
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
     {
-        $this->cartSession = $cartSession;
+        $this->cartService = $cartService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getCartSession()
+    public function getCartService()
     {
-        return $this->cartSession;
-    }
-
-    /**
-     * @param $cartTotalService
-     * @return $this
-     */
-    public function setCartTotalService($cartTotalService)
-    {
-        $this->cartTotalService = $cartTotalService;
-        return $this;
+        return $this->cartService;
     }
 
     /**
@@ -59,17 +39,7 @@ class OrderUpdateCustomer
      */
     public function getCartTotalService()
     {
-        return $this->cartTotalService;
-    }
-
-    /**
-     * @param $discountService
-     * @return $this
-     */
-    public function setDiscountService($discountService)
-    {
-        $this->discountService = $discountService;
-        return $this;
+        return $this->getCartService()->getCartTotalService();
     }
 
     /**
@@ -77,7 +47,7 @@ class OrderUpdateCustomer
      */
     public function getDiscountService()
     {
-        return $this->discountService;
+        return $this->getCartService()->getDiscountService();
     }
 
     /**
@@ -91,7 +61,7 @@ class OrderUpdateCustomer
         $cartJson = $request->get('cart', '{}');
         $customerJson = $request->get('customer', '{}');
 
-        $cart = $this->getCartSession()
+        $cart = $this->getCartService()
             ->initCartJson($cartJson)
             ->getCart();
 

@@ -3,6 +3,7 @@
 namespace MobileCart\CoreBundle\EventListener\Order;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
+use MobileCart\CoreBundle\Shipping\RateRequest;
 
 /**
  * Class OrderAddItem
@@ -11,46 +12,26 @@ use MobileCart\CoreBundle\Event\CoreEvent;
 class OrderAddItem
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\CartSessionService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $cartSession;
+    protected $cartService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\CartTotalService
-     */
-    protected $cartTotalService;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\DiscountService
-     */
-    protected $discountService;
-
-    /**
-     * @param $cartSession
+     * @param $cartService
      * @return $this
      */
-    public function setCartSession($cartSession)
+    public function setCartService($cartService)
     {
-        $this->cartSession = $cartSession;
+        $this->cartService = $cartService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getCartSession()
+    public function getCartService()
     {
-        return $this->cartSession;
-    }
-
-    /**
-     * @param $cartTotalService
-     * @return $this
-     */
-    public function setCartTotalService($cartTotalService)
-    {
-        $this->cartTotalService = $cartTotalService;
-        return $this;
+        return $this->cartService;
     }
 
     /**
@@ -58,17 +39,7 @@ class OrderAddItem
      */
     public function getCartTotalService()
     {
-        return $this->cartTotalService;
-    }
-
-    /**
-     * @param $discountService
-     * @return $this
-     */
-    public function setDiscountService($discountService)
-    {
-        $this->discountService = $discountService;
-        return $this;
+        return $this->getCartService()->getCartTotalService();
     }
 
     /**
@@ -76,7 +47,7 @@ class OrderAddItem
      */
     public function getDiscountService()
     {
-        return $this->discountService;
+        return $this->getCartService()->getDiscountService();
     }
 
     /**
@@ -88,25 +59,27 @@ class OrderAddItem
 
         // set shipment method on cart
         $cartJson = $request->get('cart', '{}');
-        $this->getCartSession()->initCartJson($cartJson);
+        $this->getCartService()->initCartJson($cartJson);
         $itemJson = $request->get('item', '{}');
 
-        $item = $this->getCartSession()->getItemInstance();
+        $item = $this->getCartService()->getItemInstance();
         $item->fromJson($itemJson);
         $productId = $item->getProductId();
         $qty = $item->getQty();
 
-        if ($this->getCartSession()->hasProductId($productId)) {
+        if ($this->getCartService()->hasProductId($productId)) {
 
-            $this->getCartSession()
+            $this->getCartService()
                 ->setProductQty($productId, $qty);
 
         } elseif ($productId) {
-            $this->getCartSession()->addItem($item);
+            $this->getCartService()->addItem($item);
         }
 
-        $cart = $this->getCartSession()
-            ->collectShippingMethods()
+        $rateRequest = new RateRequest();
+
+        $cart = $this->getCartService()
+            ->collectShippingMethods($rateRequest)
             ->collectTotals()
             ->getCart();
 

@@ -12,51 +12,21 @@ use MobileCart\CoreBundle\CartComponent\Cart;
 class OrderInsert
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    protected $entityService;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\CurrencyService
-     */
-    protected $currencyService;
-
-    /**
      * @var \MobileCart\CoreBundle\Service\OrderService
      */
     protected $orderService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\CartSessionService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $cartSessionService;
-
-    /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
+    protected $cartService;
 
     /**
      * @return \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     public function getEntityService()
     {
-        return $this->entityService;
-    }
-
-    /**
-     * @param $currencyService
-     * @return $this
-     */
-    public function setCurrencyService($currencyService)
-    {
-        $this->currencyService = $currencyService;
-        return $this;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
@@ -64,7 +34,7 @@ class OrderInsert
      */
     public function getCurrencyService()
     {
-        return $this->currencyService;
+        return $this->getCartService()->getCurrencyService();
     }
 
     /**
@@ -86,21 +56,21 @@ class OrderInsert
     }
 
     /**
-     * @param $cartSessionService
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
      * @return $this
      */
-    public function setCartSessionService($cartSessionService)
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
     {
-        $this->cartSessionService = $cartSessionService;
+        $this->cartService = $cartService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getCartSessionService()
+    public function getCartService()
     {
-        return $this->cartSessionService;
+        return $this->cartService;
     }
 
     /**
@@ -118,7 +88,7 @@ class OrderInsert
                 $cart->importJson($cartJson);
                 break;
             case CoreEvent::SECTION_FRONTEND:
-                $cart = $this->getCartSessionService()->getCart();
+                $cart = $this->getCartService()->getCart();
                 break;
             case CoreEvent::SECTION_API:
 
