@@ -15,27 +15,21 @@ use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\Entity\Product;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
+/**
+ * Class FrontendExtension
+ * @package MobileCart\CoreBundle\Twig\Extension
+ */
 class FrontendExtension extends \Twig_Extension
 {
-    /**
-     * @var
-     */
-    protected $session;
-
     /**
      * @var bool
      */
     protected $isProduction = false;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\CartSessionService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $cartSessionService;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\CartTotalService
-     */
-    protected $cartTotalService;
+    protected $cartService;
 
     /**
      * @var \MobileCart\CoreBundle\Service\ImageService
@@ -43,7 +37,7 @@ class FrontendExtension extends \Twig_Extension
     protected $imageService;
 
     /**
-     * @var
+     * @var array
      */
     protected $totals = [];
 
@@ -53,14 +47,9 @@ class FrontendExtension extends \Twig_Extension
     protected $shippingMethods = [];
 
     /**
-     * @var
+     * @var \Symfony\Component\Routing\RouterInterface
      */
     protected $router;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\CurrencyService
-     */
-    protected $currencyService;
 
     /**
      * @var \MobileCart\CoreBundle\Service\ThemeConfig
@@ -149,7 +138,6 @@ class FrontendExtension extends \Twig_Extension
     public function getFilters()
     {
         return [
-//            'var_dump' => new \Twig_Filter_Function('var_dump'),
             'money' => new \Twig_SimpleFilter('money', [$this, 'money'], ['is_safe' => ['html']])
         ];
     }
@@ -354,7 +342,7 @@ class FrontendExtension extends \Twig_Extension
      */
     public function currencySymbol()
     {
-        $currency = $this->getCartSessionService()->getCurrency();
+        $currency = $this->getCartService()->getCurrency();
         if (!$currency) {
             return $this->getCurrencyService()->getBaseSymbol();
         }
@@ -398,21 +386,11 @@ class FrontendExtension extends \Twig_Extension
     }
 
     /**
-     * @param $currencyService
-     * @return $this
-     */
-    public function setCurrencyService($currencyService)
-    {
-        $this->currencyService = $currencyService;
-        return $this;
-    }
-
-    /**
-     * @return mixed
+     * @return \MobileCart\CoreBundle\Service\CurrencyService
      */
     public function getCurrencyService()
     {
-        return $this->currencyService;
+        return $this->getCartService()->getCurrencyService();
     }
 
     /**
@@ -434,21 +412,11 @@ class FrontendExtension extends \Twig_Extension
     }
 
     /**
-     * @param $session
-     * @return $this
-     */
-    public function setSession($session)
-    {
-        $this->session = $session;
-        return $this;
-    }
-
-    /**
      * @return mixed
      */
     public function getSession()
     {
-        return $this->session;
+        return $this->getCartService()->getSession();
     }
 
     /**
@@ -463,29 +431,29 @@ class FrontendExtension extends \Twig_Extension
     }
 
     /**
-     * @param $cartSessionService
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
      * @return $this
      */
-    public function setCartSessionService($cartSessionService)
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
     {
-        $this->cartSessionService = $cartSessionService;
+        $this->cartService = $cartService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getCartSessionService()
+    public function getCartService()
     {
-        return $this->cartSessionService;
+        return $this->cartService;
     }
 
     /**
-     * @return mixed
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     public function getEntityService()
     {
-        return $this->getCartSessionService()->getCartService()->getDiscountService()->getEntityService();
+        return $this->getCartService()->getEntityService();
     }
 
     /**
@@ -524,7 +492,7 @@ class FrontendExtension extends \Twig_Extension
     public function convert($value, $to = '')
     {
         if (!$to) {
-            $to = $this->getCartSessionService()->getCurrency();
+            $to = $this->getCartService()->getCurrency();
         }
         return $this->getCurrencyService()->convert($value, $to);
     }
@@ -537,7 +505,7 @@ class FrontendExtension extends \Twig_Extension
     public function decorate($value, $to = '')
     {
         if (!$to) {
-            $to = $this->getCartSessionService()->getCurrency();
+            $to = $this->getCartService()->getCurrency();
         }
         return $this->getCurrencyService()->decorate($value, $to);
     }
@@ -553,7 +521,7 @@ class FrontendExtension extends \Twig_Extension
     {
         $category = is_object($categoryId)
             ? $categoryId
-            : $this->getEntityService()->find('category', $categoryId);
+            : $this->getEntityService()->find(EntityConstants::CATEGORY, $categoryId);
 
         if (!$category) {
             return '';
@@ -609,7 +577,7 @@ class FrontendExtension extends \Twig_Extension
     {
         $category = is_object($categoryId)
             ? $categoryId
-            : $this->getEntityService()->find('category', $categoryId);
+            : $this->getEntityService()->find(EntityConstants::CATEGORY, $categoryId);
 
         if (!$category) {
             return '';
@@ -732,21 +700,11 @@ class FrontendExtension extends \Twig_Extension
      */
     public function renderGridBackUrl($route)
     {
-        $url = $this->router->generate($route);
-        switch($route) {
-            case 'cart_admin_product':
-                if ($queryString = $this->session->get($route)) {
-                    $url .= '?' . $queryString;
-                }
-                return $url;
-                break;
-            default:
-                if ($queryString = $this->session->get($route)) {
-                    $url .= '?' . $queryString;
-                }
-                return $url;
-                break;
+        $url = $this->getRouter()->generate($route);
+        if ($queryString = $this->getSession()->get($route)) {
+            $url .= '?' . $queryString;
         }
+        return $url;
     }
 
     /**
@@ -824,20 +782,19 @@ class FrontendExtension extends \Twig_Extension
     }
 
     /**
-     * @return mixed
+     * @return \MobileCart\CoreBundle\CartComponent\Cart
      */
     public function getCart()
     {
-        return $this->getCartSessionService()->getCart();
+        return $this->getCartService()->getCart();
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getCartJson()
     {
-        return $this->getCartSessionService()->getCart()
-            ->toJson();
+        return $this->getCartService()->getCart()->toJson();
     }
 
     /**
@@ -848,8 +805,7 @@ class FrontendExtension extends \Twig_Extension
      */
     public function cartHasShipmentMethodId($id, $addressId='main', $srcAddressKey='main')
     {
-        return $this->getCartSessionService()->getCart()
-            ->hasShipmentMethodId($id, $addressId, $srcAddressKey);
+        return $this->getCartService()->getCart()->hasShipmentMethodId($id, $addressId, $srcAddressKey);
     }
 
     /**
@@ -860,8 +816,7 @@ class FrontendExtension extends \Twig_Extension
      */
     public function cartHasShipmentMethodCode($code, $addressId='main', $srcAddressKey='main')
     {
-        return $this->getCartSessionService()->getCart()
-            ->hasShipmentMethodCode($code, $addressId, $srcAddressKey);
+        return $this->getCartService()->getCart()->hasShipmentMethodCode($code, $addressId, $srcAddressKey);
     }
 
     /**
@@ -869,7 +824,7 @@ class FrontendExtension extends \Twig_Extension
      */
     public function cartShipments()
     {
-        return $this->getCartSessionService()->getCart()->getShipments();
+        return $this->getCartService()->getCart()->getShipments();
     }
 
     /**
@@ -886,31 +841,21 @@ class FrontendExtension extends \Twig_Extension
     }
 
     /**
-     * @return mixed
+     * @return \MobileCart\CoreBundle\CartComponent\Total[]|array
      */
     public function getCartTotals()
     {
-        $totals = $this->getCartSessionService()
-            ->getTotals();
-
-        if ($totals) {
-
-            $this->totals = $totals;
-
-        } else {
-
-            $this->totals = $this->getCartSessionService()
-                ->collectTotals()
-                ->getTotals();
-
+        if ($this->totals) {
+            return $this->totals;
         }
 
+        $this->totals = $this->getCartService()->getTotals();
         return $this->totals;
     }
 
     /**
      * @param $key
-     * @return null
+     * @return \MobileCart\CoreBundle\CartComponent\Total|null
      */
     public function getCartTotal($key)
     {
@@ -973,31 +918,31 @@ class FrontendExtension extends \Twig_Extension
      */
     public function getCartShippingMethods($addressId='main', $srcAddressKey='main')
     {
-        return $this->getCartSessionService()->getShippingMethods($addressId, $srcAddressKey);
+        return $this->getCartService()->getShippingMethods($addressId, $srcAddressKey);
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getAllCartShippingMethods()
     {
-        return $this->getCartSessionService()->getAllShippingMethods();
+        return $this->getCartService()->getAllShippingMethods();
     }
 
     /**
-     * @return mixed
+     * @return \MobileCart\CoreBundle\CartComponent\Item[]
      */
     public function getCartItems()
     {
-        return $this->getCartSessionService()->getCart()->getItems();
+        return $this->getCartService()->getCart()->getItems();
     }
 
     /**
-     * @return mixed
+     * @return \MobileCart\CoreBundle\CartComponent\Customer
      */
     public function getCustomer()
     {
-        return $this->getCartSessionService()->getCart()->getCustomer();
+        return $this->getCartService()->getCart()->getCustomer();
     }
 
     /**
@@ -1022,7 +967,7 @@ class FrontendExtension extends \Twig_Extension
      */
     public function customerHasGroup($group)
     {
-        return $this->getCartSessionService()->customerHasGroup($group);
+        return $this->getCartService()->customerHasGroup($group);
     }
 
     /**
@@ -1031,7 +976,7 @@ class FrontendExtension extends \Twig_Extension
      */
     public function customerAddress($addressId='main')
     {
-        return $this->getCartSessionService()->getCustomerAddress($addressId);
+        return $this->getCartService()->getCustomerAddress($addressId);
     }
 
     /**
@@ -1094,15 +1039,15 @@ class FrontendExtension extends \Twig_Extension
      */
     public function addressLabel($addressId)
     {
-        return $this->getCartSessionService()->addressLabel($addressId);
+        return $this->getCartService()->addressLabel($addressId);
     }
 
     /**
-     * @return mixed
+     * @return array|\MobileCart\CoreBundle\CartComponent\CustomerAddress[]
      */
     public function customerAddresses()
     {
-        return $this->getCartSessionService()->getCustomerAddresses();
+        return $this->getCartService()->getCustomerAddresses();
     }
 
     /**
