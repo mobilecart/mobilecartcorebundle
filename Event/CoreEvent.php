@@ -727,10 +727,10 @@ class CoreEvent extends Event
     }
 
     /**
-     * @param \Symfony\Component\Security\Core\User\UserInterface $user
+     * @param \Symfony\Component\Security\Core\User\UserInterface|null $user
      * @return $this
      */
-    public function setUser(\Symfony\Component\Security\Core\User\UserInterface $user)
+    public function setUser($user)
     {
         $this->user = $user;
         return $this;

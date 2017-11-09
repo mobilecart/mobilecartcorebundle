@@ -3,9 +3,12 @@
 namespace MobileCart\CoreBundle\Event\Shipping;
 
 use Symfony\Component\EventDispatcher\Event;
-use MobileCart\CoreBundle\Event\CoreEvent;
 
-class FilterShippingRateEvent extends CoreEvent
+/**
+ * Class FilterShippingRateEvent
+ * @package MobileCart\CoreBundle\Event\Shipping
+ */
+class FilterShippingRateEvent extends Event
 {
     /**
      * @var array
@@ -13,36 +16,43 @@ class FilterShippingRateEvent extends CoreEvent
     protected $rates = []; // r[company_method] = Rate object
 
     /**
-     * @param $rate
+     * @var \MobileCart\CoreBundle\Shipping\RateRequest
+     */
+    protected $rateRequest;
+
+    /**
+     * @param \MobileCart\CoreBundle\Shipping\Rate $rate
      * @return $this
      */
-    public function addRate($rate)
+    public function addRate(\MobileCart\CoreBundle\Shipping\Rate $rate)
     {
         $this->rates[$rate->getCode()] = $rate;
         return $this;
     }
 
     /**
-     * @return array
+     * @return array|\MobileCart\CoreBundle\Shipping\Rate[]
      */
     public function getRates()
     {
-        $asArray = $this->getRateRequest()->get('to_array');
-        if (!$asArray || !$this->rates) {
-            return $this->rates;
-        }
+        return $this->rates;
+    }
 
-        $rates = [];
-        foreach($this->rates as $code => $rate) {
-            $data = $rate->toArray();
-            $data['code'] = $code;
-            /*
-            if (!isset($data['id'])) {
-                $data['id'] = $code;
-            } //*/
-            $rates[] = $data;
-        }
-        
-        return $rates;
+    /**
+     * @param \MobileCart\CoreBundle\Shipping\RateRequest $rateRequest
+     * @return $this
+     */
+    public function setRateRequest(\MobileCart\CoreBundle\Shipping\RateRequest $rateRequest)
+    {
+        $this->rateRequest = $rateRequest;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Shipping\RateRequest
+     */
+    public function getRateRequest()
+    {
+        return $this->rateRequest;
     }
 }
