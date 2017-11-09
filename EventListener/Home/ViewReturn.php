@@ -12,19 +12,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class ViewReturn
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    protected $entityService;
-
-    /**
      * @var \MobileCart\CoreBundle\Service\SearchServiceInterface
      */
     protected $searchService;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\CartSessionService
-     */
-    protected $cartSessionService;
 
     /**
      * @var \MobileCart\CoreBundle\Service\ThemeService
@@ -50,24 +40,6 @@ class ViewReturn
     }
 
     /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    public function getEntityService()
-    {
-        return $this->entityService;
-    }
-
-    /**
      * @param \MobileCart\CoreBundle\Service\SearchServiceInterface $search
      * @return $this
      */
@@ -86,47 +58,15 @@ class ViewReturn
     }
 
     /**
-     * @param $cartSessionService
-     * @return $this
-     */
-    public function setCartSessionService($cartSessionService)
-    {
-        $this->cartSessionService = $cartSessionService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
-     */
-    public function getCartSessionService()
-    {
-        return $this->cartSessionService;
-    }
-
-    /**
      * @param CoreEvent $event
      */
     public function onHomeViewReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $returnData['search'] = $this->getSearchService();
-
-        $response = '';
-        switch($format) {
-            case 'json':
-                $response = new JsonResponse($returnData);
-                break;
-            default:
-
-                $response = $this->getThemeService()
-                    ->render('frontend', 'Home:index.html.twig', $returnData);
-
-                break;
-        }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
+        $event->setReturnData('search', $this->getSearchService());
+        $event->setResponse($this->getThemeService()->render(
+            'frontend',
+            'Home:index.html.twig',
+            $event->getReturnData()
+        ));
     }
 }
