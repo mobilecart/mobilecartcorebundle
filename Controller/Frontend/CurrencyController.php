@@ -22,7 +22,7 @@ class CurrencyController extends Controller
         $currencyService = $this->container->get('cart.currency');
         $code = $request->get('code', '');
         if ($currencyService->hasRate($code)) {
-            $this->get('cart.session')->setCurrency($code);
+            $this->get('cart')->setCurrency($code);
         }
 
         $redirect = $request->headers->get('referer');

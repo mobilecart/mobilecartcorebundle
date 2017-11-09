@@ -31,7 +31,7 @@ class CartController extends Controller
     {
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->set('user', $this->getUser())
+            ->setUser($this->getUser())
             ->set('is_multi_shipping_enabled', $this->getParameter('cart.shipping.multi.enabled'));
 
         $this->get('event_dispatcher')
@@ -47,12 +47,14 @@ class CartController extends Controller
     {
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->set('is_add', true)
-            ->set('user', $this->getUser())
-            ->set('is_multi_shipping_enabled', $this->getParameter('cart.shipping.multi.enabled'));
+            ->setUser($this->getUser())
+            ->set('is_add', true);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CART_ADD_PRODUCT, $event);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CART_UPDATE_TOTALS_SHIPPING, $event);
 
         return $event->getResponse();
     }
@@ -64,11 +66,13 @@ class CartController extends Controller
     {
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->set('user', $this->getUser())
-            ->set('is_multi_shipping_enabled', $this->getParameter('cart.shipping.multi.enabled'));
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CART_ADD_SHIPMENT, $event);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CART_UPDATE_TOTALS_SHIPPING, $event);
 
         return $event->getResponse();
     }
@@ -78,59 +82,15 @@ class CartController extends Controller
      */
     public function updateQtysAction(Request $request)
     {
-        $qtys = $request->get('qty', []);
-
         $event = new CoreEvent();
         $event->setRequest($request)
             ->setUser($this->getUser());
 
-        $success = true;
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CART_UPDATE_ITEM_QTYS, $event);
 
-        if (is_array($qtys) && $qtys) {
-            foreach($qtys as $productId => $qty) {
-                if ($qty < 1) {
-
-                    $event = new CoreEvent();
-                    $event->setRequest($request)
-                        ->setIsMassUpdate(true)
-                        ->setUser($this->getUser())
-                        ->set('product_id', $productId)
-                        ->set('is_multi_shipping_enabled', $this->getParameter('cart.shipping.multi.enabled'));
-
-                    $this->get('event_dispatcher')
-                        ->dispatch(CoreEvents::CART_REMOVE_PRODUCT, $event);
-
-                    if (!$event->getReturnData('success')) {
-                        $success = false;
-                    }
-
-                } else {
-
-                    $event = new CoreEvent();
-                    $event->setRequest($request)
-                        ->setIsMassUpdate(true)
-                        ->setUser($this->getUser())
-                        ->set('product_id', $productId)
-                        ->set('qty', $qty)
-                        ->set('is_add', false)
-                        ->set('is_multi_shipping_enabled', $this->getParameter('cart.shipping.multi.enabled'));
-
-                    $this->get('event_dispatcher')
-                        ->dispatch(CoreEvents::CART_ADD_PRODUCT, $event);
-
-                    if (!$event->getReturnData('success')) {
-                        $success = false;
-                    }
-                }
-            }
-        }
-
-        if ($success) {
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Cart Updated'
-            );
-        }
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CART_UPDATE_TOTALS_SHIPPING, $event);
 
         return $event->getResponse();
     }
@@ -142,10 +102,13 @@ class CartController extends Controller
     {
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->set('user', $this->getUser());
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CART_REMOVE_PRODUCT, $event);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CART_UPDATE_TOTALS_SHIPPING, $event);
 
         return $event->getResponse();
     }
@@ -157,10 +120,13 @@ class CartController extends Controller
     {
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->set('user', $this->getUser());
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CART_REMOVE_PRODUCTS, $event);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CART_UPDATE_TOTALS_SHIPPING, $event);
 
         return $event->getResponse();
     }
@@ -170,7 +136,14 @@ class CartController extends Controller
      */
     public function totalsAction(Request $request)
     {
-        $totalsMap = $this->get('cart.session')
+        if ($this->get('cart')->getIsApiRequest()) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'API Requests are not currently supported here.'
+            ]);
+        }
+
+        $totalsMap = $this->get('cart')
             ->collectTotals()
             ->getTotals();
 
@@ -195,10 +168,31 @@ class CartController extends Controller
     {
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->set('user', $this->getUser());
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CART_ADD_DISCOUNT, $event);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CART_UPDATE_TOTALS_SHIPPING, $event);
+
+        return $event->getResponse();
+    }
+
+    /**
+     * Remove discount code from shopping cart
+     */
+    public function removeDiscountAction(Request $request)
+    {
+        $event = new CoreEvent();
+        $event->setRequest($request)
+            ->setUser($this->getUser());
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CART_REMOVE_DISCOUNT, $event);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CART_UPDATE_TOTALS_SHIPPING, $event);
 
         return $event->getResponse();
     }

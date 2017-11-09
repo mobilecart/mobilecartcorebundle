@@ -41,7 +41,7 @@ class ShippingController extends Controller
         }
 
         $cartItems = [];
-        $items = $this->get('cart.session')->getItems();
+        $items = $this->get('cart')->getItems();
         if ($items) {
             foreach($items as $item) {
                 if (in_array($item->getProductId(), $productIds)) {
@@ -52,8 +52,6 @@ class ShippingController extends Controller
 
         $request = new RateRequest();
         $request->fromArray([
-            'to_array'   => 1,
-            'hide_costs' => 1, // todo:
             'postcode'   => $postcode,
             'country_id' => $countryId,
             'region'     => $region,
