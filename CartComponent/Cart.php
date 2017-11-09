@@ -57,6 +57,7 @@ class Cart extends ArrayWrapper
             self::CALCULATOR_PRECISION => 4,
             self::DISCOUNT_TAXABLE_LAST => true,
             self::PAYMENT_METHOD_CODES => [],
+            self::TOTALS => [],
         ];
     }
 
@@ -571,29 +572,33 @@ class Cart extends ArrayWrapper
 
         if (isset($cart[self::ITEMS]) && count($cart[self::ITEMS]) > 0) {
             $items = $cart[self::ITEMS];
-            foreach($items as $itemObj) {
+            if ($items) {
+                foreach($items as $itemObj) {
 
-                $itemData = ($itemObj instanceof \stdClass)
-                    ? get_object_vars($itemObj)
-                    : (array) $itemObj;
+                    $itemData = ($itemObj instanceof \stdClass)
+                        ? get_object_vars($itemObj)
+                        : (array) $itemObj;
 
-                $item = new Item();
-                $item->fromArray($itemData);
-                $this->addItem($item);
+                    $item = new Item();
+                    $item->fromArray($itemData);
+                    $this->addItem($item);
+                }
             }
         }
 
         if (isset($cart[self::SHIPMENTS]) && count($cart[self::SHIPMENTS]) > 0) {
             $shipments = $cart[self::SHIPMENTS];
-            foreach($shipments as $shipmentObj) {
+            if ($shipments) {
+                foreach($shipments as $shipmentObj) {
 
-                $shipmentData = ($shipmentObj instanceof \stdClass)
-                    ? get_object_vars($shipmentObj)
-                    : (array) $shipmentObj;
+                    $shipmentData = ($shipmentObj instanceof \stdClass)
+                        ? get_object_vars($shipmentObj)
+                        : (array) $shipmentObj;
 
-                $shipment = new Shipment();
-                $shipment->fromArray($shipmentData);
-                $this->addShipment($shipment);
+                    $shipment = new Shipment();
+                    $shipment->fromArray($shipmentData);
+                    $this->addShipment($shipment);
+                }
             }
         }
 
@@ -601,15 +606,34 @@ class Cart extends ArrayWrapper
 
         if (isset($cart[self::DISCOUNTS]) && count($cart[self::DISCOUNTS]) > 0) {
             $discounts = $cart[self::DISCOUNTS];
-            foreach($discounts as $discountObj) {
+            if ($discounts) {
+                foreach($discounts as $discountObj) {
 
-                $discountData = ($discountObj instanceof \stdClass)
-                    ? get_object_vars($discountObj)
-                    : (array) $discountObj;
+                    $discountData = ($discountObj instanceof \stdClass)
+                        ? get_object_vars($discountObj)
+                        : (array) $discountObj;
 
-                $discount = new Discount();
-                $discount->fromArray($discountData);
-                $this->addDiscount($discount);
+                    $discount = new Discount();
+                    $discount->fromArray($discountData);
+                    $this->addDiscount($discount);
+                }
+            }
+        }
+
+        if (isset($cart[self::TOTALS])) {
+            $totals = $cart[self::TOTALS];
+            if ($totals) {
+                $convertedTotals = [];
+                foreach($totals as $total) {
+                    $totalData = ($total instanceof \stdClass)
+                        ? get_object_vars($total)
+                        : (array) $total;
+
+                    $newTotal = new Total();
+                    $newTotal->fromArray($totalData);
+                    $convertedTotals[] = $newTotal;
+                }
+                $this->setTotals($convertedTotals);
             }
         }
 
