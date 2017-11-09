@@ -2,15 +2,14 @@
 
 namespace MobileCart\CoreBundle\EventListener\Security;
 
-use MobileCart\CoreBundle\Constants\EntityConstants;
-use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\Event\CoreEvents;
-use MobileCart\CoreBundle\CartComponent\Cart;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\HttpUtils;
+use MobileCart\CoreBundle\Constants\EntityConstants;
+use MobileCart\CoreBundle\Event\CoreEvent;
+use MobileCart\CoreBundle\Event\CoreEvents;
 
 class Login implements AuthenticationSuccessHandlerInterface
 {
@@ -26,20 +25,18 @@ class Login implements AuthenticationSuccessHandlerInterface
     );
 
     /**
-     * @var EventDispatcher
+     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     protected $eventDispatcher;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\CartSessionService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $cartSessionService;
+    protected $cartService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @var bool
      */
-    protected $entityService;
-
     protected $reloadCart = true;
 
     /**
@@ -55,31 +52,21 @@ class Login implements AuthenticationSuccessHandlerInterface
     }
 
     /**
-     * @param $cartSessionService
+     * @param $cartService
      * @return $this
      */
-    public function setCartSessionService($cartSessionService)
+    public function setCartService($cartService)
     {
-        $this->cartSessionService = $cartSessionService;
+        $this->cartService = $cartService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CartSessionService
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getCartSessionService()
+    public function getCartService()
     {
-        return $this->cartSessionService;
-    }
-
-    /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
+        return $this->cartService;
     }
 
     /**
@@ -87,7 +74,7 @@ class Login implements AuthenticationSuccessHandlerInterface
      */
     public function getEntityService()
     {
-        return $this->entityService;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
@@ -119,7 +106,7 @@ class Login implements AuthenticationSuccessHandlerInterface
     }
 
     /**
-     * @return EventDispatcher
+     * @return \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     public function getEventDispatcher()
     {
@@ -139,49 +126,20 @@ class Login implements AuthenticationSuccessHandlerInterface
 
         if ($class === $this->getEntityService()->getRepository(EntityConstants::CUSTOMER)->getClassName()) {
 
-            $user = $this->getEntityService()->find(EntityConstants::CUSTOMER, $token->getUser()->getId());
+            $event->setIsCustomer(true);
 
-            if ($user->getDefaultLocale()) {
-                $this->getCartSessionService()->getSession()->set('_locale', $user->getDefaultLocale());
-            }
+            $this->getCartService()->setCustomerEntity($user);
 
-            $aCart = $this->getCartSessionService()->getCart();
-            if ($this->getReloadCart()
-                && !$aCart->hasItems()
-            ) {
+        } elseif ($class === $this->getEntityService()->getRepository(EntityConstants::ADMIN_USER)->getClassName()) {
 
-                $currentCart = $this->getEntityService()->findOneBy(EntityConstants::CART, [
-                    'customer' => $user->getId(),
-                ]);
+            //$user = $this->getEntityService()->find(EntityConstants::ADMIN_USER, $token->getUser()->getId());
 
-                if ($currentCart) {
-
-                    $aCart = new Cart();
-                    $aCart->importJson($currentCart->getJson());
-
-                    $this->getCartSessionService()
-                        ->setCart($aCart);
-                }
-            }
-
-            $this->getCartSessionService()
-                ->collectShippingMethods()
-                ->collectTotals();
-
-            $event->setIsCustomer(1);
-
-            $this->getCartSessionService()
-                ->setCustomerEntity($user);
-
-        } else if ($class === $this->getEntityService()->getRepository(EntityConstants::ADMIN_USER)->getClassName()) {
-            $user = $this->getEntityService()->find(EntityConstants::ADMIN_USER, $token->getUser()->getId());
-            $event->setIsAdmin(1);
+            $event->setIsAdmin(true);
 
             // might as well create a blank cart for admin
             //  this prevents bugs while testing shopping cart also
-            $aCart = new Cart();
-            $this->getCartSessionService()
-                ->setCart($aCart);
+
+            $this->getCartService()->initCart();
         }
 
         $user->setFailedLogins(0)
@@ -200,7 +158,7 @@ class Login implements AuthenticationSuccessHandlerInterface
             ->dispatch(CoreEvents::LOGIN_SUCCESS, $event);
 
         if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
-            return new JsonResponse(array_merge(['success' => 1], $event->getReturnData()));
+            return new JsonResponse(array_merge(['success' => true], $event->getReturnData()));
         }
 
         return $this->httpUtils->createRedirectResponse($request, $this->determineTargetUrl($request));

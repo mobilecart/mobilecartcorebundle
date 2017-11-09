@@ -14,12 +14,12 @@ class Logout implements LogoutSuccessHandlerInterface
     protected $targetUrl;
 
     /**
-     * @var CartSessionService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $cartSessionService;
+    protected $cartService;
 
     /**
-     * @var EventDispatcher
+     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     protected $eventDispatcher;
 
@@ -34,7 +34,7 @@ class Logout implements LogoutSuccessHandlerInterface
     }
 
     /**
-     * @return EventDispatcher
+     * @return \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     public function getEventDispatcher()
     {
@@ -53,21 +53,21 @@ class Logout implements LogoutSuccessHandlerInterface
     }
 
     /**
-     * @param $cartSessionService
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
      * @return $this
      */
-    public function setCartSessionService($cartSessionService)
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
     {
-        $this->cartSessionService = $cartSessionService;
+        $this->cartService = $cartService;
         return $this;
     }
 
     /**
-     * @return mixed
+     * @return \MobileCart\CoreBundle\Service\CartService
      */
-    public function getCartSessionService()
+    public function getCartService()
     {
-        return $this->cartSessionService;
+        return $this->cartService;
     }
 
     /**
@@ -75,7 +75,7 @@ class Logout implements LogoutSuccessHandlerInterface
      */
     public function onLogoutSuccess(Request $request)
     {
-        $this->getCartSessionService()->initCart();
+        $this->getCartService()->resetCart();
 
         $event = new CoreEvent();
 

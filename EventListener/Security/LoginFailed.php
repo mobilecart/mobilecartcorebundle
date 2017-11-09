@@ -32,7 +32,7 @@ class LoginFailed implements AuthenticationFailureHandlerInterface
     );
 
     /**
-     * @var EventDispatcher
+     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     protected $eventDispatcher;
 
@@ -86,7 +86,7 @@ class LoginFailed implements AuthenticationFailureHandlerInterface
     }
 
     /**
-     * @return EventDispatcher
+     * @return \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     public function getEventDispatcher()
     {
@@ -174,7 +174,7 @@ class LoginFailed implements AuthenticationFailureHandlerInterface
                 : 'login.failed';
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => $message,
             ]);
         }
