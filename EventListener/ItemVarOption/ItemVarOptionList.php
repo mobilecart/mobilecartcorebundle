@@ -62,10 +62,6 @@ class ItemVarOptionList
      */
     public function onItemVarOptionList(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-
         $event->setReturnData('mass_actions', [
             [
                 'label'         => 'Delete Options',
@@ -109,9 +105,9 @@ class ItemVarOptionList
             ],
         ]);
 
-        switch($format) {
-            case 'json':
-                $event->setResponse(new JsonResponse($returnData));
+        switch($event->getRequestAccept()) {
+            case CoreEvent::JSON:
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
                 $event->setResponse($this->getThemeService()->render(

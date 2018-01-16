@@ -166,7 +166,7 @@ class LoginFailed implements AuthenticationFailureHandlerInterface
             }
         }
 
-        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
+        if ($request->headers->get('Content-Type') == 'application/json') {
 
             // user account might be locked, but don't tell them that
             $message = $event->getMessage()

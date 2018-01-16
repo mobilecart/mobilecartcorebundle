@@ -9,17 +9,12 @@ use MobileCart\CoreBundle\Event\CoreEvents;
  * Class RemoveProducts
  * @package MobileCart\CoreBundle\EventListener\Cart
  */
-class RemoveProducts
+class RemoveProducts extends BaseCartListener
 {
     /**
      * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     protected $eventDispatcher;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\CartService
-     */
-    protected $cartService;
 
     /**
      * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
@@ -40,49 +35,18 @@ class RemoveProducts
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    public function getEntityService()
-    {
-        return $this->getCartService()->getEntityService();
-    }
-
-    /**
-     * @param $cartService
-     * @return $this
-     */
-    public function setCartService($cartService)
-    {
-        $this->cartService = $cartService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CartService
-     */
-    public function getCartService()
-    {
-        return $this->cartService;
-    }
-
-    /**
      * @param CoreEvent $event
      */
     public function onCartRemoveProducts(CoreEvent $event)
     {
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $event->set('format', $format);
-
-        $cartService = $this->getCartService();
-
+        $this->initCart($event->getRequest());
         $recollectShipping = [];
         $success = false;
-        if ($cartService->hasItems()) {
-            foreach($cartService->getProductIds() as $productId) {
+        if ($this->getCartService()->hasItems()) {
+            foreach($this->getCartService()->getProductIds() as $productId) {
 
                 $innerEvent = new CoreEvent();
-                $innerEvent->setRequest($request)
+                $innerEvent->setRequest($event->getRequest())
                     ->setIsMassUpdate(true)
                     ->setUser($event->getUser())
                     ->set('product_id', $productId);
@@ -90,7 +54,7 @@ class RemoveProducts
                 $this->getEventDispatcher()
                     ->dispatch(CoreEvents::CART_REMOVE_PRODUCT, $innerEvent);
 
-                if ($innerEvent->getReturnData('success')) {
+                if ($innerEvent->getSuccess()) {
                     $success = true;
                     if ($innerEvent->get('recollect_shipping', [])) {
                         foreach($innerEvent->get('recollect_shipping') as $anAddress) {
@@ -102,6 +66,6 @@ class RemoveProducts
         }
 
         $event->set('recollect_shipping', $recollectShipping);
-        $event->setReturnData('success', $success);
+        $event->setSuccess($success);
     }
 }

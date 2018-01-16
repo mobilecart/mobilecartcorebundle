@@ -9,13 +9,8 @@ use MobileCart\CoreBundle\Event\CoreEvent;
  * Class ViewReturn
  * @package MobileCart\CoreBundle\EventListener\Cart
  */
-class ViewReturn
+class ViewReturn extends BaseCartListener
 {
-    /**
-     * @var \MobileCart\CoreBundle\Service\CartService
-     */
-    protected $cartService;
-
     /**
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
@@ -40,38 +35,14 @@ class ViewReturn
     }
 
     /**
-     * @param $cartService
-     * @return $this
-     */
-    public function setCartService($cartService)
-    {
-        $this->cartService = $cartService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CartService
-     */
-    public function getCartService()
-    {
-        return $this->cartService;
-    }
-
-    /**
      * @param CoreEvent $event
      */
     public function onCartViewReturn(CoreEvent $event)
     {
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $cart = $this->getCartService()->initCart()->getCart();
-
-        $event->setReturnData('cart', $cart);
-        $event->setReturnData('is_shipping_enabled', $this->getCartService()->getShippingService()->getIsShippingEnabled());
-        $event->setReturnData('is_multi_shipping_enabled', $this->getCartService()->getShippingService()->getIsMultiShippingEnabled());
+        $this->initCart($event->getRequest());
 
         $addressOptions = [];
-        if ($cart->getCustomer()->getId()) {
+        if ($this->getCartService()->getCart()->getCustomer()->getId()) {
 
             // get addresses from session
             $addresses = $this->getCartService()->getCustomerAddresses();
@@ -83,7 +54,6 @@ class ViewReturn
                     ];
                 }
             }
-
         } else {
             $addressOptions[] = [
                 'value' => 'main',
@@ -91,11 +61,15 @@ class ViewReturn
             ];
         }
 
+        $this->getCartService()->collectTotals(); // todo : figure out why we need this
+        $event->setReturnData('cart', $this->getCartService()->getCart());
         $event->setReturnData('addresses', $addressOptions);
+        $event->setReturnData('is_shipping_enabled', (bool) $this->getCartService()->getShippingService()->getIsShippingEnabled());
+        $event->setReturnData('is_multi_shipping_enabled', (bool) $this->getCartService()->getShippingService()->getIsMultiShippingEnabled());
         $event->setReturnData('is_discount_enabled', (bool) $this->getCartService()->getDiscountService()->getIsDiscountEnabled());
 
-        switch($format) {
-            case 'json':
+        switch($event->getRequest()->headers->get('Accept')) {
+            case 'application/json':
                 $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:

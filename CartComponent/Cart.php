@@ -19,6 +19,7 @@ class Cart extends ArrayWrapper
     implements \ArrayAccess, \Serializable, \IteratorAggregate, \JsonSerializable
 {
     const ID = 'id';
+    const HASH_KEY = 'hash_key';
     const CURRENCY = 'currency';
     const CUSTOMER = 'customer';
     const DISCOUNTS = 'discounts';
@@ -45,6 +46,7 @@ class Cart extends ArrayWrapper
     {
         return [
             self::ID => 0,
+            self::HASH_KEY => '',
             self::CURRENCY => 'USD',
             self::CUSTOMER => new Customer(),
             self::ITEMS => [],
@@ -77,6 +79,24 @@ class Cart extends ArrayWrapper
     public function getId()
     {
         return $this->data[self::ID];
+    }
+
+    /**
+     * @param $hashKey
+     * @return $this
+     */
+    public function setHashKey($hashKey)
+    {
+        $this->data[self::HASH_KEY] = $hashKey;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHashKey()
+    {
+        return $this->data[self::HASH_KEY];
     }
 
     /**
@@ -559,6 +579,10 @@ class Cart extends ArrayWrapper
             $this->setId($cart[self::ID]);
         }
 
+        if (isset($cart[self::HASH_KEY])) {
+            $this->setHashKey($cart[self::HASH_KEY]);
+        }
+
         if (isset($cart[self::CUSTOMER])) {
             $customerObj = $cart[self::CUSTOMER];
             $customerData = ($customerObj instanceof \stdClass)
@@ -602,7 +626,44 @@ class Cart extends ArrayWrapper
             }
         }
 
-        //should not be able to save/import shipment method quotes
+        if (isset($cart[self::SHIPPING_METHODS]) && count($cart[self::SHIPPING_METHODS]) > 0) {
+            $shippingMethods = $cart[self::SHIPPING_METHODS];
+            if ($shippingMethods) {
+
+                $shippingMethods = ($shippingMethods instanceof \stdClass)
+                    ? get_object_vars($shippingMethods)
+                    : (array) $shippingMethods;
+
+                foreach($shippingMethods as $srcAddressKey => $custAddressIds) {
+
+                    $custAddressIds = ($custAddressIds instanceof \stdClass)
+                        ? get_object_vars($custAddressIds)
+                        : (array) $custAddressIds;
+
+                    if (!$custAddressIds) {
+                        continue;
+                    }
+
+                    foreach($custAddressIds as $custAddressId => $shipments) {
+
+                        if (!$shipments) {
+                            continue;
+                        }
+
+                        foreach($shipments as $shipmentObj) {
+
+                            $shipmentData = ($shipmentObj instanceof \stdClass)
+                                ? get_object_vars($shipmentObj)
+                                : (array) $shipmentObj;
+
+                            $shipment = new Shipment();
+                            $shipment->fromArray($shipmentData);
+                            $this->addShippingMethod($shipment, $this->unprefixAddressId($custAddressId), $srcAddressKey);
+                        }
+                    }
+                }
+            }
+        }
 
         if (isset($cart[self::DISCOUNTS]) && count($cart[self::DISCOUNTS]) > 0) {
             $discounts = $cart[self::DISCOUNTS];
@@ -972,7 +1033,7 @@ class Cart extends ArrayWrapper
      * @param $value
      * @param $addressId
      * @param $srcAddressKey
-     * @return bool|null
+     * @return \MobileCart\CoreBundle\Shipping\Rate|null
      */
     public function findShippingMethod($key, $value, $addressId='main', $srcAddressKey='main')
     {
@@ -1088,6 +1149,16 @@ class Cart extends ArrayWrapper
     }
 
     /**
+     * @param $key
+     * @param $value
+     * @return bool
+     */
+    public function hasProduct($key, $value)
+    {
+        return is_numeric($this->findItemIdx($key, $value));
+    }
+
+    /**
      * @param $id
      * @return bool
      */
@@ -1184,18 +1255,19 @@ class Cart extends ArrayWrapper
     }
 
     /**
-     * @param $productId
+     * @param $id
      * @param $qty
+     * @param $key
      * @return $this
      */
-    public function setProductQty($productId, $qty)
+    public function setProductQty($id, $qty, $key = 'product_id')
     {
-        if ($this->hasProductId($productId)) {
+        if ($this->hasProduct($key, $id)) {
             if ($qty > 0) {
-                $idx = $this->findItemIdx('product_id', $productId);
+                $idx = $this->findItemIdx($key, $id);
                 $this->data[self::ITEMS][$idx]->setQty($qty);
             } else {
-                $this->removeProductId($productId);
+                $this->removeItem($key, $id);
             }
         }
         $this->reapplyDiscounts();
@@ -1203,16 +1275,16 @@ class Cart extends ArrayWrapper
     }
 
     /**
-     * @param $productId
+     * @param $id
      * @param $qty
+     * @param $key
      * @return $this
      */
-    public function addProductQty($productId, $qty)
+    public function addProductQty($id, $qty, $key = 'product_id')
     {
-        if ($this->hasProductId($productId)) {
-            $idx = $this->findItemIdx('product_id', $productId);
-            $item = $this->getItemByProductId($productId);
-            $qty += $item->getQty();
+        if ($this->hasProduct($key, $id)) {
+            $idx = $idx = $this->findItemIdx($key, $id);
+            $qty += $this->findItem($key, $id)->getQty();
             $this->data[self::ITEMS][$idx]->setQty($qty);
         }
         $this->reapplyDiscounts();

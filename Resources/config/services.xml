@@ -203,6 +203,7 @@
         <parameter key="cart.listener.contact.form.class">MobileCart\CoreBundle\EventListener\Contact\ContactForm</parameter>
         <parameter key="cart.listener.contact.form.post.class">MobileCart\CoreBundle\EventListener\Contact\ContactFormPost</parameter>
         <!-- Cart Handlers -->
+        <parameter key="cart.listener.cart.initialize.class">MobileCart\CoreBundle\EventListener\Cart\Initialize</parameter>
         <parameter key="cart.listener.cart.view.return.class">MobileCart\CoreBundle\EventListener\Cart\ViewReturn</parameter>
         <parameter key="cart.listener.cart.add.product.class">MobileCart\CoreBundle\EventListener\Cart\AddProduct</parameter>
         <parameter key="cart.listener.cart.update.totals.shipping.class">MobileCart\CoreBundle\EventListener\Cart\UpdateTotalsShipping</parameter>
@@ -211,7 +212,6 @@
         <parameter key="cart.listener.cart.remove.product.class">MobileCart\CoreBundle\EventListener\Cart\RemoveProduct</parameter>
         <parameter key="cart.listener.cart.remove.products.class">MobileCart\CoreBundle\EventListener\Cart\RemoveProducts</parameter>
         <parameter key="cart.listener.cart.add.shipment.class">MobileCart\CoreBundle\EventListener\Cart\AddShipment</parameter>
-        <!--<parameter key="cart.listener.cart.update.multi.shipment.class">MobileCart\CoreBundle\EventListener\Cart\UpdateMultiShipment</parameter>-->
         <parameter key="cart.listener.cart.add.discount.class">MobileCart\CoreBundle\EventListener\Cart\AddDiscount</parameter>
         <parameter key="cart.listener.cart.total.item.class">MobileCart\CoreBundle\EventListener\Cart\ItemTotal</parameter>
         <parameter key="cart.listener.cart.total.shipping.class">MobileCart\CoreBundle\EventListener\Cart\ShipmentTotal</parameter>
@@ -1519,6 +1519,14 @@
             </call>
         </service>
 
+        <!-- Event Listener: API call to Initialize shopping cart -->
+        <service id="cart.listener.cart.initialize" lazy="true" class="%cart.listener.cart.initialize.class%">
+            <tag name="kernel.event_listener" event="cart.init" method="onCartInitialize" priority="50" />
+            <call method="setCartService">
+                <argument type="service" id="cart" />
+            </call>
+        </service>
+
         <!-- Event Listener: Return view data to Cart View page -->
         <service id="cart.listener.cart.view.return" lazy="true" class="%cart.listener.cart.view.return.class%">
             <tag name="kernel.event_listener" event="cart.view.return" method="onCartViewReturn" priority="50" />
@@ -1530,7 +1538,7 @@
             </call>
         </service>
 
-        <!-- Event Listener: Add Product to Cart : from a User Session, not for APIs -->
+        <!-- Event Listener: Add Product to Cart -->
         <service id="cart.listener.cart.add.product" lazy="true" class="%cart.listener.cart.add.product.class%">
             <tag name="kernel.event_listener" event="cart.add.product" method="onCartAddProduct" priority="50" />
             <call method="setCartService">
@@ -3440,9 +3448,6 @@
         </service>
         <service id="cart.listener.shipping_method.create.return" lazy="true" class="%cart.listener.shipping_method.create.return.class%">
             <tag name="kernel.event_listener" event="shipping_method.create.return" method="onShippingMethodCreateReturn" priority="50" />
-            <call method="setSession">
-                <argument type="service" id="session" />
-            </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
@@ -3464,9 +3469,6 @@
         </service>
         <service id="cart.listener.shipping_method.update.return" lazy="true" class="%cart.listener.shipping_method.update.return.class%">
             <tag name="kernel.event_listener" event="shipping_method.update.return" method="onShippingMethodUpdateReturn" priority="50" />
-            <call method="setSession">
-                <argument type="service" id="session" />
-            </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
@@ -3511,18 +3513,12 @@
         </service>
         <service id="cart.listener.url_rewrite.create.return" lazy="true" class="%cart.listener.url_rewrite.create.return.class%">
             <tag name="kernel.event_listener" event="url_rewrite.create.return" method="onUrlRewriteCreateReturn" priority="50" />
-            <call method="setSession">
-                <argument type="service" id="session" />
-            </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
         </service>
         <service id="cart.listener.url_rewrite.update.return" lazy="true" class="%cart.listener.url_rewrite.update.return.class%">
             <tag name="kernel.event_listener" event="url_rewrite.update.return" method="onUrlRewriteUpdateReturn" priority="50" />
-            <call method="setSession">
-                <argument type="service" id="session" />
-            </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>

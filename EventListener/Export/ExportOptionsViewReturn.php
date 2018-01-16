@@ -15,10 +15,19 @@ class ExportOptionsViewReturn
      */
     protected $themeService;
 
+    /**
+     * @var string
+     */
     protected $formTypeClass = '';
 
+    /**
+     * @var \Symfony\Component\Form\FormFactory
+     */
     protected $formFactory;
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -39,33 +48,47 @@ class ExportOptionsViewReturn
         return $this->formTypeClass;
     }
 
+    /**
+     * @param $formFactory
+     * @return $this
+     */
     public function setFormFactory($formFactory)
     {
         $this->formFactory = $formFactory;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Form\FormFactory
+     */
     public function getFormFactory()
     {
         return $this->formFactory;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
     }
 
     /**
-     * @param $themeService
+     * @param \MobileCart\CoreBundle\Service\ThemeService $themeService
      * @return $this
      */
-    public function setThemeService($themeService)
+    public function setThemeService(\MobileCart\CoreBundle\Service\ThemeService $themeService)
     {
         $this->themeService = $themeService;
         return $this;

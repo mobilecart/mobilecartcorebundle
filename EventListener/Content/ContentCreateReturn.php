@@ -41,15 +41,16 @@ class ContentCreateReturn
     public function onContentCreateReturn(CoreEvent $event)
     {
         $entity = $event->getEntity();
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-
         $url = $this->getRouter()->generate('cart_admin_content_edit', [
             'id' => $entity->getId()
         ]);
 
-        switch($format) {
-            case 'json':
+        if ($event->getRequest()->getSession() && $event->getMessages()) {
+            $event->flashMessages();
+        }
+
+        switch($event->getRequestAccept()) {
+            case CoreEvent::JSON:
                 $event->setResponse(new JsonResponse([
                     'success' => true,
                     'entity' => $entity->getData(),
@@ -57,18 +58,6 @@ class ContentCreateReturn
                 ]));
                 break;
             default:
-
-                if ($event->getRequest()->getSession() && $event->getMessages()) {
-                    foreach($event->getMessages() as $code => $messages) {
-                        if (!$messages) {
-                            continue;
-                        }
-                        foreach($messages as $message) {
-                            $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                        }
-                    }
-                }
-
                 $event->setResponse(new RedirectResponse($url));
                 break;
         }

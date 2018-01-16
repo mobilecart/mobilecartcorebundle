@@ -111,10 +111,10 @@ class ProductViewReturn
     {
         $entity = $event->getEntity();
         $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
+        $format = $event->getRequestAccept();
 
-        switch($format) {
-            case 'json':
+        switch($event->getRequestAccept()) {
+            case CoreEvent::JSON:
                 $event->setResponse(new JsonResponse([
                     'entity' => $entity->getData(),
                 ]));

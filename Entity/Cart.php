@@ -31,6 +31,13 @@ class Cart
     protected $created_at;
 
     /**
+     * @var string $hash_key
+     *
+     * @ORM\Column(name="hash_key", type="string", length=255, nullable=true)
+     */
+    protected $hash_key;
+
+    /**
      * @var Customer
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Customer")
@@ -184,6 +191,7 @@ class Cart
         return [
             'id' => $this->getId(),
             'created_at' => $this->getCreatedAt(),
+            'hash_key' => $this->getHashKey(),
             'currency' => $this->getCurrency(),
             'total' => $this->getTotal(),
             'item_total' => $this->getItemTotal(),
@@ -302,6 +310,24 @@ class Cart
     public function getCreatedAt()
     {
         return $this->created_at;
+    }
+
+    /**
+     * @param string $hashKey
+     * @return $this
+     */
+    public function setHashKey($hashKey)
+    {
+        $this->hash_key = $hashKey;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHashKey()
+    {
+        return $this->hash_key;
     }
 
     /**

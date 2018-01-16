@@ -78,6 +78,7 @@ class DB
                     $rate->addData($method->getData());
                     $rate->setProductIds($rateRequest->getProductIds());
                     $rate->setSkus($rateRequest->getSkus());
+                    $rate->set('shipping_method_id', $method->getId());
                     $event->addRate($rate);
                 }
             }

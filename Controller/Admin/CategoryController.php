@@ -100,7 +100,7 @@ class CategoryController extends Controller
             }
         }
 
-        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
+        if ($event->getRequestAccept() == CoreEvent::JSON) {
 
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
@@ -255,7 +255,7 @@ class CategoryController extends Controller
             }
         }
 
-        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
+        if ($event->getRequestAccept() == CoreEvent::JSON) {
 
             foreach($form->all() as $childKey => $child) {
                 $errors = $child->getErrors();
@@ -267,13 +267,11 @@ class CategoryController extends Controller
                 }
             }
 
-            $returnData = [
+            return new JsonResponse([
                 'success' => false,
                 'invalid' => $invalid,
                 'messages' => $event->getMessages(),
-            ];
-
-            return new JsonResponse($returnData);
+            ]);
         }
 
         $this->get('event_dispatcher')

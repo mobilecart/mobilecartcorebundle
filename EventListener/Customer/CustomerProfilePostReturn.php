@@ -87,22 +87,13 @@ class CustomerProfilePostReturn
     public function onCustomerProfilePostReturn(CoreEvent $event)
     {
         $customer = $event->getEntity();
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
         if ($event->getMessages() && $event->getRequest()->getSession()) {
-            foreach($event->getMessages() as $code => $messages) {
-                if (!$messages) {
-                    continue;
-                }
-                foreach($messages as $message) {
-                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                }
-            }
+            $event->flashMessages();
         }
 
-        switch($format) {
-            case 'json':
+        switch($event->getRequestAccept()) {
+            case CoreEvent::JSON:
 
                 $isValid = (int) $event->getIsValid();
                 $invalid = [];

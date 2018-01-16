@@ -38,6 +38,7 @@ class Item extends ArrayWrapper
     const MIN_QTY = 'min_qty';
     const AVAIL_QTY = 'avail_qty';
     const PROMO_QTY = 'promo_qty';
+    const ORIG_QTY = 'orig_qty';
     const CATEGORY_IDS = 'category_ids';
     const CUSTOM = 'custom'; // for engravings, etc
     const WEIGHT = 'weight';
@@ -87,6 +88,7 @@ class Item extends ArrayWrapper
             self::MIN_QTY         => 0,
             self::AVAIL_QTY       => 0,
             self::PROMO_QTY       => 0,
+            self::ORIG_QTY        => 0,
             self::CATEGORY_IDS    => [],
             self::CUSTOM          => '',
             self::WEIGHT          => 0,
@@ -191,6 +193,9 @@ class Item extends ArrayWrapper
                         break;
                     case self::PROMO_QTY:
                         $this->setPromoQty($value);
+                        break;
+                    case self::ORIG_QTY:
+                        $this->setOrigQty($value);
                         break;
                     case self::CATEGORY_IDS:
                         $this->setCategoryIds($value);
@@ -560,21 +565,21 @@ class Item extends ArrayWrapper
     }
 
     /**
-     * @param $qty
+     * @param int $qty
      * @return $this
      */
     public function setQty($qty)
     {
-        $this->data[self::QTY] = $qty;
+        $this->data[self::QTY] = (int) $qty;
         return $this;
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getQty()
     {
-        return $this->data[self::QTY];
+        return (int) $this->data[self::QTY];
     }
 
     /**
@@ -629,6 +634,24 @@ class Item extends ArrayWrapper
     public function getPromoQty()
     {
         return (int) $this->data[self::PROMO_QTY];
+    }
+
+    /**
+     * @param $qty
+     * @return $this
+     */
+    public function setOrigQty($qty)
+    {
+        $this->data[self::ORIG_QTY] = (int) $qty;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getOrigQty()
+    {
+        return (int) $this->data[self::ORIG_QTY];
     }
 
     /**

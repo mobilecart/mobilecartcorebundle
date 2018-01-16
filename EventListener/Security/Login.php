@@ -132,14 +132,7 @@ class Login implements AuthenticationSuccessHandlerInterface
 
         } elseif ($class === $this->getEntityService()->getRepository(EntityConstants::ADMIN_USER)->getClassName()) {
 
-            //$user = $this->getEntityService()->find(EntityConstants::ADMIN_USER, $token->getUser()->getId());
-
             $event->setIsAdmin(true);
-
-            // might as well create a blank cart for admin
-            //  this prevents bugs while testing shopping cart also
-
-            $this->getCartService()->initCart();
         }
 
         $user->setFailedLogins(0)
@@ -152,13 +145,17 @@ class Login implements AuthenticationSuccessHandlerInterface
         $this->getEntityService()->persist($user);
 
         $event->setUser($user)
-            ->setReturnData($user->getData());
+            ->setReturnData([
+                'id' => $user->getId(),
+                'api_key' => $user->getApiKey(),
+                'email' => $user->getEmail(),
+            ]);
 
         $this->getEventDispatcher()
             ->dispatch(CoreEvents::LOGIN_SUCCESS, $event);
 
-        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
-            return new JsonResponse(array_merge(['success' => true], $event->getReturnData()));
+        if ($request->headers->get('Content-Type') == 'application/json') {
+            return new JsonResponse($event->getReturnData());
         }
 
         return $this->httpUtils->createRedirectResponse($request, $this->determineTargetUrl($request));

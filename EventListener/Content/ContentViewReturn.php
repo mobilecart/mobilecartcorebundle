@@ -87,13 +87,11 @@ class ContentViewReturn
     {
         $entity = $event->getEntity();
         $event->setReturnData('entity', $entity);
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
 
-        switch($format) {
-            case 'json':
-
+        switch($event->getRequestAccept()) {
+            case CoreEvent::JSON:
                 $event->setResponse(new JsonResponse([
+                    'success' => true,
                     'entity' => $entity->getData(),
                 ]));
                 break;

@@ -41,23 +41,14 @@ class ItemVarSetUpdateReturn
     public function onItemVarSetUpdateReturn(CoreEvent $event)
     {
         $entity = $event->getEntity();
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
         $url = $this->getRouter()->generate('cart_admin_item_var_set_edit', ['id' => $entity->getId()]);
 
         if ($event->getRequest()->getSession() && $event->getMessages()) {
-            foreach($event->getMessages() as $code => $messages) {
-                if (!$messages) {
-                    continue;
-                }
-                foreach($messages as $message) {
-                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                }
-            }
+            $event->flashMessages();
         }
 
-        switch($format) {
-            case 'json':
+        switch($event->getRequestAccept()) {
+            case CoreEvent::JSON:
                 $event->setResponse(new JsonResponse([
                     'success' => true,
                     'entity' => $entity->getData(),

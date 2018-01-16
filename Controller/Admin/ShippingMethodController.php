@@ -155,7 +155,7 @@ class ShippingMethodController extends Controller
             return $returnEvent->getResponse();
         }
 
-        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
+        if ($event->getRequestAccept() == CoreEvent::JSON) {
 
             $invalid = [];
             $messages = [];
@@ -370,7 +370,7 @@ class ShippingMethodController extends Controller
             return $returnEvent->getResponse();
         }
 
-        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
+        if ($event->getRequestAccept() == CoreEvent::JSON) {
 
             $invalid = [];
             $messages = [];

@@ -42,7 +42,7 @@ class ProductUpdateReturn
     {
         $entity = $event->getEntity();
         $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
+        $format = $event->getRequestAccept();
         $url = $this->getRouter()->generate('cart_admin_product_edit', ['id' => $entity->getId()]);
 
         if ($event->getRequest()->getSession() && $event->getMessages()) {
@@ -56,8 +56,8 @@ class ProductUpdateReturn
             }
         }
 
-        switch($format) {
-            case 'json':
+        switch($event->getRequestAccept()) {
+            case CoreEvent::JSON:
                 $event->setResponse(new JsonResponse([
                     'success' => true,
                     'entity' => $entity->getData(),

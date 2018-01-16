@@ -219,4 +219,7 @@ class EntityConstants
             'varchar' => self::VALUE_VARCHAR,
         ];
     }
+
+    const SOURCE_ADDRESS_KEY = 'source_address_key';
+    const CUSTOMER_ADDRESS_ID = 'customer_address_id';
 }

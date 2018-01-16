@@ -144,7 +144,6 @@ class CheckoutBillingAddressForm
 
     /**
      * @param CoreEvent $event
-     * @return bool
      */
     public function onCheckoutForm(CoreEvent $event)
     {

@@ -87,7 +87,7 @@ class Shipment extends ArrayWrapper
                         $this->setMethod($value);
                         break;
                     case self::CODE:
-                        // skip it, since it has its own getter
+                        $this->setCode($value);
                         break;
                     case self::MIN_DAYS:
                         $this->setMinDays($value);
@@ -413,7 +413,6 @@ class Shipment extends ArrayWrapper
     public function toArray()
     {
         $data = parent::toArray();
-        $data['code'] = $this->getCode();
         return $data;
     }
 
@@ -425,15 +424,7 @@ class Shipment extends ArrayWrapper
      */
     public function isValidCondition(RuleCondition $condition)
     {
-        switch($condition->getEntityField()) {
-            case 'code':
-                $condition->setSourceValue($this->getCode());
-                break;
-            default:
-                $condition->setSourceValue($this->get($condition->getEntityField()));
-                break;
-        }
-
+        $condition->setSourceValue($this->get($condition->getEntityField()));
         return $condition->isValid();
     }
 
@@ -455,6 +446,16 @@ class Shipment extends ArrayWrapper
      */
     public function getCode()
     {
-        return $this->get(self::COMPANY) . '_' . $this->get(self::METHOD);
+        return $this->get(self::CODE);
+    }
+
+    /**
+     * @param $code
+     * @return $this
+     */
+    public function setCode($code)
+    {
+        $this->data[self::CODE] = (string) $code;
+        return $this;
     }
 }

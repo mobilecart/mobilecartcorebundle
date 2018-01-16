@@ -3,8 +3,6 @@
 namespace MobileCart\CoreBundle\EventListener\Customer;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
-use Symfony\Component\Intl\Intl;
-use MobileCart\CoreBundle\Form\CustomerType;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**

@@ -11,7 +11,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 class ContentList
 {
-
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -37,12 +39,19 @@ class ContentList
         return $this->themeService;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -53,9 +62,6 @@ class ContentList
      */
     public function onContentList(CoreEvent $event)
     {
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-
         $massActions = [
             [
                 'label'         => 'Delete Contents',
@@ -92,8 +98,8 @@ class ContentList
         $event->setReturnData('mass_actions', $massActions);
         $event->setReturnData('columns', $columns);
 
-        switch($format) {
-            case 'json':
+        switch($event->getRequestAccept()) {
+            case CoreEvent::JSON:
                 $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:

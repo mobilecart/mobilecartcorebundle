@@ -64,7 +64,7 @@ class ProductList
     public function onProductList(CoreEvent $event)
     {
         $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
+        $format = $event->getRequestAccept();
 
         $event->setReturnData('columns', [
             [

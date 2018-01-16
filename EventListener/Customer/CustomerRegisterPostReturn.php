@@ -12,6 +12,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
  */
 class CustomerRegisterPostReturn
 {
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -60,24 +63,15 @@ class CustomerRegisterPostReturn
      */
     public function onCustomerRegisterPostReturn(CoreEvent $event)
     {
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
         $customer = $event->getEntity();
         $event->setReturnData('template_sections', []);
 
         if ($event->getRequest()->getSession() && $event->getMessages()) {
-            foreach($event->getMessages() as $code => $messages) {
-                if (!$messages) {
-                    continue;
-                }
-                foreach($messages as $message) {
-                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                }
-            }
+            $event->flashMessages();
         }
 
-        switch($format) {
-            case 'json':
+        switch($event->getRequestAccept()) {
+            case CoreEvent::JSON:
                 $event->setResponse(new JsonResponse([
                     'success' => true,
                     'email' => $customer->getEmail(),

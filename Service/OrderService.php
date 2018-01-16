@@ -1273,7 +1273,7 @@ class OrderService
 
                 $data = $item->getData();
                 if (isset($data['id'])) {
-                    unset($data['id']);
+                    unset($data['id']); // cart_item.id
                 }
 
                 $orderItem = $this->getEntityService()->getInstance(EntityConstants::ORDER_ITEM);
@@ -1315,7 +1315,7 @@ class OrderService
                     $newQty = $product->getQty() - $item->getQty();
                     $product->setQty($newQty);
                     if ($newQty <= 0) {
-                        $product->setIsInStock(0);
+                        $product->setIsInStock(false);
                     }
 
                     $this->getEntityService()->persist($product);

@@ -86,35 +86,23 @@ class CustomerUpdatePasswordPostReturn
      */
     public function onCustomerUpdatePasswordPostReturn(CoreEvent $event)
     {
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-
         if ($event->getRequest()->getSession() && $event->getMessages()) {
-            foreach($event->getMessages() as $code => $messages) {
-                if (!$messages) {
-                    continue;
-                }
-                foreach($messages as $message) {
-                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                }
-            }
+            $event->flashMessages();
         }
 
-        switch($format) {
-            case 'json':
+        switch($event->getRequestAccept()) {
+            case CoreEvent::JSON:
                 // security risk . be careful what we return here
                 $event->setResponse(new JsonResponse([
-                    'success' => $event->getReturnData('success') ? true : false
+                    'success' => $event->getSuccess()
                 ]));
                 break;
             default:
 
-                if ($event->getReturnData('success')) {
-
+                if ($event->getSuccess()) {
                     $event->addSuccessMessage('Password Successfully Updated!');
                     $event->setResponse(new RedirectResponse($this->getRouter()->generate('login_route', [])));
                 } else {
-
                     $event->addErrorMessage('Invalid Request Submitted');
                     $event->setResponse(new RedirectResponse($this->getRouter()->generate('customer_forgot_password', [])));
                 }

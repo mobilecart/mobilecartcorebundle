@@ -15,6 +15,9 @@ class ExportRun
      */
     protected $exportService;
 
+    /**
+     * @var string
+     */
     protected $formTypeClass = '';
 
     /**
@@ -22,6 +25,9 @@ class ExportRun
      */
     protected $formFactory;
 
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -78,12 +84,19 @@ class ExportRun
         return $this->formFactory;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -91,13 +104,8 @@ class ExportRun
 
     public function onExportRun(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
         $request = $event->getRequest();
-
-        $route = 'cart_admin_export_run';
-        $params = [];
-        $url = $this->getRouter()->generate($route, $params);
-
+        $url = $this->getRouter()->generate('cart_admin_export_run', []);
         $form = $this->getFormFactory()->create($this->getFormTypeClass(), new \stdClass(), [
             'action' => $url,
             'method' => 'POST',
@@ -123,7 +131,5 @@ class ExportRun
                 $event->setResponse($response);
             }
         }
-
-        $event->setReturnData($returnData);
     }
 }

@@ -75,7 +75,7 @@ class OrderShipmentController extends Controller
             return $event->getResponse();
         }
 
-        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
+        if ($event->getRequestAccept() == CoreEvent::JSON) {
 
             $invalid = [];
             foreach($form->all() as $childKey => $child) {
@@ -204,7 +204,7 @@ class OrderShipmentController extends Controller
             return $event->getResponse();
         }
 
-        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
+        if ($event->getRequestAccept() == CoreEvent::JSON) {
 
             $invalid = [];
             foreach($form->all() as $childKey => $child) {

@@ -78,7 +78,7 @@ class ContentSlotController extends Controller
             return $event->getResponse();
         }
 
-        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
+        if ($event->getRequestAccept() == CoreEvent::JSON) {
 
             $invalid = [];
             foreach($form->all() as $childKey => $child) {
@@ -202,7 +202,7 @@ class ContentSlotController extends Controller
             return $event->getResponse();
         }
 
-        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
+        if ($event->getRequestAccept() == CoreEvent::JSON) {
 
             $invalid = [];
             foreach($form->all() as $childKey => $child) {
@@ -249,7 +249,7 @@ class ContentSlotController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONTENT_SLOT_DELETE, $event);
 
-        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
+        if ($event->getRequestAccept() == CoreEvent::JSON) {
 
             return new JsonResponse([
                 'success' => true,

@@ -32,31 +32,16 @@ class GuardTokenAuthService extends AbstractGuardAuthenticator
     protected $cartService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    protected $entityService;
-
-    /**
      * @var bool
      */
     protected $allowAdminLogin = false;
-
-    /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
 
     /**
      * @return AbstractEntityService
      */
     public function getEntityService()
     {
-        return $this->entityService;
+        return $this->getCartService()->getEntityService();
     }
 
     /**
@@ -131,6 +116,7 @@ class GuardTokenAuthService extends AbstractGuardAuthenticator
         ]);
 
         if ($customer) {
+            $this->getCartService()->setCustomerEntity($customer);
             return $customer;
         }
 

@@ -62,9 +62,6 @@ class CategoryList
      */
     public function onCategoryList(CoreEvent $event)
     {
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-
         $columns = [
             [
                 'key' => 'id',
@@ -95,53 +92,58 @@ class CategoryList
 
         $event->setReturnData('columns', $columns);
 
-        switch($event->getSection()) {
-            case ($format == 'json'):
-            case CoreEvent::SECTION_API:
+        switch($event->getRequestAccept()) {
+            case CoreEvent::JSON:
                 $event->setResponse(new JsonResponse($event->getReturnData()));
-                break;
-            case CoreEvent::SECTION_BACKEND:
-
-                $massActions = [
-                    [
-                        'label'         => 'Delete Categories',
-                        'input_label'   => 'Confirm Mass-Delete ?',
-                        'input'         => 'mass_delete',
-                        'input_type'    => 'select',
-                        'input_options' => [
-                            ['value' => 0, 'label' => 'No'],
-                            ['value' => 1, 'label' => 'Yes'],
-                        ],
-                        'url' => $this->router->generate('cart_admin_category_mass_delete'),
-                        'external' => 0,
-                    ],
-                ];
-
-                $event->setReturnData('mass_actions', $massActions);
-
-                $template = $event->getCustomTemplate()
-                    ? $event->getCustomTemplate()
-                    : 'Category:index.html.twig';
-
-                $event->setResponse($this->getThemeService()->render('admin', $template, $event->getReturnData()));
-
-                break;
-            case CoreEvent::SECTION_FRONTEND:
-
-                $template = $event->getCustomTemplate()
-                    ? $event->getCustomTemplate()
-                    : 'Category:index.html.twig';
-
-                $event->setResponse($this->getThemeService()->render('frontend', $template, $event->getReturnData()));
-
                 break;
             default:
 
-                $template = $event->getCustomTemplate()
-                    ? $event->getCustomTemplate()
-                    : 'Category:index.html.twig';
+                switch($event->getSection()) {
+                    case CoreEvent::SECTION_BACKEND:
 
-                $event->setResponse($this->getThemeService()->render('frontend', $template, $event->getReturnData()));
+                        $massActions = [
+                            [
+                                'label'         => 'Delete Categories',
+                                'input_label'   => 'Confirm Mass-Delete ?',
+                                'input'         => 'mass_delete',
+                                'input_type'    => 'select',
+                                'input_options' => [
+                                    ['value' => 0, 'label' => 'No'],
+                                    ['value' => 1, 'label' => 'Yes'],
+                                ],
+                                'url' => $this->router->generate('cart_admin_category_mass_delete'),
+                                'external' => 0,
+                            ],
+                        ];
+
+                        $event->setReturnData('mass_actions', $massActions);
+
+                        $template = $event->getCustomTemplate()
+                            ? $event->getCustomTemplate()
+                            : 'Category:index.html.twig';
+
+                        $event->setResponse($this->getThemeService()->render('admin', $template, $event->getReturnData()));
+
+                        break;
+                    case CoreEvent::SECTION_FRONTEND:
+
+                        $template = $event->getCustomTemplate()
+                            ? $event->getCustomTemplate()
+                            : 'Category:index.html.twig';
+
+                        $event->setResponse($this->getThemeService()->render('frontend', $template, $event->getReturnData()));
+
+                        break;
+                    default:
+
+                        $template = $event->getCustomTemplate()
+                            ? $event->getCustomTemplate()
+                            : 'Category:index.html.twig';
+
+                        $event->setResponse($this->getThemeService()->render('frontend', $template, $event->getReturnData()));
+
+                        break;
+                }
 
                 break;
         }

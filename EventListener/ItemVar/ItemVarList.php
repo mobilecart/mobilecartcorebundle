@@ -62,9 +62,6 @@ class ItemVarList
      */
     public function onItemVarList(CoreEvent $event)
     {
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-
         $event->setReturnData('mass_actions', [
             [
                 'label'         => 'Delete Custom Fields',
@@ -79,7 +76,6 @@ class ItemVarList
                 'external' => 0,
             ],
         ]);
-
 
         $event->setReturnData('columns', [
             [
@@ -109,12 +105,11 @@ class ItemVarList
             ],
         ]);
 
-        switch($format) {
-            case 'json':
+        switch($event->getRequestAccept()) {
+            case CoreEvent::JSON:
                 $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
-
                 $result = $event->getReturnData('result');
                 if ($result && $result['entities']) {
                     foreach($result['entities'] as $idx => $data) {

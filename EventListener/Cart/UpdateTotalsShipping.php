@@ -10,35 +10,12 @@ use MobileCart\CoreBundle\Event\CoreEvent;
  * Class UpdateTotalsShipping
  * @package MobileCart\CoreBundle\EventListener\Cart
  */
-class UpdateTotalsShipping
+class UpdateTotalsShipping extends BaseCartListener
 {
-    /**
-     * @var \MobileCart\CoreBundle\Service\CartService
-     */
-    protected $cartService;
-
     /**
      * @var \Symfony\Component\Routing\RouterInterface
      */
     protected $router;
-
-    /**
-     * @param $cartService
-     * @return $this
-     */
-    public function setCartService($cartService)
-    {
-        $this->cartService = $cartService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CartService
-     */
-    public function getCartService()
-    {
-        return $this->cartService;
-    }
 
     /**
      * @param \Symfony\Component\Routing\RouterInterface $router
@@ -63,36 +40,39 @@ class UpdateTotalsShipping
      */
     public function onUpdateTotalsShipping(CoreEvent $event)
     {
-        if ($event->getRequest()->getSession() && $event->getMessages()) {
-            foreach($event->getMessages() as $code => $messages) {
-                if (!$messages) {
-                    continue;
-                }
-                foreach($messages as $message) {
-                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                }
+        if (!$this->getCartService()->getIsApiRequest() ) {
+            $event->flashMessages();
+        }
+
+        if ($event->getSuccess()) {
+
+            if ($this->getCartService()->hasItems()) {
+                $this->getCartService()->collectAddressShipments($event->getRecollectShipping());
             }
-        }
 
-        if (!$event->getReturnData('success', false)) {
-            $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_view', [])));
-            return;
-        }
+            $this->getCartService()->saveCart();
+            $event->setReturnData(CoreEvent::CART, $this->getCartService()->getCart());
 
-        if (is_array($event->getRecollectShipping())) {
-            $this->getCartService()->collectAddressShipments($event->getRecollectShipping());
-        }
-
-        $this->getCartService()->saveCart();
-        $event->setReturnData('cart', $this->getCartService()->getCart());
-
-        switch($event->get('format')) {
-            case 'json':
-                $event->setResponse(new JsonResponse($event->getReturnData()));
-                break;
-            default:
-                $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_view', [])));
-                break;
+            switch($event->getContentType()) {
+                case CoreEvent::JSON:
+                    $event->setResponse(new JsonResponse($event->getReturnData()));
+                    break;
+                default:
+                    $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_view', [])));
+                    break;
+            }
+        } else {
+            switch($event->getContentType()) {
+                case CoreEvent::JSON:
+                    $event->setResponse(new JsonResponse([
+                        CoreEvent::SUCCESS => false,
+                        CoreEvent::MESSAGES => $event->getMessages()
+                    ]));
+                    break;
+                default:
+                    $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_view', [])));
+                    break;
+            }
         }
     }
 }

@@ -516,6 +516,11 @@ class CartService
         $cart = $this->getCartInstance();
         $cart->fromJson($entity->getJson());
         $cart->setId($entity->getId());
+
+        if (!$cart->getCurrency()) {
+            $cart->setCurrency($this->getCurrencyService()->getBaseCurrency());
+        }
+
         return $cart;
     }
 
@@ -547,6 +552,8 @@ class CartService
             ->setCurrency($this->getCurrency())
             ->setPrice($price)
             ->setTax(0)
+            ->setAvailQty($product->getQty())
+            ->setQty($qty)
             ->setDiscount(0);
 
         $item->setCategoryIds($product->getCategoryIds());
@@ -637,6 +644,7 @@ class CartService
     {
         $this->initCartEntity();
         if ($this->getCartEntity() && $this->getCartEntity()->getCartItems()) {
+            $found = false;
             foreach($this->getCartEntity()->getCartItems() as $entity) {
                 if ($productId != $entity->getProductId()) {
                     continue;
@@ -644,7 +652,18 @@ class CartService
 
                 $entity->setQty($qty);
                 $this->getEntityService()->persist($entity);
+                $found = true;
                 break;
+            }
+
+            if (!$found && $this->getNewCartItemEntities()) {
+                foreach($this->getNewCartItemEntities() as $entity) {
+                    if ($productId != $entity->getProductId()) {
+                        continue;
+                    }
+
+                    $entity->setQty($qty);
+                }
             }
         }
         return $this;
@@ -729,16 +748,7 @@ class CartService
 
         $cart = $this->getCartInstance();
         if ($this->getCartEntity()) {
-
             $cart = $this->convertCartEntity($this->getCartEntity());
-
-            if ($this->getCartEntity()->getId()) {
-                $cart->setId($this->getCartEntity()->getId());
-            }
-
-            if (!$cart->getCurrency()) {
-                $cart->setCurrency($this->getCurrencyService()->getBaseCurrency());
-            }
         } else {
             $cart->setCurrency($this->getCurrencyService()->getBaseCurrency());
         }
@@ -753,18 +763,32 @@ class CartService
 
         $itemTotal = new \MobileCart\CoreBundle\EventListener\Cart\ItemTotal();
         $itemTotal->setLabel('Items');
+        $itemTotal->setIsAdd(true);
         $itemTotal->setValue(0);
         $totals[] = $itemTotal;
 
-        $shipmentTotal = new \MobileCart\CoreBundle\EventListener\Cart\ShipmentTotal();
-        $itemTotal->setLabel('Shipments');
-        $itemTotal->setValue(0);
-        $totals[] = $shipmentTotal;
+        if ($this->getShippingService()->getIsShippingEnabled()) {
+            $shipmentTotal = new \MobileCart\CoreBundle\EventListener\Cart\ShipmentTotal();
+            $shipmentTotal->setLabel('Shipments');
+            $shipmentTotal->setIsAdd(true);
+            $shipmentTotal->setValue(0);
+            $totals[] = $shipmentTotal;
+        }
 
-        $discountTotal = new \MobileCart\CoreBundle\EventListener\Cart\DiscountTotal();
-        $discountTotal->setLabel('Discounts');
-        $discountTotal->setValue(0);
-        $totals[] = $discountTotal;
+        if ($this->getTaxService()->getIsTaxEnabled()) {
+            $taxTotal = new \MobileCart\CoreBundle\EventListener\Cart\TaxTotal();
+            $taxTotal->setLabel('Tax');
+            $taxTotal->setIsAdd(true);
+            $taxTotal->setValue(0);
+            $totals[] = $taxTotal;
+        }
+
+        if ($this->getDiscountService()->getIsDiscountEnabled()) {
+            $discountTotal = new \MobileCart\CoreBundle\EventListener\Cart\DiscountTotal();
+            $discountTotal->setLabel('Discounts');
+            $discountTotal->setValue(0);
+            $totals[] = $discountTotal;
+        }
 
         $grandTotal = new \MobileCart\CoreBundle\EventListener\Cart\GrandTotal();
         $grandTotal->setLabel('Grand Total');
@@ -853,6 +877,10 @@ class CartService
             $this->setCartEntity($cartEntity);
         }
 
+        if ($this->getCustomerEntity()) {
+            $this->getCartEntity()->setCustomer($this->getCustomerEntity());
+        }
+
         return $this;
     }
 
@@ -863,18 +891,30 @@ class CartService
     {
         $this->updateCartEntity();
         $cartEntity = $this->getCartEntity();
+        $isNew = !is_numeric($cartEntity->getId());
         $this->getEntityService()->persist($cartEntity);
         $this->setCartId($cartEntity->getId());
-        if ($this->getNewCartItemEntities()) {
-            foreach($this->getNewCartItemEntities() as $cartItemEntity) {
-                $cartItemEntity->setCart($cartEntity);
-                $this->getEntityService()->persist($cartItemEntity);
-                $cartItem = $this->getCart()->findItem('product_id', $cartItemEntity->getProductId());
-                if ($cartItem) {
-                    $cartItem->setId($cartItemEntity->getId());
+
+        if ($isNew || $this->getNewCartItemEntities()) {
+
+            if ($this->getNewCartItemEntities()) {
+                foreach ($this->getNewCartItemEntities() as $cartItemEntity) {
+                    $cartItemEntity->setCart($cartEntity);
+                    $this->getEntityService()->persist($cartItemEntity);
+                    $cartItem = $this->getCart()->findItem('product_id', $cartItemEntity->getProductId());
+                    if ($cartItem) {
+                        $cartItem->setId($cartItemEntity->getId());
+                        $cartItemEntity->setJson($cartItem->toJson());
+                        $this->getEntityService()->persist($cartItemEntity);
+                    }
                 }
             }
+
+            // save latest IDs and json
+            $cartEntity->setJson($this->getCart()->toJson());
+            $this->getEntityService()->persist($cartEntity);
         }
+
         $this->setCartEntity($cartEntity);
         return $this;
     }
@@ -903,8 +943,7 @@ class CartService
     public function updateCartEntity()
     {
         $this->updateTotals();
-        $json = $this->getCart()->toJson();
-        $this->getCartEntity()->setJson($json);
+        $this->getCartEntity()->setJson($this->getCart()->toJson());
         return $this;
     }
 
@@ -1018,6 +1057,25 @@ class CartService
         $item->setQty($qty);
         $this->getCart()->addItem($item);
         return $this;
+    }
+
+    /**
+     * @return Item[]
+     */
+    public function getItems()
+    {
+        $this->initCart();
+        return $this->getCart()->getItems();
+    }
+
+    /**
+     * @param $key
+     * @param $value
+     * @return Item|null
+     */
+    public function findItem($key, $value)
+    {
+        return $this->getCart()->findItem($key, $value);
     }
 
     /**
@@ -1235,6 +1293,7 @@ class CartService
      */
     public function hasItems()
     {
+        $this->initCart();
         return (bool) $this->getCart()->hasItems();
     }
 
@@ -1299,7 +1358,6 @@ class CartService
     public function setCustomerEntity(\MobileCart\CoreBundle\Entity\Customer $entity)
     {
         $this->customerEntity = $entity;
-        $this->setCustomer($this->convertCustomerEntity($entity));
         return $this;
     }
 
@@ -1598,8 +1656,12 @@ class CartService
      * @param array $addresses
      * @return $this
      */
-    public function collectAddressShipments(array $addresses)
+    public function collectAddressShipments($addresses)
     {
+        if (!is_array($addresses)) {
+            return $this;
+        }
+
         $collected = [];
         if ($addresses) {
             foreach($addresses as $recollectAddress) {

@@ -12,6 +12,7 @@
 namespace MobileCart\CoreBundle\Controller\Frontend;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
@@ -22,14 +23,51 @@ use MobileCart\CoreBundle\Event\CoreEvents;
  */
 class CheckoutController extends Controller
 {
+    /**
+     * @return bool
+     */
+    protected function hasLoginError()
+    {
+        return (!$this->get('cart.checkout.session')->getAllowGuestCheckout() && !$this->getUser());
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse|\Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    protected function handleLoginError(Request $request)
+    {
+        switch(true) {
+            case $request->headers->get('Accept') == 'application/json':
+            case $request->headers->get('Content-Type') == 'application/json':
+
+                return new JsonResponse([
+                    'success' => false,
+                    'messages' => [
+                        'error' => [
+                            'Please login or register'
+                        ]
+                    ]
+                ], 401);
+
+                break;
+            default:
+
+                $this->get('session')->getFlashBag()->add('warning', 'Please login or register');
+                $this->get('session')->set('redirect_url', $this->generateUrl('cart_checkout', []));
+                return $this->redirect($this->generateUrl('login_route', []));
+                break;
+        }
+    }
+
+    /**
+     * View the first step of the checkout process, or all steps at once
+     */
     public function indexAction(Request $request)
     {
         // check if login/registration is required
-        $checkoutService = $this->get('cart.checkout.session');
-        if (!$checkoutService->getAllowGuestCheckout() && !$this->getUser()) {
-            $this->get('session')->getFlashBag()->add('warning', 'Please login or register');
-            $this->get('session')->set('redirect_url', $this->generateUrl('cart_checkout', []));
-            return $this->redirect($this->generateUrl('login_route', []));
+        if ($this->hasLoginError()) {
+            return $this->handleLoginError($request);
         }
 
         // is checkout multiple pages or a single page
@@ -48,14 +86,14 @@ class CheckoutController extends Controller
             ->getSectionResponse($this->get('cart.checkout.form')->getFirstSectionKey());
     }
 
+    /**
+     * View a specific step of the checkout process
+     */
     public function viewSectionAction(Request $request)
     {
         // check if login/registration is required
-        $checkoutService = $this->get('cart.checkout.session');
-        if (!$checkoutService->getAllowGuestCheckout() && !$this->getUser()) {
-            $this->get('session')->getFlashBag()->add('warning', 'Please login or register');
-            $this->get('session')->set('redirect_url', $this->generateUrl('cart_checkout', []));
-            return $this->redirect($this->generateUrl('login_route', []));
+        if ($this->hasLoginError()) {
+            return $this->handleLoginError($request);
         }
 
         $section = $request->get('section', '');
@@ -77,14 +115,14 @@ class CheckoutController extends Controller
             ->getSectionResponse($section);
     }
 
+    /**
+     * Update a specific step of the checkout process
+     */
     public function updateSectionAction(Request $request)
     {
         // check if login/registration is required
-        $checkoutService = $this->get('cart.checkout.session');
-        if (!$checkoutService->getAllowGuestCheckout() && !$this->getUser()) {
-            $this->get('session')->getFlashBag()->add('warning', 'Please login or register');
-            $this->get('session')->set('redirect_url', $this->generateUrl('cart_checkout', []));
-            return $this->redirect($this->generateUrl('login_route', []));
+        if ($this->hasLoginError()) {
+            return $this->handleLoginError($request);
         }
 
         $section = $request->get('section', '');
@@ -104,14 +142,15 @@ class CheckoutController extends Controller
         return $event->getResponse();
     }
 
+    /**
+     * Confirm the order summary
+     * todo : move this logic into a "template handler" in the cart view listener, and remove this
+     */
     public function confirmOrderAction(Request $request)
     {
         // check if login/registration is required
-        $checkoutService = $this->get('cart.checkout.session');
-        if (!$checkoutService->getAllowGuestCheckout() && !$this->getUser()) {
-            $this->get('session')->getFlashBag()->add('warning', 'Please login or register');
-            $this->get('session')->set('redirect_url', $this->generateUrl('cart_checkout', []));
-            return $this->redirect($this->generateUrl('login_route', []));
+        if ($this->hasLoginError()) {
+            return $this->handleLoginError($request);
         }
 
         $event = new CoreEvent();
@@ -124,14 +163,14 @@ class CheckoutController extends Controller
         return $event->getResponse();
     }
 
+    /**
+     * Submit the order
+     */
     public function submitOrderAction(Request $request)
     {
         // check if login/registration is required
-        $checkoutService = $this->get('cart.checkout.session');
-        if (!$checkoutService->getAllowGuestCheckout() && !$this->getUser()) {
-            $this->get('session')->getFlashBag()->add('warning', 'Please login or register');
-            $this->get('session')->set('redirect_url', $this->generateUrl('cart_checkout', []));
-            return $this->redirect($this->generateUrl('login_route', []));
+        if ($this->hasLoginError()) {
+            return $this->handleLoginError($request);
         }
 
         $event = new CoreEvent();
@@ -146,14 +185,34 @@ class CheckoutController extends Controller
         return $event->getResponse();
     }
 
+    /**
+     * Submit the order via API
+     */
+    public function submitOrderApiAction(Request $request)
+    {
+        // check if login/registration is required
+        if ($this->hasLoginError()) {
+            return $this->handleLoginError($request);
+        }
+
+        $event = new CoreEvent();
+        $event->setRequest($request)
+            ->setUser($this->getUser());
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CHECKOUT_SUBMIT_ORDER_API, $event);
+
+        return $event->getResponse();
+    }
+
+    /**
+     * View the order success page
+     */
     public function successAction(Request $request)
     {
         // check if login/registration is required
-        $checkoutService = $this->get('cart.checkout.session');
-        if (!$checkoutService->getAllowGuestCheckout() && !$this->getUser()) {
-            $this->get('session')->getFlashBag()->add('warning', 'Please login or register');
-            $this->get('session')->set('redirect_url', $this->generateUrl('cart_checkout', []));
-            return $this->redirect($this->generateUrl('login_route', []));
+        if ($this->hasLoginError()) {
+            return $this->handleLoginError($request);
         }
 
         $event = new CoreEvent();

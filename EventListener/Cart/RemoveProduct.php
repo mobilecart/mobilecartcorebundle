@@ -9,66 +9,61 @@ use MobileCart\CoreBundle\Event\CoreEvent;
  * Class RemoveProduct
  * @package MobileCart\CoreBundle\EventListener\Cart
  */
-class RemoveProduct
+class RemoveProduct extends BaseCartListener
 {
-    /**
-     * @var \MobileCart\CoreBundle\Service\CartService
-     */
-    protected $cartService;
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    public function getEntityService()
-    {
-        return $this->getCartService()->getEntityService();
-    }
-
-    /**
-     * @param $cartService
-     * @return $this
-     */
-    public function setCartService($cartService)
-    {
-        $this->cartService = $cartService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CartService
-     */
-    public function getCartService()
-    {
-        return $this->cartService;
-    }
-
     /**
      * @param CoreEvent $event
      */
     public function onCartRemoveProduct(CoreEvent $event)
     {
+        // parse/convert API requests
+        switch($event->getContentType()) {
+            case 'application/json':
+
+                $apiRequest = $event->getApiRequest()
+                    ? $event->getApiRequest()
+                    : @ (array)json_decode($event->getRequest()->getContent());
+
+                if (isset($apiRequest['sku']) || isset($apiRequest['product_id'])) {
+                    $keys = ['product_id', 'sku'];
+                    foreach ($apiRequest as $key => $value) {
+                        if (!in_array($key, $keys)) {
+                            continue;
+                        }
+
+                        $event->getRequest()->request->set($key, $value);
+                    }
+                }
+                break;
+            default:
+
+                break;
+        }
+
+        // start base logic
         $recollectShipping = $event->get('recollect_shipping', []);
         $success = false;
         $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $event->set('format', $format);
+        $this->initCart($request);
 
-        $productId = $event->getProductId()
-            ? $event->getProductId()
-            : $request->get('product_id', '');
+        $key = $request->get('sku') || $event->get('sku')
+            ? 'sku'
+            : 'product_id';
 
-        $cart = $this->getCartService()->getCart();
+        $value = $event->get($key)
+            ? $event->get($key)
+            : $request->get($key, '');
 
-        $cartItem = $cart->findItem('product_id', $productId);
+        $cartItem = $this->getCartService()->getCart()->findItem($key, $value);
         if ($cartItem) {
 
             $customerAddressId = $cartItem->get('customer_address_id', 'main');
             $srcAddressKey = $cartItem->get('source_address_key', 'main');
 
-            $this->getCartService()->removeProductId($productId);
-            $this->getCartService()->deleteItemEntity('product_id', $productId);
+            $this->getCartService()->removeItem($key, $value);
+            $this->getCartService()->deleteItemEntity($key, $value);
 
-            if ($cart->getItems()) {
+            if ($this->getCartService()->getCart()->hasItems()) {
 
                 $recollectShipping[] = new ArrayWrapper([
                     'customer_address_id' => $customerAddressId,
@@ -87,7 +82,6 @@ class RemoveProduct
             $event->addErrorMessage("Specified item is not in your cart");
         }
 
-        $event->setReturnData('cart', $cart);
-        $event->setReturnData('success', $success);
+        $event->setSuccess($success);
     }
 }

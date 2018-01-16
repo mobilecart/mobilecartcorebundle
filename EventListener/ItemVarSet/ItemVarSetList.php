@@ -62,9 +62,6 @@ class ItemVarSetList
      */
     public function onItemVarSetList(CoreEvent $event)
     {
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-
         $event->setReturnData('mass_actions', [
             [
                 'label'         => 'Delete Field Sets',
@@ -98,8 +95,8 @@ class ItemVarSetList
             ],
         ]);
 
-        switch($format) {
-            case 'json':
+        switch($event->getRequestAccept()) {
+            case CoreEvent::JSON:
                 $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:

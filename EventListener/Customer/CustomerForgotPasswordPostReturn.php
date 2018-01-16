@@ -86,11 +86,8 @@ class CustomerForgotPasswordPostReturn
      */
     public function onCustomerForgotPasswordPostReturn(CoreEvent $event)
     {
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-
-        switch($format) {
-            case 'json':
+        switch($event->getRequestAccept()) {
+            case CoreEvent::JSON:
                 $event->setResponse(new JsonResponse([
                     'success' => true,
                 ]));

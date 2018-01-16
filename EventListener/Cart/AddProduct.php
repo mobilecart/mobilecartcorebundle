@@ -10,13 +10,8 @@ use MobileCart\CoreBundle\Event\CoreEvent;
  * Class AddProduct
  * @package MobileCart\CoreBundle\EventListener\Cart
  */
-class AddProduct
+class AddProduct extends BaseCartListener
 {
-    /**
-     * @var \MobileCart\CoreBundle\Service\CartService
-     */
-    protected $cartService;
-
     /**
      * @var \MobileCart\CoreBundle\Entity\Product
      */
@@ -56,40 +51,18 @@ class AddProduct
     }
 
     /**
-     * @param $cartService
-     * @return $this
-     */
-    public function setCartService($cartService)
-    {
-        $this->cartService = $cartService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CartService
-     */
-    public function getCartService()
-    {
-        return $this->cartService;
-    }
-
-    /**
+     * @param $key
      * @param $value
-     * @param string $idField
      * @return mixed
      */
-    public function loadProduct($value, $idField = 'id')
+    public function loadProduct($key, $value)
     {
-        if ($idField == 'product_id') {
-            $idField = 'id';
-        }
-
-        if ($idField == 'id') {
+        if ($key == 'product_id') {
             return $this->getEntityService()->find(EntityConstants::PRODUCT, $value);
         }
 
         return $this->getEntityService()->findOneBy(EntityConstants::PRODUCT, [
-            $idField => $value,
+            $key => $value,
         ]);
     }
 
@@ -203,17 +176,18 @@ class AddProduct
 
     /**
      * @param $item
+     * @param $totalQty
      * @param CoreEvent $event
      * @return bool
      */
-    public function meetsCriteria(\MobileCart\CoreBundle\CartComponent\Item $item, CoreEvent &$event)
+    public function meetsCriteria(\MobileCart\CoreBundle\CartComponent\Item $item, $totalQty, CoreEvent &$event)
     {
         $minQty = (int) $item->getMinQty();
-        $availQty = $item->getAvailQty();
-        $isQtyManaged = $item->getIsQtyManaged();
+        $availQty = (int) $item->getAvailQty();
+        $isQtyManaged = (bool) $item->getIsQtyManaged();
 
-        $minQtyMet = $minQty == 0 || ($minQty > 0 && $item->getQty() >= $minQty);
-        $maxQtyMet = !$isQtyManaged || ($isQtyManaged && $item->getQty() < $availQty);
+        $minQtyMet = $minQty == 0 || ($minQty > 0 && $totalQty >= $minQty);
+        $maxQtyMet = !$isQtyManaged || ($isQtyManaged && $totalQty < $availQty);
 
         if (!$item->getIsEnabled()) {
             $event->addErrorMessage("Product is not enabled : {$item->getSku()}");
@@ -225,7 +199,7 @@ class AddProduct
             return false;
         }
 
-        if ($item->getPromoQty() > 0 && $item->getQty() !== $item->getPromoQty()) {
+        if ($item->getPromoQty() > 0 && $totalQty !== $item->getPromoQty()) {
             $event->addInfoMessage('Cannot change qty on promo item');
             return false;
         }
@@ -364,10 +338,34 @@ class AddProduct
      */
     public function onCartAddProduct(CoreEvent $event)
     {
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $event->set('format', $format);
-        $cart = $this->getCartService()->initCart()->getCart();
+        // parse/convert API requests
+        switch($event->getContentType()) {
+            case CoreEvent::JSON:
+
+                $apiRequest = $event->getApiRequest()
+                    ? $event->getApiRequest()
+                    : @ (array) json_decode($event->getRequest()->getContent());
+
+                if (isset($apiRequest['qty'])
+                    && (isset($apiRequest['sku']) || isset($apiRequest['product_id']))
+                ) {
+
+                    $keys = ['qty','is_add','product_id','sku','simple_id','simple_sku'];
+                    foreach($apiRequest as $key => $value) {
+
+                        if (!in_array($key, $keys)) {
+                            continue;
+                        }
+
+                        $event->getRequest()->request->set($key, $value);
+                    }
+                }
+
+                break;
+            default:
+
+                break;
+        }
 
         /**
          * Strategy:
@@ -386,38 +384,30 @@ class AddProduct
          *
          */
 
-        // First, get keys from Request
-        $keyValue = $request->get('id', ''); // this could be a sku
-        $keyField = $request->get('key', 'product_id');
-        $keyFields = ['id', 'product_id', 'sku']; // product.id , cart_item.product_id, product.sku, cart_item.sku
-        if (!in_array($keyField, $keyFields)) {
-            $keyField = 'product_id';
-        }
+        $request = $event->getRequest();
+        $this->initCart($request);
 
-        $qty = (int) $request->get('qty', 1);
+        $key = $request->get('sku') || $event->get('sku')
+            ? 'sku'
+            : 'product_id';
 
-        // Second, check Event for keys, and use them if they exist
-        if ($event->get('product_id')) {
-            $keyValue = $event->get('product_id');
-            $keyField = 'product_id';
-            $qty = (int) $event->get('qty');
-        }
+        $value = $event->get($key)
+            ? $event->get($key)
+            : $request->get($key, '');
 
-        // this is used in meetsCriteria()
+        $qty = is_numeric($event->get('qty', ''))
+            ? (int) $event->get('qty')
+            : (int) $request->get('qty', 1);
 
         $this->setQty($qty);
         $this->setIsAdd((bool) $event->get('is_add'));
 
         /** @var \MobileCart\CoreBundle\Entity\Product $product */
-        $product = $this->loadProduct($keyValue, $keyField);
+        $product = $this->loadProduct($key, $value);
         if (!$product) {
             $event->addErrorMessage('Product not found');
             return;
         }
-
-        $simpleProductId = (int) $request->get('simple_id', 0)
-            ? $request->get('simple_id', 0)
-            : $product->getId();
 
         $recollectShipping = $event->get('recollect_shipping', []); // r = [object, object] , object:{'customer_address_id':'','source_address_key':''}
         switch($product->getType()) {
@@ -425,87 +415,77 @@ class AddProduct
 
                 $event->set('product_type', $product->getType());
 
-                $item = $cart->findItem('product_id', $simpleProductId);
+                $simpleKey = $request->get('simple_sku') || $event->get('simple_sku')
+                    ? 'simple_sku'
+                    : 'simple_id';
+
+                $simpleValue = $event->get($key)
+                    ? $event->get($key)
+                    : $request->get($key, '');
+
+                $lookupKey = $simpleKey == 'simple_sku'
+                    ? 'sku'
+                    : 'product_id';
+
+                $item = $this->getCartService()->findItem($lookupKey, $simpleValue);
                 if ($item) {
 
-                    $origQty = $item->getQty();
-
                     $totalQty = $this->getIsAdd()
-                        ? $origQty + $this->getQty()
+                        ? $item->getQty() + $this->getQty()
                         : $this->getQty();
 
-                    $item->setQty($totalQty);
-
-                    if ($this->meetsCriteria($item, $event)) {
+                    if ($this->meetsCriteria($item, $totalQty, $event)) {
 
                         // update quantity
                         $this->getCartService()
-                            ->setProductQty($simpleProductId, $totalQty)
-                            ->updateItemEntityQty($product->getId(), $totalQty);
+                            ->setProductQty($item->getProductId(), $totalQty)
+                            ->updateItemEntityQty($item->getProductId(), $totalQty);
 
                         // update tier price
                         $this->updateTierPrice($item);
-
+                        $event->set('item', $item); // pass the current item to the next event listener
                         $this->collectAddresses($event, $item, $recollectShipping);
-
-                        if ($simpleProductId) {
-                            $event->setSimpleProductId($simpleProductId);
-                        }
-
                         $this->setSuccess(true);
-                    } else {
-                        $item->setQty($origQty);
                     }
                 } else {
 
-                    $simpleProduct = $this->loadProduct($simpleProductId, 'id');
-                    $parentOptions = $simpleProduct
-                        ? [
-                            'id' => $product->getId(),
-                            'sku' => $product->getSku(),
-                            'slug' => $product->getSlug(),
-                          ]
-                        : [];
+                    $simpleProduct = $this->loadProduct($lookupKey, $simpleValue);
+                    if ($simpleProduct) {
 
-                    $itemProduct = $simpleProduct
-                        ? $simpleProduct
-                        : $product;
+                        $parentOptions = $simpleProduct
+                            ? [
+                                'id' => $product->getId(),
+                                'sku' => $product->getSku(),
+                                'slug' => $product->getSlug(),
+                            ] : [];
 
-                    $item = $this->getCartService()->convertProductToItem($itemProduct, $parentOptions, $this->getQty());
-                    if ($this->meetsCriteria($item, $event)) {
+                        $item = $this->getCartService()->convertProductToItem($simpleProduct, $parentOptions, $this->getQty());
+                        if ($this->meetsCriteria($item, $this->getQty(), $event)) {
 
-                        // update tier price
-                        $this->updateTierPrice($item);
+                            // update tier price
+                            $this->updateTierPrice($item);
 
-                        $this->getCartService()->addItem($item);
-                        $itemEntity = $this->getCartService()->convertItemToEntity($item);
-                        $this->getCartService()->addNewCartItemEntity($itemEntity);
-
-                        $this->collectAddresses($event, $item, $recollectShipping);
-
-                        if ($simpleProductId) {
-                            $event->setSimpleProductId($simpleProductId);
+                            $this->getCartService()->addItem($item, $this->getQty());
+                            $itemEntity = $this->getCartService()->convertItemToEntity($item);
+                            $this->getCartService()->addNewCartItemEntity($itemEntity);
+                            $event->set('item', $item); // pass the current item to the next event listener
+                            $this->collectAddresses($event, $item, $recollectShipping);
+                            $this->setSuccess(true);
                         }
-
-                        $this->setSuccess(true);
                     }
                 }
 
                 break;
             case EntityConstants::PRODUCT_TYPE_SIMPLE:
                 $event->set('product_type', $product->getType());
-                $item = $cart->findItem('product_id', $product->getId());
+                $item = $this->getCartService()->findItem('product_id', $product->getId());
                 if ($item) {
-
-                    $origQty = $item->getQty();
 
                     $totalQty = $this->getIsAdd()
                         ? $item->getQty() + $this->getQty()
                         : $this->getQty();
 
-                    $item->setQty($totalQty);
-
-                    if ($this->meetsCriteria($item, $event)) {
+                    if ($this->meetsCriteria($item, $totalQty, $event)) {
 
                         // update tier price
                         $this->updateTierPrice($item);
@@ -515,27 +495,25 @@ class AddProduct
                             ->setProductQty($product->getId(), $totalQty)
                             ->updateItemEntityQty($product->getId(), $totalQty);
 
+                        $event->set('item', $item); // pass the current item to the next event listener
                         $this->collectAddresses($event, $item, $recollectShipping);
-
                         $this->setSuccess(true);
-                    } else {
-                        $item->setQty($origQty);
                     }
                 } else {
 
                     $item = $this->getCartService()->convertProductToItem($product, [], $this->getQty());
-                    if ($this->meetsCriteria($item, $event)) {
+                    if ($this->meetsCriteria($item, $this->getQty(), $event)) {
 
                         // update tier price
                         $this->updateTierPrice($item);
 
-                        $this->getCartService()->addItem($item);
+                        $this->getCartService()->addItem($item, $this->getQty());
+                        $event->set('item', $item); // pass the current item to the next event listener
 
                         $itemEntity = $this->getCartService()->convertItemToEntity($item);
                         $this->getCartService()->addNewCartItemEntity($itemEntity);
 
                         $this->collectAddresses($event, $item, $recollectShipping);
-
                         $this->setSuccess(true);
                     }
                 }
@@ -546,16 +524,13 @@ class AddProduct
                 break;
         }
 
-        $event->set('product_id', $product->getId())
-            ->set('recollect_shipping', $recollectShipping) // this is handled in UpdateTotalsShipping
-            ->setReturnData('cart', $this->getCartService()->getCart())
-            ->setReturnData('success', (bool) $this->getSuccess());
+        $event->set('recollect_shipping', $recollectShipping) // this is handled in UpdateTotalsShipping
+            ->setSuccess((bool) $this->getSuccess());
 
-        if (!$event->getMessages()
-            && $this->getSuccess()
+        if ($this->getSuccess()
             && !$event->getIsMassUpdate()
         ) {
-            $event->addSuccessMessage('Product Added to Cart');
+            $event->addSuccessMessage('Product Added to Cart: ' . $product->getSku());
         }
     }
 }

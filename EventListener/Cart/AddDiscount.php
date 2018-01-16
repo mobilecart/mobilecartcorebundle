@@ -13,18 +13,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * Class AddDiscount
  * @package MobileCart\CoreBundle\EventListener\Cart
  */
-class AddDiscount
+class AddDiscount extends BaseCartListener
 {
-    /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    public $entityService;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\CartService
-     */
-    public $cartService;
-
     /**
      * @var \MobileCart\CoreBundle\Service\ShippingService
      */
@@ -54,42 +44,6 @@ class AddDiscount
     }
 
     /**
-     * @param $entityService
-     * @return $this
-     */
-    public function setEntityService($entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    public function getEntityService()
-    {
-        return $this->entityService;
-    }
-
-    /**
-     * @param $cartService
-     * @return $this
-     */
-    public function setCartService($cartService)
-    {
-        $this->cartService = $cartService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CartService
-     */
-    public function getCartService()
-    {
-        return $this->cartService;
-    }
-
-    /**
      * @param $shippingService
      * @return $this
      */
@@ -113,10 +67,27 @@ class AddDiscount
     public function onCartAddDiscount(CoreEvent $event)
     {
         $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $event->set('format', $format);
-        $code = $request->get('code', '');
 
+        // parse/convert API requests
+        switch($event->getContentType()) {
+            case CoreEvent::JSON:
+
+                $apiRequest = $event->getApiRequest()
+                    ? $event->getApiRequest()
+                    : @ (array) json_decode($event->getRequest()->getContent());
+
+                if (isset($apiRequest['code'])) {
+                    $event->getRequest()->request->set('code', $apiRequest['code']);
+                }
+
+                break;
+            default:
+
+                break;
+        }
+
+        // continue base logic
+        $code = $request->get('code', '');
         $discountEntity = $this->getEntityService()->findOneBy(EntityConstants::DISCOUNT, [
             'coupon_code' => $code,
         ]);
@@ -148,7 +119,7 @@ class AddDiscount
                             ->setBasePrice(0.00);
 
                         $this->getCartService()->addItem($item);
-                        $event->setProductId($product->getId());
+                        $event->set('product_id', $product->getId());
 
                     } else {
 
@@ -182,7 +153,7 @@ class AddDiscount
         }
 
         $event->setReturnData('is_valid_code', $isValid);
-        $event->setReturnData('success', $isValid);
+        $event->setSuccess($isValid);
 
         if ($isValid) {
             $event->addSuccessMessage('Discount Successfully Added!');

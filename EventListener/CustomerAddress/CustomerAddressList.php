@@ -62,8 +62,6 @@ class CustomerAddressList
      */
     public function onCustomerAddressList(CoreEvent $event)
     {
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
         $url = $this->getRouter()->generate('cart_admin_customer_mass_delete');
 
         $event->setReturnData('mass_actions', [
@@ -109,8 +107,8 @@ class CustomerAddressList
             ],
         ]);
 
-        switch($format) {
-            case 'json':
+        switch($event->getRequestAccept()) {
+            case CoreEvent::JSON:
                 $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:

@@ -26,6 +26,7 @@ final class CoreEvents
     const CART_UPDATE_ITEM_QTYS = 'cart.update.item.qtys';
     const CART_ADD_SHIPMENT = 'cart.add.shipment';
     const CART_ADD_DISCOUNT = 'cart.add.discount';
+    const CART_INIT = 'cart.init';
     const CART_REMOVE_DISCOUNT = 'cart.remove.discount';
     const CART_REMOVE_PRODUCT = 'cart.remove.product';
     const CART_REMOVE_PRODUCTS = 'cart.remove.products';
@@ -48,6 +49,7 @@ final class CoreEvents
     const CHECKOUT_UPDATE_PAYMENT_METHOD = 'checkout.update.payment_method';
     const CHECKOUT_CONFIRM_ORDER = 'checkout.confirm.order';
     const CHECKOUT_SUBMIT_ORDER = 'checkout.submit.order';
+    const CHECKOUT_SUBMIT_ORDER_API = 'checkout.submit.order.api';
     const CHECKOUT_SUBMIT_ORDER_SUCCESS = 'checkout.submit.order.success';
     const CHECKOUT_SUCCESS_RETURN = 'checkout.success.return';
 

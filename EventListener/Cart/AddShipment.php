@@ -4,48 +4,18 @@ namespace MobileCart\CoreBundle\EventListener\Cart;
 
 use MobileCart\CoreBundle\CartComponent\Shipment;
 use MobileCart\CoreBundle\Event\CoreEvent;
+use MobileCart\CoreBundle\Constants\EntityConstants as EC;
 
 /**
  * Class AddShipment
  * @package MobileCart\CoreBundle\EventListener\Cart
  */
-class AddShipment
+class AddShipment extends BaseCartListener
 {
-    /**
-     * @var \MobileCart\CoreBundle\Service\CartService
-     */
-    public $cartService;
-
     /**
      * @var \MobileCart\CoreBundle\Service\ShippingService
      */
     public $shippingService;
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    public function getEntityService()
-    {
-        return $this->getCartService()->getEntityService();
-    }
-
-    /**
-     * @param $cartService
-     * @return $this
-     */
-    public function setCartService($cartService)
-    {
-        $this->cartService = $cartService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CartService
-     */
-    public function getCartService()
-    {
-        return $this->cartService;
-    }
 
     /**
      * @param $shippingService
@@ -70,18 +40,90 @@ class AddShipment
      */
     public function onCartAddShipment(CoreEvent $event)
     {
-        $shippingService = $this->getShippingService();
-        $cartService = $this->getCartService()->initCart();
-        $cart = $cartService->getCart();
-        $cartItems = $cart->getItems();
+        // parse/convert API requests
+        switch($event->getContentType()) {
+            case CoreEvent::JSON:
+
+                $apiRequest = $event->getApiRequest()
+                    ? $event->getApiRequest()
+                    : @ (array) json_decode($event->getRequest()->getContent());
+
+                $keys = [
+                    EC::SOURCE_ADDRESS_KEY,
+                    EC::CUSTOMER_ADDRESS_ID,
+                    EC::SHIPPING_METHOD
+                ];
+
+                if (isset($apiRequest['shipping_methods'])) {
+                    $shippingMethods = []; // r[source_address_key][customer_address_id] = $code
+                    foreach($apiRequest as $data) {
+
+                        $isValid = true;
+                        $data = is_object($data) ? get_object_vars($data) : $data;
+                        foreach($keys as $key) {
+                            if (!isset($data[$key])) {
+                                $isValid = false;
+                            }
+                        }
+
+                        if (!$isValid) {
+                            continue;
+                        }
+
+                        $sourceAddressKey = $data[EC::SOURCE_ADDRESS_KEY];
+                        $customerAddressId = $data[EC::CUSTOMER_ADDRESS_ID];
+                        $shippingMethod = $data[EC::SHIPPING_METHOD];
+
+                        if (!isset($shippingMethods[$sourceAddressKey])) {
+                            $shippingMethods[$sourceAddressKey] = [];
+                        }
+
+                        $shippingMethods[$sourceAddressKey][$customerAddressId] = $shippingMethod;
+                    }
+                    $event->getRequest()->request->set('shipping_methods', $shippingMethods);
+
+                } elseif (isset($apiRequest[EC::SHIPPING_METHOD])) {
+
+                    $shippingMethod = $apiRequest[EC::SHIPPING_METHOD];
+
+                    if ($this->getShippingService()->getIsMultiShippingEnabled()) {
+
+                        $shippingMethods = []; // r[source_address_key][customer_address_id] = $code
+
+                        $sourceAddressKey = isset($apiRequest[EC::SOURCE_ADDRESS_KEY])
+                            ? $apiRequest[EC::SOURCE_ADDRESS_KEY]
+                            : 'main';
+
+                        $customerAddressId = isset($apiRequest[EC::CUSTOMER_ADDRESS_ID])
+                            ? $apiRequest[EC::CUSTOMER_ADDRESS_ID]
+                            : 'main';
+
+                        if (!isset($shippingMethods[$sourceAddressKey])) {
+                            $shippingMethods[$sourceAddressKey] = [];
+                        }
+
+                        $shippingMethods[$sourceAddressKey][$customerAddressId] = $shippingMethod;
+
+                        $event->getRequest()->request->set('shipping_methods', $shippingMethods);
+                    } else {
+                        $event->getRequest()->request->set(EC::SHIPPING_METHOD, $shippingMethod);
+                    }
+                }
+
+                break;
+            default:
+
+                break;
+        }
+
+        // continue base logic
 
         $success = false;
         $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-        $event->set('format', $format);
+        $this->initCart($request);
 
         // handle multiple shipments, if necessary
-        if ($shippingService->getIsMultiShippingEnabled()) {
+        if ($this->getShippingService()->getIsMultiShippingEnabled()) {
             $codes = $request->get('shipping_methods', []); // r[source_address_key][customer_address_id] = $code
             if (is_array($codes) && count($codes)) {
                 foreach($codes as $srcAddressKey => $customerAddressIds) {
@@ -92,12 +134,13 @@ class AddShipment
 
                     foreach($customerAddressIds as $anAddressId => $methodCode) {
                         $anAddressId = $this->getCartService()->unprefixAddressId($anAddressId);
-                        if ($rate = $cart->findShippingMethod('code', $methodCode, $anAddressId, $srcAddressKey)) {
+
+                        if ($rate = $this->getCartService()->getCart()->findShippingMethod('code', $methodCode, $anAddressId, $srcAddressKey)) {
                             $productIds = [];
-                            if ($cartItems) {
-                                foreach($cartItems as $item) {
-                                    if ($item->get('customer_address_id', 'main') == $anAddressId
-                                        && $item->get('source_address_key', 'main') == $srcAddressKey
+                            if ($this->getCartService()->hasItems()) {
+                                foreach($this->getCartService()->getItems() as $item) {
+                                    if ($item->get(EC::CUSTOMER_ADDRESS_ID, 'main') == $anAddressId
+                                        && $item->get(EC::SOURCE_ADDRESS_KEY, 'main') == $srcAddressKey
                                     ) {
                                         $productIds[] = $item->getProductId();
                                     }
@@ -107,8 +150,8 @@ class AddShipment
                             $shipment = new Shipment();
                             $shipment->fromArray($rate->getData());
 
-                            $cart->unsetShipments($anAddressId, $srcAddressKey)
-                                ->addShipment($shipment, $anAddressId, $productIds, $srcAddressKey);
+                            $this->getCartService()->removeShipments($anAddressId, $srcAddressKey);
+                            $this->getCartService()->addShipment($shipment);
 
                             $success = true;
                             break;
@@ -118,22 +161,21 @@ class AddShipment
             }
         } else {
             // otherwise, assume a single shipment and shipping method
-            $code = $request->get('shipping_method', ''); // single shipping method
+            $code = $request->get(EC::SHIPPING_METHOD, ''); // single shipping method
             if ($this->getCartService()->hasShippingMethodCode($code)) {
 
-                $rate = $cart->getShippingMethod($cart->findShippingMethodIdx('code', $code));
+                $rate = $this->getCartService()->getCart()->findShippingMethod('code', $code);
+
                 $shipment = new Shipment();
                 $shipment->fromArray($rate->getData());
 
-                $cart->unsetShipments()
-                    ->addShipment($shipment, 'main', $cart->getProductIds());
+                $this->getCartService()->removeShipments();
+                $this->getCartService()->addShipment($shipment);
 
                 $success = true;
             }
         }
 
-        $this->getCartService()->setCart($cart);
-        $event->setReturnData('cart', $cart);
-        $event->setReturnData('success', $success);
+        $event->setSuccess($success);
     }
 }

@@ -11,6 +11,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 class UrlRewriteList
 {
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
@@ -36,12 +39,19 @@ class UrlRewriteList
         return $this->themeService;
     }
 
-    public function setRouter($router)
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
@@ -52,12 +62,7 @@ class UrlRewriteList
      */
     public function onUrlRewriteList(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $request = $event->getRequest();
-        $format = $request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '');
-
-        $returnData['mass_actions'] =
-        [
+        $event->setReturnData('mass_actions', [
             [
                 'label'         => 'Delete UrlRewrites',
                 'input_label'   => 'Confirm Mass-Delete ?',
@@ -70,10 +75,9 @@ class UrlRewriteList
                 'url' => $this->getRouter()->generate('cart_admin_url_rewrite_mass_delete'),
                 'external' => 0,
             ],
-        ];
+        ]);
 
-        $returnData['columns'] =
-        [
+        $event->setReturnData('columns', [
             [
                 'key' => 'id',
                 'label' => 'ID',
@@ -94,22 +98,20 @@ class UrlRewriteList
                 'label' => 'Request URI',
                 'sort' => 1,
             ],
-        ];
+        ]);
 
-        $response = '';
-        switch($format) {
-            case 'json':
-                $response = new JsonResponse($returnData);
+        switch($event->getRequestAccept()) {
+            case CoreEvent::JSON:
+                $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
-
-                $response = $this->getThemeService()
-                    ->render('admin', 'UrlRewrite:index.html.twig', $returnData);
+                $event->setResponse($this->getThemeService()->render(
+                    'admin',
+                    'UrlRewrite:index.html.twig',
+                    $event->getReturnData()
+                ));
 
                 break;
         }
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
     }
 }

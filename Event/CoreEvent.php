@@ -36,7 +36,12 @@ class CoreEvent extends Event
     const MSG_INFO = 'info';
     const MSG_SUCCESS = 'success';
     const MSG_WARNING = 'warning';
-    const MSG_ERROR = 'danger';
+    const MSG_ERROR = 'error';
+
+    const SUCCESS = 'success';
+    const MESSAGES = 'messages';
+    const CART = 'cart';
+    const JSON = 'application/json';
 
     /**
      * Data
@@ -53,9 +58,14 @@ class CoreEvent extends Event
     protected $return_data = [];
 
     /**
-     * @var mixed
+     * @var \Symfony\Component\HttpFoundation\Request
      */
     protected $request;
+
+    /**
+     * @var array
+     */
+    protected $api_request = [];
 
     /**
      * @var \Symfony\Component\HttpFoundation\Response
@@ -106,6 +116,11 @@ class CoreEvent extends Event
      * @var \MobileCart\CoreBundle\Entity\CartEntityInterface
      */
     protected $entity;
+
+    /**
+     * @var bool
+     */
+    protected $success = false;
 
     /**
      * @var int
@@ -236,6 +251,28 @@ class CoreEvent extends Event
     }
 
     /**
+     * @return $this
+     */
+    public function flashMessages()
+    {
+        if ($this->getMessages()
+            && $this->getRequest()
+            && $this->getRequest()->getSession()
+        ) {
+            foreach($this->getMessages() as $code => $messages) {
+                if (!$messages) {
+                    continue;
+                }
+                foreach($messages as $message) {
+                    $this->getRequest()->getSession()->getFlashBag()->add($code, $message);
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * @param $key
      * @param $default
      * @return mixed
@@ -355,6 +392,28 @@ class CoreEvent extends Event
     }
 
     /**
+     * @param bool $isSuccess
+     * @param bool $updateReturnData
+     * @return $this
+     */
+    public function setSuccess($isSuccess = true, $updateReturnData = true)
+    {
+        $this->success = (bool) $isSuccess;
+        if ($updateReturnData) {
+            $this->setReturnData(self::SUCCESS, $this->success);
+        }
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getSuccess()
+    {
+        return (bool) $this->success;
+    }
+
+    /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return $this
      */
@@ -370,6 +429,46 @@ class CoreEvent extends Event
     public function getRequest()
     {
         return $this->request;
+    }
+
+    /**
+     * @return array|string
+     */
+    public function getRequestAccept()
+    {
+        if ($this->getRequest()) {
+            return $this->getRequest()->headers->get('Accept');
+        }
+        return '';
+    }
+
+    /**
+     * @return array|string
+     */
+    public function getContentType()
+    {
+        if ($this->getRequest()) {
+            return $this->getRequest()->headers->get('Content-Type');
+        }
+        return '';
+    }
+
+    /**
+     * @param array $apiRequest
+     * @return $this
+     */
+    public function setApiRequest(array $apiRequest)
+    {
+        $this->api_request = $apiRequest;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getApiRequest()
+    {
+        return $this->api_request;
     }
 
     /**
