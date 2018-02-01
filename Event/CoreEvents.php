@@ -11,15 +11,36 @@
 
 namespace MobileCart\CoreBundle\Event;
 
+/**
+ * Class CoreEvents
+ * @package MobileCart\CoreBundle\Event
+ *
+ * This class documents the Events and their codes.
+ *  It also prevents typo's when referencing them in php.
+ */
 final class CoreEvents
 {
     const HOME_VIEW_RETURN = 'home.view.return';
     const DASHBOARD_VIEW_RETURN = 'dashboard.view.return';
+    const MENU_BUILD = 'menu.build';
 
     const LOGIN_SUCCESS = 'login.success';
     const LOGIN_LOCKED = 'login.locked';
     const LOGIN_VIEW_RETURN = 'login.view.return';
     const LOGOUT_SUCCESS = 'logout.success';
+
+    //const ADMIN_USER_LIST = 'admin_user.list';
+    const ADMIN_USER_SEARCH = 'admin_user.search';
+    const ADMIN_USER_UPDATE = 'admin_user.update';
+    const ADMIN_USER_INSERT = 'admin_user.insert';
+    const ADMIN_USER_DELETE = 'admin_user.delete';
+    const ADMIN_USER_SAVE = 'admin_user.save';
+    const ADMIN_USER_EDIT_RETURN = 'admin_user.edit.return';
+    const ADMIN_USER_NEW_RETURN = 'admin_user.new.return';
+    const ADMIN_USER_VIEW_RETURN = 'admin_user.view.return';
+    const ADMIN_USER_CREATE_RETURN = 'admin_user.create.return';
+    const ADMIN_USER_UPDATE_RETURN = 'admin_user.update.return';
+    const ADMIN_USER_ADMIN_FORM = 'admin_user.admin.form';
 
     const CART_ADD_PRODUCT = 'cart.add.product';
     const CART_UPDATE_TOTALS_SHIPPING = 'cart.update.totals.shipping';
@@ -34,6 +55,19 @@ final class CoreEvents
     const CART_ORDER = 'cart.order';
     const CART_UPDATE = 'cart.update';
     const CART_TOTAL = 'cart.total';
+
+    //const CATEGORY_LIST = 'category.list';
+    const CATEGORY_SEARCH = 'category.search';
+    const CATEGORY_UPDATE = 'category.update';
+    const CATEGORY_INSERT = 'category.insert';
+    const CATEGORY_DELETE = 'category.delete';
+    const CATEGORY_SAVE = 'category.save';
+    const CATEGORY_EDIT_RETURN = 'category.edit.return';
+    const CATEGORY_NEW_RETURN = 'category.new.return';
+    const CATEGORY_VIEW_RETURN = 'category.view.return';
+    const CATEGORY_CREATE_RETURN = 'category.create.return';
+    const CATEGORY_UPDATE_RETURN = 'category.update.return';
+    const CATEGORY_ADMIN_FORM = 'category.admin.form';
 
     const CHECKOUT_FORM = 'checkout.form';
     const CHECKOUT_VIEW_RETURN = 'checkout.view.return';
@@ -64,34 +98,6 @@ final class CoreEvents
         return 'checkout.update.' . $section;
     }
 
-    const PRODUCT_LIST = 'product.list';
-    const PRODUCT_SEARCH = 'product.search';
-    const PRODUCT_UPDATE = 'product.update';
-    const PRODUCT_INSERT = 'product.insert';
-    const PRODUCT_DELETE = 'product.delete';
-    const PRODUCT_DUPLICATE = 'product.duplicate';
-    const PRODUCT_SAVE = 'product.save';
-    const PRODUCT_EDIT_RETURN = 'product.edit.return';
-    const PRODUCT_NEW_RETURN = 'product.new.return';
-    const PRODUCT_VIEW_RETURN = 'product.view.return';
-    const PRODUCT_CREATE_RETURN = 'product.create.return';
-    const PRODUCT_UPDATE_RETURN = 'product.update.return';
-    const PRODUCT_ADMIN_FORM = 'product.admin.form';
-    const PRODUCT_ADDTOCART_FORM = 'product.addtocart.form';
-
-    const CATEGORY_LIST = 'category.list';
-    const CATEGORY_SEARCH = 'category.search';
-    const CATEGORY_UPDATE = 'category.update';
-    const CATEGORY_INSERT = 'category.insert';
-    const CATEGORY_DELETE = 'category.delete';
-    const CATEGORY_SAVE = 'category.save';
-    const CATEGORY_EDIT_RETURN = 'category.edit.return';
-    const CATEGORY_NEW_RETURN = 'category.new.return';
-    const CATEGORY_VIEW_RETURN = 'category.view.return';
-    const CATEGORY_CREATE_RETURN = 'category.create.return';
-    const CATEGORY_UPDATE_RETURN = 'category.update.return';
-    const CATEGORY_ADMIN_FORM = 'category.admin.form';
-
     const CONFIG_SETTING_LIST = 'config_setting.list';
     const CONFIG_SETTING_SEARCH = 'config_setting.search';
     const CONFIG_SETTING_UPDATE = 'config_setting.update';
@@ -107,7 +113,7 @@ final class CoreEvents
     const CONTACT_FORM = 'contact.form';
     const CONTACT_FORM_POST = 'contact.form.post';
 
-    const CONTENT_LIST = 'content.list';
+    //const CONTENT_LIST = 'content.list';
     const CONTENT_SEARCH = 'content.search';
     const CONTENT_UPDATE = 'content.update';
     const CONTENT_INSERT = 'content.insert';
@@ -133,7 +139,7 @@ final class CoreEvents
     const CONTENT_SLOT_UPDATE_RETURN = 'content_slot.update.return';
     const CONTENT_SLOT_ADMIN_FORM = 'content_slot.admin.form';
 
-    const CUSTOMER_LIST = 'customer.list';
+    //const CUSTOMER_LIST = 'customer.list';
     const CUSTOMER_SEARCH = 'customer.search';
     const CUSTOMER_UPDATE = 'customer.update';
     const CUSTOMER_INSERT = 'customer.insert';
@@ -150,7 +156,7 @@ final class CoreEvents
     const CUSTOMER_REGISTER_POST_RETURN = 'customer.register.post.return';
     const CUSTOMER_REGISTER_CHECK_EMAIL_RETURN = 'customer.register.checkemail.return';
     const CUSTOMER_REGISTER_CONFIRM = 'customer.register.confirm';
-    const CUSTOMER_REGISTER_CONFIRM_RETURN = 'customer.register.confirm.return';
+//    const CUSTOMER_REGISTER_CONFIRM_RETURN = 'customer.register.confirm.return';
     const CUSTOMER_PROFILE_RETURN = 'customer.profile.return';
     const CUSTOMER_PROFILE_POST_RETURN = 'customer.profile.post.return';
     const CUSTOMER_PROFILE_FORM = 'customer.profile.form';
@@ -164,6 +170,7 @@ final class CoreEvents
     const CUSTOMER_NAVIGATION = 'customer.navigation';
     const CUSTOMER_UPDATE_PASSWORD = 'customer.updatepassword';
     const CUSTOMER_UPDATE_PASSWORD_FORM = 'customer.updatepassword.form';
+    const CUSTOMER_UPDATE_PASSWORD_FAILED_RETURN = 'customer.updatepassword.failed.return';
     const CUSTOMER_UPDATE_PASSWORD_RETURN = 'customer.updatepassword.return';
     const CUSTOMER_UPDATE_PASSWORD_SUCCESS = 'customer.updatepassword.success';
     const CUSTOMER_UPDATE_PASSWORD_POST_RETURN = 'customer.updatepassword.post.return';
@@ -245,9 +252,7 @@ final class CoreEvents
     const ITEM_VAR_SET_VAR_UPDATE_RETURN = 'item_var_set_var.update.return';
     const ITEM_VAR_SET_VAR_ADMIN_FORM = 'item_var_set_var.admin.form';
 
-    const MENU_BUILD = 'menu.build';
-
-    const ORDER_LIST = 'order.list';
+    //const ORDER_LIST = 'order.list';
     const ORDER_SEARCH = 'order.search';
     const ORDER_UPDATE = 'order.update';
     const ORDER_UPDATE_SHIPPING = 'order.update.shipping';
@@ -268,7 +273,7 @@ final class CoreEvents
     const ORDER_ADMIN_FORM = 'order.admin.form';
     const ORDER_SUBMIT_SUCCESS = 'order.submit.success';
 
-    const ORDER_ITEM_LIST = 'order_item.list';
+    //const ORDER_ITEM_LIST = 'order_item.list';
     const ORDER_ITEM_SEARCH = 'order_item.search';
 
     const ORDER_PAYMENT_LIST = 'order_payment.list';
@@ -296,6 +301,21 @@ final class CoreEvents
 
     // Payment methods, filtered by request
     const PAYMENT_SERVICE_COLLECT = 'payment_service.collect';
+
+    const PRODUCT_LIST = 'product.list';
+    const PRODUCT_SEARCH = 'product.search';
+    const PRODUCT_UPDATE = 'product.update';
+    const PRODUCT_INSERT = 'product.insert';
+    const PRODUCT_DELETE = 'product.delete';
+    const PRODUCT_DUPLICATE = 'product.duplicate';
+    const PRODUCT_SAVE = 'product.save';
+    const PRODUCT_EDIT_RETURN = 'product.edit.return';
+    const PRODUCT_NEW_RETURN = 'product.new.return';
+    const PRODUCT_VIEW_RETURN = 'product.view.return';
+    const PRODUCT_CREATE_RETURN = 'product.create.return';
+    const PRODUCT_UPDATE_RETURN = 'product.update.return';
+    const PRODUCT_ADMIN_FORM = 'product.admin.form';
+    const PRODUCT_ADDTOCART_FORM = 'product.addtocart.form';
 
     // All Shipping methods
     const SHIPPING_METHOD_COLLECT = 'shipping_method.collect';

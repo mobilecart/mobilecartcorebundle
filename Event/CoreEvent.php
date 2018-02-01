@@ -12,6 +12,7 @@
 namespace MobileCart\CoreBundle\Event;
 
 use Symfony\Component\EventDispatcher\Event;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * Class CoreEvent
@@ -27,10 +28,12 @@ class CoreEvent extends Event
     const SECTION_FRONTEND = 'frontend';
     const SECTION_API = 'api';
 
+    // todo : remove SECTION_API
+
     static $sections = [
         self::SECTION_FRONTEND,
         self::SECTION_BACKEND,
-        self::SECTION_API, // todo: get rid of this and use $is_api
+        self::SECTION_API
     ];
 
     const MSG_INFO = 'info';
@@ -41,7 +44,10 @@ class CoreEvent extends Event
     const SUCCESS = 'success';
     const MESSAGES = 'messages';
     const CART = 'cart';
+
+    const HTML = 'html';
     const JSON = 'application/json';
+    const XML = 'application/xml';
 
     /**
      * Data
@@ -73,6 +79,11 @@ class CoreEvent extends Event
     protected $response;
 
     /**
+     * @var int
+     */
+    protected $response_code = 200;
+
+    /**
      * @var array
      */
     protected $messages = [];
@@ -101,6 +112,16 @@ class CoreEvent extends Event
      * @var array
      */
     protected $form_data = [];
+
+    /**
+     * @var bool
+     */
+    protected $is_form_submitted = false;
+
+    /**
+     * @var \Symfony\Component\Form\FormInterface
+     */
+    protected $form;
 
     /**
      * @var bool
@@ -270,6 +291,15 @@ class CoreEvent extends Event
         }
 
         return $this;
+    }
+
+    /**
+     * @param $key
+     * @return bool
+     */
+    public function has($key)
+    {
+        return array_key_exists($key, $this->data);
     }
 
     /**
@@ -454,6 +484,37 @@ class CoreEvent extends Event
     }
 
     /**
+     * @return bool
+     */
+    public function isJsonResponse()
+    {
+        return $this->getRequestAccept() == self::JSON || $this->getContentType() == self::JSON;
+    }
+
+    /**
+     * @param array $invalid
+     * @return JsonResponse
+     */
+    public function getInvalidFormJsonResponse(array $invalid = [])
+    {
+        foreach($this->getForm()->all() as $childKey => $child) {
+            $errors = $child->getErrors();
+            if ($errors->count()) {
+                $invalid[$childKey] = [];
+                foreach($errors as $error) {
+                    $invalid[$childKey][] = $error->getMessage();
+                }
+            }
+        }
+
+        return new JsonResponse([
+            'success' => false,
+            'invalid' => $invalid,
+            'messages' => $this->getMessages(),
+        ]);
+    }
+
+    /**
      * @param array $apiRequest
      * @return $this
      */
@@ -487,6 +548,24 @@ class CoreEvent extends Event
     public function getResponse()
     {
         return $this->response;
+    }
+
+    /**
+     * @param $code
+     * @return $this
+     */
+    public function setResponseCode($code)
+    {
+        $this->response_code = (int) $code;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getResponseCode()
+    {
+        return (int) $this->response_code;
     }
 
     /**
@@ -759,11 +838,110 @@ class CoreEvent extends Event
     }
 
     /**
-     * @return array
+     * @return array|string
      */
-    public function getFormData()
+    public function getFormData($key = '', $default = '')
     {
+        if ($key) {
+            return isset($this->form_data[$key])
+                ? $this->form_data[$key]
+                : $default;
+        }
+
         return $this->form_data;
+    }
+
+    /**
+     * @param \Symfony\Component\Form\FormInterface $form
+     * @return $this
+     */
+    public function setForm(\Symfony\Component\Form\FormInterface $form)
+    {
+        $this->form = $form;
+        return $this;
+    }
+
+    /**
+     * @return \Symfony\Component\Form\FormInterface
+     */
+    public function getForm()
+    {
+        return $this->form;
+    }
+
+    /**
+     * Submit Form and set the submitted Form Data
+     *
+     * @param array $formData
+     * @return $this
+     * @throws \Exception
+     */
+    public function submitForm(array $formData = [])
+    {
+        if (!$this->getForm()) {
+            throw new \Exception("Form not set");
+        }
+
+        if (!$this->getRequest()) {
+            throw new \Exception("Request not set");
+        }
+
+        switch($this->getContentType()) {
+            case self::JSON:
+                if ($formData) {
+                    $this->getForm()->submit($formData);
+                    $this->setFormData($formData);
+                } else {
+                    $formData = @ (array)json_decode($this->getRequest()->getContent());
+                    if ($formData) {
+                        foreach($formData as $key => $value) {
+                            if ($value instanceof \stdClass) {
+                                $formData[$key] = (array) $value;
+                            }
+                        }
+                    }
+                    $this->getForm()->submit($formData);
+                    $this->setFormData($formData);
+                }
+                break;
+            default:
+                if ($formData) {
+                    $this->getForm()->submit($formData);
+                    $this->setFormData($formData);
+                } else {
+                    $formData = $this->getRequest()->request->get($this->getForm()->getName());
+                    $this->setFormData($formData);
+                }
+                break;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function isFormSubmitted()
+    {
+        if (!$this->getForm()) {
+            throw new \Exception("Form not set");
+        }
+
+        return $this->getForm()->isSubmitted();
+    }
+
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function isFormValid()
+    {
+        if (!$this->isFormSubmitted()) {
+            $this->submitForm();
+        }
+
+        return $this->getForm()->isValid();
     }
 
     /**
