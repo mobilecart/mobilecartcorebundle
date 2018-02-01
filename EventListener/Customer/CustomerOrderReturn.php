@@ -5,6 +5,7 @@ namespace MobileCart\CoreBundle\EventListener\Customer;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * Class CustomerOrderReturn
@@ -86,29 +87,43 @@ class CustomerOrderReturn
      */
     public function onCustomerOrderReturn(CoreEvent $event)
     {
-        $request = $event->getRequest();
-        $orderId = $request->get('id', 0);
-        $customer = $event->getCustomer();
-        $event->setReturnData('template_sections', []);
+        $order = $this->getEntityService()->findOneBy(EntityConstants::ORDER, [
+            'id' => $event->getRequest()->get('id', 0),
+            'customer' => $event->getCustomer()->getId()
+        ]);
 
-        $order = $this->getEntityService()->find(EntityConstants::ORDER, $orderId);
-        if (!$order
-            || !$order->getCustomer()
-            || !$order->getCustomer()->getId()
-            || $order->getCustomer()->getId() != $customer->getId()
-        ) {
+        if ($order) {
+            if ($event->isJsonResponse()) {
+                $event->setResponse(new JsonResponse([
+                    'success' => true,
+                    'entity' => $order->getData(),
+                ]));
+            } else {
+
+                $event->setReturnData('template_sections', []);
+                $event->setReturnData('order', $order);
+
+                $event->setResponse($this->getThemeService()->render(
+                    'frontend',
+                    'Customer:order.html.twig',
+                    $event->getReturnData()
+                ));
+            }
+        } else {
             // redirect to order listing
+            $event->addErrorMessage('Order not found');
+            $event->flashMessages();
             $url = $this->getRouter()->generate('customer_orders', []);
-            $event->setResponse(new RedirectResponse($url));
-            return;
+
+            if ($event->isJsonResponse()) {
+                $event->setResponse(new JsonResponse([
+                    'success' => false,
+                    'redirect_url' => $url,
+                    'messages' => $event->getMessages(),
+                ]));
+            } else {
+                $event->setResponse(new RedirectResponse($url));
+            }
         }
-
-        $event->setReturnData('order', $order);
-
-        $event->setResponse($this->getThemeService()->render(
-            'frontend',
-            'Customer:order.html.twig',
-            $event->getReturnData()
-        ));
     }
 }

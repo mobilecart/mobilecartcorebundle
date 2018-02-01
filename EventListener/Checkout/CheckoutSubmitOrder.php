@@ -12,11 +12,6 @@ use MobileCart\CoreBundle\Event\CoreEvent;
 class CheckoutSubmitOrder
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
-     */
-    protected $checkoutSessionService;
-
-    /**
      * @var \MobileCart\CoreBundle\Service\OrderService
      */
     protected $orderService;
@@ -25,24 +20,6 @@ class CheckoutSubmitOrder
      * @var \Symfony\Component\Routing\RouterInterface
      */
     protected $router;
-
-    /**
-     * @param $checkoutSessionService
-     * @return $this
-     */
-    public function setCheckoutSessionService($checkoutSessionService)
-    {
-        $this->checkoutSessionService = $checkoutSessionService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
-     */
-    public function getCheckoutSessionService()
-    {
-        return $this->checkoutSessionService;
-    }
 
     /**
      * @param $orderService
@@ -60,6 +37,30 @@ class CheckoutSubmitOrder
     public function getOrderService()
     {
         return $this->orderService;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->getOrderService()->getCartService();
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\PaymentService
+     */
+    public function getPaymentService()
+    {
+        return $this->getOrderService()->getPaymentService();
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     */
+    public function getEntityService()
+    {
+        return $this->getOrderService()->getEntityService();
     }
 
     /**
@@ -86,11 +87,9 @@ class CheckoutSubmitOrder
      */
     public function onCheckoutSubmitOrder(CoreEvent $event)
     {
-        $isValid = false;
-
         // todo : keep a count of invalid requests, logout/lockout user if excessive
 
-        $invalidSections = $this->getCheckoutSessionService()->getInvalidSections();
+        $invalidSections = $this->getCartService()->getInvalidSections();
         $event->setReturnData('invalid_sections', $invalidSections);
         if ($invalidSections) {
 
@@ -101,19 +100,13 @@ class CheckoutSubmitOrder
                 'invalid' => [],
             ]));
 
-            $event->set('is_valid', false);
-
             return false; // return early, return value has no effect
         }
 
-        $paymentMethodCode = $this->getCheckoutSessionService()
-            ->getPaymentMethodCode();
+        $paymentMethodService = $this->getPaymentService()
+            ->findPaymentMethodServiceByCode($this->getCartService()->getPaymentMethodCode());
 
-        $paymentMethodService = $this->getCheckoutSessionService()
-            ->findPaymentMethodServiceByCode($paymentMethodCode);
-
-        $paymentData = $this->getCheckoutSessionService()
-            ->getPaymentData();
+        $paymentData = $this->getCartService()->getPaymentData();
 
         // merge data
         $returnPaymentData = $event->getReturnData('payment_data', []);
@@ -123,12 +116,8 @@ class CheckoutSubmitOrder
             }
         }
 
-        $cart = $this->getCheckoutSessionService()
-            ->getCartService()
-            ->getCart();
-
         $orderService = $this->getOrderService()
-            ->setCart($cart)
+            ->setCart($this->getCartService()->getCart())
             ->setPaymentMethodService($paymentMethodService)
             ->setPaymentData($paymentData)
             ->setUser($event->getUser());
@@ -136,36 +125,29 @@ class CheckoutSubmitOrder
         // create order, orderItems, orderShipments, orderInvoice
         //  and payment, if necessary
 
-        try {
-            $orderService->submitCart();
-            $isValid = true;
-        } catch(\Exception $e) {
-            $event->addErrorMessage("An exception occurred while placing the order");
-        }
+        $orderService->submitCart();
 
-        $event->set('is_valid', $isValid);
         if ($orderService->getErrors()) {
             foreach($orderService->getErrors() as $error) {
                 $event->addErrorMessage($error);
             }
         }
 
-        if ($isValid) {
+        if ($orderService->getSuccess()) {
 
             $event->setOrder($orderService->getOrder());
 
-            $this->getCheckoutSessionService()
-                ->getCartService()
+            $this->getCartService()
                 ->removeItems()
                 ->getSession()
                 ->set('order_id', $orderService->getOrder()->getId());
 
             $event->setResponse(new JsonResponse([
                 'success' => true,
+                'order_id' => $orderService->getOrder()->getId(),
                 'redirect_url' => $this->getRouter()->generate('cart_checkout_success', []),
                 'messages' => $event->getMessages(),
             ]));
-
         } else {
 
             $event->setResponse(new JsonResponse([

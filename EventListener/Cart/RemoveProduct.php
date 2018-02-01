@@ -25,7 +25,7 @@ class RemoveProduct extends BaseCartListener
                     : @ (array)json_decode($event->getRequest()->getContent());
 
                 if (isset($apiRequest['sku']) || isset($apiRequest['product_id'])) {
-                    $keys = ['product_id', 'sku'];
+                    $keys = ['cart_id', 'product_id', 'sku'];
                     foreach ($apiRequest as $key => $value) {
                         if (!in_array($key, $keys)) {
                             continue;
@@ -80,8 +80,12 @@ class RemoveProduct extends BaseCartListener
             $success = true;
         } else {
             $event->addErrorMessage("Specified item is not in your cart");
+            $event->setResponseCode(400);
         }
 
         $event->setSuccess($success);
+        if ($event->getSuccess()) {
+            $event->addSuccessMessage('Cart Updated !');
+        }
     }
 }

@@ -298,6 +298,6 @@ class ProductAdminForm
         }
 
         $event->setReturnData('form_sections', $formSections);
-        $event->setReturnData('form', $form);
+        $event->setForm($form);
     }
 }

@@ -7,8 +7,15 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use MobileCart\CoreBundle\Event\CoreEvents;
 use MobileCart\CoreBundle\Event\CoreEvent;
 
+/**
+ * Class ExportController
+ * @package MobileCart\CoreBundle\Controller\Admin
+ */
 class ExportController extends Controller
 {
+    /**
+     * Display Export options
+     */
     public function indexAction(Request $request)
     {
         $event = new CoreEvent();
@@ -20,6 +27,9 @@ class ExportController extends Controller
         return $event->getResponse();
     }
 
+    /**
+     * Run an Export
+     */
     public function runAction(Request $request)
     {
         $event = new CoreEvent();

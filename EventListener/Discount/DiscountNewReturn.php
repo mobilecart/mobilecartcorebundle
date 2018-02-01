@@ -62,7 +62,7 @@ class DiscountNewReturn
     public function onDiscountNewReturn(CoreEvent $event)
     {
         $event->setReturnData('entity', $event->getEntity());
-        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('form', $event->getForm()->createView());
         $event->setReturnData('template_sections', []);
 
         $event->setResponse($this->getThemeService()->render(

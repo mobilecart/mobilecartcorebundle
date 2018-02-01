@@ -86,7 +86,7 @@ class ConfigSettingEditReturn
     public function onConfigSettingEditReturn(CoreEvent $event)
     {
         $event->setReturnData('template_sections', []);
-        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('form', $event->getForm()->createView());
         $event->setReturnData('entity', $event->getEntity());
         $event->setResponse($this->getThemeService()->render('admin', 'ConfigSetting:edit.html.twig', $event->getReturnData()));
     }

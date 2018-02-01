@@ -52,6 +52,6 @@ class ProductAddToCartForm
             ->add('qty', TextType::class)
             ->getForm();
 
-        $event->setReturnData('form', $form);
+        $event->setForm($form);
     }
 }

@@ -45,7 +45,7 @@ class ProductUpdateReturn
         $format = $event->getRequestAccept();
         $url = $this->getRouter()->generate('cart_admin_product_edit', ['id' => $entity->getId()]);
 
-        if ($event->getRequest()->getSession() && $event->getMessages()) {
+        if ($event->hasFlashMessages()) {
             foreach($event->getMessages() as $code => $messages) {
                 if (!$messages) {
                     continue;

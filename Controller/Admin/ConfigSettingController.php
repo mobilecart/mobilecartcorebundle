@@ -74,8 +74,8 @@ class ConfigSettingController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONFIG_SETTING_ADMIN_FORM, $event);
 
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
+        $form = $event->getForm();
+        if ($event->isFormValid()) {
 
             $formData = $request->request->get($form->getName());
             $event->setFormData($formData);
@@ -197,8 +197,8 @@ class ConfigSettingController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONFIG_SETTING_ADMIN_FORM, $event);
 
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
+        $form = $event->getForm();
+        if ($event->isFormValid()) {
 
             $formData = $request->request->get($form->getName());
 

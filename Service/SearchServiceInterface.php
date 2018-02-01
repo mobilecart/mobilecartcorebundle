@@ -23,6 +23,13 @@ interface SearchServiceInterface
     public function parseRequest(\Symfony\Component\HttpFoundation\Request $request);
 
     /**
+     * @param $key
+     * @param $value
+     * @return $this
+     */
+    public function addFilter($key, $value);
+
+    /**
      * @param $sortBy
      * @param string $sortDir
      * @return $this

@@ -31,11 +31,6 @@ class CheckoutPaymentMethods
     protected $paymentService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
-     */
-    protected $checkoutSessionService;
-
-    /**
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
@@ -44,6 +39,37 @@ class CheckoutPaymentMethods
      * @var \MobileCart\CoreBundle\Service\ShippingService
      */
     protected $shippingService;
+
+    /**
+     * @var \MobileCart\CoreBundle\Service\OrderService
+     */
+    protected $orderService;
+
+    /**
+     * @param $orderService
+     * @return $this
+     */
+    public function setOrderService($orderService)
+    {
+        $this->orderService = $orderService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\OrderService
+     */
+    public function getOrderService()
+    {
+        return $this->orderService;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->getOrderService()->getCartService();
+    }
 
     /**
      * @var string
@@ -113,32 +139,6 @@ class CheckoutPaymentMethods
     }
 
     /**
-     * @param $checkoutSession
-     * @return $this
-     */
-    public function setCheckoutSessionService($checkoutSession)
-    {
-        $this->checkoutSessionService = $checkoutSession;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
-     */
-    public function getCheckoutSessionService()
-    {
-        return $this->checkoutSessionService;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CartService
-     */
-    public function getCartService()
-    {
-        return $this->getCheckoutSessionService()->getCartService();
-    }
-
-    /**
      * @param $themeService
      * @return $this
      */
@@ -200,18 +200,8 @@ class CheckoutPaymentMethods
         return $this->theme;
     }
 
-    /**
-     * @param CoreEvent $event
-     * @return bool
-     */
     public function onCheckoutForm(CoreEvent $event)
     {
-        if (!$this->getCartService()->hasItems()) {
-            $response = new RedirectResponse($this->getRouter()->generate('cart_checkout', []));
-            $event->setResponse($response);
-            return;
-        }
-
         if ($event->get('step_number', 0) > 0) {
             $event->set('step_number', $event->get('step_number') + 1);
         } else {
@@ -230,9 +220,7 @@ class CheckoutPaymentMethods
             ? $event->getCollectPaymentMethodRequest()
             : new CollectPaymentMethodRequest();
 
-        $paymentMethods = $this->getPaymentService()
-            ->collectPaymentMethods($methodRequest);
-
+        $paymentMethods = $this->getPaymentService()->collectPaymentMethods($methodRequest);
         if ($paymentMethods) {
 
             $methodCodes = [];

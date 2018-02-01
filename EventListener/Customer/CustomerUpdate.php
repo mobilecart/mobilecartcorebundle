@@ -76,19 +76,21 @@ class CustomerUpdate
             $event->setIsPasswordChanged(true);
         }
 
-        $this->getEntityService()->persist($entity);
-
-        if ($entity->getItemVarSet() && $formData) {
-
-            // update var values
-            $this->getEntityService()
-                ->persistVariants($entity, $formData);
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Customer Updated !');
+            if ($entity->getItemVarSet() && $formData) {
+                $this->getEntityService()->persistVariants($entity, $formData);
+            }
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving Customer');
         }
 
-        if (!$this->getCartService()->getIsAdminUser()) {
-            $this->getCartService()->setCustomerEntity($entity);
+        if ($event->getSuccess()) {
+            if (!$this->getCartService()->getIsAdminUser()) {
+                $this->getCartService()->setCustomerEntity($entity);
+            }
         }
-
-        $event->addSuccessMessage('Customer Updated!');
     }
 }

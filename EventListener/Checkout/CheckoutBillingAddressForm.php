@@ -32,9 +32,35 @@ class CheckoutBillingAddressForm
     protected $themeService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
+     * @var \MobileCart\CoreBundle\Service\OrderService
      */
-    protected $checkoutSessionService;
+    protected $orderService;
+
+    /**
+     * @param $orderService
+     * @return $this
+     */
+    public function setOrderService($orderService)
+    {
+        $this->orderService = $orderService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\OrderService
+     */
+    public function getOrderService()
+    {
+        return $this->orderService;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->getOrderService()->getCartService();
+    }
 
     /**
      * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
@@ -109,24 +135,6 @@ class CheckoutBillingAddressForm
     }
 
     /**
-     * @param $checkoutSession
-     * @return $this
-     */
-    public function setCheckoutSessionService($checkoutSession)
-    {
-        $this->checkoutSessionService = $checkoutSession;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
-     */
-    public function getCheckoutSessionService()
-    {
-        return $this->checkoutSessionService;
-    }
-
-    /**
      * @return mixed
      */
     public function getCustomerId()
@@ -139,7 +147,7 @@ class CheckoutBillingAddressForm
      */
     public function getDisplayEmailInput()
     {
-        return $this->getCheckoutSessionService()->getAllowGuestCheckout() && !$this->getCustomerId();
+        return $this->getCartService()->getAllowGuestCheckout() && !$this->getCustomerId();
     }
 
     /**
@@ -160,12 +168,12 @@ class CheckoutBillingAddressForm
             ]),
         ]);
 
-        $billingFields = [];
-        if ($this->getDisplayEmailInput()) {
-            $billingFields[] = 'email';
-        }
+        $billingFields = $this->getDisplayEmailInput()
+            ? ['email']
+            : [];
 
-        $billingFields = array_merge($billingFields,
+        $billingFields = array_merge(
+            $billingFields,
             [
                 'billing_name',
                 'billing_company',
@@ -183,8 +191,7 @@ class CheckoutBillingAddressForm
 
         $tplPath = $this->getThemeService()->getTemplatePath($this->getThemeService()->getThemeConfig()->getFrontendTheme());
 
-        $cartService = $this->getCheckoutSessionService()
-            ->getCartService();
+        $cartService = $this->getCartService();
 
         $cart = $cartService->getCart();
         $customer = $cart->getCustomer();
@@ -221,7 +228,7 @@ class CheckoutBillingAddressForm
             'post_url' => $this->getRouter()->generate('cart_checkout_update_section', ['section' => CheckoutConstants::STEP_BILLING_ADDRESS]),
             'form' => $form,
             'form_view' => $form->createView(),
-            'country_regions' => $this->getCheckoutSessionService()->getCartService()->getCountryRegions(),
+            'country_regions' => $this->getCartService()->getCountryRegions(),
         ];
 
         if ($event->get('single_step', '')) {
@@ -242,8 +249,12 @@ class CheckoutBillingAddressForm
             }
         } else {
 
+            $isAjax = $event->getRequest()
+                ? $event->getRequest()->get('ajax', '') == 1
+                : false;
+
             // logic for totals_discounts
-            if (!$event->getRequest()->get('ajax', '')) {
+            if (!$isAjax) {
 
                 $javascripts[] = [
                     'js_template' => $tplPath . 'Checkout:section_address_js.html.twig',
@@ -253,7 +264,6 @@ class CheckoutBillingAddressForm
                 $event->setReturnData('javascripts', $javascripts);
                 $event->setReturnData('country_regions', $sectionData['country_regions']);
             }
-
         }
 
         // sections are combined with other listeners/observers

@@ -40,12 +40,12 @@ class CustomerDelete
     public function onCustomerDelete(CoreEvent $event)
     {
         $entity = $event->getEntity();
-        $this->getEntityService()->remove($entity, EntityConstants::CUSTOMER);
-        if ($entity && $event->getRequest()->getSession()) {
-            $event->getRequest()->getSession()->getFlashBag()->add(
-                'success',
-                'Customer Deleted!'
-            );
+        try {
+            $this->getEntityService()->remove($entity, EntityConstants::CUSTOMER);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Customer Deleted !');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while deleting the Customer');
         }
     }
 }

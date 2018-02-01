@@ -17,6 +17,10 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
 
+/**
+ * Class CategoryController
+ * @package MobileCart\CoreBundle\Controller\Frontend
+ */
 class CategoryController extends Controller
 {
     /**
@@ -24,15 +28,13 @@ class CategoryController extends Controller
      */
     protected $objectType = EntityConstants::CATEGORY;
 
+    /**
+     * List Category entities
+     */
     public function indexAction(Request $request)
     {
-        $searchParam = $this->container->getParameter('cart.search.frontend');
-        $search = $this->container->get($searchParam)
-            ->setObjectType($this->objectType);
-
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setSearch($search)
             ->setObjectType($this->objectType)
             ->setSection(CoreEvent::SECTION_FRONTEND);
 

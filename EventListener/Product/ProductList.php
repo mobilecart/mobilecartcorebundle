@@ -109,141 +109,141 @@ class ProductList
             ],
         ]);
 
-        switch($event->getSection()) {
-            case ($format == 'json'):
-            case CoreEvent::SECTION_API:
-                $event->setResponse(new JsonResponse($event->getReturnData()));
-                break;
-            case CoreEvent::SECTION_FRONTEND:
+        if ($event->isJsonResponse()) {
+            $event->setResponse(new JsonResponse($event->getReturnData()));
+        } else {
+            switch($event->getSection()) {
+                case CoreEvent::SECTION_FRONTEND:
 
-                if ($event->getCategory()) {
+                    if ($event->getCategory()) {
 
-                    switch($event->getCategory()->getDisplayMode()) {
-                        case EntityConstants::DISPLAY_TEMPLATE:
+                        switch($event->getCategory()->getDisplayMode()) {
+                            case EntityConstants::DISPLAY_TEMPLATE:
 
-                            $event->setResponse($this->getThemeService()->render(
-                                'frontend',
-                                $event->getCategory()->getCustomTemplate(),
-                                $event->getReturnData()
-                            ));
+                                $event->setResponse($this->getThemeService()->render(
+                                    'frontend',
+                                    $event->getCategory()->getCustomTemplate(),
+                                    $event->getReturnData()
+                                ));
 
-                            break;
-                        case EntityConstants::DISPLAY_TEMPLATE_PRODUCTS:
+                                break;
+                            case EntityConstants::DISPLAY_TEMPLATE_PRODUCTS:
 
-                            $event->setReturnData('custom_template_html', $this->getThemeService()->render(
-                                'frontend',
-                                $event->getCategory()->getCustomTemplate(),
-                                $event->getReturnData()
-                            ));
+                                $event->setReturnData('custom_template_html', $this->getThemeService()->render(
+                                    'frontend',
+                                    $event->getCategory()->getCustomTemplate(),
+                                    $event->getReturnData()
+                                ));
 
-                            $template = $event->getTemplate()
-                                ? $event->getTemplate()
-                                : 'Product:index.html.twig';
+                                $template = $event->getTemplate()
+                                    ? $event->getTemplate()
+                                    : 'Product:index.html.twig';
 
-                            $event->setResponse($this->getThemeService()->render(
-                                'frontend',
-                                $template,
-                                $event->getReturnData()
-                            ));
+                                $event->setResponse($this->getThemeService()->render(
+                                    'frontend',
+                                    $template,
+                                    $event->getReturnData()
+                                ));
 
-                            break;
-                        case EntityConstants::DISPLAY_PRODUCTS:
+                                break;
+                            case EntityConstants::DISPLAY_PRODUCTS:
 
-                            $template = $event->getTemplate()
-                                ? $event->getTemplate()
-                                : 'Product:index.html.twig';
+                                $template = $event->getTemplate()
+                                    ? $event->getTemplate()
+                                    : 'Product:index.html.twig';
 
-                            $event->setResponse($this->getThemeService()->render(
-                                'frontend',
-                                $template,
-                                $event->getReturnData()
-                            ));
+                                $event->setResponse($this->getThemeService()->render(
+                                    'frontend',
+                                    $template,
+                                    $event->getReturnData()
+                                ));
 
-                            break;
-                        default:
+                                break;
+                            default:
 
-                            $template = $event->getTemplate()
-                                ? $event->getTemplate()
-                                : 'Product:index.html.twig';
+                                $template = $event->getTemplate()
+                                    ? $event->getTemplate()
+                                    : 'Product:index.html.twig';
 
-                            $event->setResponse($this->getThemeService()->render(
-                                'frontend',
-                                $template,
-                                $event->getReturnData()
-                            ));
+                                $event->setResponse($this->getThemeService()->render(
+                                    'frontend',
+                                    $template,
+                                    $event->getReturnData()
+                                ));
 
-                            break;
+                                break;
+                        }
+
+                    } else {
+
+                        $template = $event->getTemplate()
+                            ? $event->getTemplate()
+                            : 'Product:index.html.twig';
+
+                        $event->setResponse($this->getThemeService()->render(
+                            'frontend',
+                            $template,
+                            $event->getReturnData()
+                        ));
                     }
 
-                } else {
+                    break;
+                case CoreEvent::SECTION_BACKEND:
+
+                    $event->setReturnData('mass_actions', [
+                        [
+                            'label'         => 'Update Stock',
+                            'input_label'   => 'In Stock',
+                            'input'         => 'is_in_stock',
+                            'input_type'    => 'select',
+                            'input_options' => [
+                                ['value' => 0, 'label' => 'No'],
+                                ['value' => 1, 'label' => 'Yes'],
+                            ],
+                            'url' => $this->getRouter()->generate('cart_admin_product_mass_update'),
+                            'external' => 0,
+                        ],
+                        [
+                            'label'         => 'Update On Sale',
+                            'input_label'   => 'On Sale',
+                            'input'         => 'is_on_sale',
+                            'input_type'    => 'select',
+                            'input_options' => [
+                                ['value' => 0, 'label' => 'No'],
+                                ['value' => 1, 'label' => 'Yes'],
+                            ],
+                            'url'      => $this->getRouter()->generate('cart_admin_product_mass_update'),
+                            'external' => 0,
+                        ],
+                        [
+                            'label'         => 'Delete Products',
+                            'input_label'   => 'Confirm Mass-Delete ?',
+                            'input'         => 'mass_delete',
+                            'input_type'    => 'select',
+                            'input_options' => [
+                                ['value' => 0, 'label' => 'No'],
+                                ['value' => 1, 'label' => 'Yes'],
+                            ],
+                            'url'      => $this->getRouter()->generate('cart_admin_product_mass_delete'),
+                            'external' => 0,
+                        ],
+                    ]);
 
                     $template = $event->getTemplate()
                         ? $event->getTemplate()
                         : 'Product:index.html.twig';
 
                     $event->setResponse($this->getThemeService()->render(
-                        'frontend',
+                        'admin',
                         $template,
                         $event->getReturnData()
                     ));
-                }
 
-                break;
-            case CoreEvent::SECTION_BACKEND:
+                    break;
+                default:
 
-                $event->setReturnData('mass_actions', [
-                    [
-                        'label'         => 'Update Stock',
-                        'input_label'   => 'In Stock',
-                        'input'         => 'is_in_stock',
-                        'input_type'    => 'select',
-                        'input_options' => [
-                            ['value' => 0, 'label' => 'No'],
-                            ['value' => 1, 'label' => 'Yes'],
-                        ],
-                        'url' => $this->getRouter()->generate('cart_admin_product_mass_update'),
-                        'external' => 0,
-                    ],
-                    [
-                        'label'         => 'Update On Sale',
-                        'input_label'   => 'On Sale',
-                        'input'         => 'is_on_sale',
-                        'input_type'    => 'select',
-                        'input_options' => [
-                            ['value' => 0, 'label' => 'No'],
-                            ['value' => 1, 'label' => 'Yes'],
-                        ],
-                        'url'      => $this->getRouter()->generate('cart_admin_product_mass_update'),
-                        'external' => 0,
-                    ],
-                    [
-                        'label'         => 'Delete Products',
-                        'input_label'   => 'Confirm Mass-Delete ?',
-                        'input'         => 'mass_delete',
-                        'input_type'    => 'select',
-                        'input_options' => [
-                            ['value' => 0, 'label' => 'No'],
-                            ['value' => 1, 'label' => 'Yes'],
-                        ],
-                        'url'      => $this->getRouter()->generate('cart_admin_product_mass_delete'),
-                        'external' => 0,
-                    ],
-                ]);
-
-                $template = $event->getTemplate()
-                    ? $event->getTemplate()
-                    : 'Product:index.html.twig';
-
-                $event->setResponse($this->getThemeService()->render(
-                    'admin',
-                    $template,
-                    $event->getReturnData()
-                ));
-
-                break;
-            default:
-
-                break;
+                    break;
+            }
         }
     }
 }

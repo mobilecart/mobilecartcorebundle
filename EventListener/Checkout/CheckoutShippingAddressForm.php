@@ -32,9 +32,35 @@ class CheckoutShippingAddressForm
     protected $themeService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
+     * @var \MobileCart\CoreBundle\Service\OrderService
      */
-    protected $checkoutSessionService;
+    protected $orderService;
+
+    /**
+     * @param $orderService
+     * @return $this
+     */
+    public function setOrderService($orderService)
+    {
+        $this->orderService = $orderService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\OrderService
+     */
+    public function getOrderService()
+    {
+        return $this->orderService;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->getOrderService()->getCartService();
+    }
 
     /**
      * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
@@ -109,29 +135,11 @@ class CheckoutShippingAddressForm
     }
 
     /**
-     * @param $checkoutSession
-     * @return $this
-     */
-    public function setCheckoutSessionService($checkoutSession)
-    {
-        $this->checkoutSessionService = $checkoutSession;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
-     */
-    public function getCheckoutSessionService()
-    {
-        return $this->checkoutSessionService;
-    }
-
-    /**
      * @return bool
      */
     public function getIsShippingEnabled()
     {
-        return $this->getCheckoutSessionService()->getCartService()->getShippingService()->getIsShippingEnabled();
+        return $this->getCartService()->getShippingService()->getIsShippingEnabled();
     }
 
     /**
@@ -158,7 +166,7 @@ class CheckoutShippingAddressForm
         ]);
 
         $shippingFields = [
-            'is_shipping_same',
+            'is_shipping_same', // todo : move this to the billing step
             'shipping_name',
             'shipping_company',
             'shipping_street',
@@ -174,11 +182,7 @@ class CheckoutShippingAddressForm
 
         $tplPath = $this->getThemeService()->getTemplatePath($this->getThemeService()->getThemeConfig()->getFrontendTheme());
 
-        $cartService = $this->getCheckoutSessionService()
-            ->getCartService();
-
-        $cart = $cartService->getCart();
-        $customer = $cart->getCustomer();
+        $customer = $this->getCartService()->getCart()->getCustomer();
 
         foreach($shippingFields as $field) {
 
@@ -209,7 +213,9 @@ class CheckoutShippingAddressForm
             'step_number' => $event->get('step_number'),
             'label' => 'Shipping Address',
             'fields' => $shippingFields,
-            'post_url' => $this->getRouter()->generate('cart_checkout_update_section', ['section' => CheckoutConstants::STEP_SHIPPING_ADDRESS]),
+            'post_url' => $this->getRouter()->generate('cart_checkout_update_section', [
+                'section' => CheckoutConstants::STEP_SHIPPING_ADDRESS
+            ]),
             'form' => $form,
             'form_view' => $form->createView(),
         ];
@@ -230,7 +236,12 @@ class CheckoutShippingAddressForm
                 $event->setResponse($this->getThemeService()->render('frontend', $template, $sectionData));
             }
         } else {
-            if (!$event->getRequest()->get('ajax', '')) {
+
+            $isAjax = $event->getRequest()
+                ? $event->getRequest()->get('ajax', '') == 1
+                : false;
+
+            if (!$isAjax) {
 
                 $javascripts[] = [
                     'js_template' => $tplPath . 'Checkout:section_address_js.html.twig',

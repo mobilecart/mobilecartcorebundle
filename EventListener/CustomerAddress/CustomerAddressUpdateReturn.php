@@ -42,23 +42,16 @@ class CustomerAddressUpdateReturn
     {
         $entity = $event->getEntity();
         $url = $this->getRouter()->generate('customer_address_edit', ['id' => $entity->getId()]);
+        $event->flashMessages();
 
-        if ($event->getRequest()->getSession() && $event->getMessages()) {
-            $event->flashMessages();
-        }
-
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
-                $event->setResponse(new JsonResponse([
-                    'success' => true,
-                    'entity' => $entity->getData(),
-                    'redirect_url' => $url,
-                    'messages' => $event->getMessages(),
-                ]));
-                break;
-            default:
-                $event->setResponse(new RedirectResponse($url));
-                break;
+        if ($event->isJsonResponse()) {
+            $event->setResponse(new JsonResponse([
+                'success' => true,
+                'redirect_url' => $url,
+                'messages' => $event->getMessages(),
+            ]));
+        } else {
+            $event->setResponse(new RedirectResponse($url));
         }
     }
 }

@@ -132,14 +132,17 @@ class CustomerUpdatePassword
         $entity = $event->getEntity();
         $formData = $event->getFormData();
         $plaintext = $formData['password'];
-        $encoded = $this->getSecurityPasswordEncoder()
-            ->encodePassword($entity, $plaintext);
+        $encoded = $this->getSecurityPasswordEncoder()->encodePassword($entity, $plaintext);
 
         $entity->setHash($encoded)
             ->setConfirmHash('');
 
-        $this->getEntityService()->persist($entity);
-
-        $event->addSuccessMessage('Password Updated!');
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Password Updated !');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving Customer');
+        }
     }
 }

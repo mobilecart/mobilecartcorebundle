@@ -51,9 +51,6 @@ class ContentSearch
             case CoreEvent::SECTION_BACKEND:
                 // no-op
                 break;
-            case CoreEvent::SECTION_API:
-                // no-op
-                break;
             default:
 
                 break;

@@ -6,23 +6,18 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\Shipping\RateRequest;
+use MobileCart\CoreBundle\EventListener\Cart\BaseCartListener;
 
 /**
  * Class CheckoutUpdateShippingAddress
  * @package MobileCart\CoreBundle\EventListener\Checkout
  */
-class CheckoutUpdateShippingAddress
+class CheckoutUpdateShippingAddress extends BaseCartListener
 {
     /**
      * @var \Symfony\Component\Form\FormFactoryInterface
      */
     protected $formFactory;
-
-    /**
-     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
-     */
-    protected $checkoutSessionService;
 
     /**
      * @var \Symfony\Component\Routing\RouterInterface
@@ -50,32 +45,6 @@ class CheckoutUpdateShippingAddress
     public function getFormFactory()
     {
         return $this->formFactory;
-    }
-
-    /**
-     * @param $checkoutSession
-     * @return $this
-     */
-    public function setCheckoutSessionService($checkoutSession)
-    {
-        $this->checkoutSessionService = $checkoutSession;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
-     */
-    public function getCheckoutSessionService()
-    {
-        return $this->checkoutSessionService;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CartService
-     */
-    public function getCartService()
-    {
-        return $this->getCheckoutSessionService()->getCartService();
     }
 
     /**
@@ -127,7 +96,7 @@ class CheckoutUpdateShippingAddress
      */
     public function getIsShippingEnabled()
     {
-        return $this->getCheckoutSessionService()->getCartService()->getShippingService()->getIsShippingEnabled();
+        return $this->getCartService()->getShippingService()->getIsShippingEnabled();
     }
 
     /**
@@ -146,22 +115,61 @@ class CheckoutUpdateShippingAddress
             ? $sectionData['form']
             : [];
 
+        $fields = isset($sectionData['fields'])
+            ? $sectionData['fields']
+            : [];
+
         $nextSection = isset($sectionData['next_section'])
             ? $sectionData['next_section']
             : '';
 
-        $request = $event->getRequest();
+        // parse/convert API requests
+        switch($event->getContentType()) {
+            case CoreEvent::JSON:
 
-        $cartCustomer = $this->getCheckoutSessionService()
-            ->getCartService()
-            ->getCustomer();
+                $apiRequest = $event->getApiRequest()
+                    ? $event->getApiRequest()
+                    : @ (array) json_decode($event->getRequest()->getContent());
+
+                if (isset($apiRequest['cart_id'])) {
+
+                    $event->getRequest()->request->set('cart_id', $apiRequest['cart_id']);
+
+                    foreach($apiRequest as $key => $value) {
+
+                        if (!in_array($key, $fields)) {
+                            continue;
+                        }
+
+                        $event->getRequest()->request->set($key, $value);
+                    }
+                }
+
+                break;
+            default:
+
+                break;
+        }
+
+        $request = $event->getRequest();
+        $this->initCart($request);
+
+        //$cartCustomer = $this->getCartService()->getCustomer();
 
         // only load a customer if we have a customer ID
-        $customerEntity = $cartCustomer->getId()
-            ? $this->getEntityService()->find(EntityConstants::CUSTOMER, $cartCustomer->getId())
+        $customerEntity = $this->getCartService()->getCustomerId()
+            ? $this->getEntityService()->find(EntityConstants::CUSTOMER, $this->getCartService()->getCustomerId())
             : null;
 
+        // this step does not handle registrations
+
+        // todo : handle submission of customer_address ID
+
         $requestData = $request->request->all();
+        if (isset($requestData['cart_id'])) {
+            unset($requestData['cart_id']);
+        }
+
         $form->submit($requestData);
         $isValid = $form->isValid();
         $invalid = [];
@@ -179,7 +187,6 @@ class CheckoutUpdateShippingAddress
                     'item_var_set_id',
                     'hash',
                     'confirm_hash',
-                    'item_var_set_id',
                     'failed_logins',
                     'locked_at',
                     'created_at',
@@ -203,7 +210,7 @@ class CheckoutUpdateShippingAddress
 
                         $isShippingSame = (bool) $value;
 
-                        $cartCustomer->set($childKey, $isShippingSame);
+                        $this->getCartService()->getCustomer()->set($childKey, $isShippingSame);
                         if ($customerEntity) {
                             $customerEntity->set($childKey, $isShippingSame);
                         }
@@ -214,7 +221,7 @@ class CheckoutUpdateShippingAddress
                             continue;
                         }
 
-                        $cartCustomer->set($childKey, $value);
+                        $this->getCartService()->getCustomer()->set($childKey, $value);
                         if ($customerEntity) {
                             $customerEntity->set($childKey, $value);
                         }
@@ -224,7 +231,7 @@ class CheckoutUpdateShippingAddress
 
             // check is_shipping_same, copy values
             if ($isShippingSame) {
-                $cartCustomer->copyBillingToShipping();
+                $this->getCartService()->getCustomer()->copyBillingToShipping();
                 $isShippingSame = true;
             }
 
@@ -238,9 +245,10 @@ class CheckoutUpdateShippingAddress
                 try {
                     $this->getEntityService()->persist($customerEntity);
                     if ($customerEntity->getId()) {
-                        $this->getCheckoutSessionService()->getCartService()->setCustomerEntity($customerEntity);
+                        $this->getCartService()->setCustomerEntity($customerEntity);
                     }
                 } catch(\Exception $e) {
+                    $isValid = false;
                     $event->addErrorMessage('An exception occurred while saving the customer.');
                 }
             }
@@ -257,15 +265,17 @@ class CheckoutUpdateShippingAddress
             }
         }
 
-        $this->getCheckoutSessionService()->setSectionIsValid(CheckoutConstants::STEP_SHIPPING_ADDRESS, $isValid);
+        $this->getCartService()->setSectionIsValid(CheckoutConstants::STEP_SHIPPING_ADDRESS, $isValid);
 
         if ($isValid) {
             // only updating the main address
-            $rateRequest = $this->getCheckoutSessionService()->getCartService()->createRateRequest('main');
-            $this->getCheckoutSessionService()->getCartService()->collectShippingMethods($rateRequest);
+            $rateRequest = $this->getCartService()->createRateRequest('main');
+            $this->getCartService()->collectShippingMethods($rateRequest);
         }
 
-        $event->setReturnData('success', $isValid);
+        $this->getCartService()->saveCart();
+
+        $event->setSuccess($isValid);
         $event->setReturnData('messages', $event->getMessages());
         $event->setReturnData('invalid', $invalid);
         $event->setReturnData('next_section', $nextSection);

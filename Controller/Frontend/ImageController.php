@@ -20,6 +20,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use MobileCart\CoreBundle\Event\CoreEvents;
 use MobileCart\CoreBundle\Event\CoreEvent;
 
+/**
+ * Class ImageController
+ * @package MobileCart\CoreBundle\Controller\Frontend
+ */
 class ImageController extends Controller
 {
     public function indexAction(Request $request)
@@ -35,7 +39,7 @@ class ImageController extends Controller
     {
         if (!$this->getParameter('cart.image.upload.frontend.enabled')) {
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'File Upload is Disabled',
             ], 400);
         }
@@ -46,7 +50,7 @@ class ImageController extends Controller
         if (!$uploadPath) {
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Error with Object Type',
             ], 400);
         }
@@ -56,7 +60,7 @@ class ImageController extends Controller
         if (!$savePath) {
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Error with Upload Path',
             ], 400);
         }
@@ -85,7 +89,7 @@ class ImageController extends Controller
             unlink($absPath);
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Invalid File Type Uploaded',
             ], 400);
         }
@@ -104,7 +108,7 @@ class ImageController extends Controller
         $relPath = substr($relPath, 2); // remove leading "./"
 
         return new JsonResponse([
-            'success' => 1,
+            'success' => true,
             'message' => 'Upload Successful',
             'filename' => $relPath,
         ]);
@@ -114,7 +118,7 @@ class ImageController extends Controller
     {
         if (!$this->getParameter('cart.image.upload.frontend.enabled')) {
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'File Upload is Disabled',
             ], 400);
         }
@@ -136,7 +140,7 @@ class ImageController extends Controller
         // block if invalid
         if ($hasError) {
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Invalid File Type Uploaded',
             ], 400);
         }
@@ -147,7 +151,7 @@ class ImageController extends Controller
         if (!$uploadPath) {
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Error with Object Type',
             ], 400);
         }
@@ -156,7 +160,7 @@ class ImageController extends Controller
         if (!$savePath) {
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Error with Upload Path : ' . $uploadPath,
             ], 400);
         }
@@ -175,7 +179,7 @@ class ImageController extends Controller
             unlink($absPath);
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Invalid File Type Uploaded',
             ], 400);
         }
@@ -194,7 +198,7 @@ class ImageController extends Controller
         $relPath = substr($relPath, 2); // remove leading "./"
 
         return new JsonResponse([
-            'success' => 1,
+            'success' => true,
             'message' => 'Upload Successful',
             'filename' => $relPath,
         ]);

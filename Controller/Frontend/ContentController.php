@@ -17,6 +17,10 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
 
+/**
+ * Class ContentController
+ * @package MobileCart\CoreBundle\Controller\Frontend
+ */
 class ContentController extends Controller
 {
     /**
@@ -24,14 +28,14 @@ class ContentController extends Controller
      */
     protected $objectType = EntityConstants::CONTENT;
 
+    /**
+     * View a Content page
+     */
     public function viewAction(Request $request)
     {
-        $entityServiceParam = $this->container->getParameter('cart.load.frontend');
-        $entityService = $this->container->get($entityServiceParam);
-
         $isAdmin = ($this->getUser() && in_array('ROLE_ADMIN', $this->getUser()->getRoles()));
 
-        $entity = $entityService->findOneBy(EntityConstants::CONTENT, [
+        $entity = $this->get('cart.entity')->findOneBy(EntityConstants::CONTENT, [
             'slug' => $request->get('slug', ''),
         ]);
 
@@ -51,28 +55,18 @@ class ContentController extends Controller
         return $event->getResponse();
     }
 
+    /**
+     * List Content pages
+     */
     public function indexAction(Request $request)
     {
-        $searchParam = $this->container->getParameter('cart.search.frontend');
-        $search = $this->container->get($searchParam);
-
-        $searchEvent = new CoreEvent();
-        $searchEvent->setRequest($request)
-            ->setSearch($search)
+        $event = new CoreEvent();
+        $event->setRequest($request)
             ->setObjectType($this->objectType)
             ->setSection(CoreEvent::SECTION_FRONTEND);
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CONTENT_SEARCH, $searchEvent);
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setReturnData($searchEvent->getReturnData())
-            ->setSection(CoreEvent::SECTION_FRONTEND);
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CONTENT_LIST, $event);
+            ->dispatch(CoreEvents::CONTENT_SEARCH, $event);
 
         return $event->getResponse();
     }

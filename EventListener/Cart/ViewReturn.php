@@ -61,24 +61,21 @@ class ViewReturn extends BaseCartListener
             ];
         }
 
-        $this->getCartService()->collectTotals(); // todo : figure out why we need this
+        $event->setSuccess(true);
         $event->setReturnData('cart', $this->getCartService()->getCart());
-        $event->setReturnData('addresses', $addressOptions);
+        $event->setReturnData('addresses', $addressOptions); // todo : remove this and use addresses in cart.customer
         $event->setReturnData('is_shipping_enabled', (bool) $this->getCartService()->getShippingService()->getIsShippingEnabled());
         $event->setReturnData('is_multi_shipping_enabled', (bool) $this->getCartService()->getShippingService()->getIsMultiShippingEnabled());
         $event->setReturnData('is_discount_enabled', (bool) $this->getCartService()->getDiscountService()->getIsDiscountEnabled());
 
-        switch($event->getRequest()->headers->get('Accept')) {
-            case 'application/json':
-                $event->setResponse(new JsonResponse($event->getReturnData()));
-                break;
-            default:
-                $event->setResponse($this->getThemeService()->render(
-                    'frontend',
-                    'Cart:index.html.twig',
-                    $event->getReturnData()
-                ));
-                break;
+        if ($event->isJsonResponse()) {
+            $event->setResponse(new JsonResponse($event->getReturnData()));
+        } else {
+            $event->setResponse($this->getThemeService()->render(
+                'frontend',
+                'Cart:index.html.twig',
+                $event->getReturnData()
+            ));
         }
     }
 }

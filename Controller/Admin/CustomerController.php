@@ -50,28 +50,12 @@ class CustomerController extends Controller
      */
     public function newAction(Request $request)
     {
-        $varSet = '';
-        if ($varSetId = $request->get('var_set_id', '')) {
-            $varSet = $this->get('cart.entity')->getVarSet($varSetId);
-        } else {
-            $varSets = $this->get('cart.entity')->getVarSets($this->objectType);
-            if ($varSets) {
-                $varSet = $varSets[0];
-            }
-        }
-
-        $entity = $this->get('cart.entity')->getInstance($this->objectType);
-        if ($varSet) {
-            $entity->setItemVarSet($varSet);
-        }
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setEntity($entity)
+            ->setEntity($this->get('cart.entity')->getInstance($this->objectType))
             ->setRequest($request)
             ->setFormAction($this->generateUrl('cart_admin_customer_create', []))
-            ->setFormMethod('POST')
-            ->setVarSet($varSet);
+            ->setFormMethod('POST');
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_ADMIN_FORM, $event);
@@ -87,36 +71,17 @@ class CustomerController extends Controller
      */
     public function createAction(Request $request)
     {
-        $varSet = '';
-        if ($varSetId = $request->get('var_set_id', '')) {
-            $varSet = $this->get('cart.entity')->getVarSet($varSetId);
-        } else {
-            $varSets = $this->get('cart.entity')->getVarSets($this->objectType);
-            if ($varSets) {
-                $varSet = $varSets[0];
-            }
-        }
-
-        $entity = $this->get('cart.entity')->getInstance($this->objectType);
-        if ($varSet) {
-            $entity->setItemVarSet($varSet);
-        }
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setEntity($entity)
+            ->setEntity($this->get('cart.entity')->getInstance($this->objectType))
             ->setRequest($request)
             ->setFormAction($this->generateUrl('cart_admin_customer_create', []))
-            ->setFormMethod('POST')
-            ->setVarSet($varSet);
+            ->setFormMethod('POST');
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_ADMIN_FORM, $event);
 
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
-
-            $event->setFormData($request->request->get($form->getName()));
+        if ($event->isFormValid()) {
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CUSTOMER_INSERT, $event);
@@ -127,24 +92,8 @@ class CustomerController extends Controller
             return $event->getResponse();
         }
 
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            $invalid = [];
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            return new JsonResponse([
-                'success' => false,
-                'invalid' => $invalid,
-                'messages' => $event->getMessages(),
-            ]);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse();
         }
 
         $this->get('event_dispatcher')
@@ -212,10 +161,7 @@ class CustomerController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_ADMIN_FORM, $event);
 
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
-
-            $event->setFormData($request->request->get($form->getName()));
+        if ($event->isFormValid()) {
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CUSTOMER_UPDATE, $event);
@@ -226,24 +172,8 @@ class CustomerController extends Controller
             return $event->getResponse();
         }
 
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            $invalid = [];
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            return new JsonResponse([
-                'success' => false,
-                'invalid' => $invalid,
-                'messages' => $event->getMessages(),
-            ]);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse();
         }
 
         $this->get('event_dispatcher')

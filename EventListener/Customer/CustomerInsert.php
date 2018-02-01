@@ -51,15 +51,11 @@ class CustomerInsert
      */
     public function onCustomerInsert(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\Customer $entity */
         $entity = $event->getEntity();
         $formData = $event->getFormData();
 
-        // Customer shipping info
-        $isShippingSame = isset($formData['is_shipping_same'])
-            ? $formData['is_shipping_same']
-            : false;
-
-        if ($isShippingSame) {
+        if ($event->getFormData('is_shipping_same', false)) {
             $entity->setIsShippingSame(true);
             $entity->copyBillingToShipping();
         }
@@ -73,20 +69,15 @@ class CustomerInsert
 
         $entity->setCreatedAt(new \DateTime('now'));
 
-        $this->getEntityService()->persist($entity);
-
-        if ($formData) {
-
-            $this->getEntityService()
-                ->persistVariants($entity, $formData);
-
-        }
-
-        if ($entity && $event->getRequest()->getSession()) {
-            $event->getRequest()->getSession()->getFlashBag()->add(
-                'success',
-                'Customer Created!'
-            );
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Customer Created !');
+            if ($formData) {
+                $this->getEntityService()->persistVariants($entity, $formData);
+            }
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving the Customer');
         }
     }
 }

@@ -23,7 +23,7 @@ class ContactController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONTACT_FORM, $event);
 
-        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('form', $event->getForm()->createView());
         $event->setReturnData('user', $this->getUser());
         $event->setReturnData('recaptcha_key', trim($this->getParameter('recaptcha.key.site')));
 
@@ -42,8 +42,7 @@ class ContactController extends Controller
             ->dispatch(CoreEvents::CONTACT_FORM, $event);
 
         // validate
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
+        if ($event->isFormValid()) {
 
             // validate recaptcha
             $recaptchaKey = trim($this->getParameter('recaptcha.key.site'));
@@ -54,26 +53,13 @@ class ContactController extends Controller
                 }
             }
 
-            $formData = $request->request->get($form->getName());
-
-            $event->setFormData($formData);
-
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CONTACT_FORM_POST, $event);
 
             return $event->getResponse();
         }
 
-        if ($request->getSession() && $event->getMessages()) {
-            foreach($event->getMessages() as $code => $messages) {
-                if (!$messages) {
-                    continue;
-                }
-                foreach($messages as $message) {
-                    $request->getSession()->getFlashBag()->add($code, $message);
-                }
-            }
-        }
+        $event->flashMessages();
 
         // redirect
         return $this->redirectToRoute('cart_contact', []);

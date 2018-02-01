@@ -62,18 +62,8 @@ class CustomerRegisterReturn
     public function onCustomerRegisterReturn(CoreEvent $event)
     {
         $event->setReturnData('template_sections', []);
-        $event->setReturnData('form', $event->getReturnData('form')->createView());
-
-        if ($event->getRequest()->getSession() && $event->getMessages()) {
-            foreach($event->getMessages() as $code => $messages) {
-                if (!$messages) {
-                    continue;
-                }
-                foreach($messages as $message) {
-                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                }
-            }
-        }
+        $event->setReturnData('form', $event->getForm()->createView());
+        $event->flashMessages();
 
         $event->setResponse($this->getThemeService()->render(
             'frontend',

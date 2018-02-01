@@ -149,6 +149,6 @@ class CustomerRegisterForm
             ],
         ]);
 
-        $event->setReturnData('form', $form);
+        $event->setForm($form);
     }
 }

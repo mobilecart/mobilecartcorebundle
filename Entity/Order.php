@@ -130,13 +130,6 @@ class Order
     protected $reference_nbr;
 
     /**
-     * @var string $payment_authorize
-     *
-     * @ORM\Column(name="payment_authorize", type="text", nullable=true)
-     */
-    protected $payment_authorize;
-
-    /**
      * @var string $json
      *
      * @ORM\Column(name="json", type="text")
@@ -288,7 +281,7 @@ class Order
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Customer")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="customer_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="customer_id", referencedColumnName="id", nullable=true)
      * })
      */
     protected $customer;
@@ -390,7 +383,6 @@ class Order
             'created_at' => $this->getCreatedAt(),
             'status' => $this->getStatus(),
             'reference_nbr' => $this->getReferenceNbr(),
-            'payment_authorize' => $this->getPaymentAuthorize(),
             'customer_id' => $this->getCustomer() ? $this->getCustomer()->getId() : 0,
             'customer_name' => $this->getCustomer() ? $this->getCustomer()->getName() : '',
             'email' => $this->getEmail(),
@@ -418,6 +410,53 @@ class Order
             'billing_postcode' => $this->getBillingPostcode(),
             'billing_country_id' => $this->getBillingCountryId(),
         ];
+    }
+
+    /**
+     * Get All Data or specific key of data
+     *
+     * @param string $key
+     * @return array|null
+     */
+    public function getData($key = '')
+    {
+        if (strlen($key) > 0) {
+
+            $data = $this->getBaseData();
+            if (isset($data[$key])) {
+                return $data[$key];
+            }
+
+            $data = $this->getVarValuesData();
+            return isset($data[$key])
+                ? $data[$key]
+                : null;
+        }
+
+        $items = [];
+        if ($this->getItems()) {
+            foreach($this->getItems() as $item) {
+                $items[] = $item->getData();
+            }
+        }
+
+        $shipments = [];
+        if ($this->getShipments()) {
+            foreach($this->getShipments() as $shipment) {
+                $shipments[] = $shipment->getData();
+            }
+        }
+
+        $itemsAndShipments = [
+            'items' => $items,
+            'shipments' => $shipments
+        ];
+
+        return array_merge(
+            $this->getVarValuesData(),
+            $this->getBaseData(),
+            $itemsAndShipments
+        );
     }
 
     /**
@@ -476,24 +515,6 @@ class Order
     public function getStatus()
     {
         return $this->status;
-    }
-
-    /**
-     * @param $paymentAuthorize
-     * @return $this
-     */
-    public function setPaymentAuthorize($paymentAuthorize)
-    {
-        $this->payment_authorize = $paymentAuthorize;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPaymentAuthorize()
-    {
-        return $this->payment_authorize;
     }
 
     /**
@@ -874,7 +895,7 @@ class Order
      * Add order history
      *
      * @param OrderHistory $history
-     * @return OrderHistory
+     * @return $this
      */
     public function addHistory(OrderHistory $history)
     {
@@ -1145,7 +1166,7 @@ class Order
     /**
      * Get var_values_decimal
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return \Doctrine\Common\Collections\Collection|OrderVarValueDecimal[]
      */
     public function getVarValuesDecimal()
     {

@@ -114,7 +114,7 @@ class ContentSlotAdminForm
             'method' => $event->getFormMethod(),
         ]);
 
-        $event->setReturnData('form', $form);
+        $event->setForm($form);
         $event->setReturnData('form_sections', []);
     }
 }

@@ -4,7 +4,7 @@ customer_register:
     methods: [GET]
 
 customer_register_post:
-    path: /account/create
+    path: /account/register
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Customer:registerPost' }
     methods: [POST]
 

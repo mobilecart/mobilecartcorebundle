@@ -106,12 +106,9 @@ class ItemVarOptionController extends Controller
             ->dispatch(CoreEvents::ITEM_VAR_OPTION_ADMIN_FORM, $event);
 
         $invalid = [];
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
+        if ($event->isFormValid()) {
 
             if (in_array($event->getEntity()->getItemVar()->getFormInput(), ['select', 'multiselect'])) {
-                $formData = $request->request->get($form->getName());
-                $event->setFormData($formData);
 
                 $this->get('event_dispatcher')
                     ->dispatch(CoreEvents::ITEM_VAR_OPTION_INSERT, $event);
@@ -126,23 +123,8 @@ class ItemVarOptionController extends Controller
             }
         }
 
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            return new JsonResponse([
-                'success' => false,
-                'invalid' => $invalid,
-                'messages' => $event->getMessages(),
-            ]);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse($invalid);
         }
 
         $this->get('event_dispatcher')
@@ -157,8 +139,8 @@ class ItemVarOptionController extends Controller
     public function newAction(Request $request)
     {
         $this->initObjectType($request->get('datatype', ''));
+        $entity = $this->get('cart.entity')->getVarOptionInstance($this->dataType);
 
-        $entity = $this->get('cart.entity')->getInstance($this->objectType);
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
@@ -196,7 +178,6 @@ class ItemVarOptionController extends Controller
     public function editAction(Request $request, $id)
     {
         $this->initObjectType($request->get('datatype', ''));
-
         $entity = $this->get('cart.entity')->find($this->objectType, $id);
         if (!$entity) {
             throw $this->createNotFoundException("Unable to find entity with ID: {$id}");
@@ -224,7 +205,6 @@ class ItemVarOptionController extends Controller
     public function updateAction(Request $request, $id)
     {
         $this->initObjectType($request->get('datatype', ''));
-
         $entity = $this->get('cart.entity')->find($this->objectType, $id);
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find ItemVarOption entity.');
@@ -240,11 +220,7 @@ class ItemVarOptionController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ITEM_VAR_OPTION_ADMIN_FORM, $event);
 
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
-
-            $formData = $request->request->get($form->getName());
-            $event->setFormData($formData);
+        if ($event->isFormValid()) {
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::ITEM_VAR_OPTION_UPDATE, $event);
@@ -255,24 +231,8 @@ class ItemVarOptionController extends Controller
             return $event->getResponse();
         }
 
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            $invalid = [];
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            return new JsonResponse([
-                'success' => false,
-                'invalid' => $invalid,
-                'messages' => $event->getMessages(),
-            ]);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse();
         }
 
         $this->get('event_dispatcher')

@@ -11,23 +11,16 @@
 
 namespace MobileCart\CoreBundle\Controller\Admin;
 
-use MobileCart\CoreBundle\Constants\EntityConstants;
-
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-
+use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
 
 /**
- * UrlRewrite controller.
- *
- * @Route("/admin/url_rewrite")
+ * Class UrlRewriteController
+ * @package MobileCart\CoreBundle\Controller\Admin
  */
 class UrlRewriteController extends Controller
 {
@@ -37,26 +30,12 @@ class UrlRewriteController extends Controller
     protected $objectType = EntityConstants::URL_REWRITE;
 
     /**
-     * Lists UrlRewrite entities.
-     *
-     * @Route("/", name="cart_admin_url_rewrite")
-     * @Method("GET")
+     * Lists UrlRewrite entities
      */
     public function indexAction(Request $request)
     {
-        // Load a service; which extends Search\SearchAbstract
-        // The service parameter is stored in the service configuration as a parameter ; (slightly meta)
-        // This service could use either MySQL or ElasticSearch, etc for retrieving item data
-        $searchParam = $this->container->getParameter('cart.load.admin');
-        $search = $this->container->get($searchParam)
-            ->setObjectType($this->objectType);
-
-        // Observe Event :
-        //  perform custom logic, post-processing
-
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setSearch($search)
             ->setObjectType($this->objectType)
             ->setSection(CoreEvent::SECTION_BACKEND);
 
@@ -67,78 +46,34 @@ class UrlRewriteController extends Controller
     }
 
     /**
-     * Creates a new UrlRewrite entity.
-     *
-     * @Route("/", name="cart_admin_url_rewrite_create")
-     * @Method("POST")
+     * Creates a new UrlRewrite entity
      */
     public function createAction(Request $request)
     {
-        $entity = $this->get('cart.entity')->getInstance(EntityConstants::URL_REWRITE);
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
+            ->setEntity($this->get('cart.entity')->getInstance(EntityConstants::URL_REWRITE))
             ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_url_rewrite_create'))
-            ->setMethod('POST');
+            ->setFormAction($this->generateUrl('cart_admin_url_rewrite_create'))
+            ->setFormMethod('POST');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::URL_REWRITE_ADMIN_FORM, $formEvent);
+            ->dispatch(CoreEvents::URL_REWRITE_ADMIN_FORM, $event);
 
-        $form = $formEvent->getForm();
-
-        if ($form->handleRequest($request)->isValid()) {
-
-            $formData = $request->request->get($form->getName());
-
-            // observe event
-            //  add url_rewrite to indexes, etc
-            $event = new CoreEvent();
-            $event->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData);
+        if ($event->isFormValid()) {
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::URL_REWRITE_INSERT, $event);
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::URL_REWRITE_CREATE_RETURN, $returnEvent);
+                ->dispatch(CoreEvents::URL_REWRITE_CREATE_RETURN, $event);
 
-            return $returnEvent->getResponse();
+            return $event->getResponse();
         }
 
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            $invalid = [];
-            $messages = [];
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            $returnData = [
-                'success' => 0,
-                'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse();
         }
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setEntity($entity)
-            ->setReturnData($formEvent->getReturnData());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::URL_REWRITE_NEW_RETURN, $event);
@@ -147,29 +82,19 @@ class UrlRewriteController extends Controller
     }
 
     /**
-     * Displays a form to create a new UrlRewrite entity.
-     *
-     * @Route("/new", name="cart_admin_url_rewrite_new")
-     * @Method("GET")
+     * Displays a form to create a new UrlRewrite entity
      */
     public function newAction(Request $request)
     {
-        $entity = $this->get('cart.entity')->getInstance($this->objectType);
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_url_rewrite_create'))
-            ->setMethod('POST');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::URL_REWRITE_ADMIN_FORM, $formEvent);
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setEntity($entity)
+            ->setEntity($this->get('cart.entity')->getInstance($this->objectType))
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_url_rewrite_create'))
+            ->setFormMethod('POST');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::URL_REWRITE_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::URL_REWRITE_NEW_RETURN, $event);
@@ -178,10 +103,7 @@ class UrlRewriteController extends Controller
     }
 
     /**
-     * Finds and displays a UrlRewrite entity.
-     *
-     * @Route("/{id}", name="cart_admin_url_rewrite_show")
-     * @Method("GET")
+     * Finds and displays a UrlRewrite entity
      */
     public function showAction(Request $request, $id)
     {
@@ -194,34 +116,24 @@ class UrlRewriteController extends Controller
     }
 
     /**
-     * Displays a form to edit an existing UrlRewrite entity.
-     *
-     * @Route("/{id}/edit", name="cart_admin_url_rewrite_edit")
-     * @Method("GET")
+     * Displays a form to edit an existing UrlRewrite entity
      */
     public function editAction(Request $request, $id)
     {
         $entity = $this->get('cart.entity')->find($this->objectType, $id);
-
         if (!$entity) {
             throw $this->createNotFoundException("Unable to find entity with ID: {$id}");
         }
-
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_url_rewrite_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::URL_REWRITE_ADMIN_FORM, $formEvent);
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_url_rewrite_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::URL_REWRITE_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::URL_REWRITE_EDIT_RETURN, $event);
@@ -230,83 +142,39 @@ class UrlRewriteController extends Controller
     }
 
     /**
-     * Edits an existing UrlRewrite entity.
-     *
-     * @Route("/{id}", name="cart_admin_url_rewrite_update")
-     * @Method("PUT")
+     * Edits an existing UrlRewrite entity
      */
     public function updateAction(Request $request, $id)
     {
         $entity = $this->get('cart.entity')->find($this->objectType, $id);
         if (!$entity) {
-            throw $this->createNotFoundException('Unable to find UrlRewrite entity.');
-        }
-
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_url_rewrite_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::URL_REWRITE_ADMIN_FORM, $formEvent);
-
-        $form = $formEvent->getForm();
-
-        if ($form->handleRequest($request)->isValid()) {
-
-            $formData = $request->request->get($form->getName());
-
-            // observe event
-            // update entity via command bus
-            $event = new CoreEvent();
-            $event->setObjectType($this->objectType)
-                ->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData);
-
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::URL_REWRITE_UPDATE, $event);
-
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::URL_REWRITE_UPDATE_RETURN, $returnEvent);
-
-            return $returnEvent->getResponse();
-        }
-
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            $invalid = [];
-            $messages = [];
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            $returnData = [
-                'success' => 0,
-                'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+            throw $this->createNotFoundException('Unable to find Url Rewrite entity.');
         }
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_url_rewrite_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::URL_REWRITE_ADMIN_FORM, $event);
+
+        if ($event->isFormValid()) {
+
+            $this->get('event_dispatcher')
+                ->dispatch(CoreEvents::URL_REWRITE_UPDATE, $event);
+
+            $this->get('event_dispatcher')
+                ->dispatch(CoreEvents::URL_REWRITE_UPDATE_RETURN, $event);
+
+            return $event->getResponse();
+        }
+
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse();
+        }
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::URL_REWRITE_EDIT_RETURN, $event);
@@ -315,10 +183,7 @@ class UrlRewriteController extends Controller
     }
 
     /**
-     * Deletes a UrlRewrite entity.
-     *
-     * @Route("/{id}", name="cart_admin_url_rewrite_delete")
-     * @Method("DELETE")
+     * Deletes a UrlRewrite entity
      */
     public function deleteAction(Request $request, $id)
     {
@@ -349,10 +214,7 @@ class UrlRewriteController extends Controller
     }
 
     /**
-     * Mass-Delete Categories
-     *
-     * @Route("/mass_delete", name="cart_admin_url_rewrite_mass_delete")
-     * @Method("POST")
+     * Mass-Delete Url Rewrite entities
      */
     public function massDeleteAction(Request $request)
     {

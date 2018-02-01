@@ -15,8 +15,15 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
+/**
+ * Class CurrencyController
+ * @package MobileCart\CoreBundle\Controller\Frontend
+ */
 class CurrencyController extends Controller
 {
+    /**
+     * Change currency and redirect
+     */
     public function indexAction(Request $request)
     {
         $currencyService = $this->container->get('cart.currency');

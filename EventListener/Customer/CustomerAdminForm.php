@@ -131,7 +131,18 @@ class CustomerAdminForm
      */
     public function onCustomerAdminForm(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\Customer $entity */
         $entity = $event->getEntity();
+
+        // find variant set
+        if (!$entity->getId() && !$entity->getItemVarSet()) {
+            $varSet = $this->getEntityService()->findOneBy(EntityConstants::ITEM_VAR_SET, [
+                'object_type' => EntityConstants::CUSTOMER
+            ]);
+            if ($varSet) {
+                $entity->setItemVarSet($varSet);
+            }
+        }
 
         $form = $this->getFormFactory()->create($this->getFormTypeClass(), $entity, [
             'action' => $event->getFormAction(),
@@ -297,6 +308,6 @@ class CustomerAdminForm
 
         $event->setReturnData('country_regions', $this->getCartService()->getCountryRegions());
         $event->setReturnData('form_sections', $formSections);
-        $event->setReturnData('form', $form);
+        $event->setForm($form);
     }
 }

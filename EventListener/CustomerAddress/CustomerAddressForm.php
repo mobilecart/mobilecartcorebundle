@@ -171,10 +171,12 @@ class CustomerAddressForm
             ],
         ]);
 
-        $event->setReturnData('form', $this->getFormFactory()->create($this->getFormTypeClass(), $event->getEntity(), [
+        $form = $this->getFormFactory()->create($this->getFormTypeClass(), $event->getEntity(), [
             'action' => $event->getFormAction(),
             'method' => $event->getFormMethod(),
-        ]));
+        ]);
+
+        $event->setForm($form);
 
         $event->setReturnData('country_regions', $this->getCartService()->getCountryRegions());
     }

@@ -86,18 +86,15 @@ class CustomerForgotPasswordPostReturn
      */
     public function onCustomerForgotPasswordPostReturn(CoreEvent $event)
     {
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
-                $event->setResponse(new JsonResponse([
-                    'success' => true,
-                ]));
-                break;
-            default:
-                $event->setResponse(new RedirectResponse($this->getRouter()->generate(
-                    'customer_forgot_password_success',
-                    []
-                )));
-                break;
+        if ($event->isJsonResponse()) {
+            $event->setResponse(new JsonResponse([
+                'success' => true,
+            ]));
+        } else {
+            $event->setResponse(new RedirectResponse($this->getRouter()->generate(
+                'customer_forgot_password_success',
+                []
+            )));
         }
     }
 }

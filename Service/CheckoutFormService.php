@@ -104,8 +104,12 @@ class CheckoutFormService
     public function collectFormSections()
     {
         $event = new CoreEvent();
-        $event->setRequest($this->getRequest())
-            ->setUser($this->getUser());
+        $event->setUser($this->getUser());
+
+        if ($this->getRequest()) {
+            $event->setRequest($this->getRequest());
+        }
+
         $this->getEventDispatcher()
             ->dispatch(CoreEvents::CHECKOUT_FORM, $event);
 

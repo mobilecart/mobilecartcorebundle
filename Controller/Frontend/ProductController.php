@@ -17,6 +17,10 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Event\CoreEvents;
 
+/**
+ * Class ProductController
+ * @package MobileCart\CoreBundle\Controller\Frontend
+ */
 class ProductController extends Controller
 {
     /**

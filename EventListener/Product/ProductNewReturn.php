@@ -151,7 +151,7 @@ class ProductNewReturn
         }
 
         $event->setReturnData('entity', $entity);
-        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('form', $event->getForm()->createView());
         $event->setReturnData('template_sections', $typeSections);
 
         $event->setResponse($this->getThemeService()->render(

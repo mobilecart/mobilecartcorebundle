@@ -67,7 +67,7 @@ class UpdateTotalsShipping extends BaseCartListener
                     $event->setResponse(new JsonResponse([
                         CoreEvent::SUCCESS => false,
                         CoreEvent::MESSAGES => $event->getMessages()
-                    ]));
+                    ], $event->getResponseCode()));
                     break;
                 default:
                     $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_view', [])));

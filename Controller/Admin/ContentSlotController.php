@@ -50,11 +50,9 @@ class ContentSlotController extends Controller
      */
     public function createAction(Request $request)
     {
-        $entity = $this->get('cart.entity')->getInstance(EntityConstants::CONTENT_SLOT);
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setEntity($entity)
+            ->setEntity($this->get('cart.entity')->getInstance(EntityConstants::CONTENT_SLOT))
             ->setRequest($request)
             ->setFormAction($this->generateUrl('cart_admin_content_slot_create'))
             ->setFormMethod('POST');
@@ -62,12 +60,7 @@ class ContentSlotController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONTENT_SLOT_ADMIN_FORM, $event);
 
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
-
-            $formData = $request->request->get($form->getName());
-
-            $event->setFormData($formData);
+        if ($event->isFormValid()) {
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CONTENT_SLOT_INSERT, $event);
@@ -78,24 +71,8 @@ class ContentSlotController extends Controller
             return $event->getResponse();
         }
 
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            $invalid = [];
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            return new JsonResponse([
-                'success' => false,
-                'invalid' => $invalid,
-                'messages' => $event->getMessages(),
-            ]);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse();
         }
 
         $this->get('event_dispatcher')
@@ -109,11 +86,9 @@ class ContentSlotController extends Controller
      */
     public function newAction(Request $request)
     {
-        $entity = $this->get('cart.entity')->getInstance($this->objectType);
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setEntity($entity)
+            ->setEntity($this->get('cart.entity')->getInstance($this->objectType))
             ->setRequest($request)
             ->setFormAction($this->generateUrl('cart_admin_content_create'))
             ->setFormMethod('POST');
@@ -186,12 +161,7 @@ class ContentSlotController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONTENT_SLOT_ADMIN_FORM, $event);
 
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
-
-            $formData = $request->request->get($form->getName());
-
-            $event->setFormData($formData);
+        if ($event->isFormValid()) {
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CONTENT_SLOT_UPDATE, $event);
@@ -202,24 +172,8 @@ class ContentSlotController extends Controller
             return $event->getResponse();
         }
 
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            $invalid = [];
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            return new JsonResponse([
-                'success' => false,
-                'invalid' => $invalid,
-                'messages' => $event->getMessages(),
-            ]);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse();
         }
 
         $this->get('event_dispatcher')

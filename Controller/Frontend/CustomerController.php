@@ -34,12 +34,10 @@ class CustomerController extends Controller
      */
     public function registerAction(Request $request)
     {
-        $entity = $this->get('cart.entity')->getInstance($this->objectType);
-
         $event = new CoreEvent();
         $event->setRequest($request)
             ->setObjectType($this->objectType)
-            ->setEntity($entity);
+            ->setEntity($this->get('cart.entity')->getInstance($this->objectType));
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_REGISTER_FORM, $event);
@@ -55,20 +53,15 @@ class CustomerController extends Controller
      */
     public function registerPostAction(Request $request)
     {
-        $entity = $this->get('cart.entity')->getInstance($this->objectType);
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setEntity($entity)
+            ->setEntity($this->get('cart.entity')->getInstance($this->objectType))
             ->setRequest($request);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_REGISTER_FORM, $event);
 
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
-
-            $event->setFormData($request->request->get($form->getName()));
+        if ($event->isFormValid()) {
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CUSTOMER_REGISTER, $event);
@@ -112,9 +105,6 @@ class CustomerController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_REGISTER_CONFIRM, $event);
 
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_REGISTER_CONFIRM_RETURN, $event);
-
         return $event->getResponse();
     }
 
@@ -148,14 +138,11 @@ class CustomerController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_FORGOT_PASSWORD_FORM, $event);
 
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
+        if ($event->isFormValid()) {
 
-            $formData = $form->getData();
-            $email = isset($formData['email']) ? $formData['email'] : '';
-
-            $entity = $this->get('cart.entity')
-                ->findOneBy($this->objectType, ['email' => $email]);
+            $entity = $this->get('cart.entity')->findOneBy($this->objectType, [
+                'email' => $event->getFormData('email')
+            ]);
 
             if ($entity) {
 
@@ -170,8 +157,6 @@ class CustomerController extends Controller
                 return $event->getResponse();
             }
         }
-
-        $event->setReturnData('error', true);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_FORGOT_PASSWORD_RETURN, $event);
@@ -199,28 +184,28 @@ class CustomerController extends Controller
      */
     public function updatePasswordAction(Request $request)
     {
-        $customerId = $request->get('id', 0);
-        $confirmHash = $request->get('hash', '');
-
-        $entity = $this->get('cart.entity')
-            ->findOneBy($this->objectType, [
-                'id' => $customerId,
-                'confirm_hash' => $confirmHash,
-                'is_enabled' => 1,
-            ]);
+        $entity = $this->get('cart.entity')->findOneBy($this->objectType, [
+            'id' => $request->get('id', 0),
+            'confirm_hash' => $request->get('hash', ''),
+            'is_enabled' => true,
+        ]);
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setEntity($entity);
+            ->setRequest($request);
 
-        if ($entity) {
+        if (!$entity) {
 
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD_FORM, $event);
-        } else {
-            $event->setReturnData('form', null);
+                ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD_FAILED_RETURN, $event);
+
+            return $event->getResponse();
         }
+
+        $event->setEntity($entity);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD_RETURN, $event);
@@ -233,47 +218,45 @@ class CustomerController extends Controller
      */
     public function updatePasswordPostAction(Request $request)
     {
-        $customerId = $request->get('id', 0);
-        $confirmHash = $request->get('hash', '');
-
-        $entity = $this->get('cart.entity')
-            ->findOneBy($this->objectType, [
-                'id' => $customerId,
-                'confirm_hash' => $confirmHash,
-                'is_enabled' => 1,
-            ]);
+        $entity = $this->get('cart.entity')->findOneBy($this->objectType, [
+            'id' => $request->get('id', 0),
+            'confirm_hash' => $request->get('hash', ''),
+            'is_enabled' => true,
+        ]);
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setRequest($request)
-            ->setEntity($entity);
+            ->setRequest($request);
 
+        $invalid = [];
         if ($entity) {
+
+            $event->setEntity($entity);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD_FORM, $event);
 
-            $form = $event->getReturnData('form');
-            if ($form->handleRequest($request)->isValid()) {
-
-                $event->setFormData([
-                    'password' => $form->get('password')->getData(),
-                ]);
+            if ($event->isFormValid()) {
 
                 $this->get('event_dispatcher')
                     ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD, $event);
 
-                $event->setReturnData('success', true);
+                $this->get('event_dispatcher')
+                    ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD_POST_RETURN, $event);
 
-            } else {
-                $event->setReturnData('success', false);
+                return $event->getResponse();
+
             }
         } else {
-            $event->setReturnData('success', false);
+            $invalid['email'] = 'Specified email is not in our records';
+        }
+
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse($invalid);
         }
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD_POST_RETURN, $event);
+            ->dispatch(CoreEvents::CUSTOMER_UPDATE_PASSWORD_RETURN, $event);
 
         return $event->getResponse();
     }
@@ -313,15 +296,10 @@ class CustomerController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_PROFILE_FORM, $event);
 
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
-
-            $event->setFormData($request->request->get($form->getName()));
+        if ($event->isFormValid()) {
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CUSTOMER_UPDATE, $event);
-
-            $event->setIsValid(true);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CUSTOMER_PROFILE_POST_RETURN, $event);
@@ -329,24 +307,8 @@ class CustomerController extends Controller
             return $event->getResponse();
         }
 
-        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
-
-            $invalid = [];
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            return new JsonResponse([
-                'success' => false,
-                'invalid' => $invalid,
-                'messages' => $event->getMessages(),
-            ]);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse();
         }
 
         $this->get('event_dispatcher')
@@ -381,7 +343,7 @@ class CustomerController extends Controller
         $event->setObjectType($this->objectType)
             ->setRequest($request)
             ->setCustomer($this->getUser())
-            ->setCurrentRoute('customer_profile');
+            ->setCurrentRoute('customer_orders');
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_ORDER_RETURN, $event);

@@ -316,7 +316,7 @@ class DiscountAdminForm
 
         $event->addReturnData([
             'entity' => $entity,
-            'form' => $form,
+            //'form' => $form,
             'form_sections' => $formSections,
             'operators_json' => json_encode($operators),
             'logical_operators_json' => json_encode($logicalOperators),
@@ -327,5 +327,7 @@ class DiscountAdminForm
             'container' => $container,
             'var_sets' => json_encode($varSetData),
         ]);
+
+        $event->setForm($form);
     }
 }

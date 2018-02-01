@@ -18,11 +18,6 @@ class CheckoutTotalsDiscountsViewReturn
     protected $themeService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
-     */
-    protected $checkoutSessionService;
-
-    /**
      * @var \Symfony\Component\Routing\RouterInterface
      */
     protected $router;
@@ -36,6 +31,37 @@ class CheckoutTotalsDiscountsViewReturn
      * @var string
      */
     protected $defaultTemplate = 'Checkout:totals_discounts.html.twig';
+
+    /**
+     * @var \MobileCart\CoreBundle\Service\OrderService
+     */
+    protected $orderService;
+
+    /**
+     * @param $orderService
+     * @return $this
+     */
+    public function setOrderService($orderService)
+    {
+        $this->orderService = $orderService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\OrderService
+     */
+    public function getOrderService()
+    {
+        return $this->orderService;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->getOrderService()->getCartService();
+    }
 
     /**
      * @param $tpl
@@ -97,32 +123,6 @@ class CheckoutTotalsDiscountsViewReturn
     public function getRouter()
     {
         return $this->router;
-    }
-
-    /**
-     * @param $checkoutSessionService
-     * @return $this
-     */
-    public function setCheckoutSessionService($checkoutSessionService)
-    {
-        $this->checkoutSessionService = $checkoutSessionService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
-     */
-    public function getCheckoutSessionService()
-    {
-        return $this->checkoutSessionService;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CartService
-     */
-    public function getCartService()
-    {
-        return $this->getCheckoutSessionService()->getCartService();
     }
 
     /**

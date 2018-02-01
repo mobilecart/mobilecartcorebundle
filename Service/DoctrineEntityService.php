@@ -16,31 +16,64 @@ use MobileCart\CoreBundle\Entity\Product;
 use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
+/**
+ * Class DoctrineEntityService
+ * @package MobileCart\CoreBundle\Service
+ */
 class DoctrineEntityService
     extends AbstractEntityService
     implements UserProviderInterface
 {
     /**
-     * @var EntityManager
+     * @var \Doctrine\Bundle\DoctrineBundle\Registry
      */
     protected $doctrine;
 
     /**
-     * @param $doctrine
+     * @param \Doctrine\Bundle\DoctrineBundle\Registry $doctrine
      * @return $this
      */
-    public function setDoctrine($doctrine)
+    public function setDoctrine(\Doctrine\Bundle\DoctrineBundle\Registry $doctrine)
     {
         $this->doctrine = $doctrine;
         return $this;
     }
 
     /**
-     * @return mixed
+     * @return \Doctrine\Bundle\DoctrineBundle\Registry
      */
     public function getDoctrine()
     {
         return $this->doctrine;
+    }
+
+    /**
+     * @return $this
+     */
+    public function beginTransaction()
+    {
+        $this->getDoctrine()->getConnection()->beginTransaction();
+        return $this;
+    }
+
+    /**
+     * @return $this
+     * @throws \Doctrine\DBAL\ConnectionException
+     */
+    public function commit()
+    {
+        $this->getDoctrine()->getConnection()->commit();
+        return $this;
+    }
+
+    /**
+     * @return $this
+     * @throws \Doctrine\DBAL\ConnectionException
+     */
+    public function rollBack()
+    {
+        $this->getDoctrine()->getConnection()->rollBack();
+        return $this;
     }
 
     /**

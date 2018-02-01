@@ -70,16 +70,7 @@ class CustomerRegisterConfirmReturn
             $event->addReturnData($entity->getData());
         }
 
-        if ($event->getRequest()->getSession() && $event->getMessages()) {
-            foreach($event->getMessages() as $code => $messages) {
-                if (!$messages) {
-                    continue;
-                }
-                foreach($messages as $message) {
-                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                }
-            }
-        }
+        $event->flashMessages();
 
         $event->setResponse($this->getThemeService()->render(
             'frontend',

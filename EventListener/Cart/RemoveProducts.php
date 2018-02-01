@@ -39,6 +39,30 @@ class RemoveProducts extends BaseCartListener
      */
     public function onCartRemoveProducts(CoreEvent $event)
     {
+        // parse/convert API requests
+        switch($event->getContentType()) {
+            case 'application/json':
+
+                $apiRequest = $event->getApiRequest()
+                    ? $event->getApiRequest()
+                    : @ (array)json_decode($event->getRequest()->getContent());
+
+                if (isset($apiRequest['cart_id'])) {
+                    $keys = ['cart_id'];
+                    foreach ($apiRequest as $key => $value) {
+                        if (!in_array($key, $keys)) {
+                            continue;
+                        }
+
+                        $event->getRequest()->request->set($key, $value);
+                    }
+                }
+                break;
+            default:
+
+                break;
+        }
+
         $this->initCart($event->getRequest());
         $recollectShipping = [];
         $success = false;

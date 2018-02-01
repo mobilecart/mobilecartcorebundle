@@ -10,22 +10,33 @@ use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * Class ShippingMethodType
+ * @package MobileCart\CoreBundle\Form
+ */
 class ShippingMethodType extends AbstractType
 {
-
     /**
-     * @var string
+     * @var \MobileCart\CoreBundle\Service\CurrencyService
      */
-    protected $currency = 'USD';
+    protected $currencyService;
 
     /**
-     * @param $currency
+     * @param \MobileCart\CoreBundle\Service\CurrencyService $currencyService
      * @return $this
      */
-    public function setCurrency($currency)
+    public function setCurrencyService(\MobileCart\CoreBundle\Service\CurrencyService $currencyService)
     {
-        $this->currency = $currency;
+        $this->currencyService = $currencyService;
         return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CurrencyService
+     */
+    public function getCurrencyService()
+    {
+        return $this->currencyService;
     }
 
     /**
@@ -33,7 +44,7 @@ class ShippingMethodType extends AbstractType
      */
     public function getCurrency()
     {
-        return $this->currency;
+        return $this->getCurrencyService()->getBaseCurrency();
     }
 
     /**

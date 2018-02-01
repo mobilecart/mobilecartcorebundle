@@ -202,20 +202,16 @@ class ProductController extends Controller
             ->dispatch(CoreEvents::PRODUCT_ADMIN_FORM, $event);
 
         $invalid = [];
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
+        if ($event->isFormValid()) {
 
-            $formData = $request->request->get($form->getName());
-
+            $slug = $event->getFormData('slug');
             $existing = $this->get('cart.entity')->findOneBy(EntityConstants::PRODUCT, [
-                'slug' => $formData['slug']
+                'slug' => $slug
             ]);
 
             if ($existing) {
                 $invalid['slug'] = ['Slug already exists'];
             } else {
-
-                $event->setFormData($formData);
 
                 $this->get('event_dispatcher')
                     ->dispatch(CoreEvents::PRODUCT_INSERT, $event);
@@ -227,23 +223,8 @@ class ProductController extends Controller
             }
         }
 
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            return new JsonResponse([
-                'success' => false,
-                'invalid' => $invalid,
-                'messages' => $event->getMessages(),
-            ]);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse($invalid);
         }
 
         $this->get('event_dispatcher')
@@ -271,7 +252,7 @@ class ProductController extends Controller
             ->setRequest($request)
             ->setFormAction($this->generateUrl('cart_admin_product_update', ['id' => $entity->getId()]))
             ->setFormMethod('PUT')
-            ->setReturnData(['type' => $type]);
+            ->setReturnData('type', $type);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::PRODUCT_ADMIN_FORM, $event);
@@ -307,14 +288,14 @@ class ProductController extends Controller
             ->dispatch(CoreEvents::PRODUCT_ADMIN_FORM, $event);
 
         $invalid = [];
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
+        if ($event->isFormValid()) {
 
-            $formData = $request->request->get($form->getName());
+            $slug = $event->getFormData('slug');
+            $sku = $event->getFormData('sku');
 
             $exists = false;
             $existingSlug = $this->get('cart.entity')->findBy(EntityConstants::PRODUCT, [
-                'slug' => $formData['slug'],
+                'slug' => $slug
             ]);
 
             if ($existingSlug) {
@@ -328,9 +309,10 @@ class ProductController extends Controller
             }
 
             $existingSku = $this->get('cart.entity')->findBy(EntityConstants::PRODUCT, [
-                'sku' => $formData['sku'],
+                'sku' => $sku
             ]);
 
+            // this logic only matters if you don't have a Unique constraint on the table column in the db
             if ($existingSku) {
                 foreach($existingSku as $aProduct) {
                     if ($aProduct->getId() != $entity->getId()) {
@@ -343,8 +325,6 @@ class ProductController extends Controller
 
             if (!$exists) {
 
-                $event->setFormData($formData);
-
                 $this->get('event_dispatcher')
                     ->dispatch(CoreEvents::PRODUCT_UPDATE, $event);
 
@@ -355,23 +335,8 @@ class ProductController extends Controller
             }
         }
 
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            return new JsonResponse([
-                'success' => false,
-                'invalid' => $invalid,
-                'messages' => $event->getMessages(),
-            ]);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse($invalid);
         }
 
         $this->get('event_dispatcher')
@@ -389,6 +354,7 @@ class ProductController extends Controller
         $form->handleRequest($request);
 
         if ($form->isValid()) {
+
             $entity = $this->get('cart.entity')->find($this->objectType, $id);
             if (!$entity) {
                 throw $this->createNotFoundException('Unable to find Product entity.');
@@ -463,6 +429,7 @@ class ProductController extends Controller
                 }
 
                 if (isset($sortable[$varCode])) {
+
                     $entity->set($varCode, $value);
 
                     // observe event

@@ -13,9 +13,9 @@ use MobileCart\CoreBundle\Constants\CheckoutConstants;
 class CheckoutUpdatePaymentMethod
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
+     * @var \MobileCart\CoreBundle\Service\OrderService
      */
-    protected $checkoutSessionService;
+    protected $orderService;
 
     /**
      * @return \MobileCart\CoreBundle\Service\AbstractEntityService
@@ -26,21 +26,21 @@ class CheckoutUpdatePaymentMethod
     }
 
     /**
-     * @param $checkoutSessionService
+     * @param $orderService
      * @return $this
      */
-    public function setCheckoutSessionService($checkoutSessionService)
+    public function setOrderService($orderService)
     {
-        $this->checkoutSessionService = $checkoutSessionService;
+        $this->orderService = $orderService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
+     * @return \MobileCart\CoreBundle\Service\OrderService
      */
-    public function getCheckoutSessionService()
+    public function getOrderService()
     {
-        return $this->checkoutSessionService;
+        return $this->orderService;
     }
 
     /**
@@ -48,7 +48,7 @@ class CheckoutUpdatePaymentMethod
      */
     public function getCartService()
     {
-        return $this->getCheckoutSessionService()->getCartService();
+        return $this->getOrderService()->getCartService();
     }
 
     public function onCheckoutUpdatePaymentMethod(CoreEvent $event)
@@ -56,6 +56,8 @@ class CheckoutUpdatePaymentMethod
         $returnData = $event->getReturnData();
 
         $isValid = false;
+
+        // todo : for api calls, where do we store payment data ? add a column to cart ?
 
         $returnData['messages'] = [];
         $returnData['invalid'] = [];

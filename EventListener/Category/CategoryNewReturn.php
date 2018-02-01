@@ -100,7 +100,7 @@ class CategoryNewReturn
         ];
 
         $event->setReturnData('entity', $entity);
-        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('form', $event->getForm()->createView());
         $event->setReturnData('template_sections', $tplSections);
 
         $event->setResponse($this->getThemeService()->render('admin', 'Category:new.html.twig', $event->getReturnData()));

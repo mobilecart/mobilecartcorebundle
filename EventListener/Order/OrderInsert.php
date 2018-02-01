@@ -90,9 +90,6 @@ class OrderInsert
             case CoreEvent::SECTION_FRONTEND:
                 $cart = $this->getCartService()->getCart();
                 break;
-            case CoreEvent::SECTION_API:
-
-                break;
             default:
 
                 break;

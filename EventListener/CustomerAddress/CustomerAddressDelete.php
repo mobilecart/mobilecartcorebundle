@@ -90,25 +90,17 @@ class CustomerAddressDelete
         }
 
         $url = $this->getRouter()->generate('customer_addresses', []);
-
-        if ($event->getRequest()->getSession() && $event->getMessages()) {
-            $event->flashMessages();
-        }
+        $event->flashMessages();
 
         $event->addReturnData([
             'success' => $success,
-            'entity' => $entity->getData(),
             'redirect_url' => $url,
-            'messages' => $event->getMessages(),
         ]);
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
-                $event->setResponse(new JsonResponse($event->getReturnData()));
-                break;
-            default:
-                $event->setResponse(new RedirectResponse($url));
-                break;
+        if ($event->isJsonResponse()) {
+            $event->setResponse(new JsonResponse($event->getReturnData()));
+        } else {
+            $event->setResponse(new RedirectResponse($url));
         }
     }
 }

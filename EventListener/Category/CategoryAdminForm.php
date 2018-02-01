@@ -93,7 +93,19 @@ class CategoryAdminForm
      */
     public function onCategoryAdminForm(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\Category $entity */
         $entity = $event->getEntity();
+
+        // find variant set
+        if (!$entity->getId() && !$entity->getItemVarSet()) {
+            $varSet = $this->getEntityService()->findOneBy(EntityConstants::ITEM_VAR_SET, [
+                'object_type' => EntityConstants::CATEGORY
+            ]);
+            if ($varSet) {
+                $entity->setItemVarSet($varSet);
+            }
+        }
+
         $form = $this->getFormFactory()->create($this->getFormTypeClass(), $entity, [
             'action' => $event->getFormAction(),
             'method' => $event->getFormMethod(),
@@ -230,6 +242,6 @@ class CategoryAdminForm
         }
 
         $event->setReturnData('form_sections', $formSections);
-        $event->setReturnData('form', $form);
+        $event->setForm($form);
     }
 }

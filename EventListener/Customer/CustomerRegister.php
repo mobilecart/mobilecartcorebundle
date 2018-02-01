@@ -11,19 +11,6 @@ use MobileCart\CoreBundle\Event\CoreEvent;
  */
 class CustomerRegister
 {
-
-    protected $mailer;
-
-    /**
-     * @var string
-     */
-    protected $fromEmail = '';
-
-    /**
-     * @var \Symfony\Component\Routing\RouterInterface
-     */
-    protected $router;
-
     protected $passwordEncoder;
 
     /**
@@ -32,56 +19,9 @@ class CustomerRegister
     protected $entityService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\ThemeService
+     * @var \MobileCart\CoreBundle\Service\CurrencyService
      */
-    protected $themeService;
-
-    public function setMailer($mailer)
-    {
-        $this->mailer = $mailer;
-        return $this;
-    }
-
-    public function getMailer()
-    {
-        return $this->mailer;
-    }
-
-    /**
-     * @param $fromEmail
-     * @return $this
-     */
-    public function setFromEmail($fromEmail)
-    {
-        $this->fromEmail = $fromEmail;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFromEmail()
-    {
-        return $this->fromEmail;
-    }
-
-    /**
-     * @param \Symfony\Component\Routing\RouterInterface $router
-     * @return $this
-     */
-    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
-    {
-        $this->router = $router;
-        return $this;
-    }
-
-    /**
-     * @return \Symfony\Component\Routing\RouterInterface
-     */
-    public function getRouter()
-    {
-        return $this->router;
-    }
+    protected $currencyService;
 
     public function setSecurityPasswordEncoder($passwordEncoder)
     {
@@ -113,21 +53,21 @@ class CustomerRegister
     }
 
     /**
-     * @param $themeService
+     * @param \MobileCart\CoreBundle\Service\CurrencyService $currencyService
      * @return $this
      */
-    public function setThemeService($themeService)
+    public function setCurrencyService(\MobileCart\CoreBundle\Service\CurrencyService $currencyService)
     {
-        $this->themeService = $themeService;
+        $this->currencyService = $currencyService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\ThemeService
+     * @return \MobileCart\CoreBundle\Service\CurrencyService
      */
-    public function getThemeService()
+    public function getCurrencyService()
     {
-        return $this->themeService;
+        return $this->currencyService;
     }
 
     /**
@@ -135,11 +75,12 @@ class CustomerRegister
      */
     public function onCustomerRegister(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\Customer $entity */
         $entity = $event->getEntity();
         $formData = $event->getFormData();
 
         $existing = $this->getEntityService()->findOneBy(EntityConstants::CUSTOMER, [
-            'email' => $formData['email'],
+            'email' => $event->getFormData('email')
         ]);
 
         if ($existing) {
@@ -151,7 +92,9 @@ class CustomerRegister
             'object_type' => EntityConstants::CUSTOMER,
         ]);
 
-        $entity->setItemVarSet($itemVarSet);
+        if ($itemVarSet) {
+            $entity->setItemVarSet($itemVarSet);
+        }
 
         // encode password, handle hash
         if (isset($formData['password']['first']) && $formData['password']['first']) {
@@ -163,51 +106,19 @@ class CustomerRegister
         $confirmHash = md5(microtime());
         $entity->setConfirmHash($confirmHash);
         $entity->setCreatedAt(new \DateTime('now'));
+        $entity->setDefaultCurrency($this->getCurrencyService()->getBaseCurrency());
 
-        $this->getEntityService()->persist($entity);
+        if ($entity->getFirstName()) {
+            $entity->setBillingName("{$entity->getFirstName()} {$entity->getLastName()}");
+        }
 
-        if ($entity->getId()) {
-
-            $recipient = $event->getRecipient()
-                ? $event->getRecipient()
-                : $entity->getEmail();
-
-            $subject = $event->getSubject()
-                ? $event->getSubject()
-                : 'Account Registration';
-
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
             $event->addSuccessMessage("You are Registered");
-
-            $route = 'customer_register_confirm';
-
-            $urlData = [
-                'id' => $entity->getId(),
-                'hash' => $confirmHash,
-            ];
-
-            $url = $this->getRouter()->generate($route, $urlData);
-
-            $tplData = array_merge($entity->getData(), [
-                'url' => $url,
-            ]);
-
-            $tpl = 'Email:register_confirm.html.twig';
-
-            $body = $this->getThemeService()->renderView('email', $tpl, $tplData);
-
-            try {
-
-                $message = \Swift_Message::newInstance()
-                    ->setSubject($subject)
-                    ->setFrom($this->getFromEmail())
-                    ->setTo($recipient)
-                    ->setBody($body, 'text/html');
-
-                $this->getMailer()->send($message);
-
-            } catch(\Exception $e) {
-                // todo : handle error
-            }
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving the Customer');
+            $event->setSuccess(false);
         }
     }
 }

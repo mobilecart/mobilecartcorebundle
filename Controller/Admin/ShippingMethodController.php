@@ -11,25 +11,20 @@
 
 namespace MobileCart\CoreBundle\Controller\Admin;
 
-use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use MobileCart\CoreBundle\Entity\ShippingMethod;
 use MobileCart\CoreBundle\Form\ShippingMethodType;
-
+use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Event\CoreEvents;
 use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Shipping\RateRequest;
 
 /**
- * ShippingMethod controller.
- *
- * @Route("/admin/shipping_method")
+ * Class ShippingMethodController
+ * @package MobileCart\CoreBundle\Controller\Admin
  */
 class ShippingMethodController extends Controller
 {
@@ -73,10 +68,7 @@ class ShippingMethodController extends Controller
     }
 
     /**
-     * Lists all ShippingMethod entities.
-     *
-     * @Route("/", name="cart_admin_shipping_method")
-     * @Method("GET")
+     * Lists all ShippingMethod entities
      */
     public function indexAction(Request $request)
     {
@@ -110,84 +102,34 @@ class ShippingMethodController extends Controller
     }
 
     /**
-     * Creates a new ShippingMethod entity.
-     *
-     * @Route("/", name="cart_admin_shipping_method_create")
-     * @Method("POST")
+     * Creates a new ShippingMethod entity
      */
     public function createAction(Request $request)
     {
-        $entity = $this->get('cart.entity')->getInstance($this->objectType);
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
+            ->setEntity($this->get('cart.entity')->getInstance($this->objectType))
             ->setRequest($request)
             ->setAction($this->generateUrl('cart_admin_shipping_method_create'))
             ->setMethod('POST');
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::SHIPPING_METHOD_ADMIN_FORM, $formEvent);
+            ->dispatch(CoreEvents::SHIPPING_METHOD_ADMIN_FORM, $event);
 
-        $form = $formEvent->getForm();
-
-        if ($form->handleRequest($request)->isValid()) {
-
-            $formData = $request->request->get($form->getName());
-
-            // observe event
-            //  add item_var to indexes, etc
-            $event = new CoreEvent();
-            $event->setObjectType($this->objectType)
-                ->setEntity($entity)
-                ->setRequest($request)
-                ->setFormData($formData);
+        if ($event->isFormValid()) {
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::SHIPPING_METHOD_INSERT, $event);
 
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
             $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::SHIPPING_METHOD_CREATE_RETURN, $returnEvent);
+                ->dispatch(CoreEvents::SHIPPING_METHOD_CREATE_RETURN, $event);
 
-            return $returnEvent->getResponse();
+            return $event->getResponse();
         }
 
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            $invalid = [];
-            $messages = [];
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            $returnData = [
-                'success' => 0,
-                'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse();
         }
-
-        $returnData = [
-            'entity' => $entity,
-            'form'   => $form->createView(),
-        ];
-
-        $event = new CoreEvent();
-        $event->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setReturnData($returnData);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::SHIPPING_METHOD_NEW_RETURN, $event);
@@ -196,10 +138,7 @@ class ShippingMethodController extends Controller
     }
 
     /**
-     * Displays a form to create a new ShippingMethod entity.
-     *
-     * @Route("/new", name="cart_admin_shipping_method_new")
-     * @Method("GET")
+     * Displays a form to create a new ShippingMethod entity
      */
     public function newAction(Request $request)
     {
@@ -228,10 +167,7 @@ class ShippingMethodController extends Controller
     }
 
     /**
-     * Finds and displays a ShippingMethod entity.
-     *
-     * @Route("/{id}", name="cart_admin_shipping_method_show")
-     * @Method("GET")
+     * Finds and displays a ShippingMethod entity
      */
     public function showAction($id)
     {
@@ -244,10 +180,7 @@ class ShippingMethodController extends Controller
     }
 
     /**
-     * Displays a form to edit an existing ShippingMethod entity.
-     *
-     * @Route("/{id}/edit", name="cart_admin_shipping_method_edit")
-     * @Method("GET")
+     * Displays a form to edit an existing ShippingMethod entity
      */
     public function editAction(Request $request, $id)
     {
@@ -284,12 +217,8 @@ class ShippingMethodController extends Controller
         return $event->getResponse();
     }
 
-
     /**
-     * Edits an existing ShippingMethod entity.
-     *
-     * @Route("/{id}", name="cart_admin_shipping_method_update")
-     * @Method("PUT")
+     * Edits an existing ShippingMethod entity
      */
     public function updateAction(Request $request, $id)
     {
@@ -315,7 +244,7 @@ class ShippingMethodController extends Controller
             ->dispatch(CoreEvents::SHIPPING_METHOD_ADMIN_FORM, $formEvent);
 
         $form = $formEvent->getForm();
-        if ($form->handleRequest($request)->isValid()) {
+        if ($event->isFormValid()) {
 
             if (is_numeric($id)) {
 
@@ -406,16 +335,13 @@ class ShippingMethodController extends Controller
     }
 
     /**
-     * Deletes a ShippingMethod entity.
-     *
-     * @Route("/{id}", name="cart_admin_shipping_method_delete")
-     * @Method("DELETE")
+     * Deletes a ShippingMethod entity
      */
     public function deleteAction(Request $request, $id)
     {
         $form = $this->createDeleteForm($id);
 
-        if ($form->handleRequest($request)->isValid()) {
+        if ($event->isFormValid()) {
 
             $entity = $this->get('cart.entity')->find($this->objectType, $id);
             if (!$entity) {
@@ -458,9 +384,6 @@ class ShippingMethodController extends Controller
 
     /**
      * Mass-Delete
-     *
-     * @Route("/mass_delete", name="cart_admin_shipping_method_mass_delete")
-     * @Method("POST")
      */
     public function massDeleteAction(Request $request)
     {

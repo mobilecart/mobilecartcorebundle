@@ -62,42 +62,12 @@ class CustomerUpdatePasswordReturn
      */
     public function onCustomerUpdatePasswordReturn(CoreEvent $event)
     {
-        if ($event->getRequest()->getSession() && $event->getMessages()) {
-            $event->flashMessages();
-        }
-
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
-
-                // be careful to not return _too much_ data
-                $event->setResponse(new JsonResponse([
-                    'success' => $event->getSuccess()
-                ]));
-
-                break;
-            default:
-
-                if ($event->getEntity()) {
-
-                    $form = $event->getReturnData('form');
-                    $form = $form->createView();
-                    $event->setReturnData('form', $form);
-
-                    $event->setResponse($this->getThemeService()->render(
-                        'frontend',
-                        'Customer:update_password.html.twig',
-                        $event->getReturnData()
-                    ));
-                } else {
-
-                    $event->setResponse($this->getThemeService()->render(
-                        'frontend',
-                        'Customer:update_password_notfound.html.twig',
-                        $event->getReturnData()
-                    ));
-                }
-
-                break;
-        }
+        $event->flashMessages();
+        $event->setReturnData('form', $event->getForm()->createView());
+        $event->setResponse($this->getThemeService()->render(
+            'frontend',
+            'Customer:update_password.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

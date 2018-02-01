@@ -33,19 +33,8 @@ class ContentController extends Controller
      */
     public function indexAction(Request $request)
     {
-        // Load a service; which extends Search\SearchAbstract
-        // The service parameter is stored in the service configuration as a parameter ; (slightly meta)
-        // This service could use either MySQL or ElasticSearch, etc for retrieving item data
-        $searchParam = $this->container->getParameter('cart.load.admin');
-        $search = $this->container->get($searchParam)
-            ->setObjectType($this->objectType);
-
-        // Observe Event :
-        //  perform custom logic, post-processing
-
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setSearch($search)
             ->setObjectType($this->objectType)
             ->setSection(CoreEvent::SECTION_BACKEND);
 
@@ -60,24 +49,9 @@ class ContentController extends Controller
      */
     public function createAction(Request $request)
     {
-        $varSet = null;
-        if ($varSetId = $request->get('var_set_id', '')) {
-            $varSet = $this->get('cart.entity')->getVarSet($varSetId);
-        } else {
-            $varSets = $this->get('cart.entity')->getVarSets($this->objectType);
-            if ($varSets) {
-                $varSet = $varSets[0];
-            }
-        }
-
-        $entity = $this->get('cart.entity')->getInstance(EntityConstants::CONTENT);
-        if ($varSet) {
-            $entity->setItemVarSet($varSet);
-        }
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setEntity($entity)
+            ->setEntity($this->get('cart.entity')->getInstance(EntityConstants::CONTENT))
             ->setRequest($request)
             ->setFormAction($this->generateUrl('cart_admin_content_create'))
             ->setFormMethod('POST');
@@ -85,11 +59,7 @@ class ContentController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONTENT_ADMIN_FORM, $event);
 
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
-
-            $formData = $request->request->get($form->getName());
-            $event->setFormData($formData);
+        if ($event->isFormValid()) {
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CONTENT_INSERT, $event);
@@ -100,24 +70,8 @@ class ContentController extends Controller
             return $event->getResponse();
         }
 
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            $invalid = [];
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            return new JsonResponse([
-                'success' => false,
-                'invalid' => $invalid,
-                'messages' => $event->getMessages(),
-            ]);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse();
         }
 
         $this->get('event_dispatcher')
@@ -131,24 +85,9 @@ class ContentController extends Controller
      */
     public function newAction(Request $request)
     {
-        $varSet = null;
-        if ($varSetId = $request->get('var_set_id', '')) {
-            $varSet = $this->get('cart.entity')->getVarSet($varSetId);
-        } else {
-            $varSets = $this->get('cart.entity')->getVarSets($this->objectType);
-            if ($varSets) {
-                $varSet = $varSets[0];
-            }
-        }
-
-        $entity = $this->get('cart.entity')->getInstance($this->objectType);
-        if ($varSet) {
-            $entity->setItemVarSet($varSet);
-        }
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setEntity($entity)
+            ->setEntity($this->get('cart.entity')->getInstance($this->objectType))
             ->setRequest($request)
             ->setFormAction($this->generateUrl('cart_admin_content_create'))
             ->setFormMethod('POST');
@@ -221,11 +160,7 @@ class ContentController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONTENT_ADMIN_FORM, $event);
 
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
-
-            $formData = $request->request->get($form->getName());
-            $event->setFormData($formData);
+        if ($event->isFormValid()) {
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CONTENT_UPDATE, $event);
@@ -236,24 +171,8 @@ class ContentController extends Controller
             return $event->getResponse();
         }
 
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            $invalid = [];
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            return new JsonResponse([
-                'success' => false,
-                'invalid' => $invalid,
-                'messages' => $event->getMessages(),
-            ]);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse();
         }
 
         $this->get('event_dispatcher')
@@ -269,6 +188,7 @@ class ContentController extends Controller
     {
         $form = $this->createDeleteForm($id);
         if ($form->handleRequest($request)->isValid()) {
+
             $entity = $this->get('cart.entity')->find($this->objectType, $id);
             if (!$entity) {
                 throw $this->createNotFoundException('Unable to find Content entity.');

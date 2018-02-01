@@ -22,7 +22,15 @@ class ShippingMethodAdminForm
      */
     protected $currencyService;
 
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
     protected $formFactory;
+
+    /**
+     * @var string
+     */
+    protected $formTypeClass = '';
 
     /**
      * @param $entityService
@@ -60,15 +68,40 @@ class ShippingMethodAdminForm
         return $this->currencyService;
     }
 
-    public function setFormFactory($formFactory)
+    /**
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @return $this
+     */
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
     {
         $this->formFactory = $formFactory;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
     public function getFormFactory()
     {
         return $this->formFactory;
+    }
+
+    /**
+     * @param string $formTypeClass
+     * @return $this
+     */
+    public function setFormTypeClass($formTypeClass)
+    {
+        $this->formTypeClass = $formTypeClass;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormTypeClass()
+    {
+        return $this->formTypeClass;
     }
 
     /**
@@ -76,15 +109,11 @@ class ShippingMethodAdminForm
      */
     public function onShippingMethodAdminForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
+        /** @var \MobileCart\CoreBundle\Entity\ShippingMethod $entity */
         $entity = $event->getEntity();
-
-        $formType = new ShippingMethodType();
-        $formType->setCurrency($this->getCurrencyService()->getBaseCurrency());
-
-        $form = $this->getFormFactory()->create($formType, $entity, [
-            'action' => $event->getAction(),
-            'method' => $event->getMethod(),
+        $form = $this->getFormFactory()->create($this->getFormTypeClass(), $entity, [
+            'action' => $event->getFormAction(),
+            'method' => $event->getFormMethod(),
         ]);
 
         $formSections = [
@@ -225,9 +254,9 @@ class ShippingMethodAdminForm
         $conditionInput = '#shipping_method_pre_conditions';
         $container = 'div#section-general';
 
-        $returnData = array_merge($returnData, [
+        $event->addReturnData([
             'entity' => $entity,
-            'form' => $form,
+            //'form' => $form,
             'form_sections' => $formSections,
             'operators_json' => json_encode($operators),
             'logical_operators_json' => json_encode($logicalOperators),
@@ -238,7 +267,6 @@ class ShippingMethodAdminForm
             'var_sets' => json_encode($varSetData),
         ]);
 
-        $event->setForm($form)
-            ->setReturnData($returnData);
+        $event->setForm($form);
     }
 }

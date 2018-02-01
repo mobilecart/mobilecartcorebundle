@@ -107,17 +107,14 @@ class CustomerAddressList
             ],
         ]);
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
-                $event->setResponse(new JsonResponse($event->getReturnData()));
-                break;
-            default:
-                $event->setResponse($this->getThemeService()->render(
-                    'frontend',
-                    'CustomerAddress:index.html.twig',
-                    $event->getReturnData()
-                ));
-                break;
+        if ($event->isJsonResponse()) {
+            $event->setResponse(new JsonResponse($event->getReturnData()));
+        } else {
+            $event->setResponse($this->getThemeService()->render(
+                'frontend',
+                'CustomerAddress:index.html.twig',
+                $event->getReturnData()
+            ));
         }
     }
 }

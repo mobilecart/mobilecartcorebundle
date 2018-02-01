@@ -47,12 +47,20 @@ class UpdateItemQtys
                     ? $event->getApiRequest()
                     : @ (array) json_decode($event->getRequest()->getContent());
 
-                if (is_array($apiRequest) && count($apiRequest) > 0) {
+                if (is_array($apiRequest)
+                    && isset($apiRequest['qtys'])
+                    && is_array($apiRequest['qtys'])
+                    && isset($apiRequest['cart_id'])
+                ) {
+
+                    $request->request->set('cart_id', $apiRequest['cart_id']);
+
                     $qtys = [];
-                    foreach($apiRequest as $qtyData) {
+                    foreach($apiRequest['qtys'] as $qtyData) {
+
                         $qtyData = get_object_vars($qtyData);
 
-                        if (isset($qtData['sku'])) {
+                        if (isset($qtyData['sku'])) {
                             $key = 'sku';
                         }
 
@@ -60,6 +68,7 @@ class UpdateItemQtys
                             $qtys[$qtyData[$key]] = $qtyData['qty'];
                         }
                     }
+
                     if ($qtys) {
                         $request->request->set('qty', $qtys);
                     }
@@ -127,5 +136,8 @@ class UpdateItemQtys
         }
 
         $event->setSuccess($success);
+        if ($event->getSuccess()) {
+            $event->addSuccessMessage('Cart Updated !');
+        }
     }
 }

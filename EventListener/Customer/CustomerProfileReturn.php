@@ -85,58 +85,32 @@ class CustomerProfileReturn
      */
     public function onCustomerProfileReturn(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\Customer $customer */
         $customer = $event->getEntity();
+        $event->flashMessages();
 
-        if ($event->getMessages() && $event->getRequest()->getSession()) {
-            $event->flashMessages();
-        }
+        if ($event->isJsonResponse()) {
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
+            $event->setResponse(new JsonResponse([
+                'success' => true,
+                'entity' => $customer->getData(),
+                'messages' => $event->getMessages(),
+            ]));
+        } else {
 
-                $isValid = (int) $event->getIsValid();
-                $invalid = [];
-                if (!$isValid) {
-                    $form = $event->getForm();
-                    foreach($form->all() as $childKey => $child) {
-                        $errors = $child->getErrors();
-                        if ($errors->count()) {
-                            $invalid[$childKey] = [];
-                            foreach($errors as $error) {
-                                $invalid[$childKey][] = $error->getMessage();
-                            }
-                        }
-                    }
-                }
+            $event->setReturnData('template_sections', []);
 
-                $event->setResponse(new JsonResponse([
-                    'success' => $event->getIsValid(),
-                    'entity' => $customer->getData(),
-                    'redirect_url' => $this->getRouter()->generate('customer_profile', []),
-                    'invalid' => $invalid,
-                    'messages' => $event->getMessages(),
-                ]));
+            $template = $event->getTemplate()
+                ? $event->getTemplate()
+                : 'Customer:profile.html.twig';
 
-                break;
-            default:
+            $event->setReturnData('form', $event->getForm()->createView());
 
-                $event->setReturnData('template_sections', []);
-
-                $template = $event->getTemplate()
-                    ? $event->getTemplate()
-                    : 'Customer:profile.html.twig';
-
-                $form = $event->getReturnData('form');
-                $form = $form->createView();
-                $event->setReturnData('form', $form);
-
-                $event->setResponse($this->getThemeService()->render(
-                    'frontend',
-                    $template,
-                    $event->getReturnData()
-                ));
-
-                break;
+            $event->setResponse($this->getThemeService()->render(
+                'frontend',
+                $template,
+                $event->getReturnData()
+            ));
         }
     }
 }

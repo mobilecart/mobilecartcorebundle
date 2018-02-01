@@ -39,10 +39,10 @@ class PdoEntityService
     protected $foreignKeys = ['item_var_set_id', 'product_id', 'parent_id', 'category_id'];
 
     /**
-     * @param $doctrine
+     * @param \Doctrine\Bundle\DoctrineBundle\Registry $doctrine
      * @return $this
      */
-    public function setDoctrine($doctrine)
+    public function setDoctrine(\Doctrine\Bundle\DoctrineBundle\Registry $doctrine)
     {
         $this->doctrine = $doctrine;
         $this->conn = $doctrine->getManager()->getConnection();

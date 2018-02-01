@@ -49,24 +49,9 @@ class CategoryController extends Controller
      */
     public function createAction(Request $request)
     {
-        $varSet = null;
-        if ($varSetId = $request->get('var_set_id', '')) {
-            $varSet = $this->get('cart.entity')->getVarSet($varSetId);
-        } else {
-            $varSets = $this->get('cart.entity')->getVarSets($this->objectType);
-            if ($varSets) {
-                $varSet = $varSets[0];
-            }
-        }
-
-        $entity = $this->get('cart.entity')->getInstance(EntityConstants::CATEGORY);
-        if ($varSet) {
-            $entity->setItemVarSet($varSet);
-        }
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setEntity($entity)
+            ->setEntity($this->get('cart.entity')->getInstance(EntityConstants::CATEGORY))
             ->setRequest($request)
             ->setFormAction($this->generateUrl('cart_admin_category_create'))
             ->setFormMethod('POST');
@@ -75,20 +60,17 @@ class CategoryController extends Controller
             ->dispatch(CoreEvents::CATEGORY_ADMIN_FORM, $event);
 
         $invalid = [];
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
+        if ($event->isFormValid()) {
 
-            $formData = $request->request->get($form->getName());
+            $slug = $event->getFormData('slug');
 
             $existing = $this->get('cart.entity')->findOneBy(EntityConstants::CATEGORY, [
-                'slug' => $formData['slug']
+                'slug' => $slug
             ]);
 
             if ($existing) {
                 $invalid['slug'] = ['Slug already exists'];
             } else {
-
-                $event->setFormData($formData);
 
                 $this->get('event_dispatcher')
                     ->dispatch(CoreEvents::CATEGORY_INSERT, $event);
@@ -100,23 +82,8 @@ class CategoryController extends Controller
             }
         }
 
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            return new JsonResponse([
-                'success' => false,
-                'invalid' => $invalid,
-                'messages' => $event->getMessages(),
-            ]);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse($invalid);
         }
 
         $this->get('event_dispatcher')
@@ -130,24 +97,9 @@ class CategoryController extends Controller
      */
     public function newAction(Request $request)
     {
-        $varSet = null;
-        if ($varSetId = $request->get('var_set_id', '')) {
-            $varSet = $this->get('cart.entity')->getVarSet($varSetId);
-        } else {
-            $varSets = $this->get('cart.entity')->getVarSets($this->objectType);
-            if ($varSets) {
-                $varSet = $varSets[0];
-            }
-        }
-
-        $entity = $this->get('cart.entity')->getInstance($this->objectType);
-        if ($varSet) {
-            $entity->setItemVarSet($varSet);
-        }
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setEntity($entity)
+            ->setEntity($this->get('cart.entity')->getInstance($this->objectType))
             ->setRequest($request)
             ->setFormAction($this->generateUrl('cart_admin_category_create'))
             ->setFormMethod('POST');
@@ -221,14 +173,13 @@ class CategoryController extends Controller
             ->dispatch(CoreEvents::CATEGORY_ADMIN_FORM, $event);
 
         $invalid = [];
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
+        if ($event->isFormValid()) {
 
-            $formData = $request->request->get($form->getName());
+            $slug = $event->getFormData('slug');
 
             $exists = false;
             $existingSlug = $this->get('cart.entity')->findBy(EntityConstants::CATEGORY, [
-                'slug' => $formData['slug'],
+                'slug' => $slug
             ]);
 
             if ($existingSlug) {
@@ -243,8 +194,6 @@ class CategoryController extends Controller
 
             if (!$exists) {
 
-                $event->setFormData($formData);
-
                 $this->get('event_dispatcher')
                     ->dispatch(CoreEvents::CATEGORY_UPDATE, $event);
 
@@ -255,23 +204,8 @@ class CategoryController extends Controller
             }
         }
 
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            return new JsonResponse([
-                'success' => false,
-                'invalid' => $invalid,
-                'messages' => $event->getMessages(),
-            ]);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse($invalid);
         }
 
         $this->get('event_dispatcher')

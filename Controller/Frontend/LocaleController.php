@@ -15,8 +15,15 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
+/**
+ * Class LocaleController
+ * @package MobileCart\CoreBundle\Controller\Frontend
+ */
 class LocaleController extends Controller
 {
+    /**
+     * Update locale and redirect
+     */
     public function indexAction(Request $request)
     {
         $localeService = $this->container->get('cart.locale');

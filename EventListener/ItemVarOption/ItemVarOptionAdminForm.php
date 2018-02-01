@@ -113,7 +113,7 @@ class ItemVarOptionAdminForm
             'method' => $event->getFormMethod(),
         ]);
 
-        $event->setReturnData('form', $form);
+        $event->setForm($form);
         $event->setReturnData('form_sections', [
             'general' => [
                 'label' => 'General',

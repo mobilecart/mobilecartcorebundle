@@ -58,6 +58,11 @@ class OrderRepository
                 'type'  => 'string',
             ],
             [
+                'code'  => 'customer_id',
+                'label' => 'Customer',
+                'type'  => 'number',
+            ],
+            [
                 'code' => 'status',
                 'label' => 'Status',
                 'type' => 'string',

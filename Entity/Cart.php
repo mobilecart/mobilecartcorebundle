@@ -141,9 +141,37 @@ class Cart
     /**
      * @var string $json
      *
-     * @ORM\Column(name="json", type="text")
+     * @ORM\Column(name="json", type="text", nullable=true)
      */
     protected $json;
+
+    /**
+     * @var string $payment_method_code
+     *
+     * @ORM\Column(name="payment_method_code", type="string", length=32, nullable=true)
+     */
+    protected $payment_method_code;
+
+    /**
+     * @var string $payment_authorization
+     *
+     * @ORM\Column(name="payment_authorization", type="string", length=255, nullable=true)
+     */
+    protected $payment_authorization;
+
+    /**
+     * @var string $payment_info
+     *
+     * @ORM\Column(name="payment_info", type="text", nullable=true)
+     */
+    protected $payment_info;
+
+    /**
+     * @var string $checkout_state
+     *
+     * @ORM\Column(name="checkout_state", type="text", nullable=true)
+     */
+    protected $checkout_state;
 
     /**
      * @var boolean $is_wishlist
@@ -151,6 +179,13 @@ class Cart
      * @ORM\Column(name="is_wishlist", type="boolean", nullable=true)
      */
     protected $is_wishlist;
+
+    /**
+     * @var boolean $is_converted
+     *
+     * @ORM\Column(name="is_converted", type="boolean", nullable=true)
+     */
+    protected $is_converted;
 
     public function __construct()
     {
@@ -205,6 +240,7 @@ class Cart
             'base_discount_total' => $this->getBaseDiscountTotal(),
             'base_shipping_total' => $this->getBaseShippingTotal(),
             'is_wishlist' => $this->getIsWishlist(),
+            'is_converted' => $this->getIsConverted(),
         ];
     }
 
@@ -231,6 +267,82 @@ class Cart
     }
 
     /**
+     * Set checkout_state
+     *
+     * @param string $checkoutState
+     * @return $this
+     */
+    public function setCheckoutState($checkoutState)
+    {
+        $this->checkout_state = $checkoutState;
+        return $this;
+    }
+
+    /**
+     * Get checkout_state
+     *
+     * @return string
+     */
+    public function getCheckoutState()
+    {
+        return $this->checkout_state;
+    }
+
+    /**
+     * @param string $paymentMethodCode
+     * @return $this
+     */
+    public function setPaymentMethodCode($paymentMethodCode)
+    {
+        $this->payment_method_code = $paymentMethodCode;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPaymentMethodCode()
+    {
+        return $this->payment_method_code;
+    }
+
+    /**
+     * @param string $paymentInfo
+     * @return $this
+     */
+    public function setPaymentInfo($paymentInfo)
+    {
+        $this->payment_info = $paymentInfo;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPaymentInfo()
+    {
+        return $this->payment_info;
+    }
+
+    /**
+     * @param $paymentAuthorization
+     * @return $this
+     */
+    public function setPaymentAuthorization($paymentAuthorization)
+    {
+        $this->payment_authorization = $paymentAuthorization;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPaymentAuthorization()
+    {
+        return $this->payment_authorization;
+    }
+
+    /**
      * Set is_wishlist
      *
      * @param boolean $isWishlist
@@ -250,6 +362,24 @@ class Cart
     public function getIsWishlist()
     {
         return $this->is_wishlist;
+    }
+
+    /**
+     * @param bool $isConverted
+     * @return $this
+     */
+    public function setIsConverted($isConverted)
+    {
+        $this->is_converted = (bool) $isConverted;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsConverted()
+    {
+        return (bool) $this->is_converted;
     }
 
     /**

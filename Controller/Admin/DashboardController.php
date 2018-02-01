@@ -13,24 +13,17 @@ namespace MobileCart\CoreBundle\Controller\Admin;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use MobileCart\CoreBundle\Event\CoreEvents;
 use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
- * Content controller.
- *
- * @Route("/admin")
+ * Class DashboardController
+ * @package MobileCart\CoreBundle\Controller\Admin
  */
 class DashboardController extends Controller
 {
-
     /**
-     * Display dashboard
-     *
-     * @Route("/", name="cart_admin_dashboard")
-     * @Method("GET")
+     * Display Admin Dashboard
      */
     public function indexAction(Request $request)
     {

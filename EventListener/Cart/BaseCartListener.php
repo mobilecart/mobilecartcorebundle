@@ -85,6 +85,6 @@ class BaseCartListener
     public function initCart(\Symfony\Component\HttpFoundation\Request $request)
     {
         $this->initApiRequest($request);
-        return $this->getCartService()->initCart()->getCart();
+        return $this->getCartService()->getCart();
     }
 }

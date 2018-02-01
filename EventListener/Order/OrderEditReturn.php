@@ -154,7 +154,7 @@ class OrderEditReturn
         ]);
 
         $event->setReturnData('entity', $entity);
-        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('form', $event->getForm()->createView());
         $event->setReturnData('cart', $cart);
         $event->setReturnData('discounts', $discounts);
 

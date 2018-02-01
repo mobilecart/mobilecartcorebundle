@@ -112,6 +112,6 @@ class ContactForm
             'action' => $this->getRouter()->generate('cart_contact_post', []),
             'method' => 'POST',
         ]);
-        $event->setReturnData('form', $form);
+        $event->setForm($form);
     }
 }

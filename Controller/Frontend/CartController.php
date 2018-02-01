@@ -41,6 +41,21 @@ class CartController extends Controller
     }
 
     /**
+     * API call : initialize shopping cart and return its hash ID
+     */
+    public function initAction(Request $request)
+    {
+        $event = new CoreEvent();
+        $event->setRequest($request)
+            ->setUser($this->getUser());
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CART_INIT, $event);
+
+        return $event->getResponse();
+    }
+
+    /**
      * Add product to shopping cart
      */
     public function addProductAction(Request $request)
@@ -136,13 +151,7 @@ class CartController extends Controller
      */
     public function totalsAction(Request $request)
     {
-        if ($this->get('cart')->getIsApiRequest()) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'API Requests are not currently supported here.'
-            ]);
-        }
-
+        // todo : move this to event listener . add logic for handling api requests, etc
         $totalsMap = $this->get('cart')
             ->collectTotals()
             ->getTotals();
@@ -159,6 +168,20 @@ class CartController extends Controller
         }
 
         return new JsonResponse($totals);
+    }
+
+    /**
+     * For api customers who login after creating a cart
+     */
+    public function claimCartAction(Request $request)
+    {
+        // create event
+
+        // create listener
+        // * require CustomerEntity on CartService
+        // * save customer_id on cart
+
+        //
     }
 
     /**

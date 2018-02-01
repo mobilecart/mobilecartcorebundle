@@ -63,26 +63,21 @@ class CustomerRegisterPostReturn
      */
     public function onCustomerRegisterPostReturn(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\Customer $customer */
         $customer = $event->getEntity();
         $event->setReturnData('template_sections', []);
+        $event->flashMessages();
 
-        if ($event->getRequest()->getSession() && $event->getMessages()) {
-            $event->flashMessages();
-        }
-
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
-                $event->setResponse(new JsonResponse([
-                    'success' => true,
-                    'email' => $customer->getEmail(),
-                    'first_name' => $customer->getFirstName(),
-                    'last_name' => $customer->getLastName(),
-                    'messages' => $event->getMessages(),
-                ]));
-                break;
-            default:
-                $event->setResponse(new RedirectResponse($this->getRouter()->generate('customer_check_email', [])));
-                break;
+        if ($event->isJsonResponse()) {
+            $event->setResponse(new JsonResponse([
+                'success' => true,
+                'email' => $customer->getEmail(),
+                'first_name' => $customer->getFirstName(),
+                'last_name' => $customer->getLastName(),
+                'messages' => $event->getMessages(),
+            ]));
+        } else {
+            $event->setResponse(new RedirectResponse($this->getRouter()->generate('customer_check_email', [])));
         }
     }
 }

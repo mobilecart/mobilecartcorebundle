@@ -286,27 +286,24 @@ class AddProduct extends BaseCartListener
             // get customer_address_id from request
             if (isset($productAddresses[$productId])) {
 
-                $customerAddressId = $productAddresses[$productId];
-                if ($customerAddressId != 'main' && is_numeric($customerAddressId)) {
-                    $customerAddressId = 'address_' . $customerAddressId;
-                }
+                $customerAddressId = $this->getCartService()->prefixAddressId($productAddresses[$productId]);
 
-                if ($cartItem->get('customer_address_id', 'main') != $customerAddressId) {
+                if ($cartItem->get(EntityConstants::CUSTOMER_ADDRESS_ID, 'main') != $customerAddressId) {
 
                     // recollect the original shipping address, since the items have changed for that address
                     $recollectShipping[] = new ArrayWrapper([
-                        'customer_address_id' => $cartItem->get('customer_address_id', 'main'),
-                        'source_address_key' => $cartItem->get('source_address_key', 'main')
+                        EntityConstants::CUSTOMER_ADDRESS_ID => $cartItem->get(EntityConstants::CUSTOMER_ADDRESS_ID, 'main'),
+                        EntityConstants::SOURCE_ADDRESS_KEY => $cartItem->get(EntityConstants::SOURCE_ADDRESS_KEY, 'main')
                     ]);
 
                     // update cart item
-                    $cartItem->set('customer_address_id', $customerAddressId);
+                    $cartItem->set(EntityConstants::CUSTOMER_ADDRESS_ID, $customerAddressId);
                 }
 
                 // recollect new shipping address
                 $recollectShipping[] = new ArrayWrapper([
-                    'customer_address_id' => $cartItem->get('customer_address_id', $customerAddressId),
-                    'source_address_key' => $cartItem->get('source_address_key', 'main')
+                    EntityConstants::CUSTOMER_ADDRESS_ID => $cartItem->get(EntityConstants::CUSTOMER_ADDRESS_ID, $customerAddressId),
+                    EntityConstants::SOURCE_ADDRESS_KEY => $cartItem->get(EntityConstants::SOURCE_ADDRESS_KEY, 'main')
                 ]);
 
             } else {
@@ -315,8 +312,8 @@ class AddProduct extends BaseCartListener
                 //  but we need to recollect in case qty or weight changed
 
                 $recollectShipping[] = new ArrayWrapper([
-                    'customer_address_id' => $cartItem->get('customer_address_id', 'main'),
-                    'source_address_key' => $cartItem->get('source_address_key', 'main')
+                    EntityConstants::CUSTOMER_ADDRESS_ID => $cartItem->get(EntityConstants::CUSTOMER_ADDRESS_ID, 'main'),
+                    EntityConstants::SOURCE_ADDRESS_KEY => $cartItem->get(EntityConstants::SOURCE_ADDRESS_KEY, 'main')
                 ]);
             }
 
@@ -325,8 +322,8 @@ class AddProduct extends BaseCartListener
             // always recollect main address when multi shipping is disabled
 
             $recollectShipping[] = new ArrayWrapper([
-                'customer_address_id' => $cartItem->get('customer_address_id', 'main'),
-                'source_address_key' => $cartItem->get('source_address_key', 'main')
+                EntityConstants::CUSTOMER_ADDRESS_ID => $cartItem->get(EntityConstants::CUSTOMER_ADDRESS_ID, 'main'),
+                EntityConstants::SOURCE_ADDRESS_KEY => $cartItem->get(EntityConstants::SOURCE_ADDRESS_KEY, 'main')
             ]);
         }
 
@@ -350,7 +347,7 @@ class AddProduct extends BaseCartListener
                     && (isset($apiRequest['sku']) || isset($apiRequest['product_id']))
                 ) {
 
-                    $keys = ['qty','is_add','product_id','sku','simple_id','simple_sku'];
+                    $keys = ['cart_id','qty','is_add','product_id','sku','simple_id','simple_sku'];
                     foreach($apiRequest as $key => $value) {
 
                         if (!in_array($key, $keys)) {
@@ -387,7 +384,7 @@ class AddProduct extends BaseCartListener
         $request = $event->getRequest();
         $this->initCart($request);
 
-        $key = $request->get('sku') || $event->get('sku')
+        $key = $request->get('sku', '') || $event->get('sku')
             ? 'sku'
             : 'product_id';
 
@@ -404,12 +401,15 @@ class AddProduct extends BaseCartListener
 
         /** @var \MobileCart\CoreBundle\Entity\Product $product */
         $product = $this->loadProduct($key, $value);
-        if (!$product) {
+        if (!$product
+            || !$product->getIsEnabled()
+        ) {
             $event->addErrorMessage('Product not found');
+            $event->setResponseCode(404);
             return;
         }
 
-        $recollectShipping = $event->get('recollect_shipping', []); // r = [object, object] , object:{'customer_address_id':'','source_address_key':''}
+        $recollectShipping = $event->get('recollect_shipping', []); // r = [object, object] , object:{EntityConstants::CUSTOMER_ADDRESS_ID:'',EntityConstants::SOURCE_ADDRESS_KEY:''}
         switch($product->getType()) {
             case EntityConstants::PRODUCT_TYPE_CONFIGURABLE:
 
@@ -419,9 +419,9 @@ class AddProduct extends BaseCartListener
                     ? 'simple_sku'
                     : 'simple_id';
 
-                $simpleValue = $event->get($key)
-                    ? $event->get($key)
-                    : $request->get($key, '');
+                $simpleValue = $event->get($simpleKey)
+                    ? $event->get($simpleKey)
+                    : $request->get($simpleKey, '');
 
                 $lookupKey = $simpleKey == 'simple_sku'
                     ? 'sku'
@@ -448,6 +448,12 @@ class AddProduct extends BaseCartListener
                         $this->setSuccess(true);
                     }
                 } else {
+
+                    if (!$product->getIsPublic()) {
+                        $event->addErrorMessage('Product not found');
+                        $event->setResponseCode(404);
+                        return;
+                    }
 
                     $simpleProduct = $this->loadProduct($lookupKey, $simpleValue);
                     if ($simpleProduct) {
@@ -501,6 +507,12 @@ class AddProduct extends BaseCartListener
                     }
                 } else {
 
+                    if (!$product->getIsPublic()) {
+                        $event->addErrorMessage('Product not found');
+                        $event->setResponseCode(404);
+                        return;
+                    }
+
                     $item = $this->getCartService()->convertProductToItem($product, [], $this->getQty());
                     if ($this->meetsCriteria($item, $this->getQty(), $event)) {
 
@@ -530,7 +542,7 @@ class AddProduct extends BaseCartListener
         if ($this->getSuccess()
             && !$event->getIsMassUpdate()
         ) {
-            $event->addSuccessMessage('Product Added to Cart: ' . $product->getSku());
+            $event->addSuccessMessage('Product Added to Cart : ' . $product->getSku());
         }
     }
 }

@@ -28,7 +28,7 @@ class CheckoutController extends Controller
      */
     protected function hasLoginError()
     {
-        return (!$this->get('cart.checkout.session')->getAllowGuestCheckout() && !$this->getUser());
+        return (!$this->get('cart')->getAllowGuestCheckout() && !$this->getUser());
     }
 
     /**

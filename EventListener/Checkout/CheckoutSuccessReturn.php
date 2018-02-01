@@ -13,11 +13,6 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
 class CheckoutSuccessReturn
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
-     */
-    protected $checkoutSessionService;
-
-    /**
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
@@ -28,21 +23,26 @@ class CheckoutSuccessReturn
     protected $router;
 
     /**
-     * @param $checkoutSessionService
+     * @var \MobileCart\CoreBundle\Service\OrderService
+     */
+    protected $orderService;
+
+    /**
+     * @param $orderService
      * @return $this
      */
-    public function setCheckoutSessionService($checkoutSessionService)
+    public function setOrderService($orderService)
     {
-        $this->checkoutSessionService = $checkoutSessionService;
+        $this->orderService = $orderService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
+     * @return \MobileCart\CoreBundle\Service\OrderService
      */
-    public function getCheckoutSessionService()
+    public function getOrderService()
     {
-        return $this->checkoutSessionService;
+        return $this->orderService;
     }
 
     /**
@@ -50,7 +50,7 @@ class CheckoutSuccessReturn
      */
     public function getCartService()
     {
-        return $this->getCheckoutSessionService()->getCartService();
+        return $this->getOrderService()->getCartService();
     }
 
     /**
@@ -103,7 +103,7 @@ class CheckoutSuccessReturn
      */
     public function onCheckoutSuccessReturn(CoreEvent $event)
     {
-        $orderId = $this->getCheckoutSessionService()->getCartService()->getSession()->get('order_id', 0);
+        $orderId = $this->getCartService()->getSession()->get('order_id', 0);
         if (!$orderId) {
             // redirect to checkout page
             $url = $this->getRouter()->generate('cart_checkout', []);
@@ -113,14 +113,12 @@ class CheckoutSuccessReturn
         }
 
         // get cart customer
-        $cartCustomer = $this->getCheckoutSessionService()
-            ->getCartService()
+        $cartCustomer = $this->getCartService()
             ->getCart()
             ->getCustomer();
 
         // clear cart and set customer
-        $this->getCheckoutSessionService()
-            ->getCartService()
+        $this->getCartService()
             ->resetCart()
             ->setCustomer($cartCustomer);
 

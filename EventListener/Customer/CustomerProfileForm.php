@@ -302,7 +302,7 @@ class CustomerProfileForm
             ];
         }
 
-        $event->setReturnData('form', $form);
+        $event->setForm($form);
         $event->setReturnData('form_sections', $formSections);
         $event->setReturnData('country_regions', $this->getCartService()->getCountryRegions());
     }

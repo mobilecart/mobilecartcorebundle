@@ -25,7 +25,9 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
  */
 class ImageController extends Controller
 {
-
+    /**
+     * Read and output an image from a URL
+     */
     public function indexAction(Request $request)
     {
         $imageUrl = $request->get('url', '');
@@ -71,7 +73,7 @@ class ImageController extends Controller
         if (!$objectType) {
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Please Select Object Type',
             ], 400);
         }
@@ -80,7 +82,7 @@ class ImageController extends Controller
         if (!$imageCode) {
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Please Select Image Size',
             ], 400);
         }
@@ -95,7 +97,7 @@ class ImageController extends Controller
         if (!$dimensions || !isset($dimensions['width']) || !isset($dimensions['height'])) {
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Error with Image Size Configuration : width, height',
             ], 400);
         }
@@ -105,7 +107,7 @@ class ImageController extends Controller
         if (!$savePath) {
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Error with Upload Path : ' . $uploadPath,
             ], 400);
         }
@@ -134,7 +136,7 @@ class ImageController extends Controller
             unlink($absPath);
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Invalid File Type Uploaded',
             ], 400);
         }
@@ -182,7 +184,7 @@ class ImageController extends Controller
         $id = $itemImage->getId();
 
         return new JsonResponse([
-            'success'       => 1,
+            'success'       => true,
             'message'       => 'Image was Uploaded',
             'id'            => $id,
             'item_id'       => $itemId,
@@ -214,7 +216,7 @@ class ImageController extends Controller
         // block if invalid
         if ($hasError) {
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Invalid File Type Uploaded',
             ], 400);
         }
@@ -223,7 +225,7 @@ class ImageController extends Controller
         if (!$objectType) {
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Please Select Object Type',
             ], 400);
         }
@@ -233,7 +235,7 @@ class ImageController extends Controller
         if (!$uploadPath) {
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Error with Object Type',
             ], 400);
         }
@@ -242,7 +244,7 @@ class ImageController extends Controller
         if (!$savePath) {
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Error with Upload Path : ' . $uploadPath,
             ], 400);
         }
@@ -251,7 +253,7 @@ class ImageController extends Controller
         if (!$imageCode) {
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Please Select Image Size',
             ], 400);
         }
@@ -260,7 +262,7 @@ class ImageController extends Controller
         if (!$dimensions || !isset($dimensions['width']) || !isset($dimensions['height'])) {
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Error with Image Size Configuration : width, height',
             ], 400);
         }
@@ -279,7 +281,7 @@ class ImageController extends Controller
             unlink($absPath);
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Invalid File Type Uploaded',
             ], 400);
         }
@@ -329,7 +331,7 @@ class ImageController extends Controller
         $id = $itemImage->getId();
 
         return new JsonResponse([
-            'success'       => 1,
+            'success'       => true,
             'message'       => 'Image was Uploaded',
             'id'            => $id,
             'item_id'       => $itemId,
@@ -355,7 +357,7 @@ class ImageController extends Controller
         if (!$savePath) {
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Error with Upload Path : ' . $uploadPath,
             ], 400);
         }
@@ -384,7 +386,7 @@ class ImageController extends Controller
             unlink($absPath);
 
             return new JsonResponse([
-                'success' => 0,
+                'success' => false,
                 'message' => 'Invalid File Type Uploaded',
             ], 400);
         }
@@ -423,7 +425,7 @@ class ImageController extends Controller
 
         return new JsonResponse(array_merge(
             [
-                'success'       => 1,
+                'success'       => true,
                 'message'       => 'Image was Uploaded',
             ],
             $contentSlot->getBaseData()

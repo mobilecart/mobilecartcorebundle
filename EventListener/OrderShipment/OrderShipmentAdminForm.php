@@ -104,6 +104,6 @@ class OrderShipmentAdminForm
             ],
         ]);
 
-        $event->setReturnData('form', $form);
+        $event->setForm($form);
     }
 }

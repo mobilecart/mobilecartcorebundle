@@ -74,6 +74,11 @@ class CartService
     protected $customerEntity;
 
     /**
+     * @var \MobileCart\CoreBundle\Service\CheckoutFormService
+     */
+    protected $checkoutFormService;
+
+    /**
      * @var \MobileCart\CoreBundle\Service\ShippingService
      */
     protected $shippingService;
@@ -121,7 +126,6 @@ class CartService
      */
     public function setCartId($cartId)
     {
-        $this->initCart();
         $this->getCart()->setId((int) $cartId);
         return $this;
     }
@@ -131,7 +135,6 @@ class CartService
      */
     public function getCartId()
     {
-        $this->initCart();
         return $this->getCart()->getId();
     }
 
@@ -273,6 +276,24 @@ class CartService
     }
 
     /**
+     * @param CheckoutFormService $checkoutFormService
+     * @return $this
+     */
+    public function setCheckoutFormService(\MobileCart\CoreBundle\Service\CheckoutFormService $checkoutFormService)
+    {
+        $this->checkoutFormService = $checkoutFormService;
+        return $this;
+    }
+
+    /**
+     * @return CheckoutFormService
+     */
+    public function getCheckoutFormService()
+    {
+        return $this->checkoutFormService;
+    }
+
+    /**
      * @return bool
      */
     public function getIsMultiShippingEnabled()
@@ -338,7 +359,6 @@ class CartService
      */
     public function setTotals(array $totals)
     {
-        $this->initCart();
         $this->getCart()->setTotals($totals); // for saving state
         return $this;
     }
@@ -348,7 +368,6 @@ class CartService
      */
     public function getTotals()
     {
-        $this->initCart();
         return $this->getCart()->getTotals();
     }
 
@@ -358,7 +377,6 @@ class CartService
      */
     public function getTotal($key)
     {
-        $this->initCart();
         return $this->getCart()->getTotal($key);
     }
 
@@ -368,7 +386,6 @@ class CartService
      */
     public function setPaymentMethodCodes(array $methodCodes)
     {
-        $this->initCart();
         $this->getCart()->setPaymentMethodCodes($methodCodes);
         return $this;
     }
@@ -709,9 +726,12 @@ class CartService
      */
     public function getCart()
     {
+        $this->initCart();
+
         if ($this->getIsApiRequest()) {
             return $this->cart;
         }
+
         return $this->getSessionCart();
     }
 
@@ -742,7 +762,9 @@ class CartService
                 $this->setCustomer($this->convertCustomerEntity($this->getCustomerEntity()));
             }
             return $this;
-        } elseif ($this->getCart() instanceof Cart) {
+        } elseif ($this->getIsApiRequest() && $this->cart instanceof Cart) {
+            return $this;
+        } elseif (!$this->getIsApiRequest() && $this->getSessionCart() instanceof Cart) {
             return $this;
         }
 
@@ -751,6 +773,44 @@ class CartService
             $cart = $this->convertCartEntity($this->getCartEntity());
         } else {
             $cart->setCurrency($this->getCurrencyService()->getBaseCurrency());
+
+            $totals = [];
+
+            $itemTotal = new \MobileCart\CoreBundle\EventListener\Cart\ItemTotal();
+            $itemTotal->setLabel('Items');
+            $itemTotal->setIsAdd(true);
+            $itemTotal->setValue(0);
+            $totals[] = $itemTotal;
+
+            if ($this->getShippingService()->getIsShippingEnabled()) {
+                $shipmentTotal = new \MobileCart\CoreBundle\EventListener\Cart\ShipmentTotal();
+                $shipmentTotal->setLabel('Shipments');
+                $shipmentTotal->setIsAdd(true);
+                $shipmentTotal->setValue(0);
+                $totals[] = $shipmentTotal;
+            }
+
+            if ($this->getTaxService()->getIsTaxEnabled()) {
+                $taxTotal = new \MobileCart\CoreBundle\EventListener\Cart\TaxTotal();
+                $taxTotal->setLabel('Tax');
+                $taxTotal->setIsAdd(true);
+                $taxTotal->setValue(0);
+                $totals[] = $taxTotal;
+            }
+
+            if ($this->getDiscountService()->getIsDiscountEnabled()) {
+                $discountTotal = new \MobileCart\CoreBundle\EventListener\Cart\DiscountTotal();
+                $discountTotal->setLabel('Discounts');
+                $discountTotal->setValue(0);
+                $totals[] = $discountTotal;
+            }
+
+            $grandTotal = new \MobileCart\CoreBundle\EventListener\Cart\GrandTotal();
+            $grandTotal->setLabel('Grand Total');
+            $grandTotal->setValue(0);
+            $totals[] = $grandTotal;
+
+            $cart->setTotals($totals);
         }
 
         $this->setCart($cart);
@@ -759,50 +819,12 @@ class CartService
             $this->setCustomer($this->convertCustomerEntity($this->getCustomerEntity()));
         }
 
-        $totals = [];
-
-        $itemTotal = new \MobileCart\CoreBundle\EventListener\Cart\ItemTotal();
-        $itemTotal->setLabel('Items');
-        $itemTotal->setIsAdd(true);
-        $itemTotal->setValue(0);
-        $totals[] = $itemTotal;
-
-        if ($this->getShippingService()->getIsShippingEnabled()) {
-            $shipmentTotal = new \MobileCart\CoreBundle\EventListener\Cart\ShipmentTotal();
-            $shipmentTotal->setLabel('Shipments');
-            $shipmentTotal->setIsAdd(true);
-            $shipmentTotal->setValue(0);
-            $totals[] = $shipmentTotal;
-        }
-
-        if ($this->getTaxService()->getIsTaxEnabled()) {
-            $taxTotal = new \MobileCart\CoreBundle\EventListener\Cart\TaxTotal();
-            $taxTotal->setLabel('Tax');
-            $taxTotal->setIsAdd(true);
-            $taxTotal->setValue(0);
-            $totals[] = $taxTotal;
-        }
-
-        if ($this->getDiscountService()->getIsDiscountEnabled()) {
-            $discountTotal = new \MobileCart\CoreBundle\EventListener\Cart\DiscountTotal();
-            $discountTotal->setLabel('Discounts');
-            $discountTotal->setValue(0);
-            $totals[] = $discountTotal;
-        }
-
-        $grandTotal = new \MobileCart\CoreBundle\EventListener\Cart\GrandTotal();
-        $grandTotal->setLabel('Grand Total');
-        $grandTotal->setValue(0);
-        $totals[] = $grandTotal;
-
-        $this->getCart()->setTotals($totals);
-
         return $this;
     }
 
     /**
      * @param string $json
-     * @return Cart
+     * @return $this
      */
     public function initCartJson($json)
     {
@@ -831,6 +853,22 @@ class CartService
     }
 
     /**
+     * @return string
+     */
+    public function getPaymentMethodCode()
+    {
+        return $this->getCartEntity()->getPaymentMethodCode();
+    }
+
+    /**
+     * @return array
+     */
+    public function getPaymentData()
+    {
+        return @ (array) json_decode($this->getCartEntity()->getPaymentInfo());
+    }
+
+    /**
      * @param CartItemEntity $entity
      * @return $this
      */
@@ -855,24 +893,22 @@ class CartService
     public function initCartEntity(CartEntity $cartEntity = null)
     {
         if (is_null($cartEntity)) {
+
             if ($this->getCartEntity()) {
                 return $this;
-            } else {
-
-                if ($this->getCart() && $this->getCart()->getId()) {
-                    $cartEntity = $this->getEntityService()->find(EntityConstants::CART, $this->getCart()->getId());
-                }
-
-                if (!$cartEntity) {
-                    $cartEntity = $this->createCartEntity();
-                    if (!$this->getCart()) {
-                        $this->initCart();
-                    }
-                    $cartEntity->setJson($this->getCart()->toJson());
-                }
-
-                $this->setCartEntity($cartEntity);
             }
+
+            if ($this->getCart() && $this->getCart()->getId()) {
+                $cartEntity = $this->getEntityService()->find(EntityConstants::CART, $this->getCart()->getId());
+            }
+
+            if (!$cartEntity) {
+                $cartEntity = $this->createCartEntity();
+                $cartEntity->setJson($this->getCart()->toJson());
+            }
+
+            $this->setCartEntity($cartEntity);
+
         } else {
             $this->setCartEntity($cartEntity);
         }
@@ -920,6 +956,103 @@ class CartService
     }
 
     /**
+     * @return $this
+     * @throws \Exception
+     */
+    public function saveCustomerEntity()
+    {
+        if (!$this->getCustomerEntity()) {
+            throw new \Exception('Customer entity is not set');
+        }
+
+        $this->getEntityService()->persist($this->getCustomerEntity());
+        if (!$this->getCustomerId()
+            && $this->getCustomerEntity()
+            && $this->getCustomerEntity()->getId()
+        ) {
+            $this->getCustomer()->setId($this->getCustomerEntity()->getId());
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function initCheckoutState()
+    {
+        $sections = [];
+        $sectionKeys = $this->getCheckoutFormService()->getSectionKeys();
+        if ($sectionKeys) {
+            foreach($sectionKeys as $sectionKey) {
+                $sections[$sectionKey] = false;
+            }
+        }
+
+        return $sections;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCheckoutState()
+    {
+        $this->initCartEntity();
+        return @ (array) json_decode($this->getCartEntity()->getCheckoutState());
+    }
+
+    /**
+     * @param string $section
+     * @param bool $isValid
+     * @return $this
+     */
+    public function setSectionIsValid($section, $isValid = true)
+    {
+        $sections = $this->getCheckoutState();
+        $sections[$section] = $isValid;
+        $this->getCartEntity()->setCheckoutState(json_encode($sections));
+        return $this;
+    }
+
+    /**
+     * @param $section
+     * @return bool
+     */
+    public function getSectionIsValid($section)
+    {
+        $sections = $this->getCheckoutState();
+        return isset($sections[$section])
+            ? (bool) $sections[$section]
+            : false;
+    }
+
+    /**
+     * @return array
+     */
+    public function getInvalidSections()
+    {
+        $invalid = [];
+        $sections = $this->getCheckoutState();
+        if ($sections) {
+            foreach($sections as $section => $isValid) {
+                if (!$isValid) {
+                    $invalid[] = $section;
+                }
+            }
+        }
+
+        return $invalid;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsAllValid()
+    {
+        return count($this->getInvalidSections()) == 0;
+    }
+
+    /**
      * @return CartEntity
      */
     public function createCartEntity()
@@ -933,6 +1066,8 @@ class CartService
         if ($this->getCustomerEntity()) {
             $cartEntity->setCustomer($this->getCustomerEntity());
         }
+
+        $cartEntity->setCheckoutState(json_encode($this->initCheckoutState()));
 
         return $cartEntity;
     }
@@ -1024,7 +1159,6 @@ class CartService
      */
     public function setCurrency($currency)
     {
-        $this->initCart();
         $this->getCart()->setCurrency($currency);
         return $this;
     }
@@ -1034,7 +1168,6 @@ class CartService
      */
     public function getCurrency()
     {
-        $this->initCart();
         return $this->getCart()->getCurrency();
     }
 
@@ -1053,7 +1186,6 @@ class CartService
      */
     public function addItem(Item $item, $qty = 1)
     {
-        $this->initCart();
         $item->setQty($qty);
         $this->getCart()->addItem($item);
         return $this;
@@ -1064,7 +1196,6 @@ class CartService
      */
     public function getItems()
     {
-        $this->initCart();
         return $this->getCart()->getItems();
     }
 
@@ -1083,7 +1214,6 @@ class CartService
      */
     public function removeItems()
     {
-        $this->initCart();
         $this->getCart()->unsetItems();
         $this->removeShipments();
         return $this;
@@ -1188,7 +1318,6 @@ class CartService
      */
     public function hasProductId($productId)
     {
-        $this->initCart();
         return is_numeric($this->getCart()->findItemIdx('product_id', $productId));
     }
 
@@ -1198,7 +1327,6 @@ class CartService
      */
     public function hasSku($sku)
     {
-        $this->initCart();
         return is_numeric($this->getCart()->findItemIdx('sku', $sku));
     }
 
@@ -1220,7 +1348,6 @@ class CartService
      */
     public function getProductIds()
     {
-        $this->initCart();
         return $this->getCart()->getProductIds();
     }
 
@@ -1233,7 +1360,6 @@ class CartService
      */
     public function setProductQty($productId, $qty)
     {
-        $this->initCart();
         $this->getCart()->setProductQty($productId, $qty);
         if (!$this->getCart()->hasItems()) {
             $this->removeShipments();
@@ -1250,7 +1376,6 @@ class CartService
      */
     public function addProductQty($productId, $qty)
     {
-        $this->initCart();
         $this->getCart()->addProductQty($productId, $qty);
         return $this;
     }
@@ -1261,8 +1386,13 @@ class CartService
      */
     public function setCustomer(Customer $customer)
     {
-        $this->initCart();
-        $this->getCart()->setCustomer($customer);
+        // don't call getCart() here because initCart() calls this method
+        if ($this->getIsApiRequest()) {
+            $this->cart->setCustomer($customer);
+        } else {
+            $this->getSessionCart()->setCustomer($customer);
+        }
+
         return $this;
     }
 
@@ -1271,7 +1401,6 @@ class CartService
      */
     public function getCustomer()
     {
-        $this->initCart();
         return $this->getCart()->getCustomer();
     }
 
@@ -1293,7 +1422,6 @@ class CartService
      */
     public function hasItems()
     {
-        $this->initCart();
         return (bool) $this->getCart()->hasItems();
     }
 
@@ -1370,6 +1498,21 @@ class CartService
     }
 
     /**
+     * @return $this
+     */
+    public function loadCustomerEntity()
+    {
+        if ($this->getCustomerId()) {
+            $customerEntity = $this->getEntityService()->find(EntityConstants::CUSTOMER, $this->getCustomerId());
+            if ($customerEntity) {
+                $this->setCustomerEntity($customerEntity);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * @param CustomerEntity $entity
      * @return Customer
      */
@@ -1438,10 +1581,8 @@ class CartService
      */
     public function getCustomerId()
     {
-        $this->initCart();
-        $customer = $this->getCart()->getCustomer();
-        return ($customer instanceof Customer)
-            ? $customer->getId()
+        return ($this->getCustomer() instanceof Customer)
+            ? $this->getCustomer()->getId()
             : 0;
     }
 
@@ -1455,7 +1596,6 @@ class CartService
      */
     public function addShipment(Shipment $shipment)
     {
-        $this->initCart();
         $this->getCart()->addShipment($shipment);
         return $this;
     }
@@ -1467,7 +1607,6 @@ class CartService
      */
     public function hasShipments($addressId='', $srcAddressKey='main')
     {
-        $this->initCart();
         return $this->getCart()->hasShipments($addressId, $srcAddressKey);
     }
 
@@ -1487,7 +1626,6 @@ class CartService
      */
     public function getShipmentMethod()
     {
-        $this->initCart();
         $shipments = $this->getCart()->getShipments();
         if ($shipments) {
             $shipment = $shipments[0];
@@ -1549,7 +1687,6 @@ class CartService
      */
     public function removeRates()
     {
-        $this->initCart();
         $this->getCart()->unsetShippingMethods();
         return $this;
     }
@@ -1604,7 +1741,6 @@ class CartService
      */
     public function removeShipments($addressId='', $srcAddressKey='main')
     {
-        $this->initCart();
         $this->getCart()->unsetShipments($addressId, $srcAddressKey);
         return $this;
     }
@@ -1617,7 +1753,6 @@ class CartService
      */
     public function removeShippingMethods($addressId='', $srcAddressKey='main')
     {
-        $this->initCart();
         $this->getCart()->unsetShippingMethods($addressId, $srcAddressKey);
         return $this;
     }
@@ -1629,7 +1764,6 @@ class CartService
      */
     public function removeShipment($key, $isKey = true)
     {
-        $this->initCart();
         $this->getCart()->unsetShipment($key, $isKey);
         return $this;
     }
@@ -1639,7 +1773,6 @@ class CartService
      */
     public function collectTotals()
     {
-        $this->initCart();
         $totals = $this->getCartTotalService()
             ->setIsShippingEnabled($this->getShippingService()->getIsShippingEnabled())
             ->setIsTaxEnabled($this->getTaxService()->getIsTaxEnabled())

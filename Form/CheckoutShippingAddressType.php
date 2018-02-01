@@ -12,29 +12,33 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
 use MobileCart\CoreBundle\Service\CheckoutSessionService;
 
+/**
+ * Class CheckoutShippingAddressType
+ * @package MobileCart\CoreBundle\Form
+ */
 class CheckoutShippingAddressType extends AbstractType
 {
     /**
-     * @var CheckoutSessionService
+     * @var \MobileCart\CoreBundle\Service\OrderService
      */
-    protected $checkoutSessionService;
+    protected $orderService;
 
     /**
-     * @param CheckoutSessionService $checkoutSessionService
+     * @param $orderService
      * @return $this
      */
-    public function setCheckoutSessionService(CheckoutSessionService $checkoutSessionService)
+    public function setOrderService($orderService)
     {
-        $this->checkoutSessionService = $checkoutSessionService;
+        $this->orderService = $orderService;
         return $this;
     }
 
     /**
-     * @return CheckoutSessionService
+     * @return \MobileCart\CoreBundle\Service\OrderService
      */
-    public function getCheckoutSessionService()
+    public function getOrderService()
     {
-        return $this->checkoutSessionService;
+        return $this->orderService;
     }
 
     /**
@@ -42,7 +46,7 @@ class CheckoutShippingAddressType extends AbstractType
      */
     public function getCartService()
     {
-        return $this->getCheckoutSessionService()->getCartService();
+        return $this->getOrderService()->getCartService();
     }
 
     /**

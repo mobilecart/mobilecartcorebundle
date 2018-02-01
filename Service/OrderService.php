@@ -49,6 +49,11 @@ class OrderService
     protected $request;
 
     /**
+     * @var bool
+     */
+    protected $success = false;
+
+    /**
      * @var array
      */
     protected $errors = [];
@@ -242,6 +247,24 @@ class OrderService
     }
 
     /**
+     * @param bool $success
+     * @return $this
+     */
+    public function setSuccess($success = true)
+    {
+        $this->success = (bool) $success;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getSuccess()
+    {
+        return (bool) $this->success;
+    }
+
+    /**
      * @param string $error
      * @return $this
      */
@@ -322,7 +345,7 @@ class OrderService
     }
 
     /**
-     * @return mixed
+     * @return AbstractEntityService
      */
     public function getEntityService()
     {
@@ -801,45 +824,64 @@ class OrderService
      * Submit Cart
      *  This is the main method used in checkout
      *
-     * @throws \Exception
-     * @return mixed
+     * @return $this
      */
     public function submitCart()
     {
+        /* todo : implement this
         if ($this->getDetectFraud()) {
             $this->handleFraudDetection();
             if ($this->getIsFraud()) {
                 // dont allow order to be created
                 // throw new FraudulentOrderException();
             }
-        }
+        } //*/
 
         if ($this->getEnableCreatePayment()) {
-            $this->processPayment();
+            try {
+                $this->processPayment();
+            } catch(\Exception $e) {
+                return $this;
+            }
         }
 
-        // save order
-        $this->createOrder();
+        $this->getEntityService()->beginTransaction();
 
-        // save payment next, because shipments need to set flag is_paid, and invoice sets a flag also
-        if ($this->getEnableCreatePayment()
-            && $this->getPaymentSuccess()
-        ) {
-            $this->createOrderPayment();
+        try {
+
+            // save order
+            $this->createOrder();
+
+            // save payment next, because shipments need to set flag is_paid, and invoice sets a flag also
+            if ($this->getEnableCreatePayment()
+                && $this->getPaymentSuccess()
+            ) {
+                $this->createOrderPayment();
+            }
+
+            // save invoice next
+            if ($this->getEnableCreateInvoice()) {
+                $this->createUpdateInvoice();
+            }
+
+            // save order shipments first
+            //  because order items can save a reference to a shipment
+            $this->createOrderShipments();
+
+            // save order items
+            //  each item could reference a shipment
+            $this->createOrderItems();
+
+            // todo : update cart set is_converted=1
+
+            $this->createOrderHistory();
+
+            $this->setSuccess(true);
+            $this->getEntityService()->commit();
+        } catch(\Exception $e) {
+            $this->getEntityService()->rollBack();
+            return $this;
         }
-
-        // save invoice next
-        if ($this->getEnableCreateInvoice()) {
-            $this->createUpdateInvoice();
-        }
-
-        // save order shipments first
-        //  because order items can save a reference to a shipment
-        $this->createOrderShipments();
-
-        // save order items
-        //  each item could reference a shipment
-        $this->createOrderItems();
 
         $event = new CoreEvent();
         $event->addData($this->getEventData())
@@ -1136,23 +1178,12 @@ class OrderService
 
         $cartCustomer = $cart->getCustomer();
 
+        /** @var \MobileCart\CoreBundle\Entity\Order $order */
         $order = $this->getOrder();
         if (!$order) {
 
             $order = $this->getEntityService()->getInstance(EntityConstants::ORDER);
-
-            $varSet = $this->getEntityService()->findOneBy(EntityConstants::ITEM_VAR_SET, [
-                'object_type' => EntityConstants::ORDER,
-            ]);
-
-            $customer = $this->getEntityService()->find(EntityConstants::CUSTOMER, $cartCustomer->getId());
-            if (!$customer) {
-                throw new \InvalidArgumentException("Customer account is required");
-            }
-
-            $order->setItemVarSet($varSet)
-                ->setCustomer($customer)
-                ->setEmail($cartCustomer->getEmail())
+            $order->setEmail($cartCustomer->getEmail())
                 ->setBillingName($cartCustomer->getBillingName())
                 ->setBillingPhone($cartCustomer->getBillingPhone())
                 ->setBillingStreet($cartCustomer->getBillingStreet())
@@ -1160,6 +1191,21 @@ class OrderService
                 ->setBillingRegion($cartCustomer->getBillingRegion())
                 ->setBillingPostcode($cartCustomer->getBillingPostcode())
                 ->setBillingCountryId($cartCustomer->getBillingCountryId());
+
+            $varSet = $this->getEntityService()->findOneBy(EntityConstants::ITEM_VAR_SET, [
+                'object_type' => EntityConstants::ORDER,
+            ]);
+
+            if ($varSet) {
+                $order->setItemVarSet($varSet);
+            }
+
+            if ($cartCustomer->getId()) {
+                $customer = $this->getEntityService()->find(EntityConstants::CUSTOMER, $cartCustomer->getId());
+                if ($customer) {
+                    $order->setCustomer($customer);
+                }
+            }
         }
 
         $order->setJson($cart->toJson());
@@ -1174,6 +1220,7 @@ class OrderService
 
         $baseTaxTotal = $cart->getTotal(TaxTotal::KEY)->getValue();
 
+        // set base currency values
         $order->setBaseCurrency($baseCurrency)
             ->setBaseTotal($baseGrandTotal)
             ->setBaseItemTotal($baseItemTotal)
@@ -1181,6 +1228,7 @@ class OrderService
             ->setBaseShippingTotal($baseShipmentTotal)
             ->setBaseDiscountTotal($baseDiscountTotal);
 
+        // convert currency if necessary
         if ($currency == $baseCurrency) {
 
             $order->setCurrency($baseCurrency)
@@ -1189,7 +1237,6 @@ class OrderService
                 ->setTaxTotal($baseTaxTotal)
                 ->setShippingTotal($baseShipmentTotal)
                 ->setDiscountTotal($baseDiscountTotal);
-
         } else {
 
             $currencyService = $this->getCurrencyService();
@@ -1205,41 +1252,27 @@ class OrderService
                 ->setTaxTotal($taxTotal)
                 ->setShippingTotal($shipmentTotal)
                 ->setDiscountTotal($discountTotal);
-
         }
 
         $baseReferenceNbr = $this->getOrderReferenceOffset();
         $order->setReferenceNbr($baseReferenceNbr);
         $order->setCreatedAt(new \DateTime('now'));
 
-        // save order
+        // save order . let this throw an exception
         $this->getEntityService()->persist($order);
 
         $orderId = $order->getId();
         $referenceNbr = ((int) $baseReferenceNbr) + $orderId;
         $order->setReferenceNbr($referenceNbr);
-        // update order
+
+        // update order . let this throw an exception
         $this->getEntityService()->persist($order);
 
-        // handle EAV, if necessary
+        // todo: handle EAV, if necessary
         //if ($formData /* && $this->getEntityService()->isEAV() */) {
         //    $this->getEntityService()
         //        ->persistVariants($order, $formData);
         //}
-
-        $username = $this->getUser()
-            ? $this->getUser()->getEmail()
-            : $order->getEmail();
-
-        /** @var \MobileCart\CoreBundle\Entity\OrderHistory $history */
-        $history = $this->getEntityService()->getInstance(EntityConstants::ORDER_HISTORY);
-        $history->setCreatedAt(new \DateTime('now'))
-            ->setOrder($order)
-            ->setUser($username)
-            ->setMessage('Order Created')
-            ->setHistoryType(\MobileCart\CoreBundle\Entity\OrderHistory::TYPE_STATUS);
-
-        $this->getEntityService()->persist($history);
 
         // set order for further processing
         $this->setOrder($order);
@@ -1305,6 +1338,8 @@ class OrderService
                     }
                 }
                 $orderItem->setCreatedAt(new \DateTime('now'));
+
+                // let this throw an exception
                 $this->getEntityService()->persist($orderItem);
 
                 $product = $this->getEntityService()->find(EntityConstants::PRODUCT, $item->getProductId());
@@ -1507,6 +1542,33 @@ class OrderService
             ->setUser($username)
             ->setMessage('Payment Created')
             ->setHistoryType(\MobileCart\CoreBundle\Entity\OrderHistory::TYPE_PAYMENT);
+
+        $this->getEntityService()->persist($history);
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function createOrderHistory()
+    {
+        $order = $this->getOrder();
+        if (!$order) {
+            throw new \InvalidArgumentException('Order not set. Cannot save order history');
+        }
+
+        $username = $this->getUser()
+            ? $this->getUser()->getEmail()
+            : $order->getEmail();
+
+        /** @var \MobileCart\CoreBundle\Entity\OrderHistory $history */
+        $history = $this->getEntityService()->getInstance(EntityConstants::ORDER_HISTORY);
+        $history->setCreatedAt(new \DateTime('now'))
+            ->setOrder($order)
+            ->setUser($username)
+            ->setMessage('Order Created')
+            ->setHistoryType(\MobileCart\CoreBundle\Entity\OrderHistory::TYPE_STATUS);
 
         $this->getEntityService()->persist($history);
 

@@ -52,11 +52,9 @@ class CustomerAddressController extends Controller
      */
     public function newAction(Request $request)
     {
-        $entity = $this->get('cart.entity')->getInstance($this->objectType);
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setEntity($entity)
+            ->setEntity($this->get('cart.entity')->getInstance($this->objectType))
             ->setRequest($request)
             ->setFormAction($this->generateUrl('customer_address_create'))
             ->setFormMethod('POST')
@@ -78,11 +76,9 @@ class CustomerAddressController extends Controller
      */
     public function createAction(Request $request)
     {
-        $entity = $this->get('cart.entity')->getInstance($this->objectType);
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setEntity($entity)
+            ->setEntity($this->get('cart.entity')->getInstance($this->objectType))
             ->setRequest($request)
             ->setFormAction($this->generateUrl('customer_address_create'))
             ->setFormMethod('POST')
@@ -93,12 +89,7 @@ class CustomerAddressController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_ADDRESS_FORM, $event);
 
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
-
-            $formData = $request->request->get($form->getName());
-
-            $event->setFormData($formData);
+        if ($event->isFormValid()) {
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CUSTOMER_ADDRESS_INSERT, $event);
@@ -109,28 +100,12 @@ class CustomerAddressController extends Controller
             return $event->getResponse();
         }
 
-        if ($request->get(\MobileCart\CoreBundle\Constants\ApiConstants::PARAM_RESPONSE_TYPE, '') == 'json') {
-
-            $invalid = [];
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            return new JsonResponse([
-                'success' => false,
-                'invalid' => $invalid,
-                'messages' => $event->getMessages(),
-            ]);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse();
         }
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CUSTOMER_NEW_RETURN, $event);
+            ->dispatch(CoreEvents::CUSTOMER_ADDRESS_NEW_RETURN, $event);
 
         return $event->getResponse();
     }
@@ -199,12 +174,7 @@ class CustomerAddressController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CUSTOMER_ADDRESS_FORM, $event);
 
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
-
-            $formData = $request->request->get($form->getName());
-
-            $event->setFormData($formData);
+        if ($event->isFormValid()) {
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CUSTOMER_ADDRESS_UPDATE, $event);

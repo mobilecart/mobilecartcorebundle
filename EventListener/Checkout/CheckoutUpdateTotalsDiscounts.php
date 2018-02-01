@@ -13,9 +13,9 @@ use MobileCart\CoreBundle\Constants\CheckoutConstants;
 class CheckoutUpdateTotalsDiscounts
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
+     * @var \MobileCart\CoreBundle\Service\OrderService
      */
-    protected $checkoutSessionService;
+    protected $orderService;
 
     /**
      * @var \Symfony\Component\Routing\RouterInterface
@@ -23,21 +23,21 @@ class CheckoutUpdateTotalsDiscounts
     protected $router;
 
     /**
-     * @param $checkoutSessionService
+     * @param $orderService
      * @return $this
      */
-    public function setCheckoutSessionService($checkoutSessionService)
+    public function setOrderService($orderService)
     {
-        $this->checkoutSessionService = $checkoutSessionService;
+        $this->orderService = $orderService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
+     * @return \MobileCart\CoreBundle\Service\OrderService
      */
-    public function getCheckoutSessionService()
+    public function getOrderService()
     {
-        return $this->checkoutSessionService;
+        return $this->orderService;
     }
 
     /**
@@ -45,7 +45,7 @@ class CheckoutUpdateTotalsDiscounts
      */
     public function getCartService()
     {
-        return $this->getCheckoutSessionService()->getCartService();
+        return $this->getOrderService()->getCartService();
     }
 
     /**

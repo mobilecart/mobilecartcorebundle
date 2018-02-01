@@ -40,6 +40,27 @@ class OrderItem
     protected $tracking;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="is_picked", type="boolean", nullable=true)
+     */
+    protected $is_picked = false;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="is_packed", type="boolean", nullable=true)
+     */
+    protected $is_packed = false;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="is_shipped", type="boolean", nullable=true)
+     */
+    protected $is_shipped = false;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime", nullable=true)

@@ -43,7 +43,7 @@ class OrderPaymentCreateReturn
         $entity = $event->getEntity();
         $url = $this->getRouter()->generate('cart_admin_order_payment_edit', ['id' => $entity->getId()]);
 
-        if ($event->getRequest()->getSession() && $event->getMessages()) {
+        if ($event->hasFlashMessages()) {
             $event->flashMessages();
         }
 

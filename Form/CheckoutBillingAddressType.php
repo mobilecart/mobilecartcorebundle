@@ -19,26 +19,26 @@ use MobileCart\CoreBundle\Service\CheckoutSessionService;
 class CheckoutBillingAddressType extends AbstractType
 {
     /**
-     * @var CheckoutSessionService
+     * @var \MobileCart\CoreBundle\Service\OrderService
      */
-    protected $checkoutSessionService;
+    protected $orderService;
 
     /**
-     * @param CheckoutSessionService $checkoutSessionService
+     * @param $orderService
      * @return $this
      */
-    public function setCheckoutSessionService(CheckoutSessionService $checkoutSessionService)
+    public function setOrderService($orderService)
     {
-        $this->checkoutSessionService = $checkoutSessionService;
+        $this->orderService = $orderService;
         return $this;
     }
 
     /**
-     * @return CheckoutSessionService
+     * @return \MobileCart\CoreBundle\Service\OrderService
      */
-    public function getCheckoutSessionService()
+    public function getOrderService()
     {
-        return $this->checkoutSessionService;
+        return $this->orderService;
     }
 
     /**
@@ -46,7 +46,7 @@ class CheckoutBillingAddressType extends AbstractType
      */
     public function getCartService()
     {
-        return $this->getCheckoutSessionService()->getCartService();
+        return $this->getOrderService()->getCartService();
     }
 
     /**
@@ -62,7 +62,7 @@ class CheckoutBillingAddressType extends AbstractType
      */
     public function getDisplayEmailInput()
     {
-        return $this->getCheckoutSessionService()->getAllowGuestCheckout() && !$this->getCustomerId();
+        return $this->getCartService()->getAllowGuestCheckout() && !$this->getCustomerId();
     }
 
     /**

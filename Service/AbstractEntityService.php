@@ -272,4 +272,28 @@ abstract class AbstractEntityService implements UserProviderInterface
      * @return mixed
      */
     abstract public function persist($entity, $objectType = '');
+
+    /**
+     * @return $this
+     */
+    public function beginTransaction()
+    {
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function commit()
+    {
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function rollBack()
+    {
+        return $this;
+    }
 }

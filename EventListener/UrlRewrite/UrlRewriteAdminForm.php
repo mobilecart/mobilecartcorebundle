@@ -93,8 +93,8 @@ class UrlRewriteAdminForm
 
         $formTypeClass = 'MobileCart\CoreBundle\Form\UrlRewriteType';
         $form = $this->getFormFactory()->create($formTypeClass, $entity, [
-            'action' => $event->getAction(),
-            'method' => $event->getMethod(),
+            'action' => $event->getFormAction(),
+            'method' => $event->getFormMethod(),
         ]);
 
         $formSections = [

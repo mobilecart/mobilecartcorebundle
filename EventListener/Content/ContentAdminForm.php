@@ -111,7 +111,19 @@ class ContentAdminForm
      */
     public function onContentAdminForm(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\Content $entity */
         $entity = $event->getEntity();
+
+        // find variant set
+        if (!$entity->getId() && !$entity->getItemVarSet()) {
+            $varSet = $this->getEntityService()->findOneBy(EntityConstants::ITEM_VAR_SET, [
+                'object_type' => EntityConstants::CONTENT
+            ]);
+            if ($varSet) {
+                $entity->setItemVarSet($varSet);
+            }
+        }
+
         $form = $this->getFormFactory()->create($this->getFormTypeClass(), $entity, [
             'action' => $event->getFormAction(),
             'method' => $event->getFormMethod(),
@@ -250,6 +262,6 @@ class ContentAdminForm
 
         $event->setReturnData('content_types', EntityConstants::getContentTypes());
         $event->setReturnData('form_sections', $formSections);
-        $event->setReturnData('form', $form);
+        $event->setForm($form);
     }
 }

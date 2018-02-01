@@ -62,17 +62,7 @@ class CustomerRegisterCheckEmailReturn
     public function onCustomerRegisterCheckEmailReturn(CoreEvent $event)
     {
         $event->setReturnData('template_sections', []);
-
-        if ($codeMessages = $event->getMessages()) {
-            foreach($codeMessages as $code => $messages) {
-                if (!$messages) {
-                    continue;
-                }
-                foreach($messages as $message) {
-                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                }
-            }
-        }
+        $event->flashMessages();
 
         $event->setResponse($this->getThemeService()->render(
             'frontend',

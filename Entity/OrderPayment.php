@@ -115,6 +115,27 @@ class OrderPayment
     protected $is_refund;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="is_authorized", type="boolean", nullable=true)
+     */
+    protected $is_authorized = false;
+
+    /**
+     * @var string $authorization
+     *
+     * @ORM\Column(name="authorization", type="text", nullable=true)
+     */
+    protected $authorization;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="is_captured", type="boolean", nullable=true)
+     */
+    protected $is_captured = false;
+
+    /**
      * @var \MobileCart\CoreBundle\Entity\Order
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Order", inversedBy="payments")

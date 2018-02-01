@@ -127,6 +127,7 @@ class LoginFailed implements AuthenticationFailureHandlerInterface
         }
 
         $event = new CoreEvent();
+        $event->addErrorMessage('Login Failed');
 
         $username = $request->get('_username', '');
         if ($username) {
@@ -147,9 +148,11 @@ class LoginFailed implements AuthenticationFailureHandlerInterface
                 $failedLogins++;
                 if ($failedLogins >= self::MAX_FAILED_LOGINS && !$user->getIsLocked()) {
 
-                    $user->setIsLocked(1)
+                    $user->setIsLocked(true)
                         ->setApiKey('')
                         ->setLockedAt(new \DateTime('now'));
+
+                    $event->addWarningMessage('The account has been temporarily locked');
 
                     // observe event, possibly send an email
 
@@ -162,20 +165,20 @@ class LoginFailed implements AuthenticationFailureHandlerInterface
                 }
 
                 $user->setFailedLogins($failedLogins);
-                $this->getEntityService()->persist($user);
+
+                try {
+                    $this->getEntityService()->persist($user);
+                } catch(\Exception $e) {
+                    $event->addErrorMessage('An error occurred while saving the User');
+                }
             }
         }
 
-        if ($request->headers->get('Content-Type') == 'application/json') {
-
-            // user account might be locked, but don't tell them that
-            $message = $event->getMessage()
-                ? $event->getMessage()
-                : 'login.failed';
+        if ($request->headers->get('Accept') == 'application/json') {
 
             return new JsonResponse([
                 'success' => false,
-                'message' => $message,
+                'messages' => $event->getMessages(),
             ]);
         }
 

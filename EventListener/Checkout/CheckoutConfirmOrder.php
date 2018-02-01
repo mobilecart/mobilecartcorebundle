@@ -16,11 +16,6 @@ class CheckoutConfirmOrder
     protected $themeService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
-     */
-    protected $checkoutSessionService;
-
-    /**
      * @var string
      */
     protected $layout = 'frontend';
@@ -29,6 +24,37 @@ class CheckoutConfirmOrder
      * @var string
      */
     protected $defaultTemplate = 'Checkout:confirm_order.html.twig';
+
+    /**
+     * @var \MobileCart\CoreBundle\Service\OrderService
+     */
+    protected $orderService;
+
+    /**
+     * @param $orderService
+     * @return $this
+     */
+    public function setOrderService($orderService)
+    {
+        $this->orderService = $orderService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\OrderService
+     */
+    public function getOrderService()
+    {
+        return $this->orderService;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->getOrderService()->getCartService();
+    }
 
     /**
      * @return \MobileCart\CoreBundle\Service\AbstractEntityService
@@ -72,32 +98,6 @@ class CheckoutConfirmOrder
     public function getThemeService()
     {
         return $this->themeService;
-    }
-
-    /**
-     * @param $checkoutSessionService
-     * @return $this
-     */
-    public function setCheckoutSessionService($checkoutSessionService)
-    {
-        $this->checkoutSessionService = $checkoutSessionService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
-     */
-    public function getCheckoutSessionService()
-    {
-        return $this->checkoutSessionService;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CartService
-     */
-    public function getCartService()
-    {
-        return $this->getCheckoutSessionService()->getCartService();
     }
 
     /**

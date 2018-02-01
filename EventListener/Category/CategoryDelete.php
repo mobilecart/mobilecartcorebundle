@@ -56,7 +56,7 @@ class CategoryDelete
 
         $event->addSuccessMessage('Category Deleted!');
 
-        if ($event->getRequest()->getSession() && $event->getMessages()) {
+        if ($event->hasFlashMessages()) {
             foreach($event->getMessages() as $code => $messages) {
                 if (!$messages) {
                     continue;

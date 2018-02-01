@@ -34,7 +34,7 @@ abstract class AbstractCartEntityEAV extends AbstractCartEntity
 
     /**
      *
-     * @return array
+     * @return CartEntityVarValueInterface[]|ArrayCollection
      */
     public function getVarValues()
     {

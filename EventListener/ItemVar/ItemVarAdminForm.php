@@ -156,6 +156,6 @@ class ItemVarAdminForm
             ],
         ]);
 
-        $event->setReturnData('form', $form);
+        $event->setForm($form);
     }
 }

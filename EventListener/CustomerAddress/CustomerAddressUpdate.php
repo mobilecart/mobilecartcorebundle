@@ -48,15 +48,22 @@ class CustomerAddressUpdate
     {
         /** @var \MobileCart\CoreBundle\Entity\CustomerAddress $entity */
         $entity = $event->getEntity();
+
         /** @var \MobileCart\CoreBundle\Entity\Customer $customer */
         $customer = $event->getCustomer();
 
-        $this->getEntityService()->persist($entity);
-
-        if (!$this->getCartService()->getIsAdminUser()) {
-            $this->getCartService()->setCustomerEntity($customer);
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Customer Address Updated !');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('Exception occurred while saving Customer Address');
         }
 
-        $event->addSuccessMessage('Customer Address Updated!');
+        if ($event->getSuccess()) {
+            if (!$this->getCartService()->getIsAdminUser()) {
+                $this->getCartService()->setCustomerEntity($customer);
+            }
+        }
     }
 }

@@ -13,6 +13,19 @@ class Initialize extends BaseCartListener
 {
     public function onCartInitialize(CoreEvent $event)
     {
+        //
+        if (!$event->getUser()) {
+            $event->setResponse(new JsonResponse([
+                'success' => false,
+                'messages' => [
+                    'error' => [
+                        'Please login or register'
+                    ]
+                ]
+            ], 401));
+            return;
+        }
+
         // allow a previous EventListener to set a custom value
         $hash = $event->get('hash', '')
             ? $event->get('hash', '')
@@ -23,8 +36,6 @@ class Initialize extends BaseCartListener
         $this->getCartService()->getCartEntity()->setHashKey($hash);
         $this->getCartService()->saveCart();
 
-        $event->setResponse(new JsonResponse([
-            'hash' => $this->getCartService()->getCartEntity()->getHashKey(),
-        ]));
+        $event->setResponse(new JsonResponse($this->getCartService()->getCartEntity()->getHashKey()));
     }
 }

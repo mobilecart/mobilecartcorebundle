@@ -86,27 +86,18 @@ class CustomerUpdatePasswordPostReturn
      */
     public function onCustomerUpdatePasswordPostReturn(CoreEvent $event)
     {
-        if ($event->getRequest()->getSession() && $event->getMessages()) {
-            $event->flashMessages();
-        }
+        $url = $this->getRouter()->generate('login_route', []);
+        $event->flashMessages();
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
-                // security risk . be careful what we return here
-                $event->setResponse(new JsonResponse([
-                    'success' => $event->getSuccess()
-                ]));
-                break;
-            default:
-
-                if ($event->getSuccess()) {
-                    $event->addSuccessMessage('Password Successfully Updated!');
-                    $event->setResponse(new RedirectResponse($this->getRouter()->generate('login_route', [])));
-                } else {
-                    $event->addErrorMessage('Invalid Request Submitted');
-                    $event->setResponse(new RedirectResponse($this->getRouter()->generate('customer_forgot_password', [])));
-                }
-                break;
+        if ($event->isJsonResponse()) {
+            // security risk . be careful what we return here
+            $event->setResponse(new JsonResponse([
+                'success' => true,
+                'redirect_url' => $url,
+                'messages' => $event->getMessages(),
+            ]));
+        } else {
+            $event->setResponse(new RedirectResponse($url));
         }
     }
 }

@@ -63,18 +63,9 @@ class CustomerAddressNewReturn
     {
         $event->setReturnData('entity', $event->getEntity());
         $event->setReturnData('template_sections', []);
-        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('form', $event->getForm()->createView());
 
-        if ($event->getRequest()->getSession() && $event->getMessages()) {
-            foreach($event->getMessages() as $code => $messages) {
-                if (!$messages) {
-                    continue;
-                }
-                foreach($messages as $message) {
-                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                }
-            }
-        }
+        $event->flashMessages();
 
         $event->setResponse($this->getThemeService()->render(
             'frontend',

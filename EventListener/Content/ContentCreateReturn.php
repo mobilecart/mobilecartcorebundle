@@ -45,7 +45,7 @@ class ContentCreateReturn
             'id' => $entity->getId()
         ]);
 
-        if ($event->getRequest()->getSession() && $event->getMessages()) {
+        if ($event->hasFlashMessages()) {
             $event->flashMessages();
         }
 

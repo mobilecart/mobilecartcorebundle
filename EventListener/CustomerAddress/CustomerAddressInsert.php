@@ -51,12 +51,19 @@ class CustomerAddressInsert
         /** @var \MobileCart\CoreBundle\Entity\Customer $customer */
         $customer = $event->getCustomer();
         $entity->setCustomer($customer);
-        $this->getEntityService()->persist($entity);
 
-        if (!$this->getCartService()->getIsAdminUser()) {
-            $this->getCartService()->setCustomerEntity($customer);
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Customer Address Created !');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('Exception occurred while saving customer address');
         }
 
-        $event->addSuccessMessage('Customer Address Created!');
+        if ($event->getSuccess()) {
+            if (!$this->getCartService()->getIsAdminUser()) {
+                $this->getCartService()->setCustomerEntity($customer);
+            }
+        }
     }
 }

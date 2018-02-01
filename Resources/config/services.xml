@@ -81,10 +81,10 @@
         <parameter key="cart.form.type.order_payment.class">MobileCart\CoreBundle\Form\OrderPaymentType</parameter>
         <parameter key="cart.form.type.order_shipment.class">MobileCart\CoreBundle\Form\OrderShipmentType</parameter>
         <parameter key="cart.form.type.product.class">MobileCart\CoreBundle\Form\ProductType</parameter>
+        <parameter key="cart.form.type.shipping_method.class">MobileCart\CoreBundle\Form\ShippingMethodType</parameter>
         <!-- Services -->
         <parameter key="cart.class">MobileCart\CoreBundle\Service\CartService</parameter>
         <parameter key="cart.checkout.form.class">MobileCart\CoreBundle\Service\CheckoutFormService</parameter>
-        <parameter key="cart.checkout.session.class">MobileCart\CoreBundle\Service\CheckoutSessionService</parameter>
         <parameter key="cart.currency.class">MobileCart\CoreBundle\Service\CurrencyService</parameter>
         <parameter key="cart.discount.class">MobileCart\CoreBundle\Service\DiscountService</parameter>
         <parameter key="cart.entity.class">MobileCart\CoreBundle\Service\DoctrineEntityService</parameter>
@@ -286,10 +286,11 @@
         <parameter key="cart.listener.customer.register.form.class">MobileCart\CoreBundle\EventListener\Customer\CustomerRegisterForm</parameter>
         <parameter key="cart.listener.customer.admin.form.class">MobileCart\CoreBundle\EventListener\Customer\CustomerAdminForm</parameter>
         <parameter key="cart.listener.customer.register.class">MobileCart\CoreBundle\EventListener\Customer\CustomerRegister</parameter>
+        <parameter key="cart.listener.customer.register.sendemail.class">MobileCart\CoreBundle\EventListener\Customer\CustomerRegisterSendEmail</parameter>
         <parameter key="cart.listener.customer.register.confirm.class">MobileCart\CoreBundle\EventListener\Customer\CustomerRegisterConfirm</parameter>
+        <parameter key="cart.listener.customer.register.confirm.sendemail.class">MobileCart\CoreBundle\EventListener\Customer\CustomerRegisterConfirmSendEmail</parameter>
         <parameter key="cart.listener.customer.register.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerRegisterReturn</parameter>
         <parameter key="cart.listener.customer.register.checkemail.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerRegisterCheckEmailReturn</parameter>
-        <parameter key="cart.listener.customer.register.confirm.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerRegisterConfirmReturn</parameter>
         <parameter key="cart.listener.customer.register.post.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerRegisterPostReturn</parameter>
         <parameter key="cart.listener.customer.profile.form.class">MobileCart\CoreBundle\EventListener\Customer\CustomerProfileForm</parameter>
         <parameter key="cart.listener.customer.profile.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerProfileReturn</parameter>
@@ -298,6 +299,7 @@
         <parameter key="cart.listener.customer.order.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerOrderReturn</parameter>
         <parameter key="cart.listener.customer.forgotpassword.form.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPasswordForm</parameter>
         <parameter key="cart.listener.customer.forgotpassword.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPassword</parameter>
+        <parameter key="cart.listener.customer.forgotpassword.sendemail.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPasswordSendEmail</parameter>
         <parameter key="cart.listener.customer.forgotpassword.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPasswordReturn</parameter>
         <parameter key="cart.listener.customer.forgotpassword.post.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPasswordPostReturn</parameter>
         <parameter key="cart.listener.customer.forgotpassword.success.class">MobileCart\CoreBundle\EventListener\Customer\CustomerForgotPasswordSuccess</parameter>
@@ -305,6 +307,7 @@
         <parameter key="cart.listener.customer.updatepassword.class">MobileCart\CoreBundle\EventListener\Customer\CustomerUpdatePassword</parameter>
         <parameter key="cart.listener.customer.updatepassword.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerUpdatePasswordReturn</parameter>
         <parameter key="cart.listener.customer.updatepassword.post.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerUpdatePasswordPostReturn</parameter>
+        <parameter key="cart.listener.customer.updatepassword.failed.return.class">MobileCart\CoreBundle\EventListener\Customer\CustomerUpdatePasswordFailedReturn</parameter>
         <parameter key="cart.listener.customer.insert.class">MobileCart\CoreBundle\EventListener\Customer\CustomerInsert</parameter>
         <parameter key="cart.listener.customer.update.class">MobileCart\CoreBundle\EventListener\Customer\CustomerUpdate</parameter>
         <parameter key="cart.listener.customer.delete.class">MobileCart\CoreBundle\EventListener\Customer\CustomerDelete</parameter>
@@ -316,7 +319,6 @@
         <parameter key="cart.listener.customer_address.edit.return.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressEditReturn</parameter>
         <parameter key="cart.listener.customer_address.insert.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressInsert</parameter>
         <parameter key="cart.listener.customer_address.update.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressUpdate</parameter>
-        <parameter key="cart.listener.customer_address.create.return.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressCreateReturn</parameter>
         <parameter key="cart.listener.customer_address.update.return.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressUpdateReturn</parameter>
         <parameter key="cart.listener.customer_address.delete.class">MobileCart\CoreBundle\EventListener\CustomerAddress\CustomerAddressDelete</parameter>
         <!-- Discount Admin Handlers -->
@@ -742,6 +744,9 @@
             <call method="setShippingService">
                 <argument type="service" id="cart.shipping" />
             </call>
+            <call method="setCheckoutFormService">
+                <argument type="service" id="cart.checkout.form" />
+            </call>
             <call method="setTaxService">
                 <argument type="service" id="cart.tax" />
             </call>
@@ -766,16 +771,6 @@
         <service id="cart.checkout.form" lazy="true" class="%cart.checkout.form.class%">
             <call method="setEventDispatcher">
                 <argument type="service" id="event_dispatcher" />
-            </call>
-        </service>
-
-        <!-- Checkout Session/Config Service -->
-        <service id="cart.checkout.session" lazy="true" class="%cart.checkout.session.class%">
-            <call method="setOrderService">
-                <argument type="service" id="cart.order" />
-            </call>
-            <call method="setCheckoutFormService">
-                <argument type="service" id="cart.checkout.form" />
             </call>
         </service>
 
@@ -818,8 +813,8 @@
         <service id="cart.listener.checkout.form" lazy="true" class="%cart.listener.checkout.form.class%">
             <tag name="kernel.event_listener" event="checkout.form" method="onCheckoutFormStart" priority="100" />
             <tag name="kernel.event_listener" event="checkout.form" method="onCheckoutFormEnd" priority="10" />
-            <call method="setCheckoutSessionService">
-                <argument type="service" id="cart.checkout.session" />
+            <call method="setOrderService">
+                <argument type="service" id="cart.order" />
             </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme" />
@@ -829,8 +824,8 @@
         <!-- Form Type : Checkout Billing Address -->
         <service id="cart.form.type.checkout.billing_address" lazy="true" class="%cart.form.type.checkout.billing_address.class%">
             <tag name="form.type" />
-            <call method="setCheckoutSessionService">
-                <argument type="service" id="cart.checkout.session" />
+            <call method="setOrderService">
+                <argument type="service" id="cart.order" />
             </call>
         </service>
 
@@ -846,8 +841,8 @@
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
-            <call method="setCheckoutSessionService">
-                <argument type="service" id="cart.checkout.session" />
+            <call method="setOrderService">
+                <argument type="service" id="cart.order" />
             </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme" />
@@ -857,8 +852,8 @@
         <!-- Form Type : Checkout Shipping Address -->
         <service id="cart.form.type.checkout.shipping_address" lazy="true" class="%cart.form.type.checkout.shipping_address.class%">
             <tag name="form.type" />
-            <call method="setCheckoutSessionService">
-                <argument type="service" id="cart.checkout.session" />
+            <call method="setOrderService">
+                <argument type="service" id="cart.order" />
             </call>
         </service>
 
@@ -874,8 +869,8 @@
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
-            <call method="setCheckoutSessionService">
-                <argument type="service" id="cart.checkout.session" />
+            <call method="setOrderService">
+                <argument type="service" id="cart.order" />
             </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme" />
@@ -885,8 +880,8 @@
         <!-- Event Listener: render Totals and Discounts section of checkout -->
         <service id="cart.listener.checkout.form.totals_discounts" lazy="true" class="%cart.listener.checkout.form.totals_discounts.class%">
             <tag name="kernel.event_listener" event="checkout.form" method="onCheckoutForm" priority="70" />
-            <call method="setCheckoutSessionService">
-                <argument type="service" id="cart.checkout.session" />
+            <call method="setOrderService">
+                <argument type="service" id="cart.order" />
             </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
@@ -908,8 +903,8 @@
             <call method="setPaymentService">
                 <argument type="service" id="cart.payment" />
             </call>
-            <call method="setCheckoutSessionService">
-                <argument type="service" id="cart.checkout.session" />
+            <call method="setOrderService">
+                <argument type="service" id="cart.order" />
             </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme" />
@@ -919,8 +914,8 @@
         <!-- Event Listener: update/validate billing address in checkout -->
         <service id="cart.listener.checkout.update.billing_address" lazy="true" class="%cart.listener.checkout.update.billing_address.class%">
             <tag name="kernel.event_listener" event="checkout.update.billing_address" method="onCheckoutUpdateBillingAddress" priority="50" />
-            <call method="setCheckoutSessionService">
-                <argument type="service" id="cart.checkout.session" />
+            <call method="setCartService">
+                <argument type="service" id="cart" />
             </call>
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
@@ -936,11 +931,11 @@
             </call>
         </service>
 
-        <!-- Event Listener: render Order Confirmation step/modal -->
+        <!-- Event Listener: render Order Confirmation step/modal, TODO: move logic to cart controller and remove this -->
         <service id="cart.listener.checkout.confirm.order" lazy="true" class="%cart.listener.checkout.confirm.order.class%">
             <tag name="kernel.event_listener" event="checkout.confirm.order" method="onCheckoutConfirmOrder" priority="50" />
-            <call method="setCheckoutSessionService">
-                <argument type="service" id="cart.checkout.session" />
+            <call method="setOrderService">
+                <argument type="service" id="cart.order" />
             </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme" />
@@ -950,8 +945,8 @@
         <!-- Event Listener: update/validate shipping address in checkout -->
         <service id="cart.listener.checkout.update.shipping_address" lazy="true" class="%cart.listener.checkout.update.shipping_address.class%">
             <tag name="kernel.event_listener" event="checkout.update.shipping_address" method="onCheckoutUpdateShippingAddress" priority="50" />
-            <call method="setCheckoutSessionService">
-                <argument type="service" id="cart.checkout.session" />
+            <call method="setCartService">
+                <argument type="service" id="cart" />
             </call>
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
@@ -967,8 +962,8 @@
         <!-- Event Listener: update/validate cart changes, totals, discounts being submitted in checkout -->
         <service id="cart.listener.checkout.update.totals_discounts" lazy="true" class="%cart.listener.checkout.update.totals_discounts.class%">
             <tag name="kernel.event_listener" event="checkout.update.totals_discounts" method="onCheckoutUpdateTotalsDiscounts" priority="50" />
-            <call method="setCheckoutSessionService">
-                <argument type="service" id="cart.checkout.session" />
+            <call method="setOrderService">
+                <argument type="service" id="cart.order" />
             </call>
             <call method="setRouter">
                 <argument type="service" id="router" />
@@ -978,8 +973,8 @@
         <!-- Event Listener: update/validate payment data in checkout (prior to payment capture) -->
         <service id="cart.listener.checkout.update.payment_method" lazy="true" class="%cart.listener.checkout.update.payment_method.class%">
             <tag name="kernel.event_listener" event="checkout.update.payment_method" method="onCheckoutUpdatePaymentMethod" priority="50" />
-            <call method="setCheckoutSessionService">
-                <argument type="service" id="cart.checkout.session" />
+            <call method="setOrderService">
+                <argument type="service" id="cart.order" />
             </call>
         </service>
 
@@ -989,9 +984,6 @@
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
-            <call method="setCheckoutSessionService">
-                <argument type="service" id="cart.checkout.session" />
-            </call>
             <call method="setOrderService">
                 <argument type="service" id="cart.order" />
             </call>
@@ -1000,8 +992,8 @@
         <!-- Event Listener : Build View Data for Checkout Success page, and clear cart -->
         <service id="cart.listener.checkout.success.return" lazy="true" class="%cart.listener.checkout.success.return.class%">
             <tag name="kernel.event_listener" event="checkout.success.return" method="onCheckoutSuccessReturn" priority="50" />
-            <call method="setCheckoutSessionService">
-                <argument type="service" id="cart.checkout.session" />
+            <call method="setOrderService">
+                <argument type="service" id="cart.order" />
             </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme" />
@@ -1030,7 +1022,8 @@
                 <argument type="string">method</argument>
                 <argument type="string">Method</argument>
             </call>
-            <call method="setIsDiscountable">
+            <call method="set">
+                <argument type="string">is_discountable</argument>
                 <argument type="string">1</argument>
             </call>
         </service>
@@ -2176,6 +2169,15 @@
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>
+            <call method="getCurrencyService">
+                <argument type="service" id="cart.currency" />
+            </call>
+            <call method="setSecurityPasswordEncoder">
+                <argument type="service" id="security.password_encoder" />
+            </call>
+        </service>
+        <service id="cart.listener.customer.register.sendemail" lazy="true" class="%cart.listener.customer.register.sendemail.class%">
+            <tag name="kernel.event_listener" event="customer.register" method="onCustomerRegister" priority="40" />
             <call method="setMailer">
                 <argument type="service" id="mailer" />
             </call>
@@ -2206,20 +2208,17 @@
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme" />
+            </call>
+        </service>
+        <service id="cart.listener.customer.register.confirm.sendemail" lazy="true" class="%cart.listener.customer.register.confirm.sendemail.class%">
+            <tag name="kernel.event_listener" event="customer.register.confirm" method="onCustomerRegisterConfirm" priority="40" />
             <call method="setMailer">
                 <argument type="service" id="mailer" />
             </call>
             <call method="setFromEmail">
                 <argument type="string">%cart.email.from.main%</argument>
-            </call>
-            <call method="setThemeService">
-                <argument type="service" id="cart.theme" />
-            </call>
-        </service>
-        <service id="cart.listener.customer.register.confirm.return" lazy="true" class="%cart.listener.customer.register.confirm.return.class%">
-            <tag name="kernel.event_listener" event="customer.register.confirm.return" method="onCustomerRegisterConfirmReturn" priority="50" />
-            <call method="setEntityService">
-                <argument type="service" id="cart.entity" />
             </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme" />
@@ -2295,8 +2294,9 @@
         <!-- Event Listener: Return data to Customer Order History page -->
         <service id="cart.listener.customer.orders.return" lazy="true" class="%cart.listener.customer.orders.return.class%">
             <tag name="kernel.event_listener" event="customer.orders.return" method="onCustomerOrdersReturn" priority="50" />
-            <call method="setEntityService">
-                <argument type="service" id="cart.entity" />
+            <call method="setSearch">
+                <argument type="service" id="cart.search.admin" />
+                <argument type="string">order</argument>
             </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme" />
@@ -2340,6 +2340,11 @@
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>
+        </service>
+
+        <!-- Event Listener : Handle Forgot Password Form Submission -->
+        <service id="cart.listener.customer.forgotpassword.sendemail" lazy="true" class="%cart.listener.customer.forgotpassword.sendemail.class%">
+            <tag name="kernel.event_listener" event="customer.forgotpassword" method="onCustomerForgotPassword" priority="40" />
             <call method="setMailer">
                 <argument type="service" id="mailer" />
             </call>
@@ -2440,6 +2445,19 @@
 
         <service id="cart.listener.customer.updatepassword.post.return" lazy="true" class="%cart.listener.customer.updatepassword.post.return.class%">
             <tag name="kernel.event_listener" event="customer.updatepassword.post.return" method="onCustomerUpdatePasswordPostReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+
+        <service id="cart.listener.customer.updatepassword.failed.return" lazy="true" class="%cart.listener.customer.updatepassword.failed.return.class%">
+            <tag name="kernel.event_listener" event="customer.updatepassword.failed.return" method="onCustomerUpdatePasswordFailedReturn" priority="50" />
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>
@@ -3425,6 +3443,12 @@
                 <argument type="service" id="cart.shipping" />
             </call>
         </service>
+        <service id="cart.form.type.shipping_method" lazy="true" class="%cart.form.type.shipping_method.class%">
+            <tag name="form.type" />
+            <call method="setCurrencyService">
+                <argument type="service" id="cart.currency" />
+            </call>
+        </service>
         <service id="cart.listener.shipping_method.admin.form" lazy="true" class="%cart.listener.shipping_method.admin.form.class%">
             <tag name="kernel.event_listener" event="shipping_method.admin.form" method="onShippingMethodAdminForm" priority="50" />
             <call method="setEntityService">
@@ -3435,6 +3459,9 @@
             </call>
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
+            </call>
+            <call method="setFormTypeClass">
+                <argument type="string">%cart.form.type.shipping_method.class%</argument>
             </call>
         </service>
         <service id="cart.listener.shipping_method.new.return" lazy="true" class="%cart.listener.shipping_method.new.return.class%">

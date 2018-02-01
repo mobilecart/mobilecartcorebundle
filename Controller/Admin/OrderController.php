@@ -50,24 +50,9 @@ class OrderController extends Controller
      */
     public function createAction(Request $request)
     {
-        $varSet = null;
-        if ($varSetId = $request->get('var_set_id', '')) {
-            $varSet = $this->get('cart.entity')->getVarSet($varSetId);
-        } else {
-            $varSets = $this->get('cart.entity')->getVarSets(EntityConstants::ORDER);
-            if ($varSets) {
-                $varSet = $varSets[0];
-            }
-        }
-
-        $entity = $this->get('cart.entity')->getInstance($this->objectType);
-        if ($varSet) {
-            $entity->setItemVarSet($varSet);
-        }
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setEntity($entity)
+            ->setEntity($this->get('cart.entity')->getInstance($this->objectType))
             ->setUser($this->getUser())
             ->setSection(CoreEvent::SECTION_BACKEND)
             ->setRequest($request)
@@ -78,8 +63,7 @@ class OrderController extends Controller
             ->dispatch(CoreEvents::ORDER_ADMIN_FORM, $event);
 
         $invalid = [];
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
+        if ($event->isFormValid()) {
 
             $email = $request->get('customer_email', '');
 
@@ -90,8 +74,8 @@ class OrderController extends Controller
                     if ($customerId) {
                         $customer = $this->get('cart.entity')->find(EntityConstants::CUSTOMER, $customerId);
                         if ($customer) {
-                            $entity->setCustomer($customer);
-                            $entity->setEmail($customer->getEmail());
+                            $event->getEntity()->setCustomer($customer);
+                            $event->getEntity()->setEmail($customer->getEmail());
                         } else {
                             $invalid['customer_id'] = ['Customer does not exist'];
                         }
@@ -105,7 +89,7 @@ class OrderController extends Controller
                     if (strlen($email) < 5) {
                         $invalid['customer_email'] = ['Invalid email address'];
                     } else {
-                        $entity->setEmail($email);
+                        $event->getEntity()->setEmail($email);
                     }
 
                     break;
@@ -132,9 +116,6 @@ class OrderController extends Controller
 
             if (!$invalid) {
 
-                $formData = $request->request->get($form->getName());
-                $event->setFormData($formData);
-
                 $this->get('event_dispatcher')
                     ->dispatch(CoreEvents::ORDER_INSERT, $event);
 
@@ -145,23 +126,8 @@ class OrderController extends Controller
             }
         }
 
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            return new JsonResponse([
-                'success' => false,
-                'invalid' => $invalid,
-                'messages' => $event->getMessages(),
-            ]);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse($invalid);
         }
 
         $this->get('event_dispatcher')
@@ -175,24 +141,9 @@ class OrderController extends Controller
      */
     public function newAction(Request $request)
     {
-        $varSet = null;
-        if ($varSetId = $request->get('var_set_id', '')) {
-            $varSet = $this->get('cart.entity')->getVarSet($varSetId);
-        } else {
-            $varSets = $this->get('cart.entity')->getVarSets(EntityConstants::ORDER);
-            if ($varSets) {
-                $varSet = $varSets[0];
-            }
-        }
-
-        $entity = $this->get('cart.entity')->getInstance($this->objectType);
-        if ($varSet) {
-            $entity->setItemVarSet($varSet);
-        }
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setEntity($entity)
+            ->setEntity($this->get('cart.entity')->getInstance($this->objectType))
             ->setRequest($request)
             ->setFormAction($this->generateUrl('cart_admin_order_create'))
             ->setFormMethod('POST');
@@ -266,11 +217,7 @@ class OrderController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::ORDER_ADMIN_FORM, $event);
 
-        $form = $event->getReturnData('form');
-        if ($form->handleRequest($request)->isValid()) {
-
-            $formData = $request->request->get($form->getName());
-            $event->setFormData($formData);
+        if ($event->isFormValid()) {
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::ORDER_UPDATE, $event);
@@ -281,24 +228,8 @@ class OrderController extends Controller
             return $event->getResponse();
         }
 
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            $invalid = [];
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            return new JsonResponse([
-                'success' => false,
-                'invalid' => $invalid,
-                'messages' => $event->getMessages(),
-            ]);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse();
         }
 
         $this->get('event_dispatcher')

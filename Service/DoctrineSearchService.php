@@ -153,7 +153,7 @@ class DoctrineSearchService
     /**
      * Main execution of filters, advFilters, facetFilters
      *
-     * @return array
+     * @return $this
      */
     protected function assembleQueries()
     {
@@ -572,6 +572,7 @@ class DoctrineSearchService
         $this->facetFilterParams = $facetFilterParams;
 
         $this->setExecutedFilters(true);
+        return $this;
     }
 
     /**

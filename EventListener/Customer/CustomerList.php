@@ -105,21 +105,16 @@ class CustomerList
             ],
         ]);
 
-        if ($event->getRequest()->getSession() && $event->getMessages()) {
-            $event->flashMessages();
-        }
+        $event->flashMessages();
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
-                $event->setResponse(new JsonResponse($event->getReturnData()));
-                break;
-            default:
-                $event->setResponse($this->getThemeService()->render(
-                    'admin',
-                    'Customer:index.html.twig',
-                    $event->getReturnData()
-                ));
-                break;
+        if ($event->isJsonResponse()) {
+            $event->setResponse(new JsonResponse($event->getReturnData()));
+        } else {
+            $event->setResponse($this->getThemeService()->render(
+                'admin',
+                'Customer:index.html.twig',
+                $event->getReturnData()
+            ));
         }
     }
 }

@@ -21,8 +21,15 @@ use Symfony\Component\HttpFoundation\Response;
 use MobileCart\CoreBundle\Event\CoreEvents;
 use MobileCart\CoreBundle\Event\CoreEvent;
 
+/**
+ * Class HomeController
+ * @package MobileCart\CoreBundle\Controller\Frontend
+ */
 class HomeController extends Controller
 {
+    /**
+     * Display Home Page
+     */
     public function indexAction(Request $request)
     {
         $event = new CoreEvent();

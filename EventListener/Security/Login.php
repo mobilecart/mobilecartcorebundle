@@ -146,6 +146,7 @@ class Login implements AuthenticationSuccessHandlerInterface
 
         $event->setUser($user)
             ->setReturnData([
+                'success' => true,
                 'id' => $user->getId(),
                 'api_key' => $user->getApiKey(),
                 'email' => $user->getEmail(),
@@ -154,7 +155,7 @@ class Login implements AuthenticationSuccessHandlerInterface
         $this->getEventDispatcher()
             ->dispatch(CoreEvents::LOGIN_SUCCESS, $event);
 
-        if ($request->headers->get('Content-Type') == 'application/json') {
+        if ($request->headers->get('Accept') == 'application/json') {
             return new JsonResponse($event->getReturnData());
         }
 

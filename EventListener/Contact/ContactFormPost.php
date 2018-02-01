@@ -152,15 +152,8 @@ class ContactFormPost
             $event->addErrorMessage('Error sending email');
         }
 
-        if ($event->getRequest()->getSession() && $event->getMessages()) {
-            foreach($event->getMessages() as $code => $messages) {
-                if (!$messages) {
-                    continue;
-                }
-                foreach($messages as $message) {
-                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                }
-            }
+        if ($event->hasFlashMessages()) {
+            $event->flashMessages();
         }
 
         $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_contact_thankyou', [])));

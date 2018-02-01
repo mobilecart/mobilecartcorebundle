@@ -127,7 +127,7 @@ class OrderNewReturn
 
         $cart->setTotals($totals);
 
-        $event->setReturnData('form', $event->getReturnData('form')->createView());
+        $event->setReturnData('form', $event->getForm()->createView());
         $event->setReturnData('cart', $cart);
         $event->setReturnData('entity', $entity);
 

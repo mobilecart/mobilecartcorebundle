@@ -86,46 +86,18 @@ class CustomerProfilePostReturn
      */
     public function onCustomerProfilePostReturn(CoreEvent $event)
     {
-        $customer = $event->getEntity();
+        /** @var \MobileCart\CoreBundle\Entity\Customer $customer */
+        $event->flashMessages();
+        $url = $this->getRouter()->generate('customer_profile', []);
 
-        if ($event->getMessages() && $event->getRequest()->getSession()) {
-            $event->flashMessages();
-        }
-
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
-
-                $isValid = (int) $event->getIsValid();
-                $invalid = [];
-                if (!$isValid) {
-                    $form = $event->getReturnData('form');
-                    foreach($form->all() as $childKey => $child) {
-                        $errors = $child->getErrors();
-                        if ($errors->count()) {
-                            $invalid[$childKey] = [];
-                            foreach($errors as $error) {
-                                $invalid[$childKey][] = $error->getMessage();
-                            }
-                        }
-                    }
-                }
-
-                $event->setResponse(new JsonResponse([
-                    'success' => $event->getIsValid(),
-                    'entity' => $customer->getData(),
-                    'redirect_url' => $this->getRouter()->generate('customer_profile', []),
-                    'invalid' => $invalid,
-                    'messages' => $event->getMessages(),
-                ]));
-
-                break;
-            default:
-
-                $event->setResponse(new RedirectResponse($this->getRouter()->generate(
-                    'customer_profile',
-                    []
-                )));
-                break;
+        if ($event->isJsonResponse()) {
+            $event->setResponse(new JsonResponse([
+                'success' => true,
+                'redirect_url' => $url,
+                'messages' => $event->getMessages(),
+            ]));
+        } else {
+            $event->setResponse(new RedirectResponse($url));
         }
     }
 }

@@ -101,6 +101,6 @@ class OrderPaymentAdminForm
             ],
         ]);
 
-        $event->setReturnData('form', $form);
+        $event->setForm($form);
     }
 }

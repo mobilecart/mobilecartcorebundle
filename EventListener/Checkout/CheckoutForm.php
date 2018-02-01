@@ -11,31 +11,39 @@ use MobileCart\CoreBundle\Event\CoreEvent;
 class CheckoutForm
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\CheckoutSessionService
-     */
-    protected $checkoutSessionService;
-
-    /**
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
 
     /**
-     * @param $checkoutSession
+     * @var \MobileCart\CoreBundle\Service\OrderService
+     */
+    protected $orderService;
+
+    /**
+     * @param $orderService
      * @return $this
      */
-    public function setCheckoutSessionService($checkoutSession)
+    public function setOrderService($orderService)
     {
-        $this->checkoutSessionService = $checkoutSession;
+        $this->orderService = $orderService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CheckoutSessionService
+     * @return \MobileCart\CoreBundle\Service\OrderService
      */
-    public function getCheckoutSessionService()
+    public function getOrderService()
     {
-        return $this->checkoutSessionService;
+        return $this->orderService;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->getOrderService()->getCartService();
     }
 
     /**
@@ -61,7 +69,7 @@ class CheckoutForm
      */
     public function getIsSpaEnabled()
     {
-        return (bool) $this->getCheckoutSessionService()->getCartService()->getIsSpaEnabled();
+        return (bool) $this->getCartService()->getIsSpaEnabled();
     }
 
     /**
@@ -69,9 +77,13 @@ class CheckoutForm
      */
     public function onCheckoutFormStart(CoreEvent $event)
     {
+        $isAjax = $event->getRequest()
+            ? $event->getRequest()->get('ajax', '') == 1
+            : false;
+
         // add js for accordion
         if ($this->getIsSpaEnabled()
-            && !$event->getRequest()->get('ajax', '')
+            && !$isAjax
         ) {
             $tplPath = $this->getThemeService()->getTemplatePath($this->getThemeService()->getThemeConfig()->getFrontendTheme());
             $javascripts = $event->getReturnData('javascripts', []);

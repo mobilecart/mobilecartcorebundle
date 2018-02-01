@@ -110,18 +110,17 @@ class ProductViewReturn
     public function onProductViewReturn(CoreEvent $event)
     {
         $entity = $event->getEntity();
-        $request = $event->getRequest();
-        $format = $event->getRequestAccept();
 
         switch($event->getRequestAccept()) {
             case CoreEvent::JSON:
                 $event->setResponse(new JsonResponse([
+                    'success' => true,
                     'entity' => $entity->getData(),
                 ]));
                 break;
             default:
 
-                $event->setReturnData('form', $event->getReturnData('form')->createView());
+                $event->setReturnData('form', $event->getForm()->createView());
                 $event->setReturnData('entity', $event->getEntity());
                 $event->setReturnData('search', $this->getSearch());
 

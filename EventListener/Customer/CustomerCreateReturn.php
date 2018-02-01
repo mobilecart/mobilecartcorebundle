@@ -42,10 +42,7 @@ class CustomerCreateReturn
     {
         $entity = $event->getEntity();
         $url = $this->getRouter()->generate('cart_admin_customer_edit', ['id' => $entity->getId()]);
-
-        if ($event->getRequest()->getSession() && $event->getMessages()) {
-            $event->flashMessages();
-        }
+        $event->flashMessages();
 
         switch($event->getRequestAccept()) {
             case CoreEvent::JSON:
@@ -61,5 +58,4 @@ class CustomerCreateReturn
                 break;
         }
     }
-
 }
