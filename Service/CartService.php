@@ -49,6 +49,11 @@ class CartService
     protected $isApiRequest = false;
 
     /**
+     * @var \Symfony\Component\HttpFoundation\Request
+     */
+    protected $request;
+
+    /**
      * @var mixed
      */
     protected $session;
@@ -109,18 +114,6 @@ class CartService
     protected $allowedCountryIds = [];
 
     /**
-     * @var bool
-     */
-    protected $allowGuestCheckout = false;
-
-    /**
-     * Single page (1) or multi page form (0)
-     *
-     * @var int
-     */
-    protected $isSpaEnabled = true;
-
-    /**
      * @param int $cartId
      * @return $this
      */
@@ -172,6 +165,24 @@ class CartService
     public function getIsApiRequest()
     {
         return (bool) $this->isApiRequest;
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return $this
+     */
+    public function setRequest(\Symfony\Component\HttpFoundation\Request $request)
+    {
+        $this->request = $request;
+        return $this;
+    }
+
+    /**
+     * @return \Symfony\Component\HttpFoundation\Request
+     */
+    public function getRequest()
+    {
+        return $this->request;
     }
 
     /**
@@ -442,42 +453,6 @@ class CartService
     public function getCountryRegions()
     {
         return $this->getGeographyService()->getRegionsByCountries($this->getAllowedCountryIds());
-    }
-
-    /**
-     * @param bool $yesNo
-     * @return $this
-     */
-    public function setAllowGuestCheckout($yesNo)
-    {
-        $this->allowGuestCheckout = $yesNo;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getAllowGuestCheckout()
-    {
-        return $this->allowGuestCheckout;
-    }
-
-    /**
-     * @param $isEnabled
-     * @return $this
-     */
-    public function setIsSpaEnabled($isEnabled)
-    {
-        $this->isSpaEnabled = $isEnabled;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getIsSpaEnabled()
-    {
-        return $this->isSpaEnabled;
     }
 
     /**
@@ -853,6 +828,16 @@ class CartService
     }
 
     /**
+     * @param string $code
+     * @return $this
+     */
+    public function setPaymentMethodCode($code)
+    {
+        $this->getCartEntity()->setPaymentMethodCode($code);
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getPaymentMethodCode()
@@ -866,6 +851,16 @@ class CartService
     public function getPaymentData()
     {
         return @ (array) json_decode($this->getCartEntity()->getPaymentInfo());
+    }
+
+    /**
+     * @param $data
+     * @return $this
+     */
+    public function setPaymentData($data)
+    {
+        $this->getCartEntity()->setPaymentInfo(json_encode($data));
+        return $this;
     }
 
     /**
@@ -915,6 +910,68 @@ class CartService
 
         if ($this->getCustomerEntity()) {
             $this->getCartEntity()->setCustomer($this->getCustomerEntity());
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return $this
+     */
+    public function initRequest(\Symfony\Component\HttpFoundation\Request $request)
+    {
+        // this only needs to execute for api calls. browser sessions will load, and save automatically via saveCart()
+        $key = 'cart_id';
+        if ($this->getCartEntity()) {
+            return $this;
+        }
+
+        $hash = '';
+
+        switch(true) {
+            case $request->headers->get('Accept') == 'application/json':
+            case $request->headers->get('Content-Type') == 'application/json':
+
+                $requestData = @ (array) json_decode($request->getContent());
+                if (array_key_exists($key, $requestData)) {
+                    $hash = $requestData[$key];
+                }
+
+                break;
+            default:
+
+                $hash = $request->get($key);
+
+                break;
+        }
+
+        if ($hash) {
+
+            // admin users have full access
+            if ($this->getIsAdminUser()) {
+                $cartEntity = $this->getEntityService()->findOneBy(EntityConstants::CART, [
+                    'hash_key' => $hash
+                ]);
+                if ($cartEntity) {
+                    $this->initCartEntity($cartEntity);
+                }
+            } else {
+                // customers need to
+                if ($this->getCustomerEntity()) {
+                    $cartEntity = $this->getEntityService()->findOneBy(EntityConstants::CART, [
+                        'hash_key' => $hash,
+                        'customer' => $this->getCustomerEntity()->getId()
+                    ]);
+                    if ($cartEntity) {
+                        $this->initCartEntity($cartEntity);
+                    }
+                }
+            }
+        }
+
+        if (!$this->getCartEntity()) {
+            $this->initCartEntity();
         }
 
         return $this;
@@ -981,15 +1038,14 @@ class CartService
      */
     public function initCheckoutState()
     {
-        $sections = [];
-        $sectionKeys = $this->getCheckoutFormService()->getSectionKeys();
-        if ($sectionKeys) {
-            foreach($sectionKeys as $sectionKey) {
-                $sections[$sectionKey] = false;
+        $config = $this->getCheckoutFormService()->getFormSections();
+        if ($config) {
+            foreach($config as $sectionKey => $sectionConfig) {
+                $config[$sectionKey] = false;
             }
         }
 
-        return $sections;
+        return $config;
     }
 
     /**
@@ -1009,7 +1065,7 @@ class CartService
     public function setSectionIsValid($section, $isValid = true)
     {
         $sections = $this->getCheckoutState();
-        $sections[$section] = $isValid;
+        $sections[$section] = (bool) $isValid;
         $this->getCartEntity()->setCheckoutState(json_encode($sections));
         return $this;
     }
@@ -1034,7 +1090,12 @@ class CartService
         $invalid = [];
         $sections = $this->getCheckoutState();
         if ($sections) {
-            foreach($sections as $section => $isValid) {
+            foreach($sections as $section => $sectionConfig) {
+
+                $isValid = isset($sections[$section])
+                    ? (bool) $sections[$section]
+                    : false;
+
                 if (!$isValid) {
                     $invalid[] = $section;
                 }

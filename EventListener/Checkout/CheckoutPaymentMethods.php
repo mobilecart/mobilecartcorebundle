@@ -238,35 +238,52 @@ class CheckoutPaymentMethods
             $this->getCartService()->setPaymentMethodCodes($methodCodes);
         }
 
+        if (!$event->getRequest()
+            || $event->getRequest()->getMethod() !== 'POST'
+        ) {
+            $event->setReturnData('javascripts', $javascripts);
+        }
+
         $tplPath = $this->getThemeService()->getTemplatePath($this->getThemeService()->getThemeConfig()->getFrontendTheme());
 
         $sectionData = [
             'section' => CheckoutConstants::STEP_PAYMENT_METHOD,
             'order' => 50,
             'label' => 'Payment',
-            'payment_methods' => $paymentMethods,
-            'post_url' => $this->getRouter()->generate('cart_checkout_update_section', ['section' => CheckoutConstants::STEP_PAYMENT_METHOD]),
+            //'payment_methods' => $paymentMethods,
+            'post_url' => $this->getRouter()->generate('cart_checkout_update_section', [
+                'section' => CheckoutConstants::STEP_PAYMENT_METHOD
+            ]),
             'final_step' => true,
             'step_number' => $event->get('step_number'),
             'template' => $tplPath . 'Checkout:payment_methods.html.twig',
         ];
 
-        if ($event->get('single_step', '') == CheckoutConstants::STEP_PAYMENT_METHOD) {
+        if ($event->get('single_step', '')) {
+            if ($event->get('single_step', '') == CheckoutConstants::STEP_PAYMENT_METHOD) {
 
-            $template = $event->getTemplate()
-                ? $event->getTemplate()
-                : 'Checkout:section_full.html.twig';
+                // if we're not submitting the form, then we render the template
+                if ($event->getRequest()->getMethod() !== 'POST') {
 
-            $sectionData['javascripts'] = $javascripts;
+                    $template = $event->getTemplate()
+                        ? $event->getTemplate()
+                        : 'Checkout:section_full.html.twig';
 
-            $response = $this->getThemeService()->render('frontend', $template, $sectionData);
-            $event->setResponse($response);
+                    $sectionData['payment_methods'] = $paymentMethods;
+
+                    $sectionData['javascripts'] = $javascripts;
+
+                    $response = $this->getThemeService()->render('frontend', $template, $sectionData);
+                    $event->setResponse($response);
+                }
+            }
+        } else {
+
+            $sectionData['payment_methods'] = $paymentMethods;
+
+            $sections = $event->getReturnData('sections', []);
+            $sections[CheckoutConstants::STEP_PAYMENT_METHOD] = $sectionData;
+            $event->setReturnData('sections', $sections);
         }
-
-        $event->setReturnData('javascripts', $javascripts);
-
-        $sections = $event->getReturnData('sections', []);
-        $sections[CheckoutConstants::STEP_PAYMENT_METHOD] = $sectionData;
-        $event->setReturnData('sections', $sections);
     }
 }

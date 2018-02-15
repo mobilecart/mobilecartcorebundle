@@ -6,13 +6,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\EventListener\Cart\BaseCartListener;
 
 /**
  * Class CheckoutUpdateShippingAddress
  * @package MobileCart\CoreBundle\EventListener\Checkout
  */
-class CheckoutUpdateShippingAddress extends BaseCartListener
+class CheckoutUpdateShippingAddress
 {
     /**
      * @var \Symfony\Component\Form\FormFactoryInterface
@@ -28,6 +27,29 @@ class CheckoutUpdateShippingAddress extends BaseCartListener
      * @var \Psr\Log\LoggerInterface
      */
     protected $logger;
+
+    /**
+     * @var \MobileCart\CoreBundle\Service\CartService
+     */
+    protected $cartService;
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
+     * @return $this
+     */
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
+    {
+        $this->cartService = $cartService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->cartService;
+    }
 
     /**
      * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
@@ -101,7 +123,6 @@ class CheckoutUpdateShippingAddress extends BaseCartListener
 
     /**
      * @param CoreEvent $event
-     * @return bool
      */
     public function onCheckoutUpdateShippingAddress(CoreEvent $event)
     {
@@ -109,19 +130,12 @@ class CheckoutUpdateShippingAddress extends BaseCartListener
             return false;
         }
 
+        $isValid = false;
+
         $sectionData = $event->get('section_data', []);
 
-        $form = isset($sectionData['form'])
-            ? $sectionData['form']
-            : [];
-
-        $fields = isset($sectionData['fields'])
-            ? $sectionData['fields']
-            : [];
-
-        $nextSection = isset($sectionData['next_section'])
-            ? $sectionData['next_section']
-            : '';
+        // todo : figure this out
+        $nextSection = CheckoutConstants::STEP_TOTALS_DISCOUNTS;
 
         // parse/convert API requests
         switch($event->getContentType()) {
@@ -131,30 +145,27 @@ class CheckoutUpdateShippingAddress extends BaseCartListener
                     ? $event->getApiRequest()
                     : @ (array) json_decode($event->getRequest()->getContent());
 
-                if (isset($apiRequest['cart_id'])) {
+                // allow this to work with a browser session. the request probably wouldn't contain cart_id
+                if (array_key_exists('shipping_city', $apiRequest)) {
 
-                    $event->getRequest()->request->set('cart_id', $apiRequest['cart_id']);
-
-                    foreach($apiRequest as $key => $value) {
-
-                        if (!in_array($key, $fields)) {
-                            continue;
-                        }
-
-                        $event->getRequest()->request->set($key, $value);
+                    // cart_id is not part of the form
+                    if (isset($apiRequest['cart_id'])) {
+                        unset($apiRequest['cart_id']);
                     }
+
+                    $event->submitForm($apiRequest);
+                    $isValid = $event->isFormValid();
                 }
 
                 break;
             default:
 
+                $requestData = $event->getRequest()->request->all();
+                $event->submitForm($requestData);
+                $isValid = $event->isFormValid();
+
                 break;
         }
-
-        $request = $event->getRequest();
-        $this->initCart($request);
-
-        //$cartCustomer = $this->getCartService()->getCustomer();
 
         // only load a customer if we have a customer ID
         $customerEntity = $this->getCartService()->getCustomerId()
@@ -165,21 +176,15 @@ class CheckoutUpdateShippingAddress extends BaseCartListener
 
         // todo : handle submission of customer_address ID
 
-        $requestData = $request->request->all();
-        if (isset($requestData['cart_id'])) {
-            unset($requestData['cart_id']);
-        }
-
-        $form->submit($requestData);
-        $isValid = $form->isValid();
-        $invalid = [];
-        $isShippingSame = false;
+        $isShippingSame = false; // todo : populate this
 
         if ($isValid) {
 
+            // allow other fields to be set, then copyBillingToShipping() and over-write as necessary
+
             //update customer data in cart session
-            $formData = $form->getData();
-            foreach($form->all() as $childKey => $child) {
+            $formData = $event->getForm()->getData();
+            foreach($event->getForm()->all() as $childKey => $child) {
 
                 // blacklist
                 if (in_array($childKey, [
@@ -253,16 +258,7 @@ class CheckoutUpdateShippingAddress extends BaseCartListener
                 }
             }
         } else {
-
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
+            $event->setReturnData('invalid', $event->getFormInvalid());
         }
 
         $this->getCartService()->setSectionIsValid(CheckoutConstants::STEP_SHIPPING_ADDRESS, $isValid);
@@ -273,11 +269,12 @@ class CheckoutUpdateShippingAddress extends BaseCartListener
             $this->getCartService()->collectShippingMethods($rateRequest);
         }
 
+        // ensure an invalid submission updates the checkout_state
         $this->getCartService()->saveCart();
 
         $event->setSuccess($isValid);
+        $event->setReturnData('cart', $this->getCartService()->getCart());
         $event->setReturnData('messages', $event->getMessages());
-        $event->setReturnData('invalid', $invalid);
         $event->setReturnData('next_section', $nextSection);
 
         if ($isValid && strlen($nextSection)) {

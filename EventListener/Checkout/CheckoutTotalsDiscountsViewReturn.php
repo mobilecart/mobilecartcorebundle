@@ -236,16 +236,21 @@ class CheckoutTotalsDiscountsViewReturn
             }
         } else {
 
-            $javascripts[] = [
-                'js_template' => $tplPath . 'Checkout:totals_discounts_js.html.twig',
-                'data' => $sectionData,
-            ];
+            if (!$event->getRequest()
+                || $event->getRequest()->getMethod() !== 'POST'
+            ) {
 
-            $event->setReturnData('javascripts', $javascripts);
+                $javascripts[] = [
+                    'js_template' => $tplPath . 'Checkout:totals_discounts_js.html.twig',
+                    'data' => $sectionData,
+                ];
+
+                $event->setReturnData('javascripts', $javascripts);
+            }
+
+            $sections = $event->getReturnData('sections', []);
+            $sections[CheckoutConstants::STEP_TOTALS_DISCOUNTS] = $sectionData;
+            $event->setReturnData('sections', $sections);
         }
-
-        $sections = $event->getReturnData('sections', []);
-        $sections[CheckoutConstants::STEP_TOTALS_DISCOUNTS] = $sectionData;
-        $event->setReturnData('sections', $sections);
     }
 }

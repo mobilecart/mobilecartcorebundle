@@ -147,7 +147,7 @@ class CheckoutBillingAddressForm
      */
     public function getDisplayEmailInput()
     {
-        return $this->getCartService()->getAllowGuestCheckout() && !$this->getCustomerId();
+        return $this->getCartService()->getCheckoutFormService()->getAllowGuestCheckout() && !$this->getCustomerId();
     }
 
     /**
@@ -193,7 +193,7 @@ class CheckoutBillingAddressForm
 
         $cartService = $this->getCartService();
 
-        $cart = $cartService->getCart();
+        $cart = $cartService->getCart(); // cart entity should already be set on cart service
         $customer = $cart->getCustomer();
 
         foreach($billingFields as $field) {
@@ -225,36 +225,45 @@ class CheckoutBillingAddressForm
             'step_number' => $event->get('step_number'),
             'label' => 'Billing Address',
             'fields' => $billingFields,
-            'post_url' => $this->getRouter()->generate('cart_checkout_update_section', ['section' => CheckoutConstants::STEP_BILLING_ADDRESS]),
-            'form' => $form,
-            'form_view' => $form->createView(),
+            'post_url' => $this->getRouter()->generate('cart_checkout_update_section', [
+                'section' => CheckoutConstants::STEP_BILLING_ADDRESS
+            ]),
+            //'form' => $form, // save memory since we call event->setForm()
+            //'form_view' => $form->createView(),
             'country_regions' => $this->getCartService()->getCountryRegions(),
         ];
 
         if ($event->get('single_step', '')) {
+            // if there's a single step, we only want the form for this step
             if ($event->get('single_step', '') == CheckoutConstants::STEP_BILLING_ADDRESS) {
+                $event->setForm($form);
+                $event->set('section_data', $sectionData);
 
-                $template = $event->get('template', '')
-                    ? $event->get('template', '')
-                    : 'Checkout:section_full.html.twig';
+                // if it's not a submission, then we render the template
+                if ($event->getRequest()->getMethod() !== 'POST') {
 
-                // add js for handling a single step on each page
-                $javascripts[] = [
-                    'js_template' => $tplPath . 'Checkout:section_full_js.html.twig',
-                ];
+                    $template = $event->get('template', '')
+                        ? $event->get('template', '')
+                        : 'Checkout:section_full.html.twig';
 
-                $sectionData['javascripts'] = $javascripts;
+                    // add js for handling a single step on each page
+                    $javascripts[] = [
+                        'js_template' => $tplPath . 'Checkout:section_full_js.html.twig',
+                    ];
 
-                $event->setResponse($this->getThemeService()->render('frontend', $template, $sectionData));
+                    $sectionData['javascripts'] = $javascripts;
+                    $sectionData['form_view'] = $form->createView();
+
+                    $event->setResponse($this->getThemeService()->render('frontend', $template, $sectionData));
+                }
             }
         } else {
+            // if it's not a single step, then we want the forms for all steps
+            $sectionData['form_view'] = $form->createView();
 
-            $isAjax = $event->getRequest()
-                ? $event->getRequest()->get('ajax', '') == 1
-                : false;
-
-            // logic for totals_discounts
-            if (!$isAjax) {
+            if (!$event->getRequest()
+                || $event->getRequest()->getMethod() !== 'POST'
+            ) {
 
                 $javascripts[] = [
                     'js_template' => $tplPath . 'Checkout:section_address_js.html.twig',
@@ -264,11 +273,10 @@ class CheckoutBillingAddressForm
                 $event->setReturnData('javascripts', $javascripts);
                 $event->setReturnData('country_regions', $sectionData['country_regions']);
             }
-        }
 
-        // sections are combined with other listeners/observers
-        $sections = $event->getReturnData('sections', []);
-        $sections[CheckoutConstants::STEP_BILLING_ADDRESS] = $sectionData;
-        $event->setReturnData('sections', $sections);
+            $sections = $event->getReturnData('sections', []);
+            $sections[CheckoutConstants::STEP_BILLING_ADDRESS] = $sectionData;
+            $event->setReturnData('sections', $sections);
+        }
     }
 }

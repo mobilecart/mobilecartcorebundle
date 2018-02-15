@@ -70,6 +70,7 @@ final class CoreEvents
     const CATEGORY_ADMIN_FORM = 'category.admin.form';
 
     const CHECKOUT_FORM = 'checkout.form';
+    const CHECKOUT_FORM_CONFIG = 'checkout.form.config';
     const CHECKOUT_VIEW_RETURN = 'checkout.view.return';
     const CHECKOUT_BILLING_ADDRESS_VIEW_RETURN = 'checkout.billing_address.view.return';
     const CHECKOUT_SHIPPING_ADDRESS_VIEW_RETURN = 'checkout.shipping_address.view.return';

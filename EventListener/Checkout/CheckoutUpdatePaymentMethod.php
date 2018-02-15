@@ -26,10 +26,10 @@ class CheckoutUpdatePaymentMethod
     }
 
     /**
-     * @param $orderService
+     * @param \MobileCart\CoreBundle\Service\OrderService $orderService
      * @return $this
      */
-    public function setOrderService($orderService)
+    public function setOrderService(\MobileCart\CoreBundle\Service\OrderService $orderService)
     {
         $this->orderService = $orderService;
         return $this;
@@ -53,18 +53,49 @@ class CheckoutUpdatePaymentMethod
 
     public function onCheckoutUpdatePaymentMethod(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $isValid = false;
 
-        // todo : for api calls, where do we store payment data ? add a column to cart ?
+        $paymentMethod = '';
+        $formData = [];
 
-        $returnData['messages'] = [];
-        $returnData['invalid'] = [];
+        // parse/convert API requests
+        switch($event->getContentType()) {
+            case CoreEvent::JSON:
 
-        $request = $event->getRequest();
-        $paymentMethod = $request->get('payment_method', '');
-        $paymentMethodService = $this->getCheckoutSessionService()
+                $apiRequest = $event->getApiRequest()
+                    ? $event->getApiRequest()
+                    : @ (array) json_decode($event->getRequest()->getContent());
+
+                if (isset($apiRequest['payment_method'])) {
+
+                    $paymentMethod = $apiRequest['payment_method'];
+
+                    if (is_string($paymentMethod)
+                        && isset($apiRequest[$paymentMethod])
+                    ) {
+
+                        $formData = $apiRequest[$paymentMethod];
+                        if ($formData instanceof \stdClass) {
+                            $formData = get_object_vars($formData);
+                        }
+                    }
+                }
+
+                break;
+            default:
+
+                $paymentMethod = $event->getRequest()->get('payment_method', '');
+                $requestData = $event->getRequest()->request->all();
+
+                $formData = isset($requestData[$paymentMethod])
+                    ? $requestData[$paymentMethod]
+                    : $requestData;
+
+                break;
+        }
+
+        $paymentMethodService = $this->getOrderService()
+            ->getPaymentService()
             ->findPaymentMethodServiceByCode($paymentMethod);
 
         if ($paymentMethodService) {
@@ -80,13 +111,12 @@ class CheckoutUpdatePaymentMethod
             $form = $paymentMethodService->buildForm()
                 ->getForm();
 
-            $requestData = $request->request->all();
-            $formData = isset($requestData[$paymentMethod])
-                ? $requestData[$paymentMethod]
-                : $requestData;
-
             if (isset($formData['payment_method'])) {
                 unset($formData['payment_method']);
+            }
+
+            if (isset($formData['cart_id'])) {
+                unset($formData['cart_id']);
             }
 
             $form->submit($formData);
@@ -94,9 +124,9 @@ class CheckoutUpdatePaymentMethod
 
             if ($isValid) {
 
-                // set action here ?
+                // todo: set payment action here ?
 
-                $this->getCheckoutSessionService()
+                $this->getCartService()
                     ->setPaymentMethodCode($paymentMethod)
                     ->setPaymentData($formData);
 
@@ -113,21 +143,21 @@ class CheckoutUpdatePaymentMethod
                     }
                 }
 
-                $returnData['invalid'] = $invalid;
-                $returnData['prefix'] = $paymentMethod;
+                $event->setReturnData('invalid', $invalid);
+                $event->setReturnData('prefix', $paymentMethod);
             }
-
         } else {
-            $returnData['messages'][] = "Invalid Form Submission. Invalid Payment Service";
+            $event->addErrorMessage("Invalid Form Submission. Invalid Payment Service");
         }
 
-        $this->getCheckoutSessionService()->setSectionIsValid(CheckoutConstants::STEP_PAYMENT_METHOD, $isValid);
+        $this->getCartService()->setSectionIsValid(CheckoutConstants::STEP_PAYMENT_METHOD, $isValid);
 
-        $returnData['success'] = $isValid;
+        $event->setSuccess($isValid);
+        $event->setReturnData('cart', $this->getCartService()->getCart());
+        $event->setReturnData('messages', $event->getMessages());
 
-        $response = new JsonResponse($returnData);
+        $this->getCartService()->saveCart();
 
-        $event->setReturnData($returnData)
-            ->setResponse($response);
+        $event->setResponse(new JsonResponse($event->getReturnData()));
     }
 }

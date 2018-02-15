@@ -6,13 +6,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
 use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\EventListener\Cart\BaseCartListener;
 
 /**
  * Class CheckoutUpdateBillingAddress
  * @package MobileCart\CoreBundle\EventListener\Checkout
  */
-class CheckoutUpdateBillingAddress extends BaseCartListener
+class CheckoutUpdateBillingAddress
 {
     /**
      * @var \Symfony\Component\Form\FormFactoryInterface
@@ -30,6 +29,29 @@ class CheckoutUpdateBillingAddress extends BaseCartListener
      * @var \Psr\Log\LoggerInterface
      */
     protected $logger;
+
+    /**
+     * @var \MobileCart\CoreBundle\Service\CartService
+     */
+    protected $cartService;
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
+     * @return $this
+     */
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
+    {
+        $this->cartService = $cartService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->cartService;
+    }
 
     /**
      * @return \MobileCart\CoreBundle\Service\AbstractEntityService
@@ -109,15 +131,14 @@ class CheckoutUpdateBillingAddress extends BaseCartListener
      */
     public function onCheckoutUpdateBillingAddress(CoreEvent $event)
     {
+        $isValid = false;
+
         $sectionData = $event->get('section_data', []);
 
-        $form = isset($sectionData['form'])
-            ? $sectionData['form']
-            : [];
+        // todo : handle submission of customer_address ID
 
-        $fields = isset($sectionData['fields'])
-            ? $sectionData['fields']
-            : [];
+        // todo : this should either be shipping_address or the step after if is_shipping_same = true
+        $nextSection = CheckoutConstants::STEP_SHIPPING_ADDRESS;
 
         // parse/convert API requests
         switch($event->getContentType()) {
@@ -127,43 +148,27 @@ class CheckoutUpdateBillingAddress extends BaseCartListener
                     ? $event->getApiRequest()
                     : @ (array) json_decode($event->getRequest()->getContent());
 
-                if (isset($apiRequest['cart_id'])) {
+                // allow this to work with a browser session. the request probably wouldn't contain cart_id
+                if (array_key_exists('billing_city', $apiRequest)) {
 
-                    $event->getRequest()->request->set('cart_id', $apiRequest['cart_id']);
-
-                    foreach($apiRequest as $key => $value) {
-
-                        if (!in_array($key, $fields)) {
-                            continue;
-                        }
-
-                        $event->getRequest()->request->set($key, $value);
+                    // cart_id is not part of the form
+                    if (isset($apiRequest['cart_id'])) {
+                        unset($apiRequest['cart_id']);
                     }
+
+                    $event->submitForm($apiRequest);
+                    $isValid = $event->isFormValid();
                 }
 
                 break;
             default:
 
+                $requestData = $event->getRequest()->request->all();
+                $event->submitForm($requestData);
+                $isValid = $event->isFormValid();
+
                 break;
         }
-
-        $request = $event->getRequest();
-        $this->initCart($request);
-
-        $nextSection = isset($sectionData['next_section'])
-            ? $sectionData['next_section']
-            : '';
-
-        $request = $event->getRequest();
-        $requestData = $request->request->all();
-        if (isset($requestData['cart_id'])) {
-            unset($requestData['cart_id']);
-        }
-
-        $form->submit($requestData);
-        $isValid = $form->isValid();
-
-        $invalid = [];
 
         // if they are not registered (or logged in), and they try to checkout with a registered email
         if (!$this->getCartService()->getCustomerId()
@@ -193,8 +198,9 @@ class CheckoutUpdateBillingAddress extends BaseCartListener
                 $this->getCartService()->setCustomerEntity($this->getEntityService()->getInstance(EntityConstants::CUSTOMER));
             }
 
-            $formData = $form->getData();
-            foreach($form->all() as $childKey => $child) {
+            //$formData = $event->getFormData(); // todo : use this?
+            $formData = $event->getForm()->getData();
+            foreach($event->getForm()->all() as $childKey => $child) {
 
                 // security concerns
                 //  blacklist some fields as an extra security measure
@@ -294,6 +300,7 @@ class CheckoutUpdateBillingAddress extends BaseCartListener
 
                         // note: this logic isn't currently enabled,
                         //  you would need to create a new customer instance before this
+                        // todo : add a better validator
                         if (strlen($value) > 5
                             && is_int(strpos($value, '@'))
                         ) {
@@ -332,29 +339,17 @@ class CheckoutUpdateBillingAddress extends BaseCartListener
             $this->getCartService()->collectTotals(); // re-apply tax and discounts
 
         } else {
-
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    if (!isset($invalid[$childKey])) {
-                        $invalid[$childKey] = [];
-                    }
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
+            $event->setReturnData('invalid', $event->getFormInvalid());
         }
 
         $this->getCartService()->setSectionIsValid(CheckoutConstants::STEP_BILLING_ADDRESS, $isValid);
 
-        // save cart entity
+        // update the checkout_state whether the submission is valid or invalid
         $this->getCartService()->saveCart();
 
         $event->setSuccess($isValid);
         $event->setReturnData('cart', $this->getCartService()->getCart());
         $event->setReturnData('messages', $event->getMessages());
-        $event->setReturnData('invalid', $invalid);
         $event->setReturnData('next_section', $nextSection);
 
         if ($isValid && strlen($nextSection)) {

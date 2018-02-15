@@ -62,7 +62,7 @@ class CheckoutBillingAddressType extends AbstractType
      */
     public function getDisplayEmailInput()
     {
-        return $this->getCartService()->getAllowGuestCheckout() && !$this->getCustomerId();
+        return $this->getCartService()->getCheckoutFormService()->getAllowGuestCheckout() && !$this->getCustomerId();
     }
 
     /**

@@ -892,7 +892,7 @@ class CoreEvent extends Event
                     $this->getForm()->submit($formData);
                     $this->setFormData($formData);
                 } else {
-                    $formData = @ (array)json_decode($this->getRequest()->getContent());
+                    $formData = @ (array) json_decode($this->getRequest()->getContent());
                     if ($formData) {
                         foreach($formData as $key => $value) {
                             if ($value instanceof \stdClass) {
@@ -942,6 +942,36 @@ class CoreEvent extends Event
         }
 
         return $this->getForm()->isValid();
+    }
+
+    /**
+     * @return array
+     * @throws \Exception
+     */
+    public function getFormInvalid()
+    {
+        if (!$this->getForm()) {
+            throw new \Exception("Form not set");
+        }
+
+        if (!$this->getForm()->isSubmitted()) {
+            throw new \Exception("Form not submitted");
+        }
+
+        $invalid = [];
+        foreach($this->getForm()->all() as $childKey => $child) {
+            $errors = $child->getErrors();
+            if ($errors->count()) {
+                if (!isset($invalid[$childKey])) {
+                    $invalid[$childKey] = [];
+                }
+                foreach($errors as $error) {
+                    $invalid[$childKey][] = $error->getMessage();
+                }
+            }
+        }
+
+        return $invalid;
     }
 
     /**

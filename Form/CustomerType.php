@@ -142,6 +142,7 @@ class CustomerType extends AbstractType
             ])
         ;
 
+        // todo : ensure the validation messages for this make it into flash messages eg "Cannot be blank"
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
             $customer = $event->getData();
             $form = $event->getForm();

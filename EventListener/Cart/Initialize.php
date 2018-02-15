@@ -13,13 +13,15 @@ class Initialize extends BaseCartListener
 {
     public function onCartInitialize(CoreEvent $event)
     {
-        //
-        if (!$event->getUser()) {
+        // enforce guest checkout
+        if (!$this->getCartService()->getCheckoutFormService()->getAllowGuestCheckout()
+            && !$event->getUser()
+        ) {
             $event->setResponse(new JsonResponse([
                 'success' => false,
                 'messages' => [
                     'error' => [
-                        'Please login or register'
+                        'Guest Checkout is not allowed. Please login or register'
                     ]
                 ]
             ], 401));

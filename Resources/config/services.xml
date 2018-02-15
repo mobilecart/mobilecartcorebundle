@@ -52,7 +52,7 @@
         <parameter key="cart.load.admin">cart.search.doctrine</parameter><!-- service id of admin search service -->
         <parameter key="cart.load.frontend">cart.entity</parameter><!-- service id of frontend entity loading service -->
         <parameter key="cart.search.frontend">cart.search.doctrine</parameter><!-- service id of frontend search service -->
-        <parameter key="cart.checkout.spa.enabled">1</parameter><!-- Enable Single-Page Checkout, otherwise use Multi-Page -->
+        <parameter key="cart.checkout.single.page">1</parameter><!-- Enable Single-Page Checkout, otherwise use Multi-Page -->
         <parameter key="cart.upload.temp">/tmp</parameter><!-- directory for temporary file uploads -->
         <parameter key="cart.auth.token.class">MobileCart\CoreBundle\Service\GuardTokenAuthService</parameter>
         <parameter key="cart.auth.token.allow.admin">0</parameter><!-- Enable GuardTokenAuth for Admin access -->
@@ -759,18 +759,18 @@
             <call method="setAllowedCountryIds">
                 <argument type="string">%cart.allowed.country.ids%</argument>
             </call>
-            <call method="setAllowGuestCheckout">
-                <argument type="string">%cart.allow.guest.checkout%</argument>
-            </call>
-            <call method="setIsSpaEnabled">
-                <argument type="string">%cart.checkout.spa.enabled%</argument>
-            </call>
         </service>
 
         <!-- Checkout Form Service -->
         <service id="cart.checkout.form" lazy="true" class="%cart.checkout.form.class%">
             <call method="setEventDispatcher">
                 <argument type="service" id="event_dispatcher" />
+            </call>
+            <call method="setAllowGuestCheckout">
+                <argument type="string">%cart.allow.guest.checkout%</argument>
+            </call>
+            <call method="setIsSinglePage">
+                <argument type="string">%cart.checkout.single.page%</argument>
             </call>
         </service>
 
@@ -813,8 +813,8 @@
         <service id="cart.listener.checkout.form" lazy="true" class="%cart.listener.checkout.form.class%">
             <tag name="kernel.event_listener" event="checkout.form" method="onCheckoutFormStart" priority="100" />
             <tag name="kernel.event_listener" event="checkout.form" method="onCheckoutFormEnd" priority="10" />
-            <call method="setOrderService">
-                <argument type="service" id="cart.order" />
+            <call method="setCheckoutFormService">
+                <argument type="service" id="cart.checkout.form" />
             </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme" />
@@ -832,6 +832,7 @@
         <!-- Event Listener: build billing address form -->
         <service id="cart.listener.checkout.form.billing_address" lazy="true" class="%cart.listener.checkout.form.billing_address.class%">
             <tag name="kernel.event_listener" event="checkout.form" method="onCheckoutForm" priority="90" />
+            <!--<tag name="kernel.event_listener" event="checkout.form.config" method="onCheckoutFormConfig" priority="90" />-->
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
             </call>
@@ -860,6 +861,7 @@
         <!-- Event Listener: build shipping address form -->
         <service id="cart.listener.checkout.form.shipping_address" lazy="true" class="%cart.listener.checkout.form.shipping_address.class%">
             <tag name="kernel.event_listener" event="checkout.form" method="onCheckoutForm" priority="80" />
+            <!--<tag name="kernel.event_listener" event="checkout.form.config" method="onCheckoutFormConfig" priority="80" />-->
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
             </call>
@@ -880,6 +882,7 @@
         <!-- Event Listener: render Totals and Discounts section of checkout -->
         <service id="cart.listener.checkout.form.totals_discounts" lazy="true" class="%cart.listener.checkout.form.totals_discounts.class%">
             <tag name="kernel.event_listener" event="checkout.form" method="onCheckoutForm" priority="70" />
+            <!--<tag name="kernel.event_listener" event="checkout.form.config" method="onCheckoutFormConfig" priority="70" />-->
             <call method="setOrderService">
                 <argument type="service" id="cart.order" />
             </call>
@@ -894,6 +897,7 @@
         <!-- Event Listener: build payment form -->
         <service id="cart.listener.checkout.form.payment_method" lazy="true" class="%cart.listener.checkout.form.payment_method.class%">
             <tag name="kernel.event_listener" event="checkout.form" method="onCheckoutForm" priority="60" />
+            <!--<tag name="kernel.event_listener" event="checkout.form.config" method="onCheckoutFormConfig" priority="60" />-->
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
             </call>
@@ -962,8 +966,8 @@
         <!-- Event Listener: update/validate cart changes, totals, discounts being submitted in checkout -->
         <service id="cart.listener.checkout.update.totals_discounts" lazy="true" class="%cart.listener.checkout.update.totals_discounts.class%">
             <tag name="kernel.event_listener" event="checkout.update.totals_discounts" method="onCheckoutUpdateTotalsDiscounts" priority="50" />
-            <call method="setOrderService">
-                <argument type="service" id="cart.order" />
+            <call method="setCartService">
+                <argument type="service" id="cart" />
             </call>
             <call method="setRouter">
                 <argument type="service" id="router" />

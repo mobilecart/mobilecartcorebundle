@@ -28,7 +28,7 @@ class CheckoutController extends Controller
      */
     protected function hasLoginError()
     {
-        return (!$this->get('cart')->getAllowGuestCheckout() && !$this->getUser());
+        return (!$this->get('cart.checkout.form')->getAllowGuestCheckout() && !$this->getUser());
     }
 
     /**
@@ -70,20 +70,21 @@ class CheckoutController extends Controller
             return $this->handleLoginError($request);
         }
 
+        $this->get('cart')->initRequest($request);
+
         // is checkout multiple pages or a single page
-        if ($this->container->getParameter('cart.checkout.spa.enabled')) {
+        if ($this->get('cart.checkout.form')->getIsSinglePage()) {
 
             return $this->get('cart.checkout.form')
                 ->setRequest($request)
                 ->setUser($this->getUser())
                 ->getFullResponse();
-
         }
 
         return $this->get('cart.checkout.form')
             ->setRequest($request)
             ->setUser($this->getUser())
-            ->getSectionResponse($this->get('cart.checkout.form')->getFirstSectionKey());
+            ->getSectionResponse($this->get('cart.checkout.form')->getFirstFormSectionKey());
     }
 
     /**
@@ -99,16 +100,18 @@ class CheckoutController extends Controller
         $section = $request->get('section', '');
         switch($section) {
             case 'confirm_order':
+                $this->get('cart')->initRequest($request);
                 return $this->confirmOrderAction($request);
                 break;
             case 'success':
                 return $this->successAction($request);
                 break;
             default:
-
+                $this->get('cart')->initRequest($request);
                 break;
         }
 
+        // todo : switch this to use cart service, which uses checkout form service
         return $this->get('cart.checkout.form')
             ->setRequest($request)
             ->setUser($this->getUser())
@@ -125,16 +128,17 @@ class CheckoutController extends Controller
             return $this->handleLoginError($request);
         }
 
+        $this->get('cart')->initRequest($request);
+
         $section = $request->get('section', '');
-        $sectionData = $this->get('cart.checkout.form')
-            ->setRequest($request)
-            ->setUser($this->getUser())
-            ->getSectionData($section);
 
         $event = new CoreEvent();
         $event->setRequest($request)
             ->setUser($this->getUser())
-            ->set('section_data', $sectionData);
+            ->set('single_step', $section);
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CHECKOUT_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::checkoutUpdate($section), $event);

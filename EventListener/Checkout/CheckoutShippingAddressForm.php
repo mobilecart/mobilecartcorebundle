@@ -144,7 +144,6 @@ class CheckoutShippingAddressForm
 
     /**
      * @param CoreEvent $event
-     * @return bool
      */
     public function onCheckoutForm(CoreEvent $event)
     {
@@ -216,32 +215,42 @@ class CheckoutShippingAddressForm
             'post_url' => $this->getRouter()->generate('cart_checkout_update_section', [
                 'section' => CheckoutConstants::STEP_SHIPPING_ADDRESS
             ]),
-            'form' => $form,
-            'form_view' => $form->createView(),
+            //'form' => $form,
+            //'form_view' => $form->createView(),
         ];
 
         if ($event->get('single_step', '')) {
+            // if there's a single step, we only want the form for this step
             if ($event->get('single_step', '') == CheckoutConstants::STEP_SHIPPING_ADDRESS) {
+                $event->setForm($form);
+                $event->set('section_data', $sectionData);
 
-                $template = $event->getTemplate()
-                    ? $event->getTemplate()
-                    : 'Checkout:section_full.html.twig';
+                // if it's not a submission, then we render the template
+                if ($event->getRequest()->getMethod() !== 'POST') {
 
-                $javascripts[] = [
-                    'js_template' => $tplPath . 'Checkout:section_full_js.html.twig',
-                ];
+                    $template = $event->get('template', '')
+                        ? $event->get('template', '')
+                        : 'Checkout:section_full.html.twig';
 
-                $sectionData['javascripts'] = $javascripts;
+                    // add js for handling a single step on each page
+                    $javascripts[] = [
+                        'js_template' => $tplPath . 'Checkout:section_full_js.html.twig',
+                    ];
 
-                $event->setResponse($this->getThemeService()->render('frontend', $template, $sectionData));
+                    $sectionData['javascripts'] = $javascripts;
+                    $sectionData['form_view'] = $form->createView();
+
+                    $event->setResponse($this->getThemeService()->render('frontend', $template, $sectionData));
+                }
             }
         } else {
 
-            $isAjax = $event->getRequest()
-                ? $event->getRequest()->get('ajax', '') == 1
-                : false;
+            if (!$event->getRequest()
+                || $event->getRequest()->getMethod() !== 'POST'
+            ) {
 
-            if (!$isAjax) {
+                // if it's not a single step, then we want the forms for all steps
+                $sectionData['form_view'] = $form->createView();
 
                 $javascripts[] = [
                     'js_template' => $tplPath . 'Checkout:section_address_js.html.twig',
@@ -250,10 +259,10 @@ class CheckoutShippingAddressForm
 
                 $event->setReturnData('javascripts', $javascripts);
             }
-        }
 
-        $sections = $event->getReturnData('sections', []);
-        $sections[CheckoutConstants::STEP_SHIPPING_ADDRESS] = $sectionData;
-        $event->setReturnData('sections', $sections);
+            $sections = $event->getReturnData('sections', []);
+            $sections[CheckoutConstants::STEP_SHIPPING_ADDRESS] = $sectionData;
+            $event->setReturnData('sections', $sections);
+        }
     }
 }

@@ -3,6 +3,7 @@
 namespace MobileCart\CoreBundle\EventListener\Checkout;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
+use MobileCart\CoreBundle\Constants\EntityConstants;
 
 /**
  * Class CheckoutForm
@@ -16,35 +17,9 @@ class CheckoutForm
     protected $themeService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\OrderService
+     * @var \MobileCart\CoreBundle\Service\CheckoutFormService
      */
-    protected $orderService;
-
-    /**
-     * @param $orderService
-     * @return $this
-     */
-    public function setOrderService($orderService)
-    {
-        $this->orderService = $orderService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\OrderService
-     */
-    public function getOrderService()
-    {
-        return $this->orderService;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\CartService
-     */
-    public function getCartService()
-    {
-        return $this->getOrderService()->getCartService();
-    }
+    protected $checkoutFormService;
 
     /**
      * @param \MobileCart\CoreBundle\Service\ThemeService $themeService
@@ -65,41 +40,75 @@ class CheckoutForm
     }
 
     /**
-     * @return bool
+     * @param \MobileCart\CoreBundle\Service\CheckoutFormService $checkoutFormService
+     * @return $this
      */
-    public function getIsSpaEnabled()
+    public function setCheckoutFormService(\MobileCart\CoreBundle\Service\CheckoutFormService $checkoutFormService)
     {
-        return (bool) $this->getCartService()->getIsSpaEnabled();
+        $this->checkoutFormService = $checkoutFormService;
+        return $this;
     }
 
     /**
+     * @return \MobileCart\CoreBundle\Service\CheckoutFormService
+     */
+    public function getCheckoutFormService()
+    {
+        return $this->checkoutFormService;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsSinglePage()
+    {
+        return $this->getCheckoutFormService()->getIsSinglePage();
+    }
+
+    /**
+     * This runs before the other steps are collected,
+     *  and is for initializing the single page template javascripts
+     *
      * @param CoreEvent $event
      */
     public function onCheckoutFormStart(CoreEvent $event)
     {
-        $isAjax = $event->getRequest()
-            ? $event->getRequest()->get('ajax', '') == 1
-            : false;
-
         // add js for accordion
-        if ($this->getIsSpaEnabled()
-            && !$isAjax
+        if ($this->getIsSinglePage()
+            && !$event->get('single_step', '')
         ) {
+
             $tplPath = $this->getThemeService()->getTemplatePath($this->getThemeService()->getThemeConfig()->getFrontendTheme());
             $javascripts = $event->getReturnData('javascripts', []);
             $javascripts['accordion'] = [
                 'js_template' => $tplPath . 'Checkout:accordion_js.html.twig',
             ];
+
             $event->setReturnData('javascripts', $javascripts);
         }
     }
 
     /**
+     * This runs after the other steps are collected,
+     *  and is for rendering the single page template
+     *
      * @param CoreEvent $event
      */
     public function onCheckoutFormEnd(CoreEvent $event)
     {
-        if ($this->getIsSpaEnabled() && !$event->getResponse()) {
+        if ($event->getReturnData('sections', [])) {
+
+            // sort and set next_section , etc
+            $event->setReturnData(
+                'sections',
+                $this->getCheckoutFormService()->sortFormSections($event->getReturnData('sections', []))
+            );
+        }
+
+        if ($this->getIsSinglePage()
+            && !$event->getResponse()
+            && !$event->get('single_step', '')
+        ) {
 
             $template = $event->get('template', '')
                 ? $event->get('template', '')
@@ -108,8 +117,8 @@ class CheckoutForm
             $event->setResponse($this->getThemeService()->render(
                 'frontend',
                 $template,
-                $event->getReturnData())
-            );
+                $event->getReturnData()
+            ));
         }
     }
 }

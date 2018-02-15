@@ -717,6 +717,7 @@ class Cart extends ArrayWrapper
             $defaults = $this->getDefaults();
             foreach($cart as $key => $value) {
 
+                // defaults are already handled
                 if (isset($defaults[$key])) {
                     continue;
                 }

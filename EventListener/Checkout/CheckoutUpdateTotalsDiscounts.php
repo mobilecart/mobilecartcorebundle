@@ -13,31 +13,23 @@ use MobileCart\CoreBundle\Constants\CheckoutConstants;
 class CheckoutUpdateTotalsDiscounts
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\OrderService
-     */
-    protected $orderService;
-
-    /**
      * @var \Symfony\Component\Routing\RouterInterface
      */
     protected $router;
 
     /**
-     * @param $orderService
-     * @return $this
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    public function setOrderService($orderService)
-    {
-        $this->orderService = $orderService;
-        return $this;
-    }
+    protected $cartService;
 
     /**
-     * @return \MobileCart\CoreBundle\Service\OrderService
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
+     * @return $this
      */
-    public function getOrderService()
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
     {
-        return $this->orderService;
+        $this->cartService = $cartService;
+        return $this;
     }
 
     /**
@@ -45,15 +37,7 @@ class CheckoutUpdateTotalsDiscounts
      */
     public function getCartService()
     {
-        return $this->getOrderService()->getCartService();
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
-     */
-    public function getEntityService()
-    {
-        return $this->getCartService()->getEntityService();
+        return $this->cartService;
     }
 
     /**
@@ -82,20 +66,18 @@ class CheckoutUpdateTotalsDiscounts
         $isValid = true;
         $invalid = [];
 
-        $sectionData = $event->get('section_data', []);
+        $nextSection = CheckoutConstants::STEP_PAYMENT_METHOD;
 
-        $nextSection = isset($sectionData['next_section'])
-            ? $sectionData['next_section']
-            : '';
-
-        $this->getCheckoutSessionService()->setSectionIsValid(CheckoutConstants::STEP_TOTALS_DISCOUNTS, $isValid);
+        $this->getCartService()->setSectionIsValid(CheckoutConstants::STEP_TOTALS_DISCOUNTS, $isValid);
+        $this->getCartService()->saveCart();
 
         $event->setReturnData('success', $isValid);
+        $event->setReturnData('cart', $this->getCartService()->getCart());
         $event->setReturnData('messages', $event->getMessages());
+        $event->setReturnData('next_section', $nextSection);
         $event->setReturnData('invalid', $invalid);
 
-        $cartService = $this->getCheckoutSessionService()->getCartService();
-        if ($isValid && !$cartService->getIsSpaEnabled()) {
+        if ($isValid && strlen($nextSection)) {
 
             $event->setReturnData('redirect_url', $this->getRouter()->generate(
                 'cart_checkout_section', [
@@ -103,9 +85,6 @@ class CheckoutUpdateTotalsDiscounts
                 ]
             ));
         }
-
-        $this->getCheckoutSessionService()->setIsValidTotals($isValid);
-        $this->getCheckoutSessionService()->setSectionIsValid(CheckoutConstants::STEP_TOTALS_DISCOUNTS, $isValid);
 
         $event->setResponse(new JsonResponse($event->getReturnData()));
     }

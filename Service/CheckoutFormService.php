@@ -17,6 +17,11 @@ class CheckoutFormService
     protected $eventDispatcher;
 
     /**
+     * @var bool
+     */
+    protected $isSinglePage = false;
+
+    /**
      * @var CoreEvent
      */
     protected $event;
@@ -52,6 +57,42 @@ class CheckoutFormService
     public function getEventDispatcher()
     {
         return $this->eventDispatcher;
+    }
+
+    /**
+     * @param bool $yesNo
+     * @return $this
+     */
+    public function setAllowGuestCheckout($yesNo)
+    {
+        $this->allowGuestCheckout = $yesNo;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getAllowGuestCheckout()
+    {
+        return $this->allowGuestCheckout;
+    }
+
+    /**
+     * @param $isEnabled
+     * @return $this
+     */
+    public function setIsSinglePage($isEnabled)
+    {
+        $this->isSinglePage = (bool) $isEnabled;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsSinglePage()
+    {
+        return (bool) $this->isSinglePage;
     }
 
     /**
@@ -99,23 +140,11 @@ class CheckoutFormService
     }
 
     /**
-     * @return $this
+     * @param array $sections
+     * @return array
      */
-    public function collectFormSections()
+    public function sortFormSections(array $sections)
     {
-        $event = new CoreEvent();
-        $event->setUser($this->getUser());
-
-        if ($this->getRequest()) {
-            $event->setRequest($this->getRequest());
-        }
-
-        $this->getEventDispatcher()
-            ->dispatch(CoreEvents::CHECKOUT_FORM, $event);
-
-        $this->event = $event;
-
-        $sections = $event->getReturnData('sections');
         if ($sections) {
 
             // ensure the steps are properly ordered
@@ -144,8 +173,31 @@ class CheckoutFormService
                 $x++;
             }
             $newSections[$lastSection]['final_step'] = true;
-            $this->formSections = $newSections;
+            return $newSections;
         }
+
+        return $sections;
+    }
+
+    /**
+     * @return $this
+     */
+    public function collectFormSections()
+    {
+        $event = new CoreEvent();
+        $event->setUser($this->getUser());
+
+        if ($this->getRequest()) {
+            $event->setRequest($this->getRequest());
+        }
+
+        $this->getEventDispatcher()
+            ->dispatch(CoreEvents::CHECKOUT_FORM, $event);
+
+        $this->event = $event;
+
+        $sections = $event->getReturnData('sections');
+        $this->formSections = $this->sortFormSections($sections);
 
         return $this;
     }
@@ -181,6 +233,8 @@ class CheckoutFormService
     }
 
     /**
+     * This is used when the checkout is configured for multiple pages eg isSinglePage = false
+     *
      * @param $section
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -200,6 +254,8 @@ class CheckoutFormService
     }
 
     /**
+     * This is used when the checkout is configured for a single page eg isSinglePage = true
+     *
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function getFullResponse()
@@ -217,24 +273,12 @@ class CheckoutFormService
     }
 
     /**
-     * @param $section
+     * This is used for tracking which steps are valid, and is useful in other areas of checkout also
+     *  such as the javascript
+     *
      * @return array
      */
-    public function getSectionData($section)
-    {
-        if (!$this->formSections) {
-            $this->collectFormSections();
-        }
-
-        return isset($this->formSections[$section])
-            ? $this->formSections[$section]
-            : [];
-    }
-
-    /**
-     * @return array
-     */
-    public function getSectionKeys()
+    public function getFormSectionKeys()
     {
         if (!$this->formSections) {
             $this->collectFormSections();
@@ -243,11 +287,13 @@ class CheckoutFormService
     }
 
     /**
+     * This is generally used for rendering the first step of the form when isSinglePage = false
+     *
      * @return string
      */
-    public function getFirstSectionKey()
+    public function getFirstFormSectionKey()
     {
-        $keys = $this->getSectionKeys();
+        $keys = $this->getFormSectionKeys();
         return isset($keys[0])
             ? $keys[0]
             : '';
