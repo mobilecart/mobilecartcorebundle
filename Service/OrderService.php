@@ -872,9 +872,13 @@ class OrderService
             //  each item could reference a shipment
             $this->createOrderItems();
 
-            // todo : update cart set is_converted=1
-
             $this->createOrderHistory();
+
+            $cartEntity = $this->getCartService()->getCartEntity();
+            if ($cartEntity) {
+                $cartEntity->setIsConverted(true);
+                $this->getEntityService()->persist($cartEntity);
+            }
 
             $this->setSuccess(true);
             $this->getEntityService()->commit();
@@ -882,18 +886,6 @@ class OrderService
             $this->getEntityService()->rollBack();
             return $this;
         }
-
-        $event = new CoreEvent();
-        $event->addData($this->getEventData())
-            ->setCart($this->getCart())
-            ->setOrder($this->getOrder())
-            ->setCustomerToken($this->getCustomerToken())
-            ->setPayment($this->getPayment())
-            ->setInvoice($this->getInvoice())
-            ;
-
-        $this->getEventDispatcher()
-            ->dispatch(CoreEvents::ORDER_SUBMIT_SUCCESS, $event);
 
         return $this;
     }

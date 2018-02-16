@@ -17,11 +17,6 @@ class CheckoutSubmitOrder
     protected $orderService;
 
     /**
-     * @var \Symfony\Component\Routing\RouterInterface
-     */
-    protected $router;
-
-    /**
      * @param $orderService
      * @return $this
      */
@@ -64,48 +59,33 @@ class CheckoutSubmitOrder
     }
 
     /**
-     * @param \Symfony\Component\Routing\RouterInterface $router
-     * @return $this
-     */
-    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
-    {
-        $this->router = $router;
-        return $this;
-    }
-
-    /**
-     * @return \Symfony\Component\Routing\RouterInterface
-     */
-    public function getRouter()
-    {
-        return $this->router;
-    }
-
-    /**
      * @param CoreEvent $event
-     * @return bool
      */
     public function onCheckoutSubmitOrder(CoreEvent $event)
     {
         // todo : keep a count of invalid requests, logout/lockout user if excessive
 
+        $isValid = false;
         $invalidSections = $this->getCartService()->getInvalidSections();
-        $event->setReturnData('invalid_sections', $invalidSections);
+
+        // cannot submit order if there are invalid sections
         if ($invalidSections) {
 
-            $event->setResponse(new JsonResponse([
-                'success' => false,
-                'messages' => $event->getMessages(),
-                'invalid_sections' => $invalidSections,
-                'invalid' => [],
-            ]));
-
+            $event->setSuccess($isValid);
+            $event->setReturnData('invalid_sections', $invalidSections);
+            // response is rendered in CheckoutSubmitOrderReturn
             return false; // return early, return value has no effect
         }
 
+        // locate the payment service, using the payment method code stored on the cart entity
         $paymentMethodService = $this->getPaymentService()
             ->findPaymentMethodServiceByCode($this->getCartService()->getPaymentMethodCode());
 
+        if (!$paymentMethodService) {
+            throw new \Exception("Cannot find payment service: {$this->getCartService()->getPaymentMethodCode()}");
+        }
+
+        // get the payment data stored on the cart entity
         $paymentData = $this->getCartService()->getPaymentData();
 
         // merge data
@@ -127,34 +107,41 @@ class CheckoutSubmitOrder
 
         $orderService->submitCart();
 
-        if ($orderService->getErrors()) {
-            foreach($orderService->getErrors() as $error) {
-                $event->addErrorMessage($error);
-            }
-        }
-
         if ($orderService->getSuccess()) {
 
-            $event->setOrder($orderService->getOrder());
+            $isValid = true;
+            $event->setSuccess($isValid);
 
-            $this->getCartService()
-                ->removeItems()
-                ->getSession()
-                ->set('order_id', $orderService->getOrder()->getId());
+            // only set the value in session if we're using the session
+            if (!$this->getCartService()->getIsApiRequest()) {
 
-            $event->setResponse(new JsonResponse([
-                'success' => true,
-                'order_id' => $orderService->getOrder()->getId(),
-                'redirect_url' => $this->getRouter()->generate('cart_checkout_success', []),
-                'messages' => $event->getMessages(),
-            ]));
+                $this->getCartService()
+                    ->removeItems()
+                    ->getSession()
+                    ->set('order_id', $this->getOrderService()->getOrder()->getId());
+            }
+
+            $event->set('cart', $this->getOrderService()->getCart())
+                ->set('order', $this->getOrderService()->getOrder())
+                ->set('customer_token', $this->getOrderService()->getCustomerToken())
+                ->set('payment', $this->getOrderService()->getPayment())
+                ->set('invoice', $this->getOrderService()->getInvoice());
+
+            $event->setReturnData('order_id', $this->getOrderService()->getOrder()->getId());
+
+            // further processing happens in the next event listeners
+
         } else {
 
-            $event->setResponse(new JsonResponse([
-                'success' => false,
-                'messages' => $event->getMessages(),
-                'invalid' => $invalidSections,
-            ]));
+            $event->setSuccess($isValid);
+
+            if ($orderService->getErrors()) {
+                foreach ($orderService->getErrors() as $error) {
+                    $event->addErrorMessage($error);
+                }
+            }
+
+            $event->setReturnData('invalid_sections', $invalidSections);
         }
     }
 }

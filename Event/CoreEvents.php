@@ -85,7 +85,7 @@ final class CoreEvents
     const CHECKOUT_CONFIRM_ORDER = 'checkout.confirm.order';
     const CHECKOUT_SUBMIT_ORDER = 'checkout.submit.order';
     const CHECKOUT_SUBMIT_ORDER_API = 'checkout.submit.order.api';
-    const CHECKOUT_SUBMIT_ORDER_SUCCESS = 'checkout.submit.order.success';
+    //const CHECKOUT_SUBMIT_ORDER_SUCCESS = 'checkout.submit.order.success';
     const CHECKOUT_SUCCESS_RETURN = 'checkout.success.return';
 
     /**

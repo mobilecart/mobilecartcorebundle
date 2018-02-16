@@ -488,7 +488,8 @@ class CoreEvent extends Event
      */
     public function isJsonResponse()
     {
-        return $this->getRequestAccept() == self::JSON || $this->getContentType() == self::JSON;
+        return is_int(strpos($this->getRequestAccept(), self::JSON))
+                || $this->getContentType() == self::JSON;
     }
 
     /**

@@ -198,6 +198,7 @@
         <parameter key="cart.listener.checkout.update.totals_discounts.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdateTotalsDiscounts</parameter>
         <parameter key="cart.listener.checkout.update.payment_method.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdatePaymentMethod</parameter>
         <parameter key="cart.listener.checkout.submit.order.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutSubmitOrder</parameter>
+        <parameter key="cart.listener.checkout.submit.order.return.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutSubmitOrderReturn</parameter>
         <parameter key="cart.listener.checkout.success.return.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutSuccessReturn</parameter>
         <!-- Contact Form Handlers -->
         <parameter key="cart.listener.contact.form.class">MobileCart\CoreBundle\EventListener\Contact\ContactForm</parameter>
@@ -984,12 +985,17 @@
 
         <!-- Event Listener: Submit Order via Checkout Form -->
         <service id="cart.listener.checkout.submit.order" lazy="true" class="%cart.listener.checkout.submit.order.class%">
-            <tag name="kernel.event_listener" event="checkout.submit.order" method="onCheckoutSubmitOrder" priority="50" />
-            <call method="setRouter">
-                <argument type="service" id="router" />
-            </call>
+            <tag name="kernel.event_listener" event="checkout.submit.order" method="onCheckoutSubmitOrder" priority="100" />
             <call method="setOrderService">
                 <argument type="service" id="cart.order" />
+            </call>
+        </service>
+
+        <!-- Event Listener: Submit Order via Checkout Form -->
+        <service id="cart.listener.checkout.submit.order.return" lazy="true" class="%cart.listener.checkout.submit.order.return.class%">
+            <tag name="kernel.event_listener" event="checkout.submit.order" method="onCheckoutSubmitOrder" priority="10" />
+            <call method="setRouter">
+                <argument type="service" id="router" />
             </call>
         </service>
 

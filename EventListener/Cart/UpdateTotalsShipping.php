@@ -40,10 +40,6 @@ class UpdateTotalsShipping extends BaseCartListener
      */
     public function onUpdateTotalsShipping(CoreEvent $event)
     {
-        if (!$this->getCartService()->getIsApiRequest() ) {
-            $event->flashMessages();
-        }
-
         if ($event->getSuccess()) {
 
             if ($this->getCartService()->hasItems()) {
@@ -53,25 +49,28 @@ class UpdateTotalsShipping extends BaseCartListener
             $this->getCartService()->saveCart();
             $event->setReturnData(CoreEvent::CART, $this->getCartService()->getCart());
 
-            switch($event->getContentType()) {
-                case CoreEvent::JSON:
-                    $event->setResponse(new JsonResponse($event->getReturnData()));
-                    break;
-                default:
-                    $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_view', [])));
-                    break;
+            if ($event->isJsonResponse()) {
+
+                $event->setResponse(new JsonResponse($event->getReturnData()));
+
+            } else {
+
+                $event->flashMessages();
+                $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_view', [])));
             }
         } else {
-            switch($event->getContentType()) {
-                case CoreEvent::JSON:
-                    $event->setResponse(new JsonResponse([
-                        CoreEvent::SUCCESS => false,
-                        CoreEvent::MESSAGES => $event->getMessages()
-                    ], $event->getResponseCode()));
-                    break;
-                default:
-                    $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_view', [])));
-                    break;
+
+            if ($event->isJsonResponse()) {
+
+                $event->setResponse(new JsonResponse([
+                    CoreEvent::SUCCESS => false,
+                    CoreEvent::MESSAGES => $event->getMessages()
+                ], $event->getResponseCode()));
+
+            } else {
+
+                $event->flashMessages();
+                $event->setResponse(new RedirectResponse($this->getRouter()->generate('cart_view', [])));
             }
         }
     }

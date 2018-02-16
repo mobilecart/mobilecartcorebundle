@@ -177,6 +177,8 @@ class CheckoutController extends Controller
             return $this->handleLoginError($request);
         }
 
+        $this->get('cart')->initRequest($request);
+
         $event = new CoreEvent();
         $event->setRequest($request)
             ->setFormAction($this->generateUrl('cart_checkout_submit_order'))
