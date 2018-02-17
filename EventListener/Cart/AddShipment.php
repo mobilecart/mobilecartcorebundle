@@ -10,21 +10,29 @@ use MobileCart\CoreBundle\Constants\EntityConstants as EC;
  * Class AddShipment
  * @package MobileCart\CoreBundle\EventListener\Cart
  */
-class AddShipment extends BaseCartListener
+class AddShipment
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\ShippingService
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    public $shippingService;
+    protected $cartService;
 
     /**
-     * @param $shippingService
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
      * @return $this
      */
-    public function setShippingService($shippingService)
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
     {
-        $this->shippingService = $shippingService;
+        $this->cartService = $cartService;
         return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->cartService;
     }
 
     /**
@@ -32,7 +40,7 @@ class AddShipment extends BaseCartListener
      */
     public function getShippingService()
     {
-        return $this->shippingService;
+        return $this->getCartService()->getShippingService();
     }
 
     /**
@@ -40,6 +48,10 @@ class AddShipment extends BaseCartListener
      */
     public function onCartAddShipment(CoreEvent $event)
     {
+        $isValid = false;
+        $shippingMethods = []; // r[source_address_key][customer_address_id] = $code
+        $shippingMethod = ''; // single shipping method code
+
         // parse/convert API requests
         switch($event->getContentType()) {
             case CoreEvent::JSON:
@@ -55,7 +67,6 @@ class AddShipment extends BaseCartListener
                 ];
 
                 if (isset($apiRequest['shipping_methods'])) {
-                    $shippingMethods = []; // r[source_address_key][customer_address_id] = $code
                     foreach($apiRequest as $data) {
 
                         $isValid = true;
@@ -80,15 +91,11 @@ class AddShipment extends BaseCartListener
 
                         $shippingMethods[$sourceAddressKey][$customerAddressId] = $shippingMethod;
                     }
-                    $event->getRequest()->request->set('shipping_methods', $shippingMethods);
-
                 } elseif (isset($apiRequest[EC::SHIPPING_METHOD])) {
 
                     $shippingMethod = $apiRequest[EC::SHIPPING_METHOD];
 
                     if ($this->getShippingService()->getIsMultiShippingEnabled()) {
-
-                        $shippingMethods = []; // r[source_address_key][customer_address_id] = $code
 
                         $sourceAddressKey = isset($apiRequest[EC::SOURCE_ADDRESS_KEY])
                             ? $apiRequest[EC::SOURCE_ADDRESS_KEY]
@@ -103,30 +110,23 @@ class AddShipment extends BaseCartListener
                         }
 
                         $shippingMethods[$sourceAddressKey][$customerAddressId] = $shippingMethod;
-
-                        $event->getRequest()->request->set('shipping_methods', $shippingMethods);
-                    } else {
-                        $event->getRequest()->request->set(EC::SHIPPING_METHOD, $shippingMethod);
                     }
                 }
 
                 break;
             default:
 
+                $shippingMethods = $event->getRequest()->get('shipping_methods', []); // r[source_address_key][customer_address_id] = $code
+                $shippingMethod = $event->getRequest()->get(EC::SHIPPING_METHOD, ''); // single shipping method
+
                 break;
         }
 
-        // continue base logic
-
-        $success = false;
-        $request = $event->getRequest();
-        $this->initCart($request);
-
         // handle multiple shipments, if necessary
         if ($this->getShippingService()->getIsMultiShippingEnabled()) {
-            $codes = $request->get('shipping_methods', []); // r[source_address_key][customer_address_id] = $code
-            if (is_array($codes) && count($codes)) {
-                foreach($codes as $srcAddressKey => $customerAddressIds) {
+
+            if (is_array($shippingMethods) && count($shippingMethods)) {
+                foreach($shippingMethods as $srcAddressKey => $customerAddressIds) {
 
                     if (!$customerAddressIds) {
                         continue;
@@ -153,7 +153,7 @@ class AddShipment extends BaseCartListener
                             $this->getCartService()->removeShipments($anAddressId, $srcAddressKey);
                             $this->getCartService()->addShipment($shipment);
 
-                            $success = true;
+                            $isValid = true;
                             break;
                         }
                     }
@@ -161,10 +161,10 @@ class AddShipment extends BaseCartListener
             }
         } else {
             // otherwise, assume a single shipment and shipping method
-            $code = $request->get(EC::SHIPPING_METHOD, ''); // single shipping method
-            if ($this->getCartService()->hasShippingMethodCode($code)) {
 
-                $rate = $this->getCartService()->getCart()->findShippingMethod('code', $code);
+            if ($this->getCartService()->hasShippingMethodCode($shippingMethod)) {
+
+                $rate = $this->getCartService()->getCart()->findShippingMethod('code', $shippingMethod);
 
                 $shipment = new Shipment();
                 $shipment->fromArray($rate->getData());
@@ -172,10 +172,10 @@ class AddShipment extends BaseCartListener
                 $this->getCartService()->removeShipments();
                 $this->getCartService()->addShipment($shipment);
 
-                $success = true;
+                $isValid = true;
             }
         }
 
-        $event->setSuccess($success);
+        $event->setSuccess($isValid);
     }
 }

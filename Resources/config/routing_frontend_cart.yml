@@ -38,11 +38,6 @@ cart_remove_items:
     defaults: { _controller: MobileCartCoreBundle:Frontend/Cart:removeProducts }
     methods:  [POST]
 
-cart_totals:
-    path: /cart/totals
-    defaults: { _controller: MobileCartCoreBundle:Frontend/Cart:totals }
-    methods:  [GET]
-
 cart_checkout:
     path: /cart/checkout
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:index' }

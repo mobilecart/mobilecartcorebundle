@@ -29,10 +29,11 @@ class CartController extends Controller
      */
     public function indexAction(Request $request)
     {
+        $this->get('cart')->initRequest($request);
+
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setUser($this->getUser())
-            ->set('is_multi_shipping_enabled', $this->getParameter('cart.shipping.multi.enabled'));
+            ->setUser($this->getUser());
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CART_VIEW_RETURN, $event);
@@ -60,6 +61,8 @@ class CartController extends Controller
      */
     public function addProductAction(Request $request)
     {
+        $this->get('cart')->initRequest($request);
+
         $event = new CoreEvent();
         $event->setRequest($request)
             ->setUser($this->getUser())
@@ -79,6 +82,8 @@ class CartController extends Controller
      */
     public function addShipmentAction(Request $request)
     {
+        $this->get('cart')->initRequest($request);
+
         $event = new CoreEvent();
         $event->setRequest($request)
             ->setUser($this->getUser());
@@ -97,6 +102,8 @@ class CartController extends Controller
      */
     public function updateQtysAction(Request $request)
     {
+        $this->get('cart')->initRequest($request);
+
         $event = new CoreEvent();
         $event->setRequest($request)
             ->setUser($this->getUser());
@@ -115,6 +122,8 @@ class CartController extends Controller
      */
     public function removeProductAction(Request $request)
     {
+        $this->get('cart')->initRequest($request);
+
         $event = new CoreEvent();
         $event->setRequest($request)
             ->setUser($this->getUser());
@@ -133,6 +142,8 @@ class CartController extends Controller
      */
     public function removeProductsAction(Request $request)
     {
+        $this->get('cart')->initRequest($request);
+
         $event = new CoreEvent();
         $event->setRequest($request)
             ->setUser($this->getUser());
@@ -147,48 +158,12 @@ class CartController extends Controller
     }
 
     /**
-     * Retrieve totals for shopping cart
-     */
-    public function totalsAction(Request $request)
-    {
-        // todo : move this to event listener . add logic for handling api requests, etc
-        $totalsMap = $this->get('cart')
-            ->collectTotals()
-            ->getTotals();
-
-        $totals = [];
-        if ($totalsMap) {
-            foreach($totalsMap as $total) {
-
-                $totals[] = [
-                    'label' => $total->getLabel(),
-                    'value' => $total->getValue(),
-                ];
-            }
-        }
-
-        return new JsonResponse($totals);
-    }
-
-    /**
-     * For api customers who login after creating a cart
-     */
-    public function claimCartAction(Request $request)
-    {
-        // create event
-
-        // create listener
-        // * require CustomerEntity on CartService
-        // * save customer_id on cart
-
-        //
-    }
-
-    /**
      * Submit discount code to shopping cart
      */
     public function addDiscountAction(Request $request)
     {
+        $this->get('cart')->initRequest($request);
+
         $event = new CoreEvent();
         $event->setRequest($request)
             ->setUser($this->getUser());
@@ -207,6 +182,8 @@ class CartController extends Controller
      */
     public function removeDiscountAction(Request $request)
     {
+        $this->get('cart')->initRequest($request);
+
         $event = new CoreEvent();
         $event->setRequest($request)
             ->setUser($this->getUser());

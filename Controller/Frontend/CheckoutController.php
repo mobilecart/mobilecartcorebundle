@@ -111,7 +111,6 @@ class CheckoutController extends Controller
                 break;
         }
 
-        // todo : switch this to use cart service, which uses checkout form service
         return $this->get('cart.checkout.form')
             ->setRequest($request)
             ->setUser($this->getUser())
@@ -187,26 +186,6 @@ class CheckoutController extends Controller
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CHECKOUT_SUBMIT_ORDER, $event);
-
-        return $event->getResponse();
-    }
-
-    /**
-     * Submit the order via API
-     */
-    public function submitOrderApiAction(Request $request)
-    {
-        // check if login/registration is required
-        if ($this->hasLoginError()) {
-            return $this->handleLoginError($request);
-        }
-
-        $event = new CoreEvent();
-        $event->setRequest($request)
-            ->setUser($this->getUser());
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CHECKOUT_SUBMIT_ORDER_API, $event);
 
         return $event->getResponse();
     }

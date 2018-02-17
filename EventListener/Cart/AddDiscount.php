@@ -13,17 +13,35 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * Class AddDiscount
  * @package MobileCart\CoreBundle\EventListener\Cart
  */
-class AddDiscount extends BaseCartListener
+class AddDiscount
 {
-    /**
-     * @var \MobileCart\CoreBundle\Service\ShippingService
-     */
-    public $shippingService;
-
     /**
      * @var \Symfony\Component\Routing\RouterInterface
      */
     protected $router;
+
+    /**
+     * @var \MobileCart\CoreBundle\Service\CartService
+     */
+    protected $cartService;
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
+     * @return $this
+     */
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
+    {
+        $this->cartService = $cartService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->cartService;
+    }
 
     /**
      * @param \Symfony\Component\Routing\RouterInterface $router
@@ -44,21 +62,11 @@ class AddDiscount extends BaseCartListener
     }
 
     /**
-     * @param $shippingService
-     * @return $this
-     */
-    public function setShippingService($shippingService)
-    {
-        $this->shippingService = $shippingService;
-        return $this;
-    }
-
-    /**
      * @return \MobileCart\CoreBundle\Service\ShippingService
      */
     public function getShippingService()
     {
-        return $this->shippingService;
+        return $this->getCartService()->getShippingService();
     }
 
     /**
@@ -66,7 +74,7 @@ class AddDiscount extends BaseCartListener
      */
     public function onCartAddDiscount(CoreEvent $event)
     {
-        $request = $event->getRequest();
+        $isValid = false;
 
         // parse/convert API requests
         switch($event->getContentType()) {
@@ -76,24 +84,24 @@ class AddDiscount extends BaseCartListener
                     ? $event->getApiRequest()
                     : @ (array) json_decode($event->getRequest()->getContent());
 
-                if (isset($apiRequest['code'])) {
-                    $event->getRequest()->request->set('code', $apiRequest['code']);
-                }
+                $code = isset($apiRequest['code'])
+                    ? $apiRequest['code']
+                    : '';
 
                 break;
             default:
 
+                $code = $event->getRequest()->get('code', '');
+
                 break;
         }
 
-        // continue base logic
-        $code = $request->get('code', '');
-        $discountEntity = $this->getEntityService()->findOneBy(EntityConstants::DISCOUNT, [
-            'coupon_code' => $code,
-        ]);
+        $discountEntity = strlen($code)
+            ? $this->getEntityService()->findOneBy(EntityConstants::DISCOUNT, ['coupon_code' => $code])
+            : null;
 
-        $isValid = false;
         if ($discountEntity) {
+
             $discount = new CartDiscount();
             $discount->fromArray($discountEntity->getData());
 
@@ -152,9 +160,7 @@ class AddDiscount extends BaseCartListener
             }
         }
 
-        $event->setReturnData('is_valid_code', $isValid);
         $event->setSuccess($isValid);
-
         if ($isValid) {
             $event->addSuccessMessage('Discount Successfully Added!');
         }

@@ -34,9 +34,12 @@ class UpdateItemQtys
         return $this->eventDispatcher;
     }
 
+    /**
+     * @param CoreEvent $event
+     */
     public function onUpdateItemQtys(CoreEvent $event)
     {
-        $request = $event->getRequest();
+        $isValid = false;
         $key = 'product_id';
 
         // handle/parse API requests
@@ -47,15 +50,11 @@ class UpdateItemQtys
                     ? $event->getApiRequest()
                     : @ (array) json_decode($event->getRequest()->getContent());
 
-                if (is_array($apiRequest)
-                    && isset($apiRequest['qtys'])
+                $qtys = [];
+
+                if (isset($apiRequest['qtys'])
                     && is_array($apiRequest['qtys'])
-                    && isset($apiRequest['cart_id'])
                 ) {
-
-                    $request->request->set('cart_id', $apiRequest['cart_id']);
-
-                    $qtys = [];
                     foreach($apiRequest['qtys'] as $qtyData) {
 
                         $qtyData = get_object_vars($qtyData);
@@ -68,21 +67,16 @@ class UpdateItemQtys
                             $qtys[$qtyData[$key]] = $qtyData['qty'];
                         }
                     }
-
-                    if ($qtys) {
-                        $request->request->set('qty', $qtys);
-                    }
                 }
 
                 break;
             default:
 
+                $qtys = $event->getRequest()->get('qty', []);
+
                 break;
         }
 
-        // continue base logic
-        $qtys = $request->get('qty', []);
-        $success = false;
         if (is_array($qtys) && $qtys) {
 
             $recollectShipping = [];
@@ -91,7 +85,7 @@ class UpdateItemQtys
                 if ($qty < 1) {
 
                     $innerEvent = new CoreEvent();
-                    $innerEvent->setRequest($request)
+                    $innerEvent->setRequest($event->getRequest())
                         ->setIsMassUpdate(true)
                         ->setUser($event->getUser())
                         ->set($key, $id);
@@ -100,7 +94,7 @@ class UpdateItemQtys
                         ->dispatch(CoreEvents::CART_REMOVE_PRODUCT, $innerEvent);
 
                     if ($innerEvent->getSuccess()) {
-                        $success = true;
+                        $isValid = true;
                         if ($innerEvent->get('recollect_shipping', [])) {
                             foreach($innerEvent->get('recollect_shipping') as $anAddress) {
                                 $recollectShipping[] = $anAddress;
@@ -111,7 +105,7 @@ class UpdateItemQtys
                 } else {
 
                     $innerEvent = new CoreEvent();
-                    $innerEvent->setRequest($request)
+                    $innerEvent->setRequest($event->getRequest())
                         ->setIsMassUpdate(true)
                         ->setUser($event->getUser())
                         ->set($key, $id)
@@ -122,7 +116,7 @@ class UpdateItemQtys
                         ->dispatch(CoreEvents::CART_ADD_PRODUCT, $innerEvent);
 
                     if ($innerEvent->getSuccess()) {
-                        $success = true;
+                        $isValid = true;
                         if ($innerEvent->get('recollect_shipping', [])) {
                             foreach($innerEvent->get('recollect_shipping') as $anAddress) {
                                 $recollectShipping[] = $anAddress;
@@ -135,7 +129,7 @@ class UpdateItemQtys
             $event->set('recollect_shipping', $recollectShipping);
         }
 
-        $event->setSuccess($success);
+        $event->setSuccess($isValid);
         if ($event->getSuccess()) {
             $event->addSuccessMessage('Cart Updated !');
         }

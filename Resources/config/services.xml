@@ -1604,9 +1604,6 @@
             <call method="setCartService">
                 <argument type="service" id="cart" />
             </call>
-            <call method="setShippingService">
-                <argument type="service" id="cart.shipping" />
-            </call>
         </service>
 
         <!-- Event Listener: Add Discount to Cart -->

@@ -10,7 +10,7 @@ use MobileCart\CoreBundle\Event\CoreEvent;
  * Class AddProduct
  * @package MobileCart\CoreBundle\EventListener\Cart
  */
-class AddProduct extends BaseCartListener
+class AddProduct
 {
     /**
      * @var \MobileCart\CoreBundle\Entity\Product
@@ -38,12 +38,30 @@ class AddProduct extends BaseCartListener
     protected $qty = 1;
 
     /**
-     * @var bool
+     * @var \MobileCart\CoreBundle\Service\CartService
      */
-    protected $success = false;
+    protected $cartService;
 
     /**
-     * @return \MobileCart\CoreBundle\Service\DoctrineEntityService
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
+     * @return $this
+     */
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
+    {
+        $this->cartService = $cartService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->cartService;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
      */
     public function getEntityService()
     {
@@ -136,24 +154,6 @@ class AddProduct extends BaseCartListener
     public function getIsAdd()
     {
         return $this->isAdd;
-    }
-
-    /**
-     * @param $success
-     * @return $this
-     */
-    public function setSuccess($success)
-    {
-        $this->success = $success;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getSuccess()
-    {
-        return $this->success;
     }
 
     /**
@@ -335,7 +335,6 @@ class AddProduct extends BaseCartListener
      */
     public function onCartAddProduct(CoreEvent $event)
     {
-        // parse/convert API requests
         switch($event->getContentType()) {
             case CoreEvent::JSON:
 
@@ -343,23 +342,48 @@ class AddProduct extends BaseCartListener
                     ? $event->getApiRequest()
                     : @ (array) json_decode($event->getRequest()->getContent());
 
-                if (isset($apiRequest['qty'])
-                    && (isset($apiRequest['sku']) || isset($apiRequest['product_id']))
-                ) {
+                $key = isset($apiRequest['sku']) || $event->get('sku')
+                    ? 'sku'
+                    : 'product_id';
 
-                    $keys = ['cart_id','qty','is_add','product_id','sku','simple_id','simple_sku'];
-                    foreach($apiRequest as $key => $value) {
+                $value = isset($apiRequest[$key])
+                    ? $apiRequest[$key]
+                    : $event->get($key, '');
 
-                        if (!in_array($key, $keys)) {
-                            continue;
-                        }
+                $qty = isset($apiRequest['qty'])
+                    ? $apiRequest['qty']
+                    : $event->get('qty', 1);
 
-                        $event->getRequest()->request->set($key, $value);
-                    }
-                }
+                $simpleKey = isset($apiRequest['simple_sku']) || $event->get('simple_sku')
+                    ? 'simple_sku'
+                    : 'simple_id';
+
+                $simpleValue = isset($apiRequest[$simpleKey])
+                    ? $apiRequest[$simpleKey]
+                    : $event->get($simpleKey, '');
 
                 break;
             default:
+
+                $key = $event->getRequest()->get('sku', '') || $event->get('sku')
+                    ? 'sku'
+                    : 'product_id';
+
+                $value = $event->get($key)
+                    ? $event->get($key)
+                    : $event->getRequest()->get($key, '');
+
+                $qty = is_numeric($event->get('qty', ''))
+                    ? (int) $event->get('qty')
+                    : (int) $event->getRequest()->get('qty', 1);
+
+                $simpleKey = $event->getRequest()->get('simple_sku') || $event->get('simple_sku')
+                    ? 'simple_sku'
+                    : 'simple_id';
+
+                $simpleValue = $event->get($simpleKey)
+                    ? $event->get($simpleKey)
+                    : $event->getRequest()->get($simpleKey, '');
 
                 break;
         }
@@ -374,27 +398,14 @@ class AddProduct extends BaseCartListener
          *
          * Simple:
          * 1. Ensure it exists
+         * 2. Ensure inventory criteria is met
          *
          * Configurable:
          * 1. Ensure both child and parent exist
          * 2. Ensure they are related
+         * 3. Ensure inventory criteria is met
          *
          */
-
-        $request = $event->getRequest();
-        $this->initCart($request);
-
-        $key = $request->get('sku', '') || $event->get('sku')
-            ? 'sku'
-            : 'product_id';
-
-        $value = $event->get($key)
-            ? $event->get($key)
-            : $request->get($key, '');
-
-        $qty = is_numeric($event->get('qty', ''))
-            ? (int) $event->get('qty')
-            : (int) $request->get('qty', 1);
 
         $this->setQty($qty);
         $this->setIsAdd((bool) $event->get('is_add'));
@@ -414,14 +425,6 @@ class AddProduct extends BaseCartListener
             case EntityConstants::PRODUCT_TYPE_CONFIGURABLE:
 
                 $event->set('product_type', $product->getType());
-
-                $simpleKey = $request->get('simple_sku') || $event->get('simple_sku')
-                    ? 'simple_sku'
-                    : 'simple_id';
-
-                $simpleValue = $event->get($simpleKey)
-                    ? $event->get($simpleKey)
-                    : $request->get($simpleKey, '');
 
                 $lookupKey = $simpleKey == 'simple_sku'
                     ? 'sku'
@@ -445,7 +448,7 @@ class AddProduct extends BaseCartListener
                         $this->updateTierPrice($item);
                         $event->set('item', $item); // pass the current item to the next event listener
                         $this->collectAddresses($event, $item, $recollectShipping);
-                        $this->setSuccess(true);
+                        $event->setSuccess(true);
                     }
                 } else {
 
@@ -476,7 +479,7 @@ class AddProduct extends BaseCartListener
                             $this->getCartService()->addNewCartItemEntity($itemEntity);
                             $event->set('item', $item); // pass the current item to the next event listener
                             $this->collectAddresses($event, $item, $recollectShipping);
-                            $this->setSuccess(true);
+                            $event->setSuccess(true);
                         }
                     }
                 }
@@ -503,7 +506,7 @@ class AddProduct extends BaseCartListener
 
                         $event->set('item', $item); // pass the current item to the next event listener
                         $this->collectAddresses($event, $item, $recollectShipping);
-                        $this->setSuccess(true);
+                        $event->setSuccess(true);
                     }
                 } else {
 
@@ -526,7 +529,7 @@ class AddProduct extends BaseCartListener
                         $this->getCartService()->addNewCartItemEntity($itemEntity);
 
                         $this->collectAddresses($event, $item, $recollectShipping);
-                        $this->setSuccess(true);
+                        $event->setSuccess(true);
                     }
                 }
 
@@ -536,10 +539,9 @@ class AddProduct extends BaseCartListener
                 break;
         }
 
-        $event->set('recollect_shipping', $recollectShipping) // this is handled in UpdateTotalsShipping
-            ->setSuccess((bool) $this->getSuccess());
+        $event->set('recollect_shipping', $recollectShipping);
 
-        if ($this->getSuccess()
+        if ($event->getSuccess()
             && !$event->getIsMassUpdate()
         ) {
             $event->addSuccessMessage('Product Added to Cart : ' . $product->getSku());

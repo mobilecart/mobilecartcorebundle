@@ -93,6 +93,9 @@ class FrontendExtension extends \Twig_Extension
             'renderGridBackUrl' => new \Twig_SimpleFunction('renderGridBackUrl', [$this, 'renderGridBackUrl'], array('is_safe' => array('html'))),
             //'categoryList' => new \Twig_SimpleFunction('getCategories', [$this, 'getCategories'], array('is_safe' => array('html'))),
             'cartJson' => new \Twig_SimpleFunction('cartJson', [$this, 'getCartJson'], array('is_safe' => array('html'))),
+            'isDiscountEnabled' => new \Twig_SimpleFunction('isDiscountEnabled', [$this, 'getIsDiscountEnabled'], array('is_safe' => array('html'))),
+            'isShippingEnabled' => new \Twig_SimpleFunction('isShippingEnabled', [$this, 'getIsShippingEnabled'], array('is_safe' => array('html'))),
+            'isMultiShippingEnabled' => new \Twig_SimpleFunction('isMultiShippingEnabled', [$this, 'getIsMultiShippingEnabled'], array('is_safe' => array('html'))),
             'cartHasShipmentMethodId' => new \Twig_SimpleFunction('cartHasShipmentMethodId', [$this, 'cartHasShipmentMethodId'], array('is_safe' => array('html'))),
             'cartHasShipmentMethodCode' => new \Twig_SimpleFunction('cartHasShipmentMethodCode', [$this, 'cartHasShipmentMethodCode'], array('is_safe' => array('html'))),
             'cartTotals' => new \Twig_SimpleFunction('cartTotals', [$this, 'getCartTotals'], array('is_safe' => array('html'))),
@@ -110,25 +113,27 @@ class FrontendExtension extends \Twig_Extension
             'cartShipment' => new \Twig_SimpleFunction('cartShipment', [$this, 'cartShipment'], array('is_safe' => array('html'))),
             'categoryTree' => new \Twig_SimpleFunction('categoryTree', [$this, 'categoryTree'], array('is_safe' => array('html'))),
             'subcategoryList' => new \Twig_SimpleFunction('subcategoryList', [$this, 'subcategoryList'], array('is_safe' => array('html'))),
-            'customerName' => new \Twig_SimpleFunction('customerName', [$this, 'customerName'], array('is_safe' => array('html'))),
+            'customerName' => new \Twig_SimpleFunction('customerName', [$this, 'getCustomerName'], array('is_safe' => array('html'))),
             'customerHasGroup' => new \Twig_SimpleFunction('customerHasGroup', [$this, 'customerHasGroup'], array('is_safe' => array('html'))),
             'customer' => new \Twig_SimpleFunction('customer', [$this, 'getCustomer'], array('is_safe' => array('html'))),
-            'addressLabel' => new \Twig_SimpleFunction('addressLabel', [$this, 'addressLabel'], array('is_safe' => array('html'))),
+            'addressLabel' => new \Twig_SimpleFunction('addressLabel', [$this, 'getAddressLabel'], array('is_safe' => array('html'))),
             'customerAddress' => new \Twig_SimpleFunction('customerAddress', [$this, 'customerAddress'], array('is_safe' => array('html'))),
-            'shippingStreet' => new \Twig_SimpleFunction('shippingStreet', [$this, 'shippingStreet'], array('is_safe' => array('html'))),
-            'shippingName' => new \Twig_SimpleFunction('shippingName', [$this, 'shippingName'], array('is_safe' => array('html'))),
-            'isShippingSame' => new \Twig_SimpleFunction('isShippingSame', [$this, 'isShippingSame'], array('is_safe' => array('html'))),
-            'shippingCity' => new \Twig_SimpleFunction('shippingCity', [$this, 'shippingCity'], array('is_safe' => array('html'))),
-            'shippingRegion' => new \Twig_SimpleFunction('shippingRegion', [$this, 'shippingRegion'], array('is_safe' => array('html'))),
-            'shippingPostcode' => new \Twig_SimpleFunction('shippingPostcode', [$this, 'shippingPostcode'], array('is_safe' => array('html'))),
-            'shippingCountryId' => new \Twig_SimpleFunction('shippingCountryId', [$this, 'shippingCountryId'], array('is_safe' => array('html'))),
-            'customerAddresses' => new \Twig_SimpleFunction('customerAddresses', [$this, 'customerAddresses'], array('is_safe' => array('html'))),
-            'billingName' => new \Twig_SimpleFunction('billingName', [$this, 'billingName'], array('is_safe' => array('html'))),
-            'billingStreet' => new \Twig_SimpleFunction('billingStreet', [$this, 'billingStreet'], array('is_safe' => array('html'))),
-            'billingCity' => new \Twig_SimpleFunction('billingCity', [$this, 'billingCity'], array('is_safe' => array('html'))),
-            'billingRegion' => new \Twig_SimpleFunction('billingRegion', [$this, 'billingRegion'], array('is_safe' => array('html'))),
-            'billingPostcode' => new \Twig_SimpleFunction('billingPostcode', [$this, 'billingPostcode'], array('is_safe' => array('html'))),
-            'billingCountryId' => new \Twig_SimpleFunction('billingCountryId', [$this, 'billingCountryId'], array('is_safe' => array('html'))),
+            'shippingStreet' => new \Twig_SimpleFunction('shippingStreet', [$this, 'getShippingStreet'], array('is_safe' => array('html'))),
+            'shippingStreet2' => new \Twig_SimpleFunction('shippingStreet2', [$this, 'getShippingStreet2'], array('is_safe' => array('html'))),
+            'shippingName' => new \Twig_SimpleFunction('shippingName', [$this, 'getShippingName'], array('is_safe' => array('html'))),
+            'isShippingSame' => new \Twig_SimpleFunction('isShippingSame', [$this, 'getIsShippingSame'], array('is_safe' => array('html'))),
+            'shippingCity' => new \Twig_SimpleFunction('shippingCity', [$this, 'getShippingCity'], array('is_safe' => array('html'))),
+            'shippingRegion' => new \Twig_SimpleFunction('shippingRegion', [$this, 'getShippingRegion'], array('is_safe' => array('html'))),
+            'shippingPostcode' => new \Twig_SimpleFunction('shippingPostcode', [$this, 'getShippingPostcode'], array('is_safe' => array('html'))),
+            'shippingCountryId' => new \Twig_SimpleFunction('shippingCountryId', [$this, 'getShippingCountryId'], array('is_safe' => array('html'))),
+            'customerAddresses' => new \Twig_SimpleFunction('customerAddresses', [$this, 'getCustomerAddresses'], array('is_safe' => array('html'))),
+            'billingName' => new \Twig_SimpleFunction('billingName', [$this, 'getBillingName'], array('is_safe' => array('html'))),
+            'billingStreet' => new \Twig_SimpleFunction('billingStreet', [$this, 'getBillingStreet'], array('is_safe' => array('html'))),
+            'billingStreet2' => new \Twig_SimpleFunction('billingStreet', [$this, 'getBillingStreet2'], array('is_safe' => array('html'))),
+            'billingCity' => new \Twig_SimpleFunction('billingCity', [$this, 'getBillingCity'], array('is_safe' => array('html'))),
+            'billingRegion' => new \Twig_SimpleFunction('billingRegion', [$this, 'getBillingRegion'], array('is_safe' => array('html'))),
+            'billingPostcode' => new \Twig_SimpleFunction('billingPostcode', [$this, 'getBillingPostcode'], array('is_safe' => array('html'))),
+            'billingCountryId' => new \Twig_SimpleFunction('billingCountryId', [$this, 'getBillingCountryId'], array('is_safe' => array('html'))),
         ];
     }
 
@@ -912,6 +917,30 @@ class FrontendExtension extends \Twig_Extension
     }
 
     /**
+     * @return bool
+     */
+    public function getIsDiscountEnabled()
+    {
+        return $this->getCartService()->getDiscountService()->getIsDiscountEnabled();
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsShippingEnabled()
+    {
+        return $this->getCartService()->getShippingService()->getIsShippingEnabled();
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsMultiShippingEnabled()
+    {
+        return $this->getCartService()->getShippingService()->getIsMultiShippingEnabled();
+    }
+
+    /**
      * @param $addressId
      * @param $srcAddressKey
      * @return mixed
@@ -948,7 +977,7 @@ class FrontendExtension extends \Twig_Extension
     /**
      * @return string
      */
-    public function customerName()
+    public function getCustomerName()
     {
         $customer = $this->getCustomer();
 
@@ -974,7 +1003,7 @@ class FrontendExtension extends \Twig_Extension
      * @param string $addressId
      * @return mixed
      */
-    public function customerAddress($addressId='main')
+    public function getCustomerAddress($addressId='main')
     {
         return $this->getCartService()->getCustomerAddress($addressId);
     }
@@ -983,61 +1012,70 @@ class FrontendExtension extends \Twig_Extension
      * @param string $addressId
      * @return mixed
      */
-    public function shippingName($addressId='main')
+    public function getShippingName($addressId='main')
     {
-        return $this->customerAddress($addressId)->getName();
+        return $this->getCustomerAddress($addressId)->getName();
     }
 
     /**
      * @param string $addressId
      * @return mixed
      */
-    public function shippingStreet($addressId='main')
+    public function getShippingStreet($addressId='main')
     {
-        return $this->customerAddress($addressId)->getStreet();
+        return $this->getCustomerAddress($addressId)->getStreet();
     }
 
     /**
      * @param string $addressId
      * @return mixed
      */
-    public function shippingCity($addressId='main')
+    public function getShippingStreet2($addressId='main')
     {
-        return $this->customerAddress($addressId)->getCity();
+        return $this->getCustomerAddress($addressId)->getStreet2();
     }
 
     /**
      * @param string $addressId
      * @return mixed
      */
-    public function shippingRegion($addressId='main')
+    public function getShippingCity($addressId='main')
     {
-        return $this->customerAddress($addressId)->getRegion();
+        return $this->getCustomerAddress($addressId)->getCity();
     }
 
     /**
      * @param string $addressId
      * @return mixed
      */
-    public function shippingPostcode($addressId='main')
+    public function getShippingRegion($addressId='main')
     {
-        return $this->customerAddress($addressId)->getPostcode();
+        return $this->getCustomerAddress($addressId)->getRegion();
     }
 
     /**
      * @param string $addressId
      * @return mixed
      */
-    public function shippingCountryId($addressId='main')
+    public function getShippingPostcode($addressId='main')
     {
-        return $this->customerAddress($addressId)->getCountryId();
+        return $this->getCustomerAddress($addressId)->getPostcode();
+    }
+
+    /**
+     * @param string $addressId
+     * @return mixed
+     */
+    public function getShippingCountryId($addressId='main')
+    {
+        return $this->getCustomerAddress($addressId)->getCountryId();
     }
 
     /**
      * @param $addressId
      * @return string
      */
-    public function addressLabel($addressId)
+    public function getAddressLabel($addressId)
     {
         return $this->getCartService()->addressLabel($addressId);
     }
@@ -1045,7 +1083,7 @@ class FrontendExtension extends \Twig_Extension
     /**
      * @return array|\MobileCart\CoreBundle\CartComponent\CustomerAddress[]
      */
-    public function customerAddresses()
+    public function getCustomerAddresses()
     {
         return $this->getCartService()->getCustomerAddresses();
     }
@@ -1053,7 +1091,7 @@ class FrontendExtension extends \Twig_Extension
     /**
      * @return bool
      */
-    public function isShippingSame()
+    public function getIsShippingSame()
     {
         return (bool) $this->getCustomer()->getIsShippingSame();
     }
@@ -1061,7 +1099,7 @@ class FrontendExtension extends \Twig_Extension
     /**
      * @return mixed
      */
-    public function billingName()
+    public function getBillingName()
     {
         return $this->getCustomer()->getBillingName();
     }
@@ -1069,7 +1107,7 @@ class FrontendExtension extends \Twig_Extension
     /**
      * @return mixed
      */
-    public function billingStreet()
+    public function getBillingStreet()
     {
         return $this->getCustomer()->getBillingStreet();
     }
@@ -1077,7 +1115,15 @@ class FrontendExtension extends \Twig_Extension
     /**
      * @return mixed
      */
-    public function billingCity()
+    public function getBillingStreet2()
+    {
+        return $this->getCustomer()->getBillingStreet2();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBillingCity()
     {
         return $this->getCustomer()->getBillingCity();
     }
@@ -1085,7 +1131,7 @@ class FrontendExtension extends \Twig_Extension
     /**
      * @return mixed
      */
-    public function billingRegion()
+    public function getBillingRegion()
     {
         return $this->getCustomer()->getBillingRegion();
     }
@@ -1093,7 +1139,7 @@ class FrontendExtension extends \Twig_Extension
     /**
      * @return mixed
      */
-    public function billingPostcode()
+    public function getBillingPostcode()
     {
         return $this->getCustomer()->getBillingPostcode();
     }
@@ -1101,7 +1147,7 @@ class FrontendExtension extends \Twig_Extension
     /**
      * @return mixed
      */
-    public function billingCountryId()
+    public function getBillingCountryId()
     {
         return $this->getCustomer()->getBillingCountryId();
     }

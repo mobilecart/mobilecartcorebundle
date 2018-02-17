@@ -9,8 +9,34 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  * Class Initialize
  * @package MobileCart\CoreBundle\EventListener\Cart
  */
-class Initialize extends BaseCartListener
+class Initialize
 {
+    /**
+     * @var \MobileCart\CoreBundle\Service\CartService
+     */
+    protected $cartService;
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
+     * @return $this
+     */
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
+    {
+        $this->cartService = $cartService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->cartService;
+    }
+
+    /**
+     * @param CoreEvent $event
+     */
     public function onCartInitialize(CoreEvent $event)
     {
         // enforce guest checkout

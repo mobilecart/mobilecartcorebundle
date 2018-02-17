@@ -9,12 +9,35 @@ use MobileCart\CoreBundle\Event\CoreEvent;
  * Class ViewReturn
  * @package MobileCart\CoreBundle\EventListener\Cart
  */
-class ViewReturn extends BaseCartListener
+class ViewReturn
 {
     /**
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
+
+    /**
+     * @var \MobileCart\CoreBundle\Service\CartService
+     */
+    protected $cartService;
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
+     * @return $this
+     */
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
+    {
+        $this->cartService = $cartService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->cartService;
+    }
 
     /**
      * @param $themeService
@@ -39,34 +62,8 @@ class ViewReturn extends BaseCartListener
      */
     public function onCartViewReturn(CoreEvent $event)
     {
-        $this->initCart($event->getRequest());
-
-        $addressOptions = [];
-        if ($this->getCartService()->getCart()->getCustomer()->getId()) {
-
-            // get addresses from session
-            $addresses = $this->getCartService()->getCustomerAddresses();
-            if ($addresses) {
-                foreach($addresses as $address) {
-                    $addressOptions[] = [
-                        'value' => $address->getId(),
-                        'label' => $address->getLabel(),
-                    ];
-                }
-            }
-        } else {
-            $addressOptions[] = [
-                'value' => 'main',
-                'label' => "Main Address",
-            ];
-        }
-
         $event->setSuccess(true);
         $event->setReturnData('cart', $this->getCartService()->getCart());
-        $event->setReturnData('addresses', $addressOptions); // todo : remove this and use addresses in cart.customer
-        $event->setReturnData('is_shipping_enabled', (bool) $this->getCartService()->getShippingService()->getIsShippingEnabled());
-        $event->setReturnData('is_multi_shipping_enabled', (bool) $this->getCartService()->getShippingService()->getIsMultiShippingEnabled());
-        $event->setReturnData('is_discount_enabled', (bool) $this->getCartService()->getDiscountService()->getIsDiscountEnabled());
 
         if ($event->isJsonResponse()) {
             $event->setResponse(new JsonResponse($event->getReturnData()));

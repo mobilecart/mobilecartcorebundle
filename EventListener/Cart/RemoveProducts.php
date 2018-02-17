@@ -9,12 +9,35 @@ use MobileCart\CoreBundle\Event\CoreEvents;
  * Class RemoveProducts
  * @package MobileCart\CoreBundle\EventListener\Cart
  */
-class RemoveProducts extends BaseCartListener
+class RemoveProducts
 {
     /**
      * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
     protected $eventDispatcher;
+
+    /**
+     * @var \MobileCart\CoreBundle\Service\CartService
+     */
+    protected $cartService;
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
+     * @return $this
+     */
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
+    {
+        $this->cartService = $cartService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->cartService;
+    }
 
     /**
      * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
@@ -39,33 +62,9 @@ class RemoveProducts extends BaseCartListener
      */
     public function onCartRemoveProducts(CoreEvent $event)
     {
-        // parse/convert API requests
-        switch($event->getContentType()) {
-            case 'application/json':
-
-                $apiRequest = $event->getApiRequest()
-                    ? $event->getApiRequest()
-                    : @ (array)json_decode($event->getRequest()->getContent());
-
-                if (isset($apiRequest['cart_id'])) {
-                    $keys = ['cart_id'];
-                    foreach ($apiRequest as $key => $value) {
-                        if (!in_array($key, $keys)) {
-                            continue;
-                        }
-
-                        $event->getRequest()->request->set($key, $value);
-                    }
-                }
-                break;
-            default:
-
-                break;
-        }
-
-        $this->initCart($event->getRequest());
+        $isValid = false;
         $recollectShipping = [];
-        $success = false;
+
         if ($this->getCartService()->hasItems()) {
             foreach($this->getCartService()->getProductIds() as $productId) {
 
@@ -79,7 +78,7 @@ class RemoveProducts extends BaseCartListener
                     ->dispatch(CoreEvents::CART_REMOVE_PRODUCT, $innerEvent);
 
                 if ($innerEvent->getSuccess()) {
-                    $success = true;
+                    $isValid = true;
                     if ($innerEvent->get('recollect_shipping', [])) {
                         foreach($innerEvent->get('recollect_shipping') as $anAddress) {
                             $recollectShipping[] = $anAddress;
@@ -90,6 +89,6 @@ class RemoveProducts extends BaseCartListener
         }
 
         $event->set('recollect_shipping', $recollectShipping);
-        $event->setSuccess($success);
+        $event->setSuccess($isValid);
     }
 }
