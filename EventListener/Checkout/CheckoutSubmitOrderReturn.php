@@ -17,6 +17,29 @@ class CheckoutSubmitOrderReturn
     protected $router;
 
     /**
+     * @var \MobileCart\CoreBundle\Service\CartService
+     */
+    protected $cartService;
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\CartService $cartService
+     * @return $this
+     */
+    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
+    {
+        $this->cartService = $cartService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CartService
+     */
+    public function getCartService()
+    {
+        return $this->cartService;
+    }
+
+    /**
      * @param \Symfony\Component\Routing\RouterInterface $router
      * @return $this
      */
@@ -49,6 +72,15 @@ class CheckoutSubmitOrderReturn
                 : $this->getRouter()->generate('cart_checkout_success', []);
 
             $event->setReturnData('redirect_url', $redirectUrl);
+
+            // only set the value in session if we're using the session
+            if (!$this->getCartService()->getIsApiRequest()) {
+
+                $this->getCartService()
+                    ->resetCart()
+                    ->getSession()
+                    ->set('order_id', $this->getOrderService()->getOrder()->getId());
+            }
         }
 
         $event->setReturnData('messages', $event->getMessages());

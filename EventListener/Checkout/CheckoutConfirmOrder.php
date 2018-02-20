@@ -123,9 +123,7 @@ class CheckoutConfirmOrder
      */
     public function onCheckoutConfirmOrder(CoreEvent $event)
     {
-        $event->setReturnData('cart', $this->getCartService()->collectTotals()->getCart());
-
-        $event->setReturnData('is_shipping_enabled', $this->getCartService()->getShippingService()->getIsShippingEnabled());
+        $event->setReturnData('cart', $this->getCartService()->getCart());
 
         $template = $event->getTemplate()
             ? $event->getTemplate()

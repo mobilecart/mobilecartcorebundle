@@ -53,11 +53,6 @@ cart_checkout_update_section:
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:updateSection' }
     methods: [POST]
 
-cart_checkout_confirm_order:
-    path: /cart/checkout/order/confirm
-    defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:confirmOrder' }
-    methods: [GET]
-
 cart_checkout_submit_order:
     path: /cart/checkout/order/submit
     defaults: { _controller: 'MobileCartCoreBundle:Frontend\Checkout:submitOrder' }

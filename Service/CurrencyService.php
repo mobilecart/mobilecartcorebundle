@@ -238,12 +238,12 @@ class CurrencyService
         }
 
         if ($from == $to) {
-            return number_format($value, $multiplierPrecision, '.', '');
+            return number_format((float) $value, $multiplierPrecision, '.', '');
         }
 
         // could round up or down here
-        $rate = number_format($this->getRate($from, $to), $multiplierPrecision, '.', '');
-        $value = number_format($value, $multiplierPrecision, '.', '');
+        $rate = number_format((float) $this->getRate($from, $to), $multiplierPrecision, '.', '');
+        $value = number_format((float) $value, $multiplierPrecision, '.', '');
         $result = $rate * $value;
         // could round up or down here
         return $result;
@@ -301,7 +301,7 @@ class CurrencyService
 
         }
 
-        $value = number_format($result, $displayedPrecision, $decPoint, $thousandsSep);
+        $value = number_format((float) $result, $displayedPrecision, $decPoint, $thousandsSep);
         return $beforeAfter
             ? $symbol . $value
             : $value . $symbol;

@@ -688,15 +688,6 @@ class CartService
     }
 
     /**
-     * @return $this
-     */
-    public function resetCart()
-    {
-        $this->setCart($this->getCartInstance());
-        return $this;
-    }
-
-    /**
      * @return Cart
      */
     public function getCart()
@@ -722,6 +713,21 @@ class CartService
             $this->setSessionCart($cart);
         }
 
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function resetCart()
+    {
+        $this->cartEntity = null;
+        if ($this->getIsApiRequest()) {
+            $this->cart = null;
+        } else {
+            $this->session->set($this->getSessionKey(), null);
+        }
+        $this->initCart();
         return $this;
     }
 
@@ -982,6 +988,13 @@ class CartService
      */
     public function saveCart()
     {
+        if ($this->getCustomerEntity()
+            && $this->getCustomerEntity()->getId()
+            && $this->getCustomerId() != $this->getCustomerEntity()->getId()
+        ) {
+            $this->getCart()->setCustomer($this->convertCustomerEntity($this->getCustomerEntity()));
+        }
+
         $this->updateCartEntity();
         $cartEntity = $this->getCartEntity();
         $isNew = !is_numeric($cartEntity->getId());

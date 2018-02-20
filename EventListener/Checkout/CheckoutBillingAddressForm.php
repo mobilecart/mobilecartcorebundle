@@ -228,8 +228,7 @@ class CheckoutBillingAddressForm
             'post_url' => $this->getRouter()->generate('cart_checkout_update_section', [
                 'section' => CheckoutConstants::STEP_BILLING_ADDRESS
             ]),
-            //'form' => $form, // save memory since we call event->setForm()
-            //'form_view' => $form->createView(),
+            'template' => $tplPath . 'Checkout:address_billing.html.twig',
             'country_regions' => $this->getCartService()->getCountryRegions(),
         ];
 

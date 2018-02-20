@@ -112,15 +112,6 @@ class CheckoutSubmitOrder
             $isValid = true;
             $event->setSuccess($isValid);
 
-            // only set the value in session if we're using the session
-            if (!$this->getCartService()->getIsApiRequest()) {
-
-                $this->getCartService()
-                    ->removeItems()
-                    ->getSession()
-                    ->set('order_id', $this->getOrderService()->getOrder()->getId());
-            }
-
             $event->set('cart', $this->getOrderService()->getCart())
                 ->set('order', $this->getOrderService()->getOrder())
                 ->set('customer_token', $this->getOrderService()->getCustomerToken())

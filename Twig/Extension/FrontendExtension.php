@@ -37,11 +37,6 @@ class FrontendExtension extends \Twig_Extension
     protected $imageService;
 
     /**
-     * @var array
-     */
-    protected $totals = [];
-
-    /**
      * @var
      */
     protected $shippingMethods = [];
@@ -850,12 +845,7 @@ class FrontendExtension extends \Twig_Extension
      */
     public function getCartTotals()
     {
-        if ($this->totals) {
-            return $this->totals;
-        }
-
-        $this->totals = $this->getCartService()->getTotals();
-        return $this->totals;
+        return $this->getCartService()->getTotals();
     }
 
     /**

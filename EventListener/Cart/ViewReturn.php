@@ -68,11 +68,45 @@ class ViewReturn
         if ($event->isJsonResponse()) {
             $event->setResponse(new JsonResponse($event->getReturnData()));
         } else {
-            $event->setResponse($this->getThemeService()->render(
-                'frontend',
-                'Cart:index.html.twig',
-                $event->getReturnData()
-            ));
+
+            switch($event->getRequest()->get('ajax', '')) {
+                case '1':
+
+                    $event->setResponse($this->getThemeService()->render(
+                        'frontend',
+                        'Cart:partial.html.twig',
+                        $event->getReturnData()
+                    ));
+
+                    break;
+                case 'mini':
+
+                    $event->setResponse($this->getThemeService()->render(
+                        'frontend',
+                        'Cart:mini.html.twig',
+                        $event->getReturnData()
+                    ));
+
+                    break;
+                case 'confirm':
+
+                    $event->setResponse($this->getThemeService()->render(
+                        'frontend',
+                        'Cart:confirm_modal.html.twig',
+                        $event->getReturnData()
+                    ));
+
+                    break;
+                default:
+
+                    $event->setResponse($this->getThemeService()->render(
+                        'frontend',
+                        'Cart:index.html.twig',
+                        $event->getReturnData()
+                    ));
+
+                    break;
+            }
         }
     }
 }

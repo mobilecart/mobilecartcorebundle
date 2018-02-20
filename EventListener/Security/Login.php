@@ -130,6 +130,10 @@ class Login implements AuthenticationSuccessHandlerInterface
 
             $this->getCartService()->setCustomerEntity($user);
 
+            if ($this->getCartService()->hasItems()) {
+                $this->getCartService()->saveCart();
+            }
+
         } elseif ($class === $this->getEntityService()->getRepository(EntityConstants::ADMIN_USER)->getClassName()) {
 
             $event->setIsAdmin(true);

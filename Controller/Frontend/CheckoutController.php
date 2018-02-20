@@ -97,19 +97,9 @@ class CheckoutController extends Controller
             return $this->handleLoginError($request);
         }
 
+        $this->get('cart')->initRequest($request);
+
         $section = $request->get('section', '');
-        switch($section) {
-            case 'confirm_order':
-                $this->get('cart')->initRequest($request);
-                return $this->confirmOrderAction($request);
-                break;
-            case 'success':
-                return $this->successAction($request);
-                break;
-            default:
-                $this->get('cart')->initRequest($request);
-                break;
-        }
 
         return $this->get('cart.checkout.form')
             ->setRequest($request)
@@ -141,27 +131,6 @@ class CheckoutController extends Controller
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::checkoutUpdate($section), $event);
-
-        return $event->getResponse();
-    }
-
-    /**
-     * Confirm the order summary
-     * todo : move this logic into a "template handler" in the cart view listener, and remove this
-     */
-    public function confirmOrderAction(Request $request)
-    {
-        // check if login/registration is required
-        if ($this->hasLoginError()) {
-            return $this->handleLoginError($request);
-        }
-
-        $event = new CoreEvent();
-        $event->setRequest($request)
-            ->setUser($this->getUser());
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::CHECKOUT_CONFIRM_ORDER, $event);
 
         return $event->getResponse();
     }
