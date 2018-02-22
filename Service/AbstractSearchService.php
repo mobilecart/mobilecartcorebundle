@@ -1771,7 +1771,7 @@ abstract class AbstractSearchService
                 if ($this->filterable) {
                     foreach($this->filterable as $filterable) {
                         if ($filterable['code'] == $field) {
-                            $aFilter['type'] = $filterable['type'];
+                            $aFilter['datatype'] = $filterable['datatype'];
                             if (isset($filterable['choices'])) {
                                 $aFilter['choices'] = $filterable['choices'];
                             }
