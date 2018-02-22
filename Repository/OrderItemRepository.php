@@ -53,12 +53,12 @@ class OrderItemRepository
             [
                 'code'  => 'sku',
                 'label' => 'SKU',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'name',
                 'label' => 'Name',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
         ];
     }

@@ -55,32 +55,32 @@ class CustomerTokenRepository
             [
                 'code'  => 'id',
                 'label' => 'ID',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'customer_id',
                 'label' => 'Customer ID',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ], /*
             [
                 'code'  => 'last_payment_at',
                 'label' => 'Last Payment At',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'next_payment_at',
                 'label' => 'Next Payment At',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'last_payment_amount',
                 'label' => 'Last Payment Amount',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'next_payment_amount',
                 'label' => 'Next Payment Amount',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ], //*/
         ];
     }

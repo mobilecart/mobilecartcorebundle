@@ -105,17 +105,17 @@ class ProductRepository
             [
                 'code'  => 'id',
                 'label' => 'ID',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'name',
                 'label' => 'Name',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'category_id',
                 'label' => 'Category',
-                'type'  => 'number',
+                'datatype' =>  'number',
                 'join' => [
                     'type' => 'left', // left, inner, etc
                     'table' => EntityConstants::CATEGORY_PRODUCT,
@@ -127,27 +127,27 @@ class ProductRepository
             [
                 'code'  => 'created_at',
                 'label' => 'Created At',
-                'type'  => 'date',
+                'datatype' =>  'date',
             ],
             [
                 'code'  => 'sort_order',
                 'label' => 'Sort Order',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'page_title',
                 'label' => 'Page Title',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'slug',
                 'label' => 'Slug',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'type',
                 'label' => 'Product Type',
-                'type'  => 'number',
+                'datatype' =>  'number',
                 'choices' => [
                     [
                         'value' => 1,
@@ -162,27 +162,27 @@ class ProductRepository
             [
                 'code'  => 'sku',
                 'label' => 'SKU',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'price',
                 'label' => 'Price',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'special_price',
                 'label' => 'Special Price',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'qty',
                 'label' => 'Qty',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'is_in_stock',
                 'label' => 'In Stock',
-                'type'  => 'boolean',
+                'datatype' =>  'boolean',
                 'choices' => [
                     [
                         'value' => 0,
@@ -197,7 +197,7 @@ class ProductRepository
             [
                 'code'  => 'is_enabled',
                 'label' => 'Enabled',
-                'type'  => 'boolean',
+                'datatype' =>  'boolean',
                 'choices' => [
                     [
                         'value' => 0,
@@ -212,7 +212,7 @@ class ProductRepository
             [
                 'code'  => 'is_public',
                 'label' => 'Public',
-                'type'  => 'boolean',
+                'datatype' =>  'boolean',
                 'choices' => [
                     [
                         'value' => 0,
@@ -227,7 +227,7 @@ class ProductRepository
             [
                 'code'  => 'is_taxable',
                 'label' => 'Taxable',
-                'type'  => 'boolean',
+                'datatype' =>  'boolean',
                 'choices' => [
                     [
                         'value' => 0,

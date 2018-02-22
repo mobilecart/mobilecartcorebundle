@@ -37,17 +37,17 @@ class ItemVarSetVarRepository
             [
                 'code'  => 'id',
                 'label' => 'ID',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'item_var_set_id',
                 'label' => 'Custom Field Set',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'item_var_id',
                 'label' => 'Custom Field',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
         ];
     }

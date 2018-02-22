@@ -35,17 +35,17 @@ class ItemVarSetRepository
             array(
                 'code'  => 'id',
                 'label' => 'ID',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ),
             array(
                 'code'  => 'name',
                 'label' => 'Name',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ),
             array(
                 'code'  => 'object_type',
                 'label' => 'Object Type',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ),
         );
     }

@@ -86,7 +86,7 @@ class ContentRepository
             [
                 'code' => 'is_public',
                 'label' => 'Is Public',
-                'type' => 'boolean',
+                'datatype' =>  'boolean',
             ],
         ];
     }

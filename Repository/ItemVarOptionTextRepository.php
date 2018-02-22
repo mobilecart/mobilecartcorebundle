@@ -54,27 +54,27 @@ class ItemVarOptionTextRepository
             array(
                 'code'  => 'id',
                 'label' => 'ID',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ),
             array(
                 'code' => 'item_var_id',
                 'label' => 'Custom Field',
-                'type' => 'number',
+                'datatype' =>  'number',
             ),
             array(
                 'code'  => 'value',
                 'label' => 'Value',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ),
             array(
                 'code'  => 'is_in_stock',
                 'label' => 'Is In Stock',
-                'type'  => 'boolean',
+                'datatype' =>  'boolean',
             ),
             array(
                 'code'  => 'additional_price',
                 'label' => 'Addt\'l Price',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ),
         );
     }

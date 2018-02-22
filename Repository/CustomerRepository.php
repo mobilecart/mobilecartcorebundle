@@ -55,32 +55,32 @@ class CustomerRepository
             [
                 'code'  => 'email',
                 'label' => 'Email',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'first_name',
                 'label' => 'First Name',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'last_name',
                 'label' => 'Last Name',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'id',
                 'label' => 'ID',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'name',
                 'label' => 'Name',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'created_at',
                 'label' => 'Created At',
-                'type'  => 'date',
+                'datatype' =>  'date',
             ],
         ];
     }

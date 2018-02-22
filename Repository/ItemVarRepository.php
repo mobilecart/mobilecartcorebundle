@@ -44,37 +44,37 @@ class ItemVarRepository
             [
                 'code'  => 'id',
                 'label' => 'ID',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'name',
                 'label' => 'Name',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'code',
                 'label' => 'Code',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'url_token',
                 'label' => 'URL Token',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'datatype',
                 'label' => 'Data Type',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'form_input',
                 'label' => 'Form Input',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'is_facet',
                 'label' => 'In Facet',
-                'type'  => 'boolean',
+                'datatype' =>  'boolean',
                 'choices' => [
                     [
                         'value' => 0,
@@ -89,7 +89,7 @@ class ItemVarRepository
             [
                 'code'  => 'is_searchable',
                 'label' => 'Is Searchable',
-                'type'  => 'boolean',
+                'datatype' =>  'boolean',
                 'choices' => [
                     [
                         'value' => 0,
@@ -104,7 +104,7 @@ class ItemVarRepository
             [
                 'code'  => 'is_required',
                 'label' => 'In Required',
-                'type'  => 'boolean',
+                'datatype' =>  'boolean',
                 'choices' => [
                     [
                         'value' => 0,

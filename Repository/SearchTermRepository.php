@@ -39,7 +39,7 @@ class SearchTermRepository
             [
                 'code' => 'sanitized_query',
                 'label' => 'Method',
-                'type' => 'string',
+                'datatype' =>  'string',
             ],
         ];
     }

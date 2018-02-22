@@ -53,37 +53,37 @@ class CustomerAddressRepository
             [
                 'code'  => 'customer_id',
                 'label' => 'Customer',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'name',
                 'label' => 'Name',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'company',
                 'label' => 'Company',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'id',
                 'label' => 'ID',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'city',
                 'label' => 'City',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'region',
                 'label' => 'Region/State',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'country_id',
                 'label' => 'Country',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
         ];
     }

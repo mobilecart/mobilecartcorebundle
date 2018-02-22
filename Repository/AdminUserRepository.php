@@ -52,17 +52,17 @@ class AdminUserRepository
             [
                 'code'  => 'first_name',
                 'label' => 'First Name',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'last_name',
                 'label' => 'Last Name',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'id',
                 'label' => 'ID',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
         ];
     }

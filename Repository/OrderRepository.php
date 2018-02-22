@@ -55,17 +55,17 @@ class OrderRepository
             [
                 'code'  => 'email',
                 'label' => 'Email',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'customer_id',
                 'label' => 'Customer',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code' => 'status',
                 'label' => 'Status',
-                'type' => 'string',
+                'datatype' =>  'string',
                 'choices' => [
                     [
                         'value' => 'processing',
@@ -88,17 +88,17 @@ class OrderRepository
             [
                 'code'  => 'billing_name',
                 'label' => 'Billing Name',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'billing_company',
                 'label' => 'Billing Company',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'total',
                 'label' => 'Total',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
         ];
     }

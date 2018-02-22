@@ -186,7 +186,7 @@ class DoctrineSearchService
                         // handle special case for numerical ranges
                         //  eg price=100-199 or subtotal=50-100
                         //  note : the handling of strpos is very intentional, want an index > 0
-                        if ($filterInfo['type'] == 'number' && strpos($value, '-')) {
+                        if ($filterInfo['datatype'] == 'number' && strpos($value, '-')) {
                             $rangeValues = explode('-', $value);
                             $rangeMin = $rangeValues[0];
                             $rangeMax = isset($rangeValues[1]) ? $rangeValues[1] : null;
@@ -223,7 +223,7 @@ class DoctrineSearchService
                         $whereConditions[] = "{$field} = ?";
                         $filterParams[] = $value;
 
-                        switch($filterInfo['type']) {
+                        switch($filterInfo['datatype']) {
                             case 'boolean':
                                 $bindTypes[$x] = \PDO::PARAM_INT;
                                 break;
@@ -332,7 +332,7 @@ class DoctrineSearchService
                     if ($field == $filterInfo['code']) {
                         $found = true;
 
-                        switch($filterInfo['type']) {
+                        switch($filterInfo['datatype']) {
                             case 'boolean':
                                 $bindTypes[$x] = \PDO::PARAM_INT;
                                 $x++;

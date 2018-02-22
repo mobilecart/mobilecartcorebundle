@@ -37,7 +37,7 @@ class ContentSlotRepository
             [
                 'code'  => 'id',
                 'label' => 'ID',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
         ];
     }

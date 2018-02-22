@@ -35,17 +35,17 @@ class ShippingMethodRepository
             [
                 'code'  => 'id',
                 'label' => 'ID',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code' => 'company',
                 'label' => 'Company',
-                'type' => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code' => 'method',
                 'label' => 'Method',
-                'type' => 'string',
+                'datatype' =>  'string',
             ],
         ];
     }

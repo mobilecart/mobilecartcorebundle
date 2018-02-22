@@ -52,32 +52,32 @@ class OrderShipmentRepository
             [
                 'code'  => 'id',
                 'label' => 'ID',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'name',
                 'label' => 'Name',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'street',
                 'label' => 'Street',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'city',
                 'label' => 'City',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'postcode',
                 'label' => 'Postal Code',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'tracking',
                 'label' => 'Tracking',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
         ];
     }

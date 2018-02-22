@@ -87,37 +87,37 @@ class CategoryRepository
             [
                 'code'  => 'id',
                 'label' => 'ID',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'parent_category_id',
                 'label' => 'Parent ID',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'name',
                 'label' => 'Name',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'created_at',
                 'label' => 'Created At',
-                'type'  => 'date',
+                'datatype' =>  'date',
             ],
             [
                 'code'  => 'sort_order',
                 'label' => 'Sort Order',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'page_title',
                 'label' => 'Page Title',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code'  => 'slug',
                 'label' => 'Slug',
-                'type'  => 'string',
+                'datatype' =>  'string',
             ],
         ];
     }

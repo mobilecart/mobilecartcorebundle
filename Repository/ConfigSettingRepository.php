@@ -50,22 +50,22 @@ class ConfigSettingRepository
             [
                 'code'  => 'id',
                 'label' => 'ID',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code' => 'code',
                 'label' => 'Code',
-                'type' => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code' => 'label',
                 'label' => 'Label',
-                'type' => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code' => 'value',
                 'label' => 'Value',
-                'type' => 'string',
+                'datatype' =>  'string',
             ]
         ];
     }

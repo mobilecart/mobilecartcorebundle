@@ -50,12 +50,12 @@ class OrderPaymentRepository
             [
                 'code'  => 'id',
                 'label' => 'ID',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'base_amount',
                 'label' => 'Amount',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code'  => 'code',

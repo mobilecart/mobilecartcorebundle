@@ -56,12 +56,12 @@ class UrlRewriteRepository
             [
                 'code'  => 'id',
                 'label' => 'ID',
-                'type'  => 'number',
+                'datatype' =>  'number',
             ],
             [
                 'code' => 'object_type',
                 'label' => 'Object Type',
-                'type' => 'string',
+                'datatype' =>  'string',
                 'choices' => [
                     [
                         'value' => EntityConstants::PRODUCT,
@@ -80,7 +80,7 @@ class UrlRewriteRepository
             [
                 'code' => 'object_action',
                 'label' => 'Object Action',
-                'type' => 'string',
+                'datatype' =>  'string',
                 'choices' => [
                     [
                         'value' => 'list',
@@ -95,12 +95,12 @@ class UrlRewriteRepository
             [
                 'code' => 'request_uri',
                 'label' => 'Request URI',
-                'type' => 'string',
+                'datatype' =>  'string',
             ],
             [
                 'code' => 'request_url',
                 'label' => 'Request URL',
-                'type' => 'string',
+                'datatype' =>  'string',
             ],
         ];
     }
