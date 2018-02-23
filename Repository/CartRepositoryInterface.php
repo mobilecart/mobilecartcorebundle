@@ -33,6 +33,12 @@ interface CartRepositoryInterface
      */
     const SEARCH_METHOD_FULLTEXT = 2;
 
+    const DATATYPE = 'datatype';
+
+    const LABEL = 'label';
+
+    const CODE = 'code';
+
     /**
      * Array of entity fields which are sortable
      *

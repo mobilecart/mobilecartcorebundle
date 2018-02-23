@@ -50,34 +50,34 @@ class OrderShipmentRepository
     {
         return [
             [
-                'code'  => 'id',
-                'label' => 'ID',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'id',
+                CartRepositoryInterface::LABEL => 'ID',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'name',
-                'label' => 'Name',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'name',
+                CartRepositoryInterface::LABEL => 'Name',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'street',
-                'label' => 'Street',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'street',
+                CartRepositoryInterface::LABEL => 'Street',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'city',
-                'label' => 'City',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'city',
+                CartRepositoryInterface::LABEL => 'City',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'postcode',
-                'label' => 'Postal Code',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'postcode',
+                CartRepositoryInterface::LABEL => 'Postal Code',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'tracking',
-                'label' => 'Tracking',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'tracking',
+                CartRepositoryInterface::LABEL => 'Tracking',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
         ];
     }

@@ -13,6 +13,7 @@ namespace MobileCart\CoreBundle\Service;
 
 use Symfony\Component\HttpFoundation\Request;
 use MobileCart\CoreBundle\Constants\EntityConstants;
+use MobileCart\CoreBundle\Repository\CartRepositoryInterface;
 
 /**
  * Class AbstractSearchService
@@ -384,8 +385,8 @@ abstract class AbstractSearchService
      */
     public $advFilterOps = [
         [
-            'code' => 'equals',
-            'label' => 'Equals',
+            CartRepositoryInterface::CODE => 'equals',
+            CartRepositoryInterface::LABEL => 'Equals',
             'types' => [
                 'number',
                 'string',
@@ -394,61 +395,61 @@ abstract class AbstractSearchService
             ],
         ],
         [
-            'code' => 'starts',
-            'label' => 'Starts With',
+            CartRepositoryInterface::CODE => 'starts',
+            CartRepositoryInterface::LABEL => 'Starts With',
             'types' => [
                 'string',
             ],
         ],
         [
-            'code' => 'ends',
-            'label' => 'Ends With',
+            CartRepositoryInterface::CODE => 'ends',
+            CartRepositoryInterface::LABEL => 'Ends With',
             'types' => [
                 'string',
             ],
         ],
         [
-            'code' => 'contains',
-            'label' => 'Contains',
+            CartRepositoryInterface::CODE => 'contains',
+            CartRepositoryInterface::LABEL => 'Contains',
             'types' => [
                 'string',
             ],
         ],
         [
-            'code' => 'gt',
-            'label' => 'Greater Than',
+            CartRepositoryInterface::CODE => 'gt',
+            CartRepositoryInterface::LABEL => 'Greater Than',
             'types' => [
                 'number',
                 'date',
             ],
         ],
         [
-            'code' => 'gte',
-            'label' => 'Greater Than or Equal',
+            CartRepositoryInterface::CODE => 'gte',
+            CartRepositoryInterface::LABEL => 'Greater Than or Equal',
             'types' => [
                 'number',
                 'date',
             ],
         ],
         [
-            'code' => 'lt',
-            'label' => 'Less Than',
+            CartRepositoryInterface::CODE => 'lt',
+            CartRepositoryInterface::LABEL => 'Less Than',
             'types' => [
                 'number',
                 'date',
             ],
         ],
         [
-            'code' => 'lte',
-            'label' => 'Less Than or Equal',
+            CartRepositoryInterface::CODE => 'lte',
+            CartRepositoryInterface::LABEL => 'Less Than or Equal',
             'types' => [
                 'number',
                 'date',
             ],
         ],
         [
-            'code' => 'in',
-            'label' => 'In List',
+            CartRepositoryInterface::CODE => 'in',
+            CartRepositoryInterface::LABEL => 'In List',
             'types' => [
                 'number',
                 //'string', // todo: implement this
@@ -1360,7 +1361,7 @@ abstract class AbstractSearchService
      */
     public function addFilterable(array $filterable)
     {
-        if (isset($filterable['code'])) {
+        if (isset($filterable[CartRepositoryInterface::CODE])) {
             $this->filterable[] = $filterable;
         } else if ($filterable) {
             foreach($filterable as $data) {
@@ -1684,7 +1685,7 @@ abstract class AbstractSearchService
         // populate $this->filters[] using keys from entity repository
         if ($this->filterable) {
             foreach($this->filterable as $filterInfo) {
-                $urlKey = $filterInfo['code'];
+                $urlKey = $filterInfo[CartRepositoryInterface::CODE];
                 $filterVal = $this->request->get($urlKey, '');
 
                 // avoid conflict in frontend product listing
@@ -1770,8 +1771,8 @@ abstract class AbstractSearchService
 
                 if ($this->filterable) {
                     foreach($this->filterable as $filterable) {
-                        if ($filterable['code'] == $field) {
-                            $aFilter['datatype'] = $filterable['datatype'];
+                        if ($filterable[CartRepositoryInterface::CODE] == $field) {
+                            $aFilter[CartRepositoryInterface::DATATYPE] = $filterable[CartRepositoryInterface::DATATYPE];
                             if (isset($filterable['choices'])) {
                                 $aFilter['choices'] = $filterable['choices'];
                             }

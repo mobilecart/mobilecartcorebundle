@@ -53,34 +53,34 @@ class CustomerTokenRepository
     {
         return [
             [
-                'code'  => 'id',
-                'label' => 'ID',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'id',
+                CartRepositoryInterface::LABEL => 'ID',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'customer_id',
-                'label' => 'Customer ID',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'customer_id',
+                CartRepositoryInterface::LABEL => 'Customer ID',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ], /*
             [
-                'code'  => 'last_payment_at',
-                'label' => 'Last Payment At',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'last_payment_at',
+                CartRepositoryInterface::LABEL => 'Last Payment At',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'next_payment_at',
-                'label' => 'Next Payment At',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'next_payment_at',
+                CartRepositoryInterface::LABEL => 'Next Payment At',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'last_payment_amount',
-                'label' => 'Last Payment Amount',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'last_payment_amount',
+                CartRepositoryInterface::LABEL => 'Last Payment Amount',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'next_payment_amount',
-                'label' => 'Next Payment Amount',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'next_payment_amount',
+                CartRepositoryInterface::LABEL => 'Next Payment Amount',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ], //*/
         ];
     }

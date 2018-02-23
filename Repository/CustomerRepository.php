@@ -53,34 +53,34 @@ class CustomerRepository
     {
         return [
             [
-                'code'  => 'email',
-                'label' => 'Email',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'email',
+                CartRepositoryInterface::LABEL => 'Email',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'first_name',
-                'label' => 'First Name',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'first_name',
+                CartRepositoryInterface::LABEL => 'First Name',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'last_name',
-                'label' => 'Last Name',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'last_name',
+                CartRepositoryInterface::LABEL => 'Last Name',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'id',
-                'label' => 'ID',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'id',
+                CartRepositoryInterface::LABEL => 'ID',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'name',
-                'label' => 'Name',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'name',
+                CartRepositoryInterface::LABEL => 'Name',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'created_at',
-                'label' => 'Created At',
-                'datatype' =>  'date',
+                CartRepositoryInterface::CODE  => 'created_at',
+                CartRepositoryInterface::LABEL => 'Created At',
+                CartRepositoryInterface::DATATYPE =>  'date',
             ],
         ];
     }

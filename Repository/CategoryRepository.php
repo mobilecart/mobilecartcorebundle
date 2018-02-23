@@ -52,25 +52,25 @@ class CategoryRepository
     {
         return [
             'sort_order' => [
-                'label' => 'Sort Order',
+                CartRepositoryInterface::LABEL => 'Sort Order',
                 'active' => 0,
                 'value' => 'sort_order',
                 'dir' => 'asc',
             ],
             'name_az' => [
-                'label' => 'Name (A-Z)',
+                CartRepositoryInterface::LABEL => 'Name (A-Z)',
                 'active' => 0,
                 'value' => 'name',
                 'dir' => 'asc',
             ],
             'name_za' => [
-                'label' => 'Name (Z-A)',
+                CartRepositoryInterface::LABEL => 'Name (Z-A)',
                 'active' => 0,
                 'value' => 'name',
                 'dir' => 'desc',
             ],
             'parent_category' => [
-                'label' => 'Parent Category',
+                CartRepositoryInterface::LABEL => 'Parent Category',
                 'active' => 0,
                 'value' => 'parent_category_id',
                 'dir' => 'asc',
@@ -85,39 +85,39 @@ class CategoryRepository
     {
         return [
             [
-                'code'  => 'id',
-                'label' => 'ID',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'id',
+                CartRepositoryInterface::LABEL => 'ID',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'parent_category_id',
-                'label' => 'Parent ID',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'parent_category_id',
+                CartRepositoryInterface::LABEL => 'Parent ID',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'name',
-                'label' => 'Name',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'name',
+                CartRepositoryInterface::LABEL => 'Name',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'created_at',
-                'label' => 'Created At',
-                'datatype' =>  'date',
+                CartRepositoryInterface::CODE  => 'created_at',
+                CartRepositoryInterface::LABEL => 'Created At',
+                CartRepositoryInterface::DATATYPE =>  'date',
             ],
             [
-                'code'  => 'sort_order',
-                'label' => 'Sort Order',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'sort_order',
+                CartRepositoryInterface::LABEL => 'Sort Order',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'page_title',
-                'label' => 'Page Title',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'page_title',
+                CartRepositoryInterface::LABEL => 'Page Title',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'slug',
-                'label' => 'Slug',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'slug',
+                CartRepositoryInterface::LABEL => 'Slug',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
         ];
     }

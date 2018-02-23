@@ -11,7 +11,6 @@
 
 namespace MobileCart\CoreBundle\Service;
 
-use Doctrine\ORM\Query;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 use MobileCart\CoreBundle\Repository\CartRepositoryInterface;
 
@@ -181,12 +180,12 @@ class DoctrineSearchService
         if ($this->getFilters()) {
             foreach($this->getFilters() as $field => $value) {
                 foreach($filterable as $filterInfo) {
-                    if ($field == $filterInfo['code']) {
+                    if ($field == $filterInfo[CartRepositoryInterface::CODE]) {
 
                         // handle special case for numerical ranges
                         //  eg price=100-199 or subtotal=50-100
                         //  note : the handling of strpos is very intentional, want an index > 0
-                        if ($filterInfo['datatype'] == 'number' && strpos($value, '-')) {
+                        if ($filterInfo[CartRepositoryInterface::DATATYPE] == 'number' && strpos($value, '-')) {
                             $rangeValues = explode('-', $value);
                             $rangeMin = $rangeValues[0];
                             $rangeMax = isset($rangeValues[1]) ? $rangeValues[1] : null;
@@ -223,7 +222,7 @@ class DoctrineSearchService
                         $whereConditions[] = "{$field} = ?";
                         $filterParams[] = $value;
 
-                        switch($filterInfo['datatype']) {
+                        switch($filterInfo[CartRepositoryInterface::DATATYPE]) {
                             case 'boolean':
                                 $bindTypes[$x] = \PDO::PARAM_INT;
                                 break;
@@ -329,10 +328,10 @@ class DoctrineSearchService
 
                 $found = false;
                 foreach($filterable as $filterInfo) {
-                    if ($field == $filterInfo['code']) {
+                    if ($field == $filterInfo[CartRepositoryInterface::CODE]) {
                         $found = true;
 
-                        switch($filterInfo['datatype']) {
+                        switch($filterInfo[CartRepositoryInterface::DATATYPE]) {
                             case 'boolean':
                                 $bindTypes[$x] = \PDO::PARAM_INT;
                                 $x++;
@@ -753,8 +752,8 @@ class DoctrineSearchService
             foreach($this->sortable as $code => $label) {
 
                 $this->sortable[$code] = [
-                    'code' => $code,
-                    'label' => $label,
+                    CartRepositoryInterface::CODE => $code,
+                    CartRepositoryInterface::LABEL => $label,
                 ];
 
                 $isActive = (int) ($this->getSortBy() == $code);

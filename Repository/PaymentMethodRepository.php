@@ -39,19 +39,19 @@ class PaymentMethodRepository extends EntityRepository
     {
         return [
             [
-                'code'  => 'id',
-                'label' => 'ID',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'id',
+                CartRepositoryInterface::LABEL => 'ID',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code' => 'company',
-                'label' => 'Company',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE => 'company',
+                CartRepositoryInterface::LABEL => 'Company',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code' => 'method',
-                'label' => 'Method',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE => 'method',
+                CartRepositoryInterface::LABEL => 'Method',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
         ];
     }

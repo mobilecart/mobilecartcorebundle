@@ -51,14 +51,14 @@ class OrderItemRepository
     {
         return [
             [
-                'code'  => 'sku',
-                'label' => 'SKU',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'sku',
+                CartRepositoryInterface::LABEL => 'SKU',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'name',
-                'label' => 'Name',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'name',
+                CartRepositoryInterface::LABEL => 'Name',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
         ];
     }

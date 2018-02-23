@@ -51,39 +51,39 @@ class CustomerAddressRepository
     {
         return [
             [
-                'code'  => 'customer_id',
-                'label' => 'Customer',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'customer_id',
+                CartRepositoryInterface::LABEL => 'Customer',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'name',
-                'label' => 'Name',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'name',
+                CartRepositoryInterface::LABEL => 'Name',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'company',
-                'label' => 'Company',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'company',
+                CartRepositoryInterface::LABEL => 'Company',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'id',
-                'label' => 'ID',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'id',
+                CartRepositoryInterface::LABEL => 'ID',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'city',
-                'label' => 'City',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'city',
+                CartRepositoryInterface::LABEL => 'City',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'region',
-                'label' => 'Region/State',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'region',
+                CartRepositoryInterface::LABEL => 'Region/State',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'country_id',
-                'label' => 'Country',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'country_id',
+                CartRepositoryInterface::LABEL => 'Country',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
         ];
     }

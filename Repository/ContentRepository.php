@@ -54,39 +54,39 @@ class ContentRepository
     {
         return [
             [
-                'code'  => 'id',
-                'label' => 'ID',
-                'type'  => 'number',
+                CartRepositoryInterface::CODE  => 'id',
+                CartRepositoryInterface::LABEL => 'ID',
+                CartRepositoryInterface::DATATYPE  => 'number',
             ],
             [
-                'code'  => 'name',
-                'label' => 'Name',
-                'type'  => 'string',
+                CartRepositoryInterface::CODE  => 'name',
+                CartRepositoryInterface::LABEL => 'Name',
+                CartRepositoryInterface::DATATYPE  => 'string',
             ],
             [
-                'code'  => 'created_at',
-                'label' => 'Created At',
-                'type'  => 'date',
+                CartRepositoryInterface::CODE  => 'created_at',
+                CartRepositoryInterface::LABEL => 'Created At',
+                CartRepositoryInterface::DATATYPE  => 'date',
             ],
             [
-                'code'  => 'sort_order',
-                'label' => 'Sort Order',
-                'type'  => 'number',
+                CartRepositoryInterface::CODE  => 'sort_order',
+                CartRepositoryInterface::LABEL => 'Sort Order',
+                CartRepositoryInterface::DATATYPE  => 'number',
             ],
             [
-                'code'  => 'page_title',
-                'label' => 'Page Title',
-                'type'  => 'string',
+                CartRepositoryInterface::CODE  => 'page_title',
+                CartRepositoryInterface::LABEL => 'Page Title',
+                CartRepositoryInterface::DATATYPE  => 'string',
             ],
             [
-                'code'  => 'slug',
-                'label' => 'Slug',
-                'type'  => 'string',
+                CartRepositoryInterface::CODE  => 'slug',
+                CartRepositoryInterface::LABEL => 'Slug',
+                CartRepositoryInterface::DATATYPE  => 'string',
             ],
             [
-                'code' => 'is_public',
-                'label' => 'Is Public',
-                'datatype' =>  'boolean',
+                CartRepositoryInterface::CODE => 'is_public',
+                CartRepositoryInterface::LABEL => 'Is Public',
+                CartRepositoryInterface::DATATYPE =>  'boolean',
             ],
         ];
     }

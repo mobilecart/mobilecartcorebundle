@@ -54,53 +54,53 @@ class UrlRewriteRepository
     {
         return [
             [
-                'code'  => 'id',
-                'label' => 'ID',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'id',
+                CartRepositoryInterface::LABEL => 'ID',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code' => 'object_type',
-                'label' => 'Object Type',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE => 'object_type',
+                CartRepositoryInterface::LABEL => 'Object Type',
+                CartRepositoryInterface::DATATYPE =>  'string',
                 'choices' => [
                     [
                         'value' => EntityConstants::PRODUCT,
-                        'label' => 'Product'
+                        CartRepositoryInterface::LABEL => 'Product'
                     ],
                     [
                         'value' => EntityConstants::CONTENT,
-                        'label' => 'Content',
+                        CartRepositoryInterface::LABEL => 'Content',
                     ],
                     [
                         'value' => EntityConstants::CATEGORY,
-                        'label' => 'Category',
+                        CartRepositoryInterface::LABEL => 'Category',
                     ],
                 ],
             ],
             [
-                'code' => 'object_action',
-                'label' => 'Object Action',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE => 'object_action',
+                CartRepositoryInterface::LABEL => 'Object Action',
+                CartRepositoryInterface::DATATYPE =>  'string',
                 'choices' => [
                     [
                         'value' => 'list',
-                        'label' => 'List',
+                        CartRepositoryInterface::LABEL => 'List',
                     ],
                     [
                         'value' => 'view',
-                        'label' => 'View',
+                        CartRepositoryInterface::LABEL => 'View',
                     ],
                 ],
             ],
             [
-                'code' => 'request_uri',
-                'label' => 'Request URI',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE => 'request_uri',
+                CartRepositoryInterface::LABEL => 'Request URI',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code' => 'request_url',
-                'label' => 'Request URL',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE => 'request_url',
+                CartRepositoryInterface::LABEL => 'Request URL',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
         ];
     }

@@ -35,19 +35,19 @@ class ItemVarSetVarRepository
     {
         return [
             [
-                'code'  => 'id',
-                'label' => 'ID',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'id',
+                CartRepositoryInterface::LABEL => 'ID',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'item_var_set_id',
-                'label' => 'Custom Field Set',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'item_var_set_id',
+                CartRepositoryInterface::LABEL => 'Custom Field Set',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'item_var_id',
-                'label' => 'Custom Field',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'item_var_id',
+                CartRepositoryInterface::LABEL => 'Custom Field',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
         ];
     }

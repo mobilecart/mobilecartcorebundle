@@ -32,14 +32,14 @@ class DiscountRepository
     {
         return [
             [
-                'code'  => 'id',
-                'label' => 'ID',
-                'type'  => 'number',
+                CartRepositoryInterface::CODE  => 'id',
+                CartRepositoryInterface::LABEL => 'ID',
+                CartRepositoryInterface::DATATYPE  => 'number',
             ],
             [
-                'code'  => 'name',
-                'label' => 'Name',
-                'type'  => 'string',
+                CartRepositoryInterface::CODE  => 'name',
+                CartRepositoryInterface::LABEL => 'Name',
+                CartRepositoryInterface::DATATYPE  => 'string',
             ],
         ];
     }

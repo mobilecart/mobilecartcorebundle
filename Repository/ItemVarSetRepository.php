@@ -33,19 +33,19 @@ class ItemVarSetRepository
     {
         return array(
             array(
-                'code'  => 'id',
-                'label' => 'ID',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'id',
+                CartRepositoryInterface::LABEL => 'ID',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ),
             array(
-                'code'  => 'name',
-                'label' => 'Name',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'name',
+                CartRepositoryInterface::LABEL => 'Name',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ),
             array(
-                'code'  => 'object_type',
-                'label' => 'Object Type',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'object_type',
+                CartRepositoryInterface::LABEL => 'Object Type',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ),
         );
     }

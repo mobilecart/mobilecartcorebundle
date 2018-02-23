@@ -52,29 +52,29 @@ class ItemVarOptionIntRepository
     {
         return array(
             array(
-                'code'  => 'id',
-                'label' => 'ID',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'id',
+                CartRepositoryInterface::LABEL => 'ID',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ),
             array(
-                'code' => 'item_var_id',
-                'label' => 'Custom Field',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE => 'item_var_id',
+                CartRepositoryInterface::LABEL => 'Custom Field',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ),
             array(
-                'code'  => 'value',
-                'label' => 'Value',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'value',
+                CartRepositoryInterface::LABEL => 'Value',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ),
             array(
-                'code'  => 'is_in_stock',
-                'label' => 'Is In Stock',
-                'datatype' =>  'boolean',
+                CartRepositoryInterface::CODE  => 'is_in_stock',
+                CartRepositoryInterface::LABEL => 'Is In Stock',
+                CartRepositoryInterface::DATATYPE =>  'boolean',
             ),
             array(
-                'code'  => 'additional_price',
-                'label' => 'Addt\'l Price',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'additional_price',
+                CartRepositoryInterface::LABEL => 'Addt\'l Price',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ),
         );
     }

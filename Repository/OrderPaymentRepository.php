@@ -36,7 +36,7 @@ class OrderPaymentRepository
         return [
             'id' => 'ID',
             'base_amount' => 'Amount',
-            'code' => 'Service Code',
+            CartRepositoryInterface::CODE => 'Service Code',
             'created_at' => 'Created At',
         ];
     }
@@ -48,24 +48,24 @@ class OrderPaymentRepository
     {
         return [
             [
-                'code'  => 'id',
-                'label' => 'ID',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'id',
+                CartRepositoryInterface::LABEL => 'ID',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'base_amount',
-                'label' => 'Amount',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'base_amount',
+                CartRepositoryInterface::LABEL => 'Amount',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'code',
-                'label' => 'Service Code',
-                'type'  => 'string',
+                CartRepositoryInterface::CODE  => CartRepositoryInterface::CODE,
+                CartRepositoryInterface::LABEL => 'Service Code',
+                CartRepositoryInterface::DATATYPE  => 'string',
             ],
             [
-                'code'  => 'created_at',
-                'label' => 'Created At',
-                'type'  => 'date',
+                CartRepositoryInterface::CODE  => 'created_at',
+                CartRepositoryInterface::LABEL => 'Created At',
+                CartRepositoryInterface::DATATYPE  => 'date',
             ],
         ];
     }

@@ -53,52 +53,52 @@ class OrderRepository
     {
         return [
             [
-                'code'  => 'email',
-                'label' => 'Email',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'email',
+                CartRepositoryInterface::LABEL => 'Email',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'customer_id',
-                'label' => 'Customer',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'customer_id',
+                CartRepositoryInterface::LABEL => 'Customer',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code' => 'status',
-                'label' => 'Status',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE => 'status',
+                CartRepositoryInterface::LABEL => 'Status',
+                CartRepositoryInterface::DATATYPE =>  'string',
                 'choices' => [
                     [
                         'value' => 'processing',
-                        'label' => 'Processing',
+                        CartRepositoryInterface::LABEL => 'Processing',
                     ],
                     [
                         'value' => 'partially_shipped',
-                        'label' => 'Partially Shipped',
+                        CartRepositoryInterface::LABEL => 'Partially Shipped',
                     ],
                     [
                         'value' => 'shipped',
-                        'label' => 'Shipped',
+                        CartRepositoryInterface::LABEL => 'Shipped',
                     ],
                     [
                         'value' => 'canceled',
-                        'label' => 'Canceled',
+                        CartRepositoryInterface::LABEL => 'Canceled',
                     ],
                 ],
             ],
             [
-                'code'  => 'billing_name',
-                'label' => 'Billing Name',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'billing_name',
+                CartRepositoryInterface::LABEL => 'Billing Name',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'billing_company',
-                'label' => 'Billing Company',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'billing_company',
+                CartRepositoryInterface::LABEL => 'Billing Company',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'total',
-                'label' => 'Total',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'total',
+                CartRepositoryInterface::LABEL => 'Total',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
         ];
     }

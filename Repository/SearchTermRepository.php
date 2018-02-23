@@ -32,14 +32,14 @@ class SearchTermRepository
     {
         return [
             [
-                'code'  => 'id',
-                'label' => 'ID',
-                'type'  => 'number',
+                CartRepositoryInterface::CODE  => 'id',
+                CartRepositoryInterface::LABEL => 'ID',
+                CartRepositoryInterface::DATATYPE  => 'number',
             ],
             [
-                'code' => 'sanitized_query',
-                'label' => 'Method',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE => 'sanitized_query',
+                CartRepositoryInterface::LABEL => 'Method',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
         ];
     }

@@ -58,37 +58,37 @@ class ProductRepository
     {
         return [
             'sort_order' => [
-                'label' => 'Sort Order',
+                CartRepositoryInterface::LABEL => 'Sort Order',
                 'active' => 0,
                 'value' => 'sort_order',
                 'dir' => 'asc',
             ],
             'price_asc' => [
-                'label' => 'Lowest Price',
+                CartRepositoryInterface::LABEL => 'Lowest Price',
                 'active' => 0,
                 'value' => 'price',
                 'dir' => 'asc',
             ],
             'price_desc' => [
-                'label' => 'Highest Price',
+                CartRepositoryInterface::LABEL => 'Highest Price',
                 'active' => 0,
                 'value' => 'price',
                 'dir' => 'desc',
             ],
             'created_at_newest' => [
-                'label' => 'Newest',
+                CartRepositoryInterface::LABEL => 'Newest',
                 'active' => 0,
                 'value' => 'created_at',
                 'dir' => 'desc',
             ],
             'name_az' => [
-                'label' => 'Name (A-Z)',
+                CartRepositoryInterface::LABEL => 'Name (A-Z)',
                 'active' => 0,
                 'value' => 'name',
                 'dir' => 'asc',
             ],
             'name_za' => [
-                'label' => 'Name (Z-A)',
+                CartRepositoryInterface::LABEL => 'Name (Z-A)',
                 'active' => 0,
                 'value' => 'name',
                 'dir' => 'desc',
@@ -103,19 +103,19 @@ class ProductRepository
     {
         return [
             [
-                'code'  => 'id',
-                'label' => 'ID',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'id',
+                CartRepositoryInterface::LABEL => 'ID',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'name',
-                'label' => 'Name',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'name',
+                CartRepositoryInterface::LABEL => 'Name',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'category_id',
-                'label' => 'Category',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'category_id',
+                CartRepositoryInterface::LABEL => 'Category',
+                CartRepositoryInterface::DATATYPE =>  'number',
                 'join' => [
                     'type' => 'left', // left, inner, etc
                     'table' => EntityConstants::CATEGORY_PRODUCT,
@@ -125,117 +125,117 @@ class ProductRepository
                 ]
             ],
             [
-                'code'  => 'created_at',
-                'label' => 'Created At',
-                'datatype' =>  'date',
+                CartRepositoryInterface::CODE  => 'created_at',
+                CartRepositoryInterface::LABEL => 'Created At',
+                CartRepositoryInterface::DATATYPE =>  'date',
             ],
             [
-                'code'  => 'sort_order',
-                'label' => 'Sort Order',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'sort_order',
+                CartRepositoryInterface::LABEL => 'Sort Order',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'page_title',
-                'label' => 'Page Title',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'page_title',
+                CartRepositoryInterface::LABEL => 'Page Title',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'slug',
-                'label' => 'Slug',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'slug',
+                CartRepositoryInterface::LABEL => 'Slug',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'type',
-                'label' => 'Product Type',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'type',
+                CartRepositoryInterface::LABEL => 'Product Type',
+                CartRepositoryInterface::DATATYPE =>  'number',
                 'choices' => [
                     [
                         'value' => 1,
-                        'label' => 'Simple'
+                        CartRepositoryInterface::LABEL => 'Simple'
                     ],
                     [
                         'value' => 2,
-                        'label' => 'Configurable',
+                        CartRepositoryInterface::LABEL => 'Configurable',
                     ],
                 ],
             ],
             [
-                'code'  => 'sku',
-                'label' => 'SKU',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE  => 'sku',
+                CartRepositoryInterface::LABEL => 'SKU',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code'  => 'price',
-                'label' => 'Price',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'price',
+                CartRepositoryInterface::LABEL => 'Price',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'special_price',
-                'label' => 'Special Price',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'special_price',
+                CartRepositoryInterface::LABEL => 'Special Price',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'qty',
-                'label' => 'Qty',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'qty',
+                CartRepositoryInterface::LABEL => 'Qty',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code'  => 'is_in_stock',
-                'label' => 'In Stock',
-                'datatype' =>  'boolean',
+                CartRepositoryInterface::CODE  => 'is_in_stock',
+                CartRepositoryInterface::LABEL => 'In Stock',
+                CartRepositoryInterface::DATATYPE =>  'boolean',
                 'choices' => [
                     [
                         'value' => 0,
-                        'label' => 'No',
+                        CartRepositoryInterface::LABEL => 'No',
                     ],
                     [
                         'value' => 1,
-                        'label' => 'Yes',
+                        CartRepositoryInterface::LABEL => 'Yes',
                     ],
                 ],
             ],
             [
-                'code'  => 'is_enabled',
-                'label' => 'Enabled',
-                'datatype' =>  'boolean',
+                CartRepositoryInterface::CODE  => 'is_enabled',
+                CartRepositoryInterface::LABEL => 'Enabled',
+                CartRepositoryInterface::DATATYPE =>  'boolean',
                 'choices' => [
                     [
                         'value' => 0,
-                        'label' => 'No',
+                        CartRepositoryInterface::LABEL => 'No',
                     ],
                     [
                         'value' => 1,
-                        'label' => 'Yes',
+                        CartRepositoryInterface::LABEL => 'Yes',
                     ],
                 ],
             ],
             [
-                'code'  => 'is_public',
-                'label' => 'Public',
-                'datatype' =>  'boolean',
+                CartRepositoryInterface::CODE  => 'is_public',
+                CartRepositoryInterface::LABEL => 'Public',
+                CartRepositoryInterface::DATATYPE =>  'boolean',
                 'choices' => [
                     [
                         'value' => 0,
-                        'label' => 'No',
+                        CartRepositoryInterface::LABEL => 'No',
                     ],
                     [
                         'value' => 1,
-                        'label' => 'Yes',
+                        CartRepositoryInterface::LABEL => 'Yes',
                     ],
                 ],
             ],
             [
-                'code'  => 'is_taxable',
-                'label' => 'Taxable',
-                'datatype' =>  'boolean',
+                CartRepositoryInterface::CODE  => 'is_taxable',
+                CartRepositoryInterface::LABEL => 'Taxable',
+                CartRepositoryInterface::DATATYPE =>  'boolean',
                 'choices' => [
                     [
                         'value' => 0,
-                        'label' => 'No',
+                        CartRepositoryInterface::LABEL => 'No',
                     ],
                     [
                         'value' => 1,
-                        'label' => 'Yes',
+                        CartRepositoryInterface::LABEL => 'Yes',
                     ],
                 ],
             ],

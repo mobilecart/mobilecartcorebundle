@@ -35,8 +35,8 @@ class ConfigSettingRepository
     {
         return [
             'id' => 'ID',
-            'code' => 'Code',
-            'label' => 'Label',
+            CartRepositoryInterface::CODE => CartRepositoryInterface::CODE,
+            CartRepositoryInterface::LABEL => CartRepositoryInterface::LABEL,
             'value' => 'Value'
         ];
     }
@@ -48,24 +48,24 @@ class ConfigSettingRepository
     {
         return [
             [
-                'code'  => 'id',
-                'label' => 'ID',
-                'datatype' =>  'number',
+                CartRepositoryInterface::CODE  => 'id',
+                CartRepositoryInterface::LABEL => 'ID',
+                CartRepositoryInterface::DATATYPE =>  'number',
             ],
             [
-                'code' => 'code',
-                'label' => 'Code',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE => CartRepositoryInterface::CODE,
+                CartRepositoryInterface::LABEL => CartRepositoryInterface::CODE,
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code' => 'label',
-                'label' => 'Label',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE => CartRepositoryInterface::LABEL,
+                CartRepositoryInterface::LABEL => CartRepositoryInterface::LABEL,
+                CartRepositoryInterface::DATATYPE =>  'string',
             ],
             [
-                'code' => 'value',
-                'label' => 'Value',
-                'datatype' =>  'string',
+                CartRepositoryInterface::CODE => 'value',
+                CartRepositoryInterface::LABEL => 'Value',
+                CartRepositoryInterface::DATATYPE =>  'string',
             ]
         ];
     }
@@ -75,7 +75,7 @@ class ConfigSettingRepository
      */
     public function getSearchField()
     {
-        return ['code', 'label', 'value'];
+        return [CartRepositoryInterface::CODE, CartRepositoryInterface::LABEL, 'value'];
     }
 
     /**
