@@ -54,7 +54,7 @@ class CheckoutUpdateBillingAddress
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @return \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      */
     public function getEntityService()
     {
@@ -133,10 +133,6 @@ class CheckoutUpdateBillingAddress
     {
         $isValid = false;
 
-        $sectionData = $event->get('section_data', []);
-
-        // todo : handle submission of customer_address ID
-
         // todo : this should either be shipping_address or the step after if is_shipping_same = true
         $nextSection = CheckoutConstants::STEP_SHIPPING_ADDRESS;
 
@@ -156,16 +152,24 @@ class CheckoutUpdateBillingAddress
                         unset($apiRequest['cart_id']);
                     }
 
-                    $event->submitForm($apiRequest);
-                    $isValid = $event->isFormValid();
+                    if (isset($apiRequest['address_id'])) {
+                        // todo : handle submission of customer_address ID
+                    } else {
+                        $event->submitForm($apiRequest);
+                        $isValid = $event->isFormValid();
+                    }
                 }
 
                 break;
             default:
 
                 $requestData = $event->getRequest()->request->all();
-                $event->submitForm($requestData);
-                $isValid = $event->isFormValid();
+                if (isset($requestData['address_id'])) {
+                    // todo : handle submission of customer_address ID
+                } else {
+                    $event->submitForm($requestData);
+                    $isValid = $event->isFormValid();
+                }
 
                 break;
         }

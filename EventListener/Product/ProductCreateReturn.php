@@ -40,33 +40,24 @@ class ProductCreateReturn
      */
     public function onProductCreateReturn(CoreEvent $event)
     {
-        $entity = $event->getEntity();
-        $request = $event->getRequest();
-        $format = $event->getRequestAccept();
-        $url = $this->getRouter()->generate('cart_admin_product_edit', ['id' => $entity->getId()]);
+        $url = $this->getRouter()->generate('cart_admin_product_edit', [
+            'id' => $event->getEntity()->getId()
+        ]);
 
-        if ($event->hasFlashMessages()) {
-            foreach($event->getMessages() as $code => $messages) {
-                if (!$messages) {
-                    continue;
-                }
-                foreach($messages as $message) {
-                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                }
-            }
-        }
+        $event->flashMessages();
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
-                $event->setResponse(new JsonResponse([
-                    'success' => true,
-                    'entity' => $entity->getData(),
-                    'redirect_url' => $url,
-                ]));
-                break;
-            default:
-                $event->setResponse(new RedirectResponse($url));
-                break;
+        if ($event->isJsonResponse()) {
+
+            $event->setResponse(new JsonResponse([
+                'success' => $event->getSuccess(),
+                'entity' => $event->getEntity()->getData(),
+                'redirect_url' => $url,
+                'messages' => $event->getMessages()
+            ]));
+
+        } else {
+
+            $event->setResponse(new RedirectResponse($url));
         }
     }
 }

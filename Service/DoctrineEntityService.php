@@ -22,7 +22,7 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
  */
 class DoctrineEntityService
     extends AbstractEntityService
-    implements UserProviderInterface
+    implements UserProviderInterface, RelationalDbEntityServiceInterface
 {
     /**
      * @var \Doctrine\Bundle\DoctrineBundle\Registry

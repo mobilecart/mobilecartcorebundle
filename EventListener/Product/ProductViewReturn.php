@@ -12,7 +12,7 @@ use MobileCart\CoreBundle\Event\CoreEvent;
 class ProductViewReturn
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @var \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      */
     protected $entityService;
 
@@ -51,17 +51,17 @@ class ProductViewReturn
     }
 
     /**
-     * @param $entityService
+     * @param \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      * @return $this
      */
-    public function setEntityService($entityService)
+    public function setEntityService(\MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface $entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @return \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      */
     public function getEntityService()
     {
@@ -111,37 +111,37 @@ class ProductViewReturn
     {
         $entity = $event->getEntity();
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
-                $event->setResponse(new JsonResponse([
-                    'success' => true,
-                    'entity' => $entity->getData(),
-                ]));
-                break;
-            default:
+        $event->flashMessages();
 
-                $event->setReturnData('form', $event->getForm()->createView());
-                $event->setReturnData('entity', $event->getEntity());
-                $event->setReturnData('search', $this->getSearch());
+        if ($event->isJsonResponse()) {
 
-                $configData = @ (array) json_decode($entity->getConfig());
-                $event->setReturnData('config_data', $configData);
+            $event->setResponse(new JsonResponse([
+                'success' => true,
+                'entity' => $entity->getData(),
+            ]));
 
-                $customTpl = $event->getCustomTemplate();
-                if (!$customTpl && $event->getEntity()->getCustomTemplate()) {
-                    $customTpl = $event->getEntity()->getCustomTemplate();
-                }
+        } else {
 
-                $template = $customTpl
-                    ? $customTpl
-                    : 'Product:view.html.twig';
+            $event->setReturnData('form', $event->getForm()->createView());
+            $event->setReturnData('entity', $event->getEntity());
+            $event->setReturnData('search', $this->getSearch());
 
-                $event->setResponse($this->getThemeService()->render(
-                    'frontend',
-                    $template,
-                    $event->getReturnData()
-                ));
-                break;
+            $configData = @ (array) json_decode($entity->getConfig());
+            $event->setReturnData('config_data', $configData);
+
+            $customTpl = $event->getCustomTemplate();
+            if (!$customTpl && $event->getEntity()->getCustomTemplate()) {
+                $customTpl = $event->getEntity()->getCustomTemplate();
+            }
+
+            $template = $customTpl
+                ? $customTpl
+                : 'Product:view.html.twig';
+
+            $event->setResponse($this->getThemeService()->renderFrontend(
+                $template,
+                $event->getReturnData()
+            ));
         }
     }
 }

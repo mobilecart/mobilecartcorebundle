@@ -11,22 +11,22 @@ use MobileCart\CoreBundle\Event\CoreEvent;
 class CustomerForgotPassword
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @var \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      */
     protected $entityService;
 
     /**
-     * @param $entityService
+     * @param \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      * @return $this
      */
-    public function setEntityService($entityService)
+    public function setEntityService(\MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface $entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @return \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      */
     public function getEntityService()
     {

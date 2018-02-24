@@ -61,7 +61,7 @@ class AddProduct
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @return \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      */
     public function getEntityService()
     {

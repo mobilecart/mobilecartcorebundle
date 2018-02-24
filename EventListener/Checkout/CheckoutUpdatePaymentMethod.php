@@ -18,7 +18,7 @@ class CheckoutUpdatePaymentMethod
     protected $orderService;
 
     /**
-     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @return \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      */
     public function getEntityService()
     {

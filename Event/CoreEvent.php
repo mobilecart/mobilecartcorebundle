@@ -916,6 +916,8 @@ class CoreEvent extends Event
                 break;
         }
 
+        $this->getForm()->submit($this->getFormData());
+
         return $this;
     }
 

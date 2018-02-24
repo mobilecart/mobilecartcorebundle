@@ -29,7 +29,7 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
  */
 class PdoEntityService
     extends DoctrineEntityService
-    implements UserProviderInterface
+    implements UserProviderInterface, RelationalDbEntityServiceInterface
 {
 
     protected $conn;

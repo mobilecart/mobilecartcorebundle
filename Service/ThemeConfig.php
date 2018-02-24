@@ -30,6 +30,16 @@ class ThemeConfig
     protected $frontendTheme = 'frontend';
 
     /**
+     * Different frontend theme based on server name
+     *
+     *  data['mysite.com'] = 'frontend'
+     *  data['dev.mysite.local'] = 'frontend_v2'
+     *
+     * @var array
+     */
+    protected $serverFrontendThemes = [];
+
+    /**
      * @var string
      */
     protected $adminTheme = 'admin';
@@ -92,6 +102,38 @@ class ThemeConfig
     public function getThemeLayout($code)
     {
         return $this->config[$code][self::KEY_LAYOUT];
+    }
+
+    /**
+     * Different frontend theme based on server name
+     *
+     * @return string
+     */
+    public function getServerFrontendTheme()
+    {
+        if (!$this->serverFrontendThemes) {
+            return $this->frontendTheme;
+        }
+
+        $serverName = @ $_SERVER['SERVER_NAME'];
+        if (!isset($this->serverFrontendThemes[$serverName])) {
+            return $this->frontendTheme;
+        }
+
+        return $this->serverFrontendThemes[$serverName];
+    }
+
+    /**
+     * Different frontend theme based on server name
+     *
+     * @param $serverName
+     * @param $code
+     * @return $this
+     */
+    public function addServerFrontendTheme($serverName, $code)
+    {
+        $this->serverFrontendThemes[$serverName] = $code;
+        return $this;
     }
 
     /**

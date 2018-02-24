@@ -95,7 +95,37 @@ class ThemeService
     }
 
     /**
-     * Render and return HTML
+     * Render and return Response, including some headers
+     *
+     * @param $template
+     * @param $data
+     * @param Response $response
+     * @return Response
+     */
+    public function renderFrontend($template, $data, Response $response = null)
+    {
+        $theme = $this->getThemeConfig()->getServerFrontendTheme();
+        return $this->getTemplating()
+            ->renderResponse($this->getThemeConfig()->getTemplatePath($theme) . $template, $data, $response);
+    }
+
+    /**
+     * Render and return Response, including some headers
+     *
+     * @param $template
+     * @param $data
+     * @param Response $response
+     * @return Response
+     */
+    public function renderAdmin($template, $data, Response $response = null)
+    {
+        $theme = $this->getThemeConfig()->getAdminTheme();
+        return $this->getTemplating()
+            ->renderResponse($this->getThemeConfig()->getTemplatePath($theme) . $template, $data, $response);
+    }
+
+    /**
+     * Render and return HTML, without Headers
      *
      * @param $theme
      * @param $template

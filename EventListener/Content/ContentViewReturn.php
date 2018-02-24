@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class ContentViewReturn
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @var \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      */
     protected $entityService;
 
@@ -27,10 +27,10 @@ class ContentViewReturn
     protected $themeService;
 
     /**
-     * @param $entityService
+     * @param \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      * @return $this
      */
-    public function setEntityService($entityService)
+    public function setEntityService(\MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface $entityService)
     {
         $this->entityService = $entityService;
         return $this;

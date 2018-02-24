@@ -12,22 +12,27 @@ use MobileCart\CoreBundle\Constants\EntityConstants;
 class ProductDuplicate
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @var \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      */
     protected $entityService;
 
     /**
-     * @param $entityService
+     * @var \MobileCart\CoreBundle\Service\CurrencyServiceInterface
+     */
+    protected $currencyService;
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      * @return $this
      */
-    public function setEntityService($entityService)
+    public function setEntityService(\MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface $entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @return \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      */
     public function getEntityService()
     {
@@ -35,12 +40,28 @@ class ProductDuplicate
     }
 
     /**
+     * @param \MobileCart\CoreBundle\Service\CurrencyServiceInterface $currencyService
+     * @return $this
+     */
+    public function setCurrencyService(\MobileCart\CoreBundle\Service\CurrencyServiceInterface $currencyService)
+    {
+        $this->currencyService = $currencyService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CurrencyServiceInterface
+     */
+    public function getCurrencyService()
+    {
+        return $this->currencyService;
+    }
+
+    /**
      * @param CoreEvent $event
      */
     public function onProductDuplicate(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
         $origEntity = $event->getEntity();
         $formData = $origEntity->getData();
         $baseData = $origEntity->getBaseData();
@@ -56,13 +77,21 @@ class ProductDuplicate
         $entity->setItemVarSet($origEntity->getItemVarSet());
 
         if (!$entity->getCurrency()) {
-            // todo : use currency service
-            $entity->setCurrency('USD');
+            $entity->setCurrency($this->getCurrencyService()->getBaseCurrency());
         }
 
         $entity->setCreatedAt(new \DateTime('now'));
 
-        $this->getEntityService()->persist($entity);
+        $this->getEntityService()->beginTransaction();
+
+        try {
+            $this->getEntityService()->persist($entity);
+        } catch(\Exception $e) {
+            $this->getEntityService()->rollBack();
+            $event->setSuccess(false);
+            $event->addErrorMessage('An error occurred while saving the Product');
+            return;
+        }
 
         $id = $entity->getId();
         $newSlug = str_replace('-copy', "-{$id}", $entity->getSlug());
@@ -70,7 +99,14 @@ class ProductDuplicate
         $entity->setSlug($newSlug)
             ->setSku($newSku);
 
-        $this->getEntityService()->persist($entity);
+        try {
+            $this->getEntityService()->persist($entity);
+        } catch(\Exception $e) {
+            $this->getEntityService()->rollBack();
+            $event->setSuccess(false);
+            $event->addErrorMessage('An error occurred while saving the Product');
+            return;
+        }
 
         foreach($baseData as $k => $v) {
             if (array_key_exists($k, $formData)) {
@@ -79,9 +115,14 @@ class ProductDuplicate
         }
 
         if ($formData) {
-
-            $this->getEntityService()
-                ->persistVariants($entity, $formData);
+            try {
+                $this->getEntityService()->persistVariants($entity, $formData);
+            } catch(\Exception $e) {
+                $this->getEntityService()->rollBack();
+                $event->setSuccess(false);
+                $event->addErrorMessage('An error occurred while saving the Product variants');
+                return;
+            }
         }
 
         // update categories
@@ -90,7 +131,12 @@ class ProductDuplicate
                 $categoryProduct = $this->getEntityService()->getInstance(EntityConstants::CATEGORY_PRODUCT);
                 $categoryProduct->setCategory($category);
                 $categoryProduct->setProduct($entity);
-                $this->getEntityService()->persist($categoryProduct);
+                try {
+                    $this->getEntityService()->persist($categoryProduct);
+                } catch(\Exception $e) {
+                    $event->addErrorMessage('An error occurred while saving a Product Category association');
+                    // this isn't a 'critical error'
+                }
             }
         }
 
@@ -103,11 +149,18 @@ class ProductDuplicate
                 $newImage->setData($imgData)
                     ->setParent($entity);
 
-                $this->getEntityService()->persist($newImage);
+                try {
+                    $this->getEntityService()->persist($newImage);
+                } catch(\Exception $e) {
+                    $event->addErrorMessage('An error occurred while saving a Product image');
+                    // this isn't a 'critical error'
+                }
             }
         }
 
         $event->setEntity($entity);
-        $event->setReturnData($returnData);
+        $this->getEntityService()->commit();
+        $event->setSuccess(true);
+        $event->addSuccessMessage('Product Duplicated !');
     }
 }

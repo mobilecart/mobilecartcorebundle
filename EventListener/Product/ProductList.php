@@ -63,9 +63,6 @@ class ProductList
      */
     public function onProductList(CoreEvent $event)
     {
-        $request = $event->getRequest();
-        $format = $event->getRequestAccept();
-
         $event->setReturnData('columns', [
             [
                 'key' => 'id',

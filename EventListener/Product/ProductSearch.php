@@ -70,8 +70,8 @@ class ProductSearch
                 break;
         }
 
-        if ($request->headers->get('Accept') == 'application/json') {
-            $loadVarValues = 1;
+        if ($event->getRequestAccept() == CoreEvent::JSON) {
+            $loadVarValues = true;
         }
 
         $search = $this->getSearch()

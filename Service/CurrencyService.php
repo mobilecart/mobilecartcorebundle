@@ -17,7 +17,7 @@ use Symfony\Component\Intl\Intl;
  * Class CurrencyService
  * @package MobileCart\CoreBundle\Service
  */
-class CurrencyService
+class CurrencyService implements CurrencyServiceInterface
 {
     // todo: integrate more of:  http://symfony.com/doc/current/components/intl.html
 
@@ -25,16 +25,6 @@ class CurrencyService
      * @var array
      */
     protected $rateMap = [];
-
-    /**
-     * @var string keys for displayMap data
-     */
-    const DEC_POINT = 'dec_point';
-    const THOUSANDS_SEP = 'thousands_sep';
-    const SYMBOL = 'symbol';
-    const BEFORE_AFTER = 'before_after';
-    const DISPLAY_PRECISION = 'display_precision';
-    const MULTIPLY_PRECISION = 'multiply_precision';
 
     /**
      * r['USD/EUR'] = ['dec_point' => '.', 'thousands_sep' => ',']

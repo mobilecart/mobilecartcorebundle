@@ -13,22 +13,22 @@ use MobileCart\CoreBundle\Entity\Product;
 class ProductUpdate
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @var \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      */
     protected $entityService;
 
     /**
-     * @param $entityService
+     * @param \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      * @return $this
      */
-    public function setEntityService($entityService)
+    public function setEntityService(\MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface $entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @return \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      */
     public function getEntityService()
     {
@@ -40,6 +40,7 @@ class ProductUpdate
      */
     public function onProductUpdate(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\Product $entity */
         $entity = $event->getEntity();
         $formData = $event->getFormData();
         $request = $event->getRequest();
@@ -53,7 +54,16 @@ class ProductUpdate
 
         $entity->setSlug($this->getEntityService()->slugify($entity->getSlug()));
 
-        $this->getEntityService()->persist($entity);
+        $this->getEntityService()->beginTransaction();
+
+        try {
+            $this->getEntityService()->persist($entity);
+        } catch(\Exception $e) {
+            $this->getEntityService()->rollBack();
+            $event->setSuccess(false);
+            $event->addErrorMessage('An error occurred while saving the Product');
+            return;
+        }
 
         // ensure configurable product is configured correctly
         if ($entity->getType() == Product::TYPE_CONFIGURABLE) {
@@ -109,7 +119,14 @@ class ProductUpdate
                                     ->setChildProduct($simple)
                                     ->setItemVar($itemVar);
 
-                                $this->getEntityService()->persist($pConfig);
+                                try {
+                                    $this->getEntityService()->persist($pConfig);
+                                } catch(\Exception $e) {
+                                    $this->getEntityService()->rollBack();
+                                    $event->setSuccess(false);
+                                    $event->addErrorMessage('An error occurred while saving the Product configuration');
+                                    return;
+                                }
 
                                 $newConfigs[] = $pConfig;
                             }
@@ -137,7 +154,14 @@ class ProductUpdate
                         foreach($productVariantCodes as $childProductId => $pConfigs) {
                             if ($pConfigs) {
                                 foreach($pConfigs as $varCode => $pConfig) {
-                                    $this->getEntityService()->remove($pConfig);
+                                    try {
+                                        $this->getEntityService()->remove($pConfig);
+                                    } catch(\Exception $e) {
+                                        $this->getEntityService()->rollBack();
+                                        $event->setSuccess(false);
+                                        $event->addErrorMessage('An error occurred while saving the Product configuration');
+                                        return;
+                                    }
                                 }
                             }
                         }
@@ -146,31 +170,55 @@ class ProductUpdate
                 } else {
                     if ($pConfigs) {
                         foreach($pConfigs as $pConfig) {
-                            $this->getEntityService()->remove($pConfig);
+                            try {
+                                $this->getEntityService()->remove($pConfig);
+                            } catch(\Exception $e) {
+                                $this->getEntityService()->rollBack();
+                                $event->setSuccess(false);
+                                $event->addErrorMessage('An error occurred while saving the Product configuration');
+                                return;
+                            }
                         }
                     }
                 }
             } else {
                 if ($pConfigs) {
                     foreach($pConfigs as $pConfig) {
-                        $this->getEntityService()->remove($pConfig);
+                        try {
+                            $this->getEntityService()->remove($pConfig);
+                        } catch(\Exception $e) {
+                            $this->getEntityService()->rollBack();
+                            $event->setSuccess(false);
+                            $event->addErrorMessage('An error occurred while saving the Product configuration');
+                            return;
+                        }
                     }
                 }
             }
 
             $entity->setProductConfigs($newConfigs);
             $entity->reconfigure();
-            $this->getEntityService()->persist($entity);
+
+            try {
+                $this->getEntityService()->persist($entity);
+            } catch(\Exception $e) {
+                $this->getEntityService()->rollBack();
+                $event->setSuccess(false);
+                $event->addErrorMessage('An error occurred while saving the Product');
+                return;
+            }
         }
 
         if ($formData) {
-
-            // update var values
-            $this->getEntityService()
-                ->persistVariants($entity, $formData);
+            try {
+                $this->getEntityService()->persistVariants($entity, $formData);
+            } catch(\Exception $e) {
+                $this->getEntityService()->rollBack();
+                $event->setSuccess(false);
+                $event->addErrorMessage('An error occurred while saving the Product variants');
+                return;
+            }
         }
-
-        $event->addSuccessMessage('Product Updated!');
 
         // update categories
         $categoryIds = $entity->getCategoryIds();
@@ -181,7 +229,12 @@ class ProductUpdate
         if ($removed) {
             foreach($entity->getCategoryProducts() as $categoryProduct) {
                 if (in_array($categoryProduct->getCategory()->getId(), $removed)) {
-                    $this->getEntityService()->remove($categoryProduct);
+                    try {
+                        $this->getEntityService()->remove($categoryProduct);
+                    } catch(\Exception $e) {
+                        $event->addErrorMessage('An error occurred while removing a Product Category association');
+                        // this isn't a 'critical error'
+                    }
                 }
             }
         }
@@ -193,7 +246,12 @@ class ProductUpdate
                 if ($category) {
                     $categoryProduct->setCategory($category);
                     $categoryProduct->setProduct($entity);
-                    $this->getEntityService()->persist($categoryProduct);
+                    try {
+                        $this->getEntityService()->persist($categoryProduct);
+                    } catch(\Exception $e) {
+                        $event->addErrorMessage('An error occurred while saving a Product Category association');
+                        // this isn't a 'critical error'
+                    }
                 }
             }
         }
@@ -202,8 +260,17 @@ class ProductUpdate
         if ($imageJson = $request->get('images_json', [])) {
             $images = (array) @ json_decode($imageJson);
             if ($images) {
-                $this->getEntityService()->updateImages(EntityConstants::PRODUCT_IMAGE, $entity, $images);
+                try {
+                    $this->getEntityService()->updateImages(EntityConstants::PRODUCT_IMAGE, $entity, $images);
+                } catch(\Exception $e) {
+                    $event->addErrorMessage('An error occurred while saving a Product image association');
+                    // this isn't a 'critical error'
+                }
             }
         }
+
+        $this->getEntityService()->commit();
+        $event->setSuccess(true);
+        $event->addSuccessMessage('Product Updated !');
     }
 }

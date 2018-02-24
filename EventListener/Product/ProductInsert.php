@@ -13,26 +13,49 @@ use MobileCart\CoreBundle\Entity\Product;
 class ProductInsert
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\DoctrineEntityService
+     * @var \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      */
     protected $entityService;
 
     /**
-     * @param \MobileCart\CoreBundle\Service\DoctrineEntityService $entityService
+     * @var \MobileCart\CoreBundle\Service\CurrencyServiceInterface
+     */
+    protected $currencyService;
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface $entityService
      * @return $this
      */
-    public function setEntityService($entityService)
+    public function setEntityService(\MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface $entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\DoctrineEntityService
+     * @return \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      */
     public function getEntityService()
     {
         return $this->entityService;
+    }
+
+    /**
+     * @param \MobileCart\CoreBundle\Service\CurrencyServiceInterface $currencyService
+     * @return $this
+     */
+    public function setCurrencyService(\MobileCart\CoreBundle\Service\CurrencyServiceInterface $currencyService)
+    {
+        $this->currencyService = $currencyService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CurrencyServiceInterface
+     */
+    public function getCurrencyService()
+    {
+        return $this->currencyService;
     }
 
     /**
@@ -44,8 +67,7 @@ class ProductInsert
         /** @var \MobileCart\CoreBundle\Entity\Product $entity */
         $entity = $event->getEntity();
         if (!$entity->getCurrency()) {
-            // todo : use currency service
-            $entity->setCurrency('USD');
+            $entity->setCurrency($this->getCurrencyService()->getBaseCurrency());
         }
 
         $formData = $event->getFormData();
@@ -60,7 +82,16 @@ class ProductInsert
             ->setCreatedAt(new \DateTime('now'))
             ->setSlug($this->getEntityService()->slugify($entity->getSlug()));
 
-        $this->getEntityService()->persist($entity);
+        $this->getEntityService()->beginTransaction();
+
+        try {
+            $this->getEntityService()->persist($entity);
+        } catch(\Exception $e) {
+            $this->getEntityService()->rollBack();
+            $event->setSuccess(false);
+            $event->addErrorMessage('An error occurred while saving the Product');
+            return;
+        }
 
         // update configurable product information
         if ($entity->getType() == Product::TYPE_CONFIGURABLE) {
@@ -92,7 +123,14 @@ class ProductInsert
                                 ->setChildProduct($simple)
                                 ->setItemVar($itemVar);
 
-                            $this->getEntityService()->persist($pConfig);
+                            try {
+                                $this->getEntityService()->persist($pConfig);
+                            } catch(\Exception $e) {
+                                $this->getEntityService()->rollBack();
+                                $event->setSuccess(false);
+                                $event->addErrorMessage('An error occurred while saving the Product configuration');
+                                return;
+                            }
 
                             $entity->addProductConfig($pConfig);
 
@@ -117,13 +155,26 @@ class ProductInsert
             }
 
             $entity->reconfigure();
-            $this->getEntityService()->persist($entity);
+
+            try {
+                $this->getEntityService()->persist($entity);
+            } catch(\Exception $e) {
+                $this->getEntityService()->rollBack();
+                $event->setSuccess(false);
+                $event->addErrorMessage('An error occurred while saving the Product');
+                return;
+            }
         }
 
         if ($formData) {
-
-            $this->getEntityService()
-                ->persistVariants($entity, $formData);
+            try {
+                $this->getEntityService()->persistVariants($entity, $formData);
+            } catch(\Exception $e) {
+                $this->getEntityService()->rollBack();
+                $event->setSuccess(false);
+                $event->addErrorMessage('An error occurred while saving the Product variants');
+                return;
+            }
         }
 
         // update categories
@@ -135,7 +186,12 @@ class ProductInsert
                 if ($category) {
                     $categoryProduct->setCategory($category);
                     $categoryProduct->setProduct($entity);
-                    $this->getEntityService()->persist($categoryProduct);
+                    try {
+                        $this->getEntityService()->persist($categoryProduct);
+                    } catch(\Exception $e) {
+                        $event->addErrorMessage('An error occurred while saving a Product Category association');
+                        // this isn't a 'critical error'
+                    }
                 }
             }
         }
@@ -144,10 +200,17 @@ class ProductInsert
         if ($imageJson = $request->get('images_json', [])) {
             $images = (array) @ json_decode($imageJson);
             if ($images) {
-                $this->getEntityService()->updateImages(EntityConstants::PRODUCT_IMAGE, $entity, $images);
+                try {
+                    $this->getEntityService()->updateImages(EntityConstants::PRODUCT_IMAGE, $entity, $images);
+                } catch(\Exception $e) {
+                    $event->addErrorMessage('An error occurred while saving a Product image association');
+                    // this isn't a 'critical error'
+                }
             }
         }
 
-        $event->addSuccessMessage('Product Created!');
+        $this->getEntityService()->commit();
+        $event->setSuccess(true);
+        $event->addSuccessMessage('Product Created !');
     }
 }
