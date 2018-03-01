@@ -70,10 +70,11 @@ class ProductController extends Controller
 
         $form->add('type', ChoiceType::class, [
             'mapped'    => false,
-            'choices'   => $this->get('cart.entity')->getProductTypes(),
+            'choices'   => array_flip($this->get('cart.entity')->getProductTypes()),
             'required'  => 1,
             'label'     => 'Product Type',
             'multiple'  => 0,
+            'choices_as_values' => true,
         ]);
 
         $varSetChoices = [];
@@ -88,10 +89,11 @@ class ProductController extends Controller
 
         $form->add('var_set_id', ChoiceType::class, [
             'mapped'    => false,
-            'choices'   => $varSetChoices,
+            'choices'   => array_flip($varSetChoices),
             'required'  => 1,
             'label'     => 'Field Set',
             'multiple'  => 0,
+            'choices_as_values' => true,
         ]);
 
         $returnData = [
