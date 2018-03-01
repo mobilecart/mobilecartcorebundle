@@ -2179,7 +2179,7 @@
             <call method="setEntityService">
                 <argument type="service" id="cart.entity" />
             </call>
-            <call method="getCurrencyService">
+            <call method="setCurrencyService">
                 <argument type="service" id="cart.currency" />
             </call>
             <call method="setSecurityPasswordEncoder">
