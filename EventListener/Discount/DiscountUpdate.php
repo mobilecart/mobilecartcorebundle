@@ -39,12 +39,19 @@ class DiscountUpdate
      */
     public function onDiscountUpdate(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\Discount $entity */
         $entity = $event->getEntity();
         if ($entity->getAppliedTo() != Discount::APPLIED_TO_SPECIFIED) {
             $entity->setPreConditions('{}');
             $entity->setTargetConditions('{}');
         }
-        $this->getEntityService()->persist($entity);
-        $event->addSuccessMessage('Discount Updated!');
+
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Discount Updated !');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving Discount');
+        }
     }
 }

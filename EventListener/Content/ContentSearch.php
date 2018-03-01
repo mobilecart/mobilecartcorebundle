@@ -60,6 +60,10 @@ class ContentSearch
             ->parseRequest($event->getRequest())
             ->addFilters($filters);
 
+        if ($event->getSection() == CoreEvent::SECTION_FRONTEND) {
+            $search->setDefaultSort('sort_order', 'asc');
+        }
+
         $event->setReturnData('search', $search);
         $result = $search->search();
         $event->setReturnData('result', $result);

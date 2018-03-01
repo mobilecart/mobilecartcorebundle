@@ -38,8 +38,15 @@ class ItemVarSetVarInsert
      */
     public function onItemVarSetVarInsert(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\ItemVarSetVar $entity */
         $entity = $event->getEntity();
-        $this->getEntityService()->persist($entity);
-        $event->addSuccessMessage('Field Mapping Created!');
+
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Field Mapping Created !');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving Field Mapping');
+        }
     }
 }

@@ -38,8 +38,15 @@ class ItemVarSetInsert
      */
     public function onItemVarSetInsert(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\ItemVarSet $entity */
         $entity = $event->getEntity();
-        $this->getEntityService()->persist($entity);
-        $event->addSuccessMessage('Custom Field Set Created!');
+
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Custom Field Set Created !');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving Custom Field Set');
+        }
     }
 }

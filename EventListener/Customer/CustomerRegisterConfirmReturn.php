@@ -65,15 +65,14 @@ class CustomerRegisterConfirmReturn
         $event->setReturnData('template_sections', []);
 
         $tpl = 'Customer:register_confirm_error.html.twig';
-        if ($event->getReturnData('success')) {
+        if ($event->getSuccess()) {
             $tpl = 'Customer:register_confirm_success.html.twig';
             $event->addReturnData($entity->getData());
         }
 
         $event->flashMessages();
 
-        $event->setResponse($this->getThemeService()->render(
-            'frontend',
+        $event->setResponse($this->getThemeService()->renderFrontend(
             $tpl,
             $event->getReturnData()
         ));

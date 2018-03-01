@@ -92,7 +92,7 @@ class CustomerUpdatePasswordPostReturn
         if ($event->isJsonResponse()) {
             // security risk . be careful what we return here
             $event->setResponse(new JsonResponse([
-                'success' => true,
+                'success' => $event->getSuccess(),
                 'redirect_url' => $url,
                 'messages' => $event->getMessages(),
             ]));

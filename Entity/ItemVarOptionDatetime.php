@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class ItemVarOptionDatetime
     extends AbstractCartEntity
-    implements CartEntityInterface, CartEntityVarOptionInterface
+    implements CartEntityInterface, CartEntityVarOptionInterface, ItemVarOptionInterface
 {
     /**
      * @var integer $id

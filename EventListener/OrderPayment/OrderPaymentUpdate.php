@@ -12,32 +12,9 @@ use MobileCart\CoreBundle\CartComponent\Payment;
 class OrderPaymentUpdate
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
-     */
-    protected $entityService;
-
-    /**
      * @var \MobileCart\CoreBundle\Service\CartService
      */
     protected $cartService;
-
-    /**
-     * @param \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
-     * @return $this
-     */
-    public function setEntityService(\MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface $entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
-     */
-    public function getEntityService()
-    {
-        return $this->entityService;
-    }
 
     /**
      * @param $cartService
@@ -58,62 +35,47 @@ class OrderPaymentUpdate
     }
 
     /**
+     * @return \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
+     */
+    public function getEntityService()
+    {
+        return $this->getCartService()->getEntityService();
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CurrencyServiceInterface
+     */
+    public function getCurrencyService()
+    {
+        return $this->getCartService()->getCartTotalService()->getCurrencyService();
+    }
+
+    /**
      * @param CoreEvent $event
      */
     public function onOrderPaymentUpdate(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\OrderPayment $entity */
         $entity = $event->getEntity();
         $order = $entity->getOrder();
-        $baseCurrency = $this->getCartService()->getCartTotalService()->getCurrencyService()->getBaseCurrency();
-        if ($order->getCurrency() == $baseCurrency) {
-            $entity->setPrice($entity->getBasePrice());
-        } else {
-            // todo : currency
-        }
 
-        $this->getEntityService()->persist($entity);
-        $event->addSuccessMessage('Payment Updated!');
+        $baseCurrency = $this->getCurrencyService()->getBaseCurrency();
+        $currency = $order->getCurrency();
+        $entity->setBaseCurrency($baseCurrency);
+        $entity->setCurrency($currency);
 
-        $formData = $event->getFormData();
-        if (isset($formData['adjust_totals']) && $formData['adjust_totals']) {
+        $amount = $baseCurrency == $currency
+            ? $entity->getBaseAmount()
+            : $this->getCurrencyService()->convert($entity->getBaseAmount(), $currency);
 
-            // populate cart with json
-            $this->getCartService()->initCartJson($order->getJson());
+        $entity->setAmount($amount);
 
-            $payments = $order->getPayments();
-            $this->getCartService()->removePayments();
-
-            foreach($payments as $aEntity) {
-                // create cart payment from entity
-                $payment = new Payment();
-                $payment->fromArray($aEntity->getData());
-                $this->getCartService()->addPayment($payment);
-            }
-
-            $this->getCartService()->collectTotals();
-
-            $baseGrandTotal = $this->getCartService()
-                ->getTotal(\MobileCart\CoreBundle\EventListener\Cart\GrandTotal::KEY)
-                ->getValue();
-
-            $baseShippingTotal = $this->getCartService()
-                ->getTotal(\MobileCart\CoreBundle\EventListener\Cart\PaymentTotal::KEY)
-                ->getValue();
-
-            $order->setBaseTotal($baseGrandTotal)
-                ->setBaseShippingTotal($baseShippingTotal);
-
-            if ($order->getCurrency() == $baseCurrency) {
-
-                $order->setShippingTotal($baseShippingTotal)
-                    ->setTotal($baseGrandTotal);
-
-            } else {
-                // todo : currency
-            }
-
-            $order->setJson($this->getCartService()->getCart()->toJson());
-            $this->getEntityService()->persist($order);
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Payment Updated !');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving Order Payment');
         }
     }
 }

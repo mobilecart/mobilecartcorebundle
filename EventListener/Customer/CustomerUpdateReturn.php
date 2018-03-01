@@ -40,12 +40,17 @@ class CustomerUpdateReturn
      */
     public function onCustomerUpdateReturn(CoreEvent $event)
     {
-        $url = $this->getRouter()->generate('cart_admin_customer_edit', ['id' => $event->getEntity()->getId()]);
+        $url = $this->getRouter()->generate('cart_admin_customer_edit', [
+            'id' => $event->getEntity()->getId()
+        ]);
+
         $event->flashMessages();
 
         if ($event->isJsonResponse()) {
+
             $event->setResponse(new JsonResponse([
                 'success' => true,
+                'entity' => $event->getEntity()->getData(),
                 'redirect_url' => $url,
                 'messages' => $event->getMessages(),
             ]));

@@ -38,18 +38,14 @@ class ShippingMethodInsert
      */
     public function onShippingMethodInsert(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
+        /** @var \MobileCart\CoreBundle\Entity\ShippingMethod $entity */
         $entity = $event->getEntity();
-        $this->getEntityService()->persist($entity);
-
-        if ($entity && $event->getRequest()->getSession()) {
-
-            $event->getRequest()->getSession()->getFlashBag()->add(
-                'success',
-                'Shipping Method Created!'
-            );
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Shipping Method Created !');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving Shipping Method');
         }
-
-        $event->setReturnData($returnData);
     }
 }

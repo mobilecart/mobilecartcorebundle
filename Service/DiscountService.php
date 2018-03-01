@@ -14,8 +14,6 @@ namespace MobileCart\CoreBundle\Service;
 use MobileCart\CoreBundle\CartComponent\Cart;
 use MobileCart\CoreBundle\CartComponent\Discount;
 use MobileCart\CoreBundle\CartComponent\RuleConditionCompare;
-use MobileCart\CoreBundle\Event\CoreEvents;
-use MobileCart\CoreBundle\Event\CoreEvent;
 use MobileCart\CoreBundle\Constants\EntityConstants;
 
 class DiscountService
@@ -31,7 +29,7 @@ class DiscountService
     protected $isDiscountEnabled = false;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @var \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      */
     protected $entityService;
 
@@ -72,17 +70,17 @@ class DiscountService
     }
 
     /**
-     * @param \MobileCart\CoreBundle\Service\AbstractEntityService $entityService
+     * @param \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface $entityService
      * @return $this
      */
-    public function setEntityService($entityService)
+    public function setEntityService(\MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface $entityService)
     {
         $this->entityService = $entityService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\AbstractEntityService
+     * @return \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      */
     public function getEntityService()
     {
@@ -140,23 +138,21 @@ class DiscountService
 
     /**
      * @param $id
-     * @return mixed
+     * @return \MobileCart\CoreBundle\Entity\Discount
      */
     public function find($id)
     {
-        return $this->getEntityService()
-            ->find(EntityConstants::DISCOUNT, $id);
+        return $this->getEntityService()->find(EntityConstants::DISCOUNT, $id);
     }
 
     /**
      * @param $code
-     * @return mixed
+     * @return \MobileCart\CoreBundle\Entity\Discount
      */
     public function findByCouponCode($code)
     {
-        return $this->getEntityService()
-            ->findBy(EntityConstants::DISCOUNT, [
-                'coupon_code' => $code,
-            ]);
+        return $this->getEntityService()->findBy(EntityConstants::DISCOUNT, [
+            'coupon_code' => $code,
+        ]);
     }
 }

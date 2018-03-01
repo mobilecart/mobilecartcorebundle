@@ -81,30 +81,42 @@ class ContentList
             [
                 'key' => 'id',
                 'label' => 'ID',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'name',
                 'label' => 'Name',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'slug',
                 'label' => 'URL Slug',
-                'sort' => 1,
+                'sort' => true,
             ],
         ];
 
-        $event->setReturnData('mass_actions', $massActions);
-        $event->setReturnData('columns', $columns);
+        if ($event->isJsonResponse()) {
+            $event->setResponse(new JsonResponse($event->getReturnData()));
+        } else {
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
-                $event->setResponse(new JsonResponse($event->getReturnData()));
-                break;
-            default:
-                $event->setResponse($this->getThemeService()->render('admin', 'Content:index.html.twig', $event->getReturnData()));
-                break;
+            if ($event->getSection() == CoreEvent::SECTION_BACKEND) {
+
+                $event->setReturnData('mass_actions', $massActions);
+                $event->setReturnData('columns', $columns);
+
+                $event->setResponse($this->getThemeService()->renderAdmin(
+                    'Content:index.html.twig',
+                    $event->getReturnData()
+                ));
+
+            } else {
+
+                $event->setResponse($this->getThemeService()->renderFrontend(
+                    'Content:index.html.twig',
+                    $event->getReturnData()
+                ));
+
+            }
         }
     }
 }

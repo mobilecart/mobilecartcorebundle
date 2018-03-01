@@ -57,7 +57,7 @@ class CartTotalService
     protected $eventDispatcher;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\CurrencyService
+     * @var \MobileCart\CoreBundle\Service\CurrencyServiceInterface
      */
     protected $currencyService;
 
@@ -134,7 +134,7 @@ class CartTotalService
     }
 
     /**
-     * @param \MobileCart\CoreBundle\Service\CurrencyService $currencyService
+     * @param \MobileCart\CoreBundle\Service\CurrencyServiceInterface $currencyService
      * @return $this
      */
     public function setCurrencyService($currencyService)
@@ -144,7 +144,7 @@ class CartTotalService
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CurrencyService
+     * @return \MobileCart\CoreBundle\Service\CurrencyServiceInterface
      */
     public function getCurrencyService()
     {

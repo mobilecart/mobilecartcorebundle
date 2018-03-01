@@ -47,7 +47,7 @@ class CustomerForgotPassword
             $this->getEntityService()->persist($entity);
             $event->setSuccess(true);
         } catch(\Exception $e) {
-            $event->addErrorMessage('An error occurred while updating account');
+            $event->addErrorMessage('An error occurred while updating the Customer');
         }
     }
 }

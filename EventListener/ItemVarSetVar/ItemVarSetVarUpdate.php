@@ -38,8 +38,15 @@ class ItemVarSetVarUpdate
      */
     public function onItemVarSetVarUpdate(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\ItemVarSetVar $entity */
         $entity = $event->getEntity();
-        $this->getEntityService()->persist($entity);
-        $event->addSuccessMessage('Custom Field Mapping Updated!');
+
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Field Mapping Updated !');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving Field Mapping');
+        }
     }
 }

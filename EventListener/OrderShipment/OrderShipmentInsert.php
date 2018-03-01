@@ -12,32 +12,9 @@ use MobileCart\CoreBundle\CartComponent\Shipment;
 class OrderShipmentInsert
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
-     */
-    protected $entityService;
-
-    /**
      * @var \MobileCart\CoreBundle\Service\CartService
      */
     protected $cartService;
-
-    /**
-     * @param \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
-     * @return $this
-     */
-    public function setEntityService(\MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface $entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
-     */
-    public function getEntityService()
-    {
-        return $this->entityService;
-    }
 
     /**
      * @param $cartService
@@ -58,28 +35,50 @@ class OrderShipmentInsert
     }
 
     /**
+     * @return \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
+     */
+    public function getEntityService()
+    {
+        return $this->getCartService()->getEntityService();
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CurrencyServiceInterface
+     */
+    public function getCurrencyService()
+    {
+        return $this->getCartService()->getCartTotalService()->getCurrencyService();
+    }
+
+    /**
      * @param CoreEvent $event
      */
     public function onOrderShipmentInsert(CoreEvent $event)
     {
         /** @var \MobileCart\CoreBundle\Entity\OrderShipment $entity */
         $entity = $event->getEntity();
-
         $order = $entity->getOrder();
-        $baseCurrency = $this->getCartService()->getCartTotalService()->getCurrencyService()->getBaseCurrency();
+
+        $currency = $order->getCurrency();
+        $baseCurrency = $this->getCurrencyService()->getBaseCurrency();
+
         $entity->setBaseCurrency($baseCurrency);
+        $entity->setCurrency($order->getCurrency());
 
-        if ($order->getCurrency() == $baseCurrency) {
+        $price = $currency == $baseCurrency
+            ? $entity->getBasePrice()
+            : $this->getCurrencyService()->convert($entity->getBasePrice(), $currency);
 
-            $entity->setPrice($entity->getBasePrice())
-                ->setCurrency($baseCurrency);
+        $entity->setPrice($price);
 
-        } else {
-            // todo : currency
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Shipment Created !');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving Shipment');
+            return;
         }
-
-        $this->getEntityService()->persist($entity);
-        $event->addSuccessMessage('Shipment Created!');
 
         $formData = $event->getFormData();
         if (isset($formData['adjust_totals']) && $formData['adjust_totals']) {
@@ -110,17 +109,27 @@ class OrderShipmentInsert
             $order->setBaseTotal($baseGrandTotal)
                 ->setBaseShippingTotal($baseShippingTotal);
 
-            if ($order->getCurrency() == $baseCurrency) {
+            if ($currency == $baseCurrency) {
 
                 $order->setShippingTotal($baseShippingTotal)
                     ->setTotal($baseGrandTotal);
 
             } else {
-                // todo : currency
+
+                $order->setShippingTotal($this->getCurrencyService()->convert($baseShippingTotal, $currency))
+                    ->setTotal($this->getCurrencyService()->convert($baseGrandTotal, $currency));
             }
 
             $order->setJson($this->getCartService()->getCart()->toJson());
-            $this->getEntityService()->persist($order);
+
+            try {
+                $this->getEntityService()->persist($order);
+                $event->setSuccess(true);
+                $event->addSuccessMessage('Order Updated !');
+            } catch(\Exception $e) {
+                $event->setSuccess(false);
+                $event->addErrorMessage('An error occurred while saving Order');
+            }
         }
     }
 }

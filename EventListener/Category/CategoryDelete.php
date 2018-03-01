@@ -39,6 +39,7 @@ class CategoryDelete
      */
     public function onCategoryDelete(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\Category $entity */
         $entity = $event->getEntity();
 
         // remove category_product
@@ -54,17 +55,8 @@ class CategoryDelete
 
         $this->getEntityService()->remove($entity, EntityConstants::CATEGORY);
 
-        $event->addSuccessMessage('Category Deleted!');
+        $event->addSuccessMessage('Category Deleted !');
 
-        if ($event->hasFlashMessages()) {
-            foreach($event->getMessages() as $code => $messages) {
-                if (!$messages) {
-                    continue;
-                }
-                foreach($messages as $message) {
-                    $event->getRequest()->getSession()->getFlashBag()->add($code, $message);
-                }
-            }
-        }
+        $event->flashMessages();
     }
 }

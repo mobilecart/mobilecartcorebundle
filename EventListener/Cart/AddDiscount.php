@@ -44,6 +44,14 @@ class AddDiscount
     }
 
     /**
+     * @return \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
+     */
+    public function getEntityService()
+    {
+        return $this->getCartService()->getEntityService();
+    }
+
+    /**
      * @param \Symfony\Component\Routing\RouterInterface $router
      * @return $this
      */
@@ -101,68 +109,12 @@ class AddDiscount
             : null;
 
         if ($discountEntity) {
-
-            $discount = new CartDiscount();
-            $discount->fromArray($discountEntity->getData());
-
-            $isValid = $discount->reapplyIfValid($cart);
-            if ($isValid && $discount->hasPromoSkus()) {
-                foreach($discount->getPromoSkus() as $sku) {
-
-                    if ($this->getCartService()->hasSku($sku)) {
-                        continue;
-                    }
-
-                    $product = $this->getEntityService()
-                        ->findOneBy(EntityConstants::PRODUCT, [
-                            'sku' => $sku,
-                        ]);
-
-                    if ($product) {
-
-                        $item = $this->getCartService()->convertProductToItem($product);
-
-                        $item->setPromoQty(1)
-                            ->setPrice(0.00)
-                            ->setBasePrice(0.00);
-
-                        $this->getCartService()->addItem($item);
-                        $event->set('product_id', $product->getId());
-
-                    } else {
-
-                        switch($discount->getAppliedTo()) {
-                            case CartDiscount::APPLIED_TO_ITEMS:
-                                if (
-                                    !$this->getCartService()->hasItems()
-                                    && !$discount->hasPromoSkus()
-                                ) {
-                                    $this->getCartService()->removeDiscount($discount);
-                                }
-                                break;
-                            case CartDiscount::APPLIED_TO_SHIPMENTS:
-                                if (!$this->getCartService()->hasShipments()) {
-                                    $this->getCartService()->removeDiscount($discount);
-                                }
-                                break;
-                            case CartDiscount::APPLIED_TO_SPECIFIED:
-                                if (!$this->getCartService()->hasItems() && !$this->getCartService()->hasShipments()) {
-                                    $this->getCartService()->removeDiscount($discount);
-                                }
-                                break;
-                            default:
-
-                                break;
-                        }
-
-                    }
-                }
-            }
+            $isValid = $this->getCartService()->reapplyDiscountEntityIfValid($discountEntity);
         }
 
         $event->setSuccess($isValid);
         if ($isValid) {
-            $event->addSuccessMessage('Discount Successfully Added!');
+            $event->addSuccessMessage('Discount Successfully Added !');
         }
     }
 }

@@ -96,10 +96,12 @@ class CustomerOrdersReturn
         $event->setReturnData('template_sections', []);
 
         if ($event->isJsonResponse()) {
+
             $event->setResponse(new JsonResponse($event->getReturnData()));
+
         } else {
-            $event->setResponse($this->getThemeService()->render(
-                'frontend',
+
+            $event->setResponse($this->getThemeService()->renderFrontend(
                 'Customer:orders.html.twig',
                 $event->getReturnData()
             ));

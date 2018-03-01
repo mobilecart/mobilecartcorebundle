@@ -345,7 +345,7 @@ class OrderService
     }
 
     /**
-     * @return AbstractEntityService
+     * @return RelationalDbEntityServiceInterface
      */
     public function getEntityService()
     {
@@ -943,7 +943,7 @@ class OrderService
                 'billing_company' => $customer->getBillingCompany(),
                 'billing_street' => $customer->getBillingStreet(),
                 'billing_city' => $customer->getBillingCity(),
-                'billing_region' => $customer->getBillingProvince(),
+                'billing_region' => $customer->getBillingRegion(),
                 'billing_postcode' => $customer->getBillingPostcode(),
                 'billing_country_id' => $customer->getBillingCountryId(),
                 'billing_phone' => $customer->getBillingPhone(),
@@ -1177,8 +1177,10 @@ class OrderService
             $order = $this->getEntityService()->getInstance(EntityConstants::ORDER);
             $order->setEmail($cartCustomer->getEmail())
                 ->setBillingName($cartCustomer->getBillingName())
+                ->setBillingCompany($cartCustomer->getBillingCompany())
                 ->setBillingPhone($cartCustomer->getBillingPhone())
                 ->setBillingStreet($cartCustomer->getBillingStreet())
+                ->setBillingStreet2($cartCustomer->getBillingStreet2())
                 ->setBillingCity($cartCustomer->getBillingCity())
                 ->setBillingRegion($cartCustomer->getBillingRegion())
                 ->setBillingPostcode($cartCustomer->getBillingPostcode())
@@ -1203,14 +1205,21 @@ class OrderService
         $order->setJson($cart->toJson());
 
         // Totals
-        $baseDiscountTotal = $cart->getTotal(DiscountTotal::KEY)->getValue();
-        $baseGrandTotal = $cart->getTotal(GrandTotal::KEY)->getValue();
         $baseItemTotal = $cart->getTotal(ItemTotal::KEY)->getValue();
+
+        $baseGrandTotal = $cart->getTotal(GrandTotal::KEY)->getValue();
+
+        $baseDiscountTotal = $cart->getTotal(DiscountTotal::KEY)
+            ? $cart->getTotal(DiscountTotal::KEY)->getValue()
+            : '0.00';
+
         $baseShipmentTotal = $cart->getTotal(ShipmentTotal::KEY)
             ? $cart->getTotal(ShipmentTotal::KEY)->getValue()
             : '0.00';
 
-        $baseTaxTotal = $cart->getTotal(TaxTotal::KEY)->getValue();
+        $baseTaxTotal = $cart->getTotal(TaxTotal::KEY)
+            ? $cart->getTotal(TaxTotal::KEY)->getValue()
+            : '0.00';
 
         // set base currency values
         $order->setBaseCurrency($baseCurrency)
@@ -1229,6 +1238,7 @@ class OrderService
                 ->setTaxTotal($baseTaxTotal)
                 ->setShippingTotal($baseShipmentTotal)
                 ->setDiscountTotal($baseDiscountTotal);
+
         } else {
 
             $currencyService = $this->getCurrencyService();

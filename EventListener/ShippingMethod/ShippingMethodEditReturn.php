@@ -61,18 +61,13 @@ class ShippingMethodEditReturn
      */
     public function onShippingMethodEditReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $entity = $event->getEntity();
-        $returnData['template_sections'] = [];
+        $event->setReturnData('template_sections', []);
+        $event->setReturnData('form', $event->getForm()->createView());
+        $event->setReturnData('entity', $event->getEntity());
 
-        $form = $returnData['form'];
-        $returnData['form'] = $form->createView();
-        $returnData['entity'] = $entity;
-
-        $response = $this->getThemeService()
-            ->render('admin', 'ShippingMethod:edit.html.twig', $returnData);
-
-        $event->setResponse($response)
-            ->setReturnData($returnData);
+        $event->setResponse($this->getThemeService()->renderAdmin(
+            'ShippingMethod:edit.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

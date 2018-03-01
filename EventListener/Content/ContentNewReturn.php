@@ -92,8 +92,8 @@ class ContentNewReturn
         $tplSections['slots'] = [
             'section_id' => 'slots',
             'label' => 'Sections',
-            'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Content:slots.html.twig',
-            'js_template'  => $this->getThemeService()->getTemplatePath('admin') . 'Content:slots_js.html.twig',
+            'template'     => $this->getThemeService()->getAdminTemplatePath() . 'Content:slots.html.twig',
+            'js_template'  => $this->getThemeService()->getAdminTemplatePath() . 'Content:slots_js.html.twig',
             'slots' => [],
             'upload_query' => '',
         ];
@@ -101,8 +101,8 @@ class ContentNewReturn
         $tplSections['images'] = [
             'section_id'   => 'images',
             'label'        => 'Images',
-            'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Image:uploader.html.twig',
-            'js_template'  => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Image:uploader_js.html.twig',
+            'template'     => $this->getThemeService()->getAdminTemplatePath() . 'Widgets/Image:uploader.html.twig',
+            'js_template'  => $this->getThemeService()->getAdminTemplatePath() . 'Widgets/Image:uploader_js.html.twig',
             'images'       => [],
             'image_sizes'  => $this->getImageService()->getImageConfigs($objectType),
             'upload_query' => "?object_type={$objectType}",
@@ -112,6 +112,9 @@ class ContentNewReturn
         $event->setReturnData('form', $event->getForm()->createView());
         $event->setReturnData('template_sections', $tplSections);
 
-        $event->setResponse($this->getThemeService()->render('admin', 'Content:new.html.twig', $event->getReturnData()));
+        $event->setResponse($this->getThemeService()->renderAdmin(
+            'Content:new.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

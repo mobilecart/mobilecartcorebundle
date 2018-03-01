@@ -57,7 +57,7 @@ class CustomerAddressInsert
             $event->setSuccess(true);
             $event->addSuccessMessage('Customer Address Created !');
         } catch(\Exception $e) {
-            $event->addErrorMessage('Exception occurred while saving customer address');
+            $event->addErrorMessage('An error occurred while saving Customer Address');
         }
 
         if ($event->getSuccess()) {

@@ -63,10 +63,10 @@ class CustomerRegisterReturn
     {
         $event->setReturnData('template_sections', []);
         $event->setReturnData('form', $event->getForm()->createView());
+
         $event->flashMessages();
 
-        $event->setResponse($this->getThemeService()->render(
-            'frontend',
+        $event->setResponse($this->getThemeService()->renderFrontend(
             'Customer:register.html.twig',
             $event->getReturnData()
         ));

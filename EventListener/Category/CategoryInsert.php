@@ -40,24 +40,47 @@ class CategoryInsert
     public function onCategoryInsert(CoreEvent $event)
     {
         $request = $event->getRequest();
+
+        /** @var \MobileCart\CoreBundle\Entity\Category $entity */
         $entity = $event->getEntity();
         $entity->setSlug($this->getEntityService()->slugify($entity->getSlug()));
-        $this->getEntityService()->persist($entity);
 
-        if ($event->getFormData()) {
+        $this->getEntityService()->beginTransaction();
 
-            $this->getEntityService()
-                ->persistVariants($entity, $event->getFormData());
+        try {
+            $this->getEntityService()->persist($entity);
+        } catch(\Exception $e) {
+            $this->getEntityService()->rollBack();
+            $this->setSuccess(false);
+            $event->addErrorMessage('An error occurred while saving the Category');
+            return;
         }
 
-        $event->addSuccessMessage('Category Created!');
+        if ($event->getFormData()) {
+            try {
+                $this->getEntityService()->persistVariants($entity, $event->getFormData());
+            } catch(\Exception $e) {
+                $this->getEntityService()->rollBack();
+                $this->setSuccess(false);
+                $event->addErrorMessage('An error occurred while saving the Category');
+                return;
+            }
+        }
 
         // update images
         if ($imageJson = $request->get('images_json', [])) {
             $images = (array) @ json_decode($imageJson);
             if ($images) {
-                $this->getEntityService()->updateImages(EntityConstants::CATEGORY_IMAGE, $entity, $images);
+                try {
+                    $this->getEntityService()->updateImages(EntityConstants::CATEGORY_IMAGE, $entity, $images);
+                } catch(\Exception $e) {
+                    $event->addErrorMessage('An error occurred while saving a Category Image');
+                }
             }
         }
+
+        $this->getEntityService()->commit();
+        $event->setSuccess(true);
+        $event->addSuccessMessage('Category Created !');
     }
 }

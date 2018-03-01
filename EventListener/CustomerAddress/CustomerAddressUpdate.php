@@ -57,7 +57,7 @@ class CustomerAddressUpdate
             $event->setSuccess(true);
             $event->addSuccessMessage('Customer Address Updated !');
         } catch(\Exception $e) {
-            $event->addErrorMessage('Exception occurred while saving Customer Address');
+            $event->addErrorMessage('An error occurred while saving Customer Address');
         }
 
         if ($event->getSuccess()) {

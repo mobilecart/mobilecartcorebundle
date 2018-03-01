@@ -92,32 +92,41 @@ class CustomerOrderReturn
             'customer' => $event->getCustomer()->getId()
         ]);
 
+        $event->flashMessages();
+
         if ($order) {
+
+            $event->setSuccess(true);
+
             if ($event->isJsonResponse()) {
+
                 $event->setResponse(new JsonResponse([
-                    'success' => true,
+                    'success' => $event->getSuccess(),
                     'entity' => $order->getData(),
+                    'messages' => $event->getMessages(),
                 ]));
+
             } else {
 
                 $event->setReturnData('template_sections', []);
                 $event->setReturnData('order', $order);
 
-                $event->setResponse($this->getThemeService()->render(
-                    'frontend',
+                $event->setResponse($this->getThemeService()->renderFrontend(
                     'Customer:order.html.twig',
                     $event->getReturnData()
                 ));
             }
         } else {
+
             // redirect to order listing
             $event->addErrorMessage('Order not found');
-            $event->flashMessages();
+
             $url = $this->getRouter()->generate('customer_orders', []);
 
             if ($event->isJsonResponse()) {
+
                 $event->setResponse(new JsonResponse([
-                    'success' => false,
+                    'success' => $event->getSuccess(),
                     'redirect_url' => $url,
                     'messages' => $event->getMessages(),
                 ]));

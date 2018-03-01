@@ -34,14 +34,6 @@ class OrderUpdateItems
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CartTotalService
-     */
-    public function getCartTotalService()
-    {
-        return $this->getCartService()->getCartTotalService();
-    }
-
-    /**
      * @return \MobileCart\CoreBundle\Service\DiscountService
      */
     public function getDiscountService()
@@ -66,15 +58,10 @@ class OrderUpdateItems
             }
         }
 
-        $totals = $this->getCartService()
-            ->collectTotals()
-            ->getTotals();
-
         $cart = $this->getCartService()
             ->initCartJson($cartJson)
+            ->collectTotals()
             ->getCart();
-
-        $cart->setTotals($totals);
 
         // todo: implement getCartDiscounts()
 

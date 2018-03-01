@@ -84,8 +84,14 @@ class OrderPaymentNewReturn
      */
     public function onOrderPaymentNewReturn(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\OrderPayment $entity */
         $entity = $event->getEntity();
         $event->setReturnData('entity', $entity);
+
+        if ($entity->getOrder()) {
+            $event->getForm()->get('base_amount')->setData($entity->getOrder()->getBaseTotal());
+        }
+
         $event->setReturnData('form', $event->getForm()->createView());
         $event->setReturnData('template_sections', []);
 
@@ -103,8 +109,7 @@ class OrderPaymentNewReturn
         $sections['general']['custom_sections'] = $customSections;
         $event->setReturnData('form_sections', $sections); //*/
 
-        $event->setResponse($this->getThemeService()->render(
-            'admin',
+        $event->setResponse($this->getThemeService()->renderAdmin(
             'OrderPayment:new.html.twig',
             $event->getReturnData()
         ));

@@ -102,10 +102,17 @@ class ConfigSettingList
 
         switch($event->getRequestAccept()) {
             case CoreEvent::JSON:
+
                 $event->setResponse(new JsonResponse($event->getReturnData()));
+
                 break;
             default:
-                $event->setResponse($this->getThemeService()->render('admin', 'ConfigSetting:index.html.twig', $event->getReturnData()));
+
+                $event->setResponse($this->getThemeService()->renderAdmin(
+                    'ConfigSetting:index.html.twig',
+                    $event->getReturnData()
+                ));
+
                 break;
         }
     }

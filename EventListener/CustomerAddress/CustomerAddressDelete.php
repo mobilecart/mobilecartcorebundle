@@ -80,7 +80,7 @@ class CustomerAddressDelete
         try {
             $this->getEntityService()->remove($entity);
             $success = true;
-            $event->addSuccessMessage('Customer Address Deleted!');
+            $event->addSuccessMessage('Customer Address Deleted !');
         } catch(\Exception $e) {
             $event->addErrorMessage('Exception occurred during delete');
         }

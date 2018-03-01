@@ -39,8 +39,7 @@ class CustomerForgotPasswordSuccess
      */
     public function onCustomerForgotPasswordSuccess(CoreEvent $event)
     {
-        $event->setResponse($this->getThemeService()->render(
-            'frontend',
+        $event->setResponse($this->getThemeService()->renderFrontend(
             'Customer:forgot_password_success.html.twig',
             $event->getReturnData()
         ));

@@ -41,6 +41,6 @@ class DiscountDelete
     {
         $entity = $event->getEntity();
         $this->getEntityService()->remove($entity, EntityConstants::DISCOUNT);
-        $event->addSuccessMessage('Discount Deleted!');
+        $event->addSuccessMessage('Discount Deleted !');
     }
 }

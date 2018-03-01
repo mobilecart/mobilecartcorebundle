@@ -41,6 +41,6 @@ class ContentDelete
     {
         $entity = $event->getEntity();
         $this->getEntityService()->remove($entity, EntityConstants::CONTENT);
-        $event->addSuccessMessage('Content Deleted!');
+        $event->addSuccessMessage('Content Deleted !');
     }
 }

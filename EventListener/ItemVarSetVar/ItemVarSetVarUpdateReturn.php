@@ -40,23 +40,27 @@ class ItemVarSetVarUpdateReturn
      */
     public function onItemVarSetVarUpdateReturn(CoreEvent $event)
     {
-        $entity = $event->getEntity();
-        $url = $this->getRouter()->generate('cart_admin_item_var_set_var_edit', ['id' => $entity->getId()]);
+        $url = $this->getRouter()->generate('cart_admin_item_var_set_var_edit', [
+            'id' => $event->getEntity()->getId()
+        ]);
 
-        if ($event->hasFlashMessages()) {
-            $event->flashMessages();
-        }
+        $event->flashMessages();
 
         switch($event->getRequestAccept()) {
             case CoreEvent::JSON:
+
                 $event->setResponse(new JsonResponse([
-                    'success' => true,
-                    'entity' => $entity->getData(),
+                    'success' => $event->getSuccess(),
+                    'entity' => $event->getEntity()->getData(),
                     'redirect_url' => $url,
+                    'messages' => $event->getMessages(),
                 ]));
+
                 break;
             default:
+
                 $event->setResponse(new RedirectResponse($url));
+
                 break;
         }
     }

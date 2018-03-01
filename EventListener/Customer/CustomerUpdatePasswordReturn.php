@@ -64,8 +64,7 @@ class CustomerUpdatePasswordReturn
     {
         $event->flashMessages();
         $event->setReturnData('form', $event->getForm()->createView());
-        $event->setResponse($this->getThemeService()->render(
-            'frontend',
+        $event->setResponse($this->getThemeService()->renderFrontend(
             'Customer:update_password.html.twig',
             $event->getReturnData()
         ));

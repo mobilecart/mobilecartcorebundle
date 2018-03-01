@@ -66,8 +66,7 @@ class OrderShipmentEditReturn
         $event->setReturnData('form', $event->getForm()->createView());
         $event->setReturnData('template_sections', []);
 
-        $event->setResponse($this->getThemeService()->render(
-            'admin',
+        $event->setResponse($this->getThemeService()->renderAdmin(
             'OrderShipment:edit.html.twig',
             $event->getReturnData()
         ));

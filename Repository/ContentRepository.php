@@ -50,6 +50,33 @@ class ContentRepository
     /**
      * @return array
      */
+    public function getAdvSortableFields()
+    {
+        return [
+            'sort_order' => [
+                CartRepositoryInterface::LABEL => 'Sort Order',
+                'active' => 0,
+                'value' => 'sort_order',
+                'dir' => 'asc',
+            ],
+            'name_az' => [
+                CartRepositoryInterface::LABEL => 'Name (A-Z)',
+                'active' => 0,
+                'value' => 'name',
+                'dir' => 'asc',
+            ],
+            'name_za' => [
+                CartRepositoryInterface::LABEL => 'Name (Z-A)',
+                'active' => 0,
+                'value' => 'name',
+                'dir' => 'desc',
+            ],
+        ];
+    }
+
+    /**
+     * @return array
+     */
     public function getFilterableFields()
     {
         return [

@@ -71,6 +71,22 @@ class ThemeService
     }
 
     /**
+     * @return string
+     */
+    public function getAdminTemplatePath()
+    {
+        return $this->getTemplatePath($this->getThemeConfig()->getAdminTheme());
+    }
+
+    /**
+     * @return string
+     */
+    public function getFrontendTemplatePath()
+    {
+        return $this->getTemplatePath($this->getThemeConfig()->getServerFrontendTheme());
+    }
+
+    /**
      * @param $code
      * @return mixed
      */

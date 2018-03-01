@@ -38,9 +38,16 @@ class ItemVarOptionInsert
      */
     public function onItemVarOptionInsert(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\ItemVarOptionInterface $entity */
         $entity = $event->getEntity();
         $entity->setUrlValue($this->getEntityService()->slugify($entity->getUrlValue()));
-        $this->getEntityService()->persist($entity);
-        $event->addSuccessMessage('Custom Field Option Created!');
+
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Custom Field Option Created!');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving Custom Field Option');
+        }
     }
 }

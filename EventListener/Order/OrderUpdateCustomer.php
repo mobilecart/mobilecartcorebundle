@@ -35,14 +35,6 @@ class OrderUpdateCustomer
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CartTotalService
-     */
-    public function getCartTotalService()
-    {
-        return $this->getCartService()->getCartTotalService();
-    }
-
-    /**
      * @return \MobileCart\CoreBundle\Service\DiscountService
      */
     public function getDiscountService()
@@ -61,22 +53,15 @@ class OrderUpdateCustomer
         $cartJson = $request->get('cart', '{}');
         $customerJson = $request->get('customer', '{}');
 
-        $cart = $this->getCartService()
-            ->initCartJson($cartJson)
-            ->getCart();
-
         // update cart customer
         $customer = new Customer();
         $customer->fromJson($customerJson);
-        $cart->setCustomer($customer);
 
-        $totals = $this->getCartTotalService()
-            ->setCart($cart)
-            //->setApplyAutoDiscounts(1)
+        $cart = $this->getCartService()
+            ->initCartJson($cartJson)
+            ->setCustomer($customer)
             ->collectTotals()
-            ->getTotals();
-
-        $cart->setTotals($totals);
+            ->getCart();
 
         // todo: implement getCartDiscounts()
 

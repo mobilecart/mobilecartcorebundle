@@ -92,8 +92,8 @@ class CategoryNewReturn
         $tplSections['images'] = [
             'section_id'   => 'images',
             'label'        => 'Images',
-            'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Image:uploader.html.twig',
-            'js_template'  => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Image:uploader_js.html.twig',
+            'template'     => $this->getThemeService()->getAdminTemplatePath() . 'Widgets/Image:uploader.html.twig',
+            'js_template'  => $this->getThemeService()->getAdminTemplatePath() . 'Widgets/Image:uploader_js.html.twig',
             'images'       => [],
             'image_sizes'  => $this->getImageService()->getImageConfigs($objectType),
             'upload_query' => "?object_type={$objectType}",
@@ -103,6 +103,9 @@ class CategoryNewReturn
         $event->setReturnData('form', $event->getForm()->createView());
         $event->setReturnData('template_sections', $tplSections);
 
-        $event->setResponse($this->getThemeService()->render('admin', 'Category:new.html.twig', $event->getReturnData()));
+        $event->setResponse($this->getThemeService()->renderAdmin(
+            'Category:new.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

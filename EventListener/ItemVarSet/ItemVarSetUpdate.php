@@ -38,8 +38,15 @@ class ItemVarSetUpdate
      */
     public function onItemVarSetUpdate(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\ItemVarSet $entity */
         $entity = $event->getEntity();
-        $this->getEntityService()->persist($entity);
-        $event->addSuccessMessage('Custom Field Set Updated!');
+
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Custom Field Set Updated !');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving Custom Field Set');
+        }
     }
 }

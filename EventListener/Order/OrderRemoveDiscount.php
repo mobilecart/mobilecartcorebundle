@@ -34,14 +34,6 @@ class OrderRemoveDiscount
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CartTotalService
-     */
-    public function getCartTotalService()
-    {
-        return $this->getCartService()->getCartTotalService();
-    }
-
-    /**
      * @return \MobileCart\CoreBundle\Service\DiscountService
      */
     public function getDiscountService()
@@ -62,17 +54,9 @@ class OrderRemoveDiscount
 
         $cart = $this->getCartService()
             ->initCartJson($cartJson)
-            ->getCart();
-
-        $cart->removeDiscountId($discountId);
-
-        $totals = $this->getCartTotalService()
-            ->setCart($cart)
-            //->setApplyAutoDiscounts(1)
+            ->removeDiscountId($discountId)
             ->collectTotals()
-            ->getTotals();
-
-        $cart->setTotals($totals);
+            ->getCart();
 
         // todo: implement getCartDiscounts()
 

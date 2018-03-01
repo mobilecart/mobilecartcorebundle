@@ -49,20 +49,7 @@ class ConfigSettingController extends Controller
      */
     public function createAction(Request $request)
     {
-        $varSet = null;
-        if ($varSetId = $request->get('var_set_id', '')) {
-            $varSet = $this->get('cart.entity')->getVarSet($varSetId);
-        } else {
-            $varSets = $this->get('cart.entity')->getVarSets($this->objectType);
-            if ($varSets) {
-                $varSet = $varSets[0];
-            }
-        }
-
         $entity = $this->get('cart.entity')->getInstance(EntityConstants::CONFIG_SETTING);
-        if ($varSet) {
-            $entity->setItemVarSet($varSet);
-        }
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
@@ -74,11 +61,7 @@ class ConfigSettingController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONFIG_SETTING_ADMIN_FORM, $event);
 
-        $form = $event->getForm();
         if ($event->isFormValid()) {
-
-            $formData = $request->request->get($form->getName());
-            $event->setFormData($formData);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CONFIG_SETTING_INSERT, $event);
@@ -89,24 +72,8 @@ class ConfigSettingController extends Controller
             return $event->getResponse();
         }
 
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            $invalid = [];
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            return new JsonResponse([
-                'success' => false,
-                'invalid' => $invalid,
-                'messages' => $event->getMessages(),
-            ]);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse();
         }
 
         $this->get('event_dispatcher')
@@ -197,12 +164,7 @@ class ConfigSettingController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONFIG_SETTING_ADMIN_FORM, $event);
 
-        $form = $event->getForm();
         if ($event->isFormValid()) {
-
-            $formData = $request->request->get($form->getName());
-
-            $event->setFormData($formData);
 
             $this->get('event_dispatcher')
                 ->dispatch(CoreEvents::CONFIG_SETTING_UPDATE, $event);
@@ -213,24 +175,8 @@ class ConfigSettingController extends Controller
             return $event->getResponse();
         }
 
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            $invalid = [];
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            return new JsonResponse([
-                'success' => false,
-                'invalid' => $invalid,
-                'messages' => $event->getMessages(),
-            ]);
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse();
         }
 
         $this->get('event_dispatcher')

@@ -110,11 +110,22 @@ class CustomerAddressList
         if ($event->isJsonResponse()) {
             $event->setResponse(new JsonResponse($event->getReturnData()));
         } else {
-            $event->setResponse($this->getThemeService()->render(
-                'frontend',
-                'CustomerAddress:index.html.twig',
-                $event->getReturnData()
-            ));
+
+            if ($event->getSection() == CoreEvent::SECTION_BACKEND) {
+
+                $event->setResponse($this->getThemeService()->renderAdmin(
+                    'CustomerAddress:index.html.twig',
+                    $event->getReturnData()
+                ));
+
+            } else {
+
+                $event->setResponse($this->getThemeService()->renderFrontend(
+                    'CustomerAddress:index.html.twig',
+                    $event->getReturnData()
+                ));
+
+            }
         }
     }
 }

@@ -96,8 +96,7 @@ class CustomerUpdatePasswordFailedReturn
             ]));
         } else {
 
-            $event->setResponse($this->getThemeService()->render(
-                'frontend',
+            $event->setResponse($this->getThemeService()->renderFrontend(
                 'Customer:update_password_notfound.html.twig',
                 $event->getReturnData()
             ));

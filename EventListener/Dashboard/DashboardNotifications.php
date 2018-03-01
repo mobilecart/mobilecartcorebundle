@@ -64,7 +64,7 @@ class DashboardNotifications
         $event->setReturnData('notifications', [
             'section_id'   => 'notifications',
             'label'        => 'Notifications',
-            'template'     => $this->getThemeService()->getTemplatePath('admin') . ':' . 'Dashboard/notifications.html.twig',
+            'template'     => $this->getThemeService()->getAdminTemplatePath() . ':' . 'Dashboard/notifications.html.twig',
         ]);
 
         $event->setReturnData('template_sections', []);

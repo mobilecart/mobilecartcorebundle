@@ -64,8 +64,7 @@ class CustomerRegisterCheckEmailReturn
         $event->setReturnData('template_sections', []);
         $event->flashMessages();
 
-        $event->setResponse($this->getThemeService()->render(
-            'frontend',
+        $event->setResponse($this->getThemeService()->renderFrontend(
             'Customer:register_check_email.html.twig',
             $event->getReturnData()
         ));

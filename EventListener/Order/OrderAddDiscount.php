@@ -58,42 +58,24 @@ class OrderAddDiscount
         $request = $event->getRequest();
 
         // set shipment method on cart
-        $cartJson = $request->get('cart', '{}');
+
         $discountId = $request->get('discount_id', '');
 
-        $cart = $this->getCartService()
-            ->initCartJson($cartJson)
-            ->getCart();
+        $cartJson = $request->get('cart', '{}');
+        $this->getCartService()->initCartJson($cartJson);
 
         // load discount
         $entity = $this->getDiscountService()->find($discountId);
-
-        // convert discount
-        $discount = new Discount();
-        $discount->fromArray($entity->getBaseData());
-        //$discount->setAppliedAs($entity->getAppliedAs());
-        //$discount->setAppliedTo($entity->getAppliedTo());
-
-        // todo : set product ids or shipping method
+        if (!$entity) {
+            $event->setSuccess(false);
+            $event->addErrorMessage('Discount not found');
+            $event->setReturnData('cart', $this->getCartService()->getCart());
+            return;
+        }
 
         // add discount
-        $cart->addDiscount($discount);
-
-        $totals = $this->getCartTotalService()
-            ->setCart($cart)
-            //->setApplyAutoDiscounts(1)
-            ->collectTotals()
-            ->getTotals();
-
-        $cart->setTotals($totals);
-
-        // todo: implement getCartDiscounts()
-
-        $discounts = $this->getDiscountService()
-            ->setCart($cart)
-            ->getAutoDiscounts(true);
-
-        $event->setReturnData('discounts', $discounts);
-        $event->setReturnData('cart', $cart);
+        $this->getCartService()->reapplyDiscountEntityIfValid($entity);
+        $this->getCartService()->collectTotals();
+        $event->setReturnData('cart', $this->getCartService()->getCart());
     }
 }

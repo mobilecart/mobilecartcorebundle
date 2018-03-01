@@ -38,10 +38,17 @@ class ItemVarUpdate
      */
     public function onItemVarUpdate(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\ItemVar $entity */
         $entity = $event->getEntity();
         $entity->setUrlToken($this->getEntityService()->slugify($entity->getUrlToken()));
         $entity->setCode($this->getEntityService()->slugify($entity->getCode()));
-        $this->getEntityService()->persist($entity);
-        $event->addSuccessMessage('Custom Field Updated!');
+
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Custom Field Updated !');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving Custom Field');
+        }
     }
 }

@@ -41,6 +41,6 @@ class ItemVarDelete
     {
         $entity = $event->getEntity();
         $this->getEntityService()->remove($entity, EntityConstants::ITEM_VAR);
-        $event->addSuccessMessage('Custom Field Deleted!');
+        $event->addSuccessMessage('Custom Field Deleted !');
     }
 }

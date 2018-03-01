@@ -87,6 +87,10 @@ class ConfigSettingNewReturn
         $event->setReturnData('template_sections', []);
         $event->setReturnData('form', $event->getForm()->createView());
         $event->setReturnData('entity', $event->getEntity());
-        $event->setResponse($this->getThemeService()->render('admin', 'ConfigSetting:new.html.twig', $event->getReturnData()));
+
+        $event->setResponse($this->getThemeService()->renderAdmin(
+            'ConfigSetting:new.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

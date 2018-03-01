@@ -39,16 +39,46 @@ class ContentUpdate
      */
     public function onContentUpdate(CoreEvent $event)
     {
-        $entity = $event->getEntity();
         $request = $event->getRequest();
-        $this->getEntityService()->persist($entity);
-        if ($event->getFormData()) {
 
-            $this->getEntityService()
-                ->persistVariants($entity, $event->getFormData());
+        /** @var \MobileCart\CoreBundle\Entity\Content $entity */
+        $entity = $event->getEntity();
+
+        try {
+            $this->getEntityService()->persist($entity);
+        } catch(\Exception $e) {
+            $this->getEntityService()->rollBack();
+            $event->setSuccess(false);
+            $event->addErrorMessage('An error occurred while saving Content');
+            return;
         }
 
-        $event->addSuccessMessage('Content Updated!');
+        if ($event->getFormData()) {
+            try {
+                $this->getEntityService()->persistVariants($entity, $event->getFormData());
+            } catch(\Exception $e) {
+                $this->getEntityService()->rollBack();
+                $event->setSuccess(false);
+                $event->addErrorMessage('An error occurred while saving Content');
+                return;
+            }
+        }
+
+        // update slots
+        if ($slots = $request->get('slots', [])) {
+
+            $sortOrder = 1;
+            foreach($slots as $k => $slot) {
+                $slots[$k]['sort_order'] = $sortOrder;
+                $sortOrder++;
+            }
+
+            try {
+                $this->updateContentSlots($entity, $slots);
+            } catch(\Exception $e) {
+                $event->addErrorMessage('An error occurred while saving Content Slots');
+            }
+        }
 
         // update images
         if ($imageJson = $request->get('images_json', [])) {
@@ -68,21 +98,17 @@ class ContentUpdate
                     }
                 }
 
-                $this->getEntityService()->updateImages(EntityConstants::CONTENT_IMAGE, $entity, $images);
+                try {
+                    $this->getEntityService()->updateImages(EntityConstants::CONTENT_IMAGE, $entity, $images);
+                } catch(\Exception $e) {
+                    $event->addErrorMessage('An error occurred while saving a Content Image');
+                }
             }
         }
 
-        // update slots
-        if ($slots = $request->get('slots', [])) {
-
-            $sortOrder = 1;
-            foreach($slots as $k => $slot) {
-                $slots[$k]['sort_order'] = $sortOrder;
-                $sortOrder++;
-            }
-
-            $this->updateContentSlots($entity, $slots);
-        }
+        $this->getEntityService()->commit();
+        $event->setSuccess(true);
+        $event->addSuccessMessage('Content Updated !');
     }
 
     /**
@@ -231,8 +257,7 @@ class ContentUpdate
                             ->setTitle($title)
                             ->setBodyText($bodyText)
                             ->setSortOrder($sortOrder)
-                            ->setEmbedCode('')
-                        ;
+                            ->setEmbedCode('');
 
                         if (isset($data['url'])) {
                             $contentSlot->setUrl($data['url']);
@@ -275,8 +300,7 @@ class ContentUpdate
                             ->setAltText('')
                             ->setUrl('')
                             ->setEmbedCode('')
-                            ->setPath('')
-                        ;
+                            ->setPath('');
 
                         break;
                     default:

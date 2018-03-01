@@ -2,9 +2,8 @@
 
 namespace MobileCart\CoreBundle\EventListener\ShippingMethod;
 
+use Symfony\Component\HttpFoundation\JsonResponse;
 use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\Shipping\RateRequest;
-use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
 
 /**
  * Class ShippingMethodList
@@ -12,40 +11,50 @@ use MobileCart\CoreBundle\CartComponent\ArrayWrapper;
  */
 class ShippingMethodList
 {
+    /**
+     * @var \Symfony\Component\Routing\RouterInterface
+     */
     protected $router;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\ShippingService
+     * @var \MobileCart\CoreBundle\Service\ThemeService
      */
-    protected $shippingService;
+    protected $themeService;
 
-    public function setRouter($router)
+    /**
+     * @param $themeService
+     * @return $this
+     */
+    public function setThemeService($themeService)
+    {
+        $this->themeService = $themeService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\ThemeService
+     */
+    public function getThemeService()
+    {
+        return $this->themeService;
+    }
+
+    /**
+     * @param \Symfony\Component\Routing\RouterInterface $router
+     * @return $this
+     */
+    public function setRouter(\Symfony\Component\Routing\RouterInterface $router)
     {
         $this->router = $router;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Routing\RouterInterface
+     */
     public function getRouter()
     {
         return $this->router;
-    }
-
-    /**
-     * @param $shippingService
-     * @return $this
-     */
-    public function setShippingService($shippingService)
-    {
-        $this->shippingService = $shippingService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\ShippingService
-     */
-    public function getShippingService()
-    {
-        return $this->shippingService;
     }
 
     /**
@@ -53,44 +62,7 @@ class ShippingMethodList
      */
     public function onShippingMethodList(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
-        $search = new ArrayWrapper([
-            'formats' => [
-                'html' => 'HTML',
-                'xml'  => 'XML',
-                'json' => 'JSON',
-                'csv'  => 'CSV',
-            ],
-            'page' => 1,
-            'object_type' => 'shipping_method',
-        ]);
-
-        // todo : check request for format
-
-        $search->set('format', 'html');
-
-        $rateRequest = new RateRequest();
-        $rateRequest->set('include_all', 1);
-        $rateRequest->set('to_array', 0);
-
-        $rates = $this->getShippingService()
-            ->collectShippingRates($rateRequest);
-
-        $result = new ArrayWrapper([
-            'pages'    => 1,
-            'entities' => $rates,
-            'total'    => count($rates),
-            'offset'   => 0,
-        ]);
-
-        // Data for Template, etc
-
-        $returnData['search'] = $search;
-        $returnData['result'] = $result;
-
-        $returnData['mass_actions'] =
-        [
+        $event->setReturnData('mass_actions', [
             [
                 'label'         => 'Delete',
                 'input_label'   => 'Confirm Mass-Delete ?',
@@ -100,30 +72,43 @@ class ShippingMethodList
                     ['value' => 0, 'label' => 'No'],
                     ['value' => 1, 'label' => 'Yes'],
                 ],
-                'url' => $this->router->generate('cart_admin_shipping_method_mass_delete'),
+                'url' => $this->getRouter()->generate('cart_admin_shipping_method_mass_delete'),
                 'external' => 0,
             ],
-        ];
+        ]);
 
-        $returnData['columns'] =
-        [
+        $event->setReturnData('columns', [
             [
                 'key' => 'id',
                 'label' => 'ID',
-                'sort' => 0,
+                'sort' => true,
             ],
             [
                 'key' => 'company',
                 'label' => 'Company',
-                'sort' => 0,
+                'sort' => true,
             ],
             [
                 'key' => 'method',
                 'label' => 'Method',
-                'sort' => 0,
+                'sort' => true,
             ],
-        ];
+        ]);
 
-        $event->setReturnData($returnData);
+        switch($event->getRequestAccept()) {
+            case CoreEvent::JSON:
+
+                $event->setResponse(new JsonResponse($event->getReturnData()));
+
+                break;
+            default:
+
+                $event->setResponse($this->getThemeService()->renderAdmin(
+                    'ShippingMethod:index.html.twig',
+                    $event->getReturnData()
+                ));
+
+                break;
+        }
     }
 }

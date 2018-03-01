@@ -61,13 +61,13 @@ class ItemVarSetNewReturn
      */
     public function onItemVarSetNewReturn(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\ItemVarSet $entity */
         $entity = $event->getEntity();
         $event->setReturnData('entity', $entity);
         $event->setReturnData('form', $event->getForm()->createView());
         $event->setReturnData('template_sections', []);
 
-        $event->setResponse($this->getThemeService()->render(
-            'admin',
+        $event->setResponse($this->getThemeService()->renderAdmin(
             'ItemVarSet:new.html.twig',
             $event->getReturnData()
         ));

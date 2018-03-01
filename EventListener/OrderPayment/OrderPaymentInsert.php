@@ -12,32 +12,9 @@ use MobileCart\CoreBundle\CartComponent\Payment;
 class OrderPaymentInsert
 {
     /**
-     * @var \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
-     */
-    protected $entityService;
-
-    /**
      * @var \MobileCart\CoreBundle\Service\CartService
      */
     protected $cartService;
-
-    /**
-     * @param \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
-     * @return $this
-     */
-    public function setEntityService(\MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface $entityService)
-    {
-        $this->entityService = $entityService;
-        return $this;
-    }
-
-    /**
-     * @return \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
-     */
-    public function getEntityService()
-    {
-        return $this->entityService;
-    }
 
     /**
      * @param $cartService
@@ -58,6 +35,22 @@ class OrderPaymentInsert
     }
 
     /**
+     * @return \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
+     */
+    public function getEntityService()
+    {
+        return $this->getCartService()->getEntityService();
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\CurrencyServiceInterface
+     */
+    public function getCurrencyService()
+    {
+        return $this->getCartService()->getCartTotalService()->getCurrencyService();
+    }
+
+    /**
      * @param CoreEvent $event
      */
     public function onOrderPaymentInsert(CoreEvent $event)
@@ -65,25 +58,25 @@ class OrderPaymentInsert
         /** @var \MobileCart\CoreBundle\Entity\OrderPayment $entity */
         $entity = $event->getEntity();
         $order = $entity->getOrder();
-        $baseCurrency = $this->getCartService()->getCartTotalService()->getCurrencyService()->getBaseCurrency();
+
+        $baseCurrency = $this->getCurrencyService()->getBaseCurrency();
         $currency = $order->getCurrency();
         $entity->setBaseCurrency($baseCurrency);
+        $entity->setCurrency($currency);
 
-        if ($baseCurrency == $currency) {
+        $amount = $baseCurrency == $currency
+            ? $entity->getBaseAmount()
+            : $this->getCurrencyService()->convert($entity->getBaseAmount(), $currency);
 
-            $entity->setCurrency($entity->getBaseCurrency())
-                ->setAmount($entity->getBaseAmount());
-
-        } else {
-            // todo:
-
-        }
-
+        $entity->setAmount($amount);
         $entity->setCreatedAt(new \DateTime('now'));
 
-        $this->getEntityService()->persist($entity);
-        $event->addSuccessMessage('Payment Created!');
-
-
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Payment Created !');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving Order Payment');
+        }
     }
 }

@@ -34,19 +34,14 @@ class ShippingMethodUpdate
      */
     public function onShippingMethodUpdate(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-
+        /** @var \MobileCart\CoreBundle\Entity\ShippingMethod $entity */
         $entity = $event->getEntity();
-        $this->getEntityService()->persist($entity);
-
-        if ($entity && $event->getRequest()->getSession()) {
-
-            $event->getRequest()->getSession()->getFlashBag()->add(
-                'success',
-                'Shipping Method Updated!'
-            );
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Shipping Method Updated !');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving Shipping Method');
         }
-
-        $event->setReturnData($returnData);
     }
 }

@@ -39,12 +39,19 @@ class DiscountInsert
      */
     public function onDiscountInsert(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\Discount $entity */
         $entity = $event->getEntity();
         if ($entity->getAppliedTo() != Discount::APPLIED_TO_SPECIFIED) {
             $entity->setPreConditions('{}');
             $entity->setTargetConditions('{}');
         }
-        $this->getEntityService()->persist($entity);
-        $event->addSuccessMessage('Discount Created!');
+
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Discount Created !');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving the Discount');
+        }
     }
 }

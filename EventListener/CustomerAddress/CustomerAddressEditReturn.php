@@ -67,10 +67,20 @@ class CustomerAddressEditReturn
 
         $event->flashMessages();
 
-        $event->setResponse($this->getThemeService()->render(
-            'frontend',
-            'CustomerAddress:edit.html.twig',
-            $event->getReturnData()
-        ));
+        if ($event->getSection() == CoreEvent::SECTION_BACKEND) {
+
+            $event->setResponse($this->getThemeService()->renderAdmin(
+                'CustomerAddress:edit.html.twig',
+                $event->getReturnData()
+            ));
+
+        } else {
+
+            $event->setResponse($this->getThemeService()->renderFrontend(
+                'CustomerAddress:edit.html.twig',
+                $event->getReturnData()
+            ));
+
+        }
     }
 }

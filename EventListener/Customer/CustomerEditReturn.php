@@ -67,8 +67,7 @@ class CustomerEditReturn
 
         $event->flashMessages();
 
-        $event->setResponse($this->getThemeService()->render(
-            'admin',
+        $event->setResponse($this->getThemeService()->renderAdmin(
             'Customer:edit.html.twig',
             $event->getReturnData()
         ));

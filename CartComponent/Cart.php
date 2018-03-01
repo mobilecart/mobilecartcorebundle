@@ -227,7 +227,7 @@ class Cart extends ArrayWrapper
 
     /**
      * @param $key
-     * @return bool
+     * @return Total|bool
      */
     public function getTotal($key)
     {

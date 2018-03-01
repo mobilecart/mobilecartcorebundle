@@ -96,6 +96,7 @@ class CustomerProfileReturn
                 'entity' => $customer->getData(),
                 'messages' => $event->getMessages(),
             ]));
+
         } else {
 
             $event->setReturnData('template_sections', []);
@@ -106,8 +107,7 @@ class CustomerProfileReturn
 
             $event->setReturnData('form', $event->getForm()->createView());
 
-            $event->setResponse($this->getThemeService()->render(
-                'frontend',
+            $event->setResponse($this->getThemeService()->renderFrontend(
                 $template,
                 $event->getReturnData()
             ));

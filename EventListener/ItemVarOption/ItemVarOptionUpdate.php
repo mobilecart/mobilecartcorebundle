@@ -38,9 +38,16 @@ class ItemVarOptionUpdate
      */
     public function onItemVarOptionUpdate(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\ItemVarOptionInterface $entity */
         $entity = $event->getEntity();
         $entity->setUrlValue($this->getEntityService()->slugify($entity->getUrlValue()));
-        $this->getEntityService()->persist($entity);
-        $event->addSuccessMessage('Custom Field Option Updated!');
+
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Custom Field Option Updated!');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving Custom Field Option');
+        }
     }
 }

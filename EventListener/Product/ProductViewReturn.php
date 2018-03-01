@@ -109,6 +109,7 @@ class ProductViewReturn
      */
     public function onProductViewReturn(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\Product $entity */
         $entity = $event->getEntity();
 
         $event->flashMessages();

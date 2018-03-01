@@ -110,8 +110,8 @@ class CustomerList
         if ($event->isJsonResponse()) {
             $event->setResponse(new JsonResponse($event->getReturnData()));
         } else {
-            $event->setResponse($this->getThemeService()->render(
-                'admin',
+
+            $event->setResponse($this->getThemeService()->renderAdmin(
                 'Customer:index.html.twig',
                 $event->getReturnData()
             ));

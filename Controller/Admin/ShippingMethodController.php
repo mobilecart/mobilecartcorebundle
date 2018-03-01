@@ -34,71 +34,19 @@ class ShippingMethodController extends Controller
     protected $objectType = EntityConstants::SHIPPING_METHOD;
 
     /**
-     * @return array
-     */
-    protected function getFormSections()
-    {
-        return [
-            'general' => [
-                'label' => 'General',
-                'id' => 'general',
-                'fields' => [
-                    'title', 'company', 'method', 'price', 'min_days', 'max_days',
-                    'is_taxable', 'is_discountable', 'is_price_dynamic', 'pre_conditions',
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * Get relevant vars for discount editing
-     *
-     * @return array
-     */
-    public function getDiscountVars()
-    {
-        return [
-            'qty' => ['datatype' => 'number', 'name' => 'Quantity'],
-            'id' => ['datatype' => 'number', 'name' => 'ID'],
-            'sku' => ['datatype' => 'string', 'name' => 'SKU'],
-            'price' => ['datatype' => 'number', 'name' => 'Price'],
-            'weight' => ['datatype' => 'number', 'name' => 'Weight'],
-            'category_ids_csv' => ['datatype' => 'string', 'name' => 'Category ID\'s'],
-        ];
-    }
-
-    /**
-     * Lists all ShippingMethod entities
+     * Lists ShippingMethod entities
      */
     public function indexAction(Request $request)
     {
-        // Data for Template, etc
-        $returnData = [];
-
-        // Observe Event :
-        //  populate grid columns and mass actions,
-        //  continue building return data
-
         $event = new CoreEvent();
         $event->setRequest($request)
-            ->setReturnData($returnData);
+            ->setObjectType($this->objectType)
+            ->setSection(CoreEvent::SECTION_BACKEND);
 
         $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::SHIPPING_METHOD_LIST, $event);
+            ->dispatch(CoreEvents::SHIPPING_METHOD_SEARCH, $event);
 
-        $returnData = $event->getReturnData();
-        $search = $returnData['search'];
-
-        switch($search->getFormat()) {
-            case 'json':
-                return new JsonResponse($returnData);
-                break;
-            default:
-                $tplPath = $this->get('cart.theme')->getTemplatePath('admin');
-                $view = $tplPath . 'ShippingMethod:index.html.twig';
-                return $this->render($view, $returnData);
-                break;
-        }
+        return $event->getResponse();
     }
 
     /**
@@ -110,8 +58,8 @@ class ShippingMethodController extends Controller
         $event->setObjectType($this->objectType)
             ->setEntity($this->get('cart.entity')->getInstance($this->objectType))
             ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_shipping_method_create'))
-            ->setMethod('POST');
+            ->setFormAction($this->generateUrl('cart_admin_shipping_method_create'))
+            ->setFormMethod('POST');
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::SHIPPING_METHOD_ADMIN_FORM, $event);
@@ -142,23 +90,15 @@ class ShippingMethodController extends Controller
      */
     public function newAction(Request $request)
     {
-        $entity = $this->get('cart.entity')->getInstance($this->objectType);
-
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_shipping_method_create'))
-            ->setMethod('POST');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::SHIPPING_METHOD_ADMIN_FORM, $formEvent);
-
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
-            ->setEntity($entity)
+            ->setEntity($this->get('cart.entity')->getInstance($this->objectType))
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_shipping_method_create'))
+            ->setFormMethod('POST');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::SHIPPING_METHOD_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::SHIPPING_METHOD_NEW_RETURN, $event);
@@ -184,32 +124,20 @@ class ShippingMethodController extends Controller
      */
     public function editAction(Request $request, $id)
     {
-        $rateRequest = new RateRequest();
-        $rateRequest->set('include_all', 1);
-
-        $entity = is_numeric($id)
-            ? $this->get('cart.entity')->find($this->objectType, $id)
-            : $this->get('cart.shipping')->getShippingMethod($rateRequest, $id);
-
+        $entity = $this->get('cart.entity')->find($this->objectType, $id);
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find ShippingMethod entity.');
         }
-
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_shipping_method_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::SHIPPING_METHOD_ADMIN_FORM, $formEvent);
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_shipping_method_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::SHIPPING_METHOD_ADMIN_FORM, $event);
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::SHIPPING_METHOD_EDIT_RETURN, $event);
@@ -222,111 +150,35 @@ class ShippingMethodController extends Controller
      */
     public function updateAction(Request $request, $id)
     {
-        $rateRequest = new RateRequest();
-        $rateRequest->set('include_all', 1);
-
-        $entity = is_numeric($id)
-            ? $this->get('cart.entity')->find($this->objectType, $id)
-            : $this->get('cart.shipping')->getShippingMethod($rateRequest, $id);
-
+        $entity = $this->get('cart.entity')->find($this->objectType, $id);
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find ShippingMethod entity.');
-        }
-
-        $formEvent = new CoreEvent();
-        $formEvent->setObjectType($this->objectType)
-            ->setEntity($entity)
-            ->setRequest($request)
-            ->setAction($this->generateUrl('cart_admin_shipping_method_update', ['id' => $entity->getId()]))
-            ->setMethod('PUT');
-
-        $this->get('event_dispatcher')
-            ->dispatch(CoreEvents::SHIPPING_METHOD_ADMIN_FORM, $formEvent);
-
-        $form = $formEvent->getForm();
-        if ($event->isFormValid()) {
-
-            if (is_numeric($id)) {
-
-                $formData = $request->request->get($form->getName());
-
-                // observe event
-                //  add item_var to indexes, etc
-                $event = new CoreEvent();
-                $event->setObjectType($this->objectType)
-                    ->setEntity($entity)
-                    ->setRequest($request)
-                    ->setFormData($formData);
-
-                $this->get('event_dispatcher')
-                    ->dispatch(CoreEvents::SHIPPING_METHOD_UPDATE, $event);
-
-                $request->getSession()->getFlashBag()->add(
-                    'success',
-                    'Shipping Method Successfully Updated!'
-                );
-
-            } else {
-
-                $formData = $request->request->get($form->getName());
-                $entity->setId(null);
-
-                // observe event
-                //  add item_var to indexes, etc
-                $event = new CoreEvent();
-                $event->setObjectType($this->objectType)
-                    ->setEntity($entity)
-                    ->setRequest($request)
-                    ->setFormData($formData);
-
-                $this->get('event_dispatcher')
-                    ->dispatch(CoreEvents::SHIPPING_METHOD_INSERT, $event);
-
-                $request->getSession()->getFlashBag()->add(
-                    'success',
-                    'Shipping Method Successfully Updated!'
-                );
-
-            }
-
-            $returnEvent = new CoreEvent();
-            $returnEvent->setMessages($event->getMessages());
-            $returnEvent->setRequest($request);
-            $returnEvent->setEntity($entity);
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::SHIPPING_METHOD_UPDATE_RETURN, $returnEvent);
-
-            return $returnEvent->getResponse();
-        }
-
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-
-            $invalid = [];
-            $messages = [];
-            foreach($form->all() as $childKey => $child) {
-                $errors = $child->getErrors();
-                if ($errors->count()) {
-                    $invalid[$childKey] = [];
-                    foreach($errors as $error) {
-                        $invalid[$childKey][] = $error->getMessage();
-                    }
-                }
-            }
-
-            $returnData = [
-                'success' => 0,
-                'invalid' => $invalid,
-                'messages' => $messages,
-            ];
-
-            return new JsonResponse($returnData);
         }
 
         $event = new CoreEvent();
         $event->setObjectType($this->objectType)
             ->setEntity($entity)
             ->setRequest($request)
-            ->setReturnData($formEvent->getReturnData());
+            ->setFormAction($this->generateUrl('cart_admin_shipping_method_update', ['id' => $entity->getId()]))
+            ->setFormMethod('PUT');
+
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::SHIPPING_METHOD_ADMIN_FORM, $event);
+
+        if ($event->isFormValid()) {
+
+            $this->get('event_dispatcher')
+                ->dispatch(CoreEvents::SHIPPING_METHOD_UPDATE, $event);
+
+            $this->get('event_dispatcher')
+                ->dispatch(CoreEvents::SHIPPING_METHOD_UPDATE_RETURN, $event);
+
+            return $event->getResponse();
+        }
+
+        if ($event->isJsonResponse()) {
+            return $event->getInvalidFormJsonResponse();
+        }
 
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::SHIPPING_METHOD_EDIT_RETURN, $event);
@@ -341,7 +193,7 @@ class ShippingMethodController extends Controller
     {
         $form = $this->createDeleteForm($id);
 
-        if ($event->isFormValid()) {
+        if ($form->isValid()) {
 
             $entity = $this->get('cart.entity')->find($this->objectType, $id);
             if (!$entity) {

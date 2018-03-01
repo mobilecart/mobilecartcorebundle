@@ -81,28 +81,8 @@ class OrderInsert
         $formData = $event->getFormData();
         $request = $event->getRequest();
 
-        $cart = new Cart();
-        switch($event->getSection()) {
-            case CoreEvent::SECTION_BACKEND:
-                $cartJson = $formData['json'];
-                $cart->importJson($cartJson);
-                break;
-            case CoreEvent::SECTION_FRONTEND:
-                $cart = $this->getCartService()->getCart();
-                break;
-            default:
-
-                break;
-        }
-
-        $cartTotalService = $this->getOrderService()->getCartTotalService();
-        $cartTotalService->setCart($cart);
-
-        $totals = $cartTotalService
-            ->collectTotals()
-            ->getTotals();
-
-        $cart->setTotals($totals);
+        $this->getCartService()->initCartJson($formData['json']);
+        $this->getCartService()->collectTotals();
 
         // this is passed outside of the order form
         $paymentMethod = $request->get('payment_method', '');
@@ -118,7 +98,7 @@ class OrderInsert
         }
 
         $this->getOrderService()
-            ->setCart($cart)
+            ->setCart($this->getCartService()->getCart())
             ->setOrder($event->getEntity())
             ->setRequest($event->getRequest())
             ->setFormData($event->getFormData())
@@ -129,6 +109,16 @@ class OrderInsert
             ->setUser($event->getUser())
             ->submitCart();
 
-        $event->addSuccessMessage('Order Created!');
+        if ($this->getOrderService()->getSuccess()) {
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Order Created !');
+        } else {
+            $event->addErrorMessage('An error occurred while saving Order');
+            if ($this->getOrderService()->getErrors()) {
+                foreach($this->getOrderService()->getErrors() as $error) {
+                    $event->addErrorMessage($error);
+                }
+            }
+        }
     }
 }

@@ -85,6 +85,7 @@ class ContentEditReturn
      */
     public function onContentEditReturn(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\Content $entity */
         $entity = $event->getEntity();
         $objectType = EntityConstants::CONTENT;
 
@@ -113,8 +114,8 @@ class ContentEditReturn
         $tplSections['slots'] = [
             'section_id' => 'slots',
             'label' => 'Sections',
-            'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Content:slots.html.twig',
-            'js_template'  => $this->getThemeService()->getTemplatePath('admin') . 'Content:slots_js.html.twig',
+            'template'     => $this->getThemeService()->getAdminTemplatePath() . 'Content:slots.html.twig',
+            'js_template'  => $this->getThemeService()->getAdminTemplatePath() . 'Content:slots_js.html.twig',
             'slots' => $slots,
             'upload_query' => '',
         ];
@@ -122,8 +123,8 @@ class ContentEditReturn
         $tplSections['images'] = [
             'section_id'   => 'images',
             'label'        => 'Images',
-            'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Image:uploader.html.twig',
-            'js_template'  => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Image:uploader_js.html.twig',
+            'template'     => $this->getThemeService()->getAdminTemplatePath() . 'Widgets/Image:uploader.html.twig',
+            'js_template'  => $this->getThemeService()->getAdminTemplatePath() . 'Widgets/Image:uploader_js.html.twig',
             'images'       => $entity->getImages(),
             'image_sizes'  => $this->getImageService()->getImageConfigs($objectType),
             'upload_query' => "?object_type={$objectType}&object_id={$entity->getId()}",
@@ -133,6 +134,9 @@ class ContentEditReturn
         $event->setReturnData('form', $event->getForm()->createView());
         $event->setReturnData('template_sections', $tplSections);
 
-        $event->setResponse($this->getThemeService()->render('admin', 'Content:edit.html.twig', $event->getReturnData()));
+        $event->setResponse($this->getThemeService()->renderAdmin(
+            'Content:edit.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

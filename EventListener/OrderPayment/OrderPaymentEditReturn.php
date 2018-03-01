@@ -61,13 +61,13 @@ class OrderPaymentEditReturn
      */
     public function onOrderPaymentEditReturn(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\OrderPayment $entity */
         $entity = $event->getEntity();
         $event->setReturnData('entity', $entity);
         $event->setReturnData('form', $event->getForm()->createView());
         $event->setReturnData('template_sections', []);
 
-        $event->setResponse($this->getThemeService()->render(
-            'admin',
+        $event->setResponse($this->getThemeService()->renderAdmin(
             'OrderPayment:edit.html.twig',
             $event->getReturnData()
         ));

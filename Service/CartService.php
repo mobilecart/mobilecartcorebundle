@@ -94,7 +94,7 @@ class CartService
     protected $discountService;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\TaxService
+     * @var \MobileCart\CoreBundle\Service\TaxServiceInterface
      */
     protected $taxService;
 
@@ -331,7 +331,7 @@ class CartService
     }
 
     /**
-     * @return AbstractEntityService
+     * @return RelationalDbEntityServiceInterface
      */
     public function getEntityService()
     {
@@ -339,17 +339,17 @@ class CartService
     }
 
     /**
-     * @param \MobileCart\CoreBundle\Service\TaxService $taxService
+     * @param \MobileCart\CoreBundle\Service\TaxServiceInterface $taxService
      * @return $this
      */
-    public function setTaxService($taxService)
+    public function setTaxService(\MobileCart\CoreBundle\Service\TaxServiceInterface $taxService)
     {
         $this->taxService = $taxService;
         return $this;
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\TaxService
+     * @return \MobileCart\CoreBundle\Service\TaxServiceInterface
      */
     public function getTaxService()
     {
@@ -357,7 +357,7 @@ class CartService
     }
 
     /**
-     * @return CurrencyService
+     * @return CurrencyServiceInterface
      */
     public function getCurrencyService()
     {
@@ -365,7 +365,7 @@ class CartService
     }
 
     /**
-     * @param array $totals
+     * @param \MobileCart\CoreBundle\CartComponent\Total[] $totals
      * @return $this
      */
     public function setTotals(array $totals)
@@ -375,7 +375,7 @@ class CartService
     }
 
     /**
-     * @return array
+     * @return \MobileCart\CoreBundle\CartComponent\Total[]
      */
     public function getTotals()
     {
@@ -383,8 +383,8 @@ class CartService
     }
 
     /**
-     * @param $key
-     * @return bool
+     * @param string $key
+     * @return \MobileCart\CoreBundle\CartComponent\Total|bool
      */
     public function getTotal($key)
     {
@@ -1254,6 +1254,102 @@ class CartService
     }
 
     /**
+     * @param Discount $discount
+     * @return $this
+     */
+    public function addDiscount(Discount $discount)
+    {
+        $this->getCart()->addDiscount($discount);
+        return $this;
+    }
+
+    /**
+     * @return Discount[]
+     */
+    public function getDiscounts()
+    {
+        return $this->getCart()->getDiscounts();
+    }
+
+    /**
+     * @param \MobileCart\CoreBundle\Entity\Discount $entity
+     * @return bool
+     */
+    public function reapplyDiscountEntityIfValid(\MobileCart\CoreBundle\Entity\Discount $entity)
+    {
+        $discount = new Discount();
+        $discount->fromArray($entity->getData());
+        return $this->reapplyDiscountIfValid($discount);
+    }
+
+    /**
+     * @param \MobileCart\CoreBundle\CartComponent\Discount
+     * @return bool
+     */
+    public function reapplyDiscountIfValid(\MobileCart\CoreBundle\CartComponent\Discount $discount)
+    {
+        $cart = $this->getCart();
+        $isValid = $discount->reapplyIfValid($cart);
+        if ($isValid) {
+            $this->setCart($cart);
+            if ($discount->hasPromoSkus()) {
+                foreach ($discount->getPromoSkus() as $sku) {
+
+                    if ($this->hasSku($sku)) {
+                        continue;
+                    }
+
+                    $product = $this->getEntityService()->findOneBy(EntityConstants::PRODUCT, [
+                        'sku' => $sku,
+                    ]);
+
+                    if ($product) {
+
+                        $item = $this->convertProductToItem($product);
+
+                        $item->setPromoQty(1)
+                            ->setPrice(0.00)
+                            ->setBasePrice(0.00);
+
+                        $this->addItem($item);
+
+                    } else {
+
+                        switch ($discount->getAppliedTo()) {
+                            case Discount::APPLIED_TO_ITEMS:
+                                if (
+                                    !$this->hasItems()
+                                    && !$discount->hasPromoSkus()
+                                ) {
+                                    $this->removeDiscount($discount);
+                                }
+                                break;
+                            case Discount::APPLIED_TO_SHIPMENTS:
+                                if (!$this->hasShipments()) {
+                                    $this->removeDiscount($discount);
+                                }
+                                break;
+                            case Discount::APPLIED_TO_SPECIFIED:
+                                if (!$this->hasItems()
+                                    && !$this->hasShipments()
+                                ) {
+                                    $this->removeDiscount($discount);
+                                }
+                                break;
+                            default:
+
+                                break;
+                        }
+
+                    }
+                }
+            }
+        }
+
+        return $isValid;
+    }
+
+    /**
      * @param Item $item
      * @param int $qty
      * @return $this
@@ -1295,7 +1391,7 @@ class CartService
 
     /**
      * @param $productId
-     * @return mixed
+     * @return $this
      */
     public function removeProductId($productId)
     {
@@ -1340,6 +1436,16 @@ class CartService
     public function removeDiscount(Discount $discount)
     {
         $this->getCart()->removeDiscount($discount);
+        return $this;
+    }
+
+    /**
+     * @param $discountId
+     * @return $this
+     */
+    public function removeDiscountId($discountId)
+    {
+        $this->getCart()->removeDiscountId($discountId);
         return $this;
     }
 

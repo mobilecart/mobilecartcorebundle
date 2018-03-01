@@ -61,13 +61,13 @@ class ItemVarSetVarEditReturn
      */
     public function onItemVarSetVarEditReturn(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\ItemVarSetVar $entity */
         $entity = $event->getEntity();
         $event->setReturnData('entity', $entity);
         $event->setReturnData('form', $event->getForm()->createView());
         $event->setReturnData('template_sections', []);
 
-        $event->setResponse($this->getThemeService()->render(
-            'admin',
+        $event->setResponse($this->getThemeService()->renderAdmin(
             'ItemVarSetVar:edit.html.twig',
             $event->getReturnData()
         ));

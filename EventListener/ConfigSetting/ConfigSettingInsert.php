@@ -39,7 +39,12 @@ class ConfigSettingInsert
     public function onConfigSettingInsert(CoreEvent $event)
     {
         $entity = $event->getEntity();
-        $this->getEntityService()->persist($entity);
-        $event->addSuccessMessage('Config Setting Created!');
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Config Setting Created!');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving Config Setting');
+        }
     }
 }

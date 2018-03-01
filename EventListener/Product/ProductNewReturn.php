@@ -94,8 +94,8 @@ class ProductNewReturn
         $typeSections['images'] = [
             'section_id'   => 'images',
             'label'        => 'Images',
-            'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Image:uploader.html.twig',
-            'js_template'  => $this->getThemeService()->getTemplatePath('admin') . 'Widgets/Image:uploader_js.html.twig',
+            'template'     => $this->getThemeService()->getAdminTemplatePath() . 'Widgets/Image:uploader.html.twig',
+            'js_template'  => $this->getThemeService()->getAdminTemplatePath() . 'Widgets/Image:uploader_js.html.twig',
             'images'       => [],
             'image_sizes'  => $this->getImageService()->getImageConfigs($objectType),
             'upload_query' => "?object_type={$objectType}",
@@ -104,8 +104,8 @@ class ProductNewReturn
         $typeSections['categories'] = [
             'section_id'   => 'categories',
             'label'        => 'Categories',
-            'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Product/Category:category_tabs.html.twig',
-            'js_template'  => $this->getThemeService()->getTemplatePath('admin') . 'Product/Category:category_tabs_js.html.twig',
+            'template'     => $this->getThemeService()->getAdminTemplatePath() . 'Product/Category:category_tabs.html.twig',
+            'js_template'  => $this->getThemeService()->getAdminTemplatePath() . 'Product/Category:category_tabs_js.html.twig',
             'categories'   => [],
             'category_ids' => [],
         ];
@@ -114,8 +114,8 @@ class ProductNewReturn
         $typeSections['relatedproducts'] = array(
             'section_id'  => 'relatedproducts',
             'label'       => 'Related Products',
-            'template'    => $this->getThemeService()->getTemplatePath('admin') . 'Product/Type:product_grid_related_tabs.html.twig',
-            'js_template' => $this->getThemeService()->getTemplatePath('admin') . 'Product/Type:product_grid_related_js.html.twig',
+            'template'    => $this->getThemeService()->getAdminTemplatePath() . 'Product/Type:product_grid_related_tabs.html.twig',
+            'js_template' => $this->getThemeService()->getAdminTemplatePath() . 'Product/Type:product_grid_related_js.html.twig',
             'child_ids'    => [],
             'check_prefix' => 'related-id-', // for shared templates in product-listing.js, todo: remove this
         ); //*/
@@ -135,8 +135,8 @@ class ProductNewReturn
                 $typeSections['configproducts'] = [
                     'section_id'   => 'configproducts',
                     'label'        => 'Configured Products',
-                    'template'     => $this->getThemeService()->getTemplatePath('admin') . 'Product/Type:product_grid_config_tabs.html.twig',
-                    'js_template'  => $this->getThemeService()->getTemplatePath('admin') . 'Product/Type:product_grid_config_js.html.twig',
+                    'template'     => $this->getThemeService()->getAdminTemplatePath() . 'Product/Type:product_grid_config_tabs.html.twig',
+                    'js_template'  => $this->getThemeService()->getAdminTemplatePath() . 'Product/Type:product_grid_config_js.html.twig',
                     'vars'         => $vars,
                     'child_ids'    => $childIds,
                     'check_prefix' => 'child-id-', // for shared templates in product-listing.js, todo: remove this
@@ -154,8 +154,7 @@ class ProductNewReturn
         $event->setReturnData('form', $event->getForm()->createView());
         $event->setReturnData('template_sections', $typeSections);
 
-        $event->setResponse($this->getThemeService()->render(
-            'admin',
+        $event->setResponse($this->getThemeService()->renderAdmin(
             'Product:new.html.twig',
             $event->getReturnData()
         ));

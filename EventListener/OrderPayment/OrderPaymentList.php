@@ -89,14 +89,17 @@ class OrderPaymentList
 
         switch($event->getRequestAccept()) {
             case CoreEvent::JSON:
+
                 $event->setResponse(new JsonResponse($event->getReturnData()));
+
                 break;
             default:
-                $event->setResponse($this->getThemeService()->render(
-                    'admin',
+
+                $event->setResponse($this->getThemeService()->renderAdmin(
                     'OrderPayment:index.html.twig',
                     $event->getReturnData()
                 ));
+
                 break;
         }
     }

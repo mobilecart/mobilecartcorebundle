@@ -11,7 +11,11 @@
 
 namespace MobileCart\CoreBundle\Service;
 
-class TaxService
+/**
+ * Class TaxService
+ * @package MobileCart\CoreBundle\Service
+ */
+class TaxService implements TaxServiceInterface
 {
     /**
      * @var bool

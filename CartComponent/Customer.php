@@ -23,6 +23,7 @@ class Customer extends ArrayWrapper
     const FIRST_NAME = 'first_name';
     const LAST_NAME = 'last_name';
     const BILLING_NAME = 'billing_name';
+    const BILLING_COMPANY = 'billing_company';
     const BILLING_STREET = 'billing_street';
     const BILLING_STREET2 = 'billing_street2';
     const BILLING_CITY = 'billing_city';
@@ -32,6 +33,7 @@ class Customer extends ArrayWrapper
     const BILLING_PHONE = 'billing_phone';
     const IS_SHIPPING_SAME = 'is_shipping_same';
     const SHIPPING_NAME = 'shipping_name';
+    const SHIPPING_COMPANY = 'shipping_company';
     const SHIPPING_STREET = 'shipping_street';
     const SHIPPING_STREET2 = 'shipping_street2';
     const SHIPPING_CITY = 'shipping_city';
@@ -60,18 +62,20 @@ class Customer extends ArrayWrapper
             self::FIRST_NAME          => '',
             self::LAST_NAME           => '',
             self::BILLING_NAME        => '',
+            self::BILLING_COMPANY     => '',
             self::BILLING_PHONE       => '',
             self::BILLING_STREET      => '',
-            self::BILLING_STREET2      => '',
+            self::BILLING_STREET2     => '',
             self::BILLING_CITY        => '',
             self::BILLING_REGION      => '',
             self::BILLING_POSTCODE    => '',
             self::BILLING_COUNTRY_ID  => '',
             self::IS_SHIPPING_SAME    => false,
             self::SHIPPING_NAME       => '',
+            self::SHIPPING_COMPANY    => '',
             self::SHIPPING_PHONE      => '',
             self::SHIPPING_STREET     => '',
-            self::SHIPPING_STREET2     => '',
+            self::SHIPPING_STREET2    => '',
             self::SHIPPING_CITY       => '',
             self::SHIPPING_REGION     => '',
             self::SHIPPING_POSTCODE   => '',
@@ -103,6 +107,12 @@ class Customer extends ArrayWrapper
                     case self::LAST_NAME:
                         $this->setLastName($value);
                         break;
+                    case self::BILLING_NAME:
+                        $this->setBillingName($value);
+                        break;
+                    case self::BILLING_COMPANY:
+                        $this->setBillingCompany($value);
+                        break;
                     case self::BILLING_STREET:
                         $this->setBillingStreet($value);
                         break;
@@ -126,6 +136,12 @@ class Customer extends ArrayWrapper
                         break;
                     case self::IS_SHIPPING_SAME:
                         $this->setIsShippingSame($value);
+                        break;
+                    case self::SHIPPING_NAME:
+                        $this->setShippingName($value);
+                        break;
+                    case self::SHIPPING_COMPANY:
+                        $this->setShippingCompany($value);
                         break;
                     case self::SHIPPING_STREET:
                         $this->setShippingStreet($value);
@@ -268,6 +284,24 @@ class Customer extends ArrayWrapper
     public function getBillingName()
     {
         return $this->data[self::BILLING_NAME];
+    }
+
+    /**
+     * @param $billingCompany
+     * @return $this
+     */
+    public function setBillingCompany($billingCompany)
+    {
+        $this->data[self::BILLING_COMPANY] = $billingCompany;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBillingCompany()
+    {
+        return $this->data[self::BILLING_COMPANY];
     }
 
     /**
@@ -430,6 +464,24 @@ class Customer extends ArrayWrapper
     public function getShippingName()
     {
         return $this->data[self::SHIPPING_NAME];
+    }
+
+    /**
+     * @param string $shippingCompany
+     * @return $this
+     */
+    public function setShippingCompany($shippingCompany)
+    {
+        $this->data[self::SHIPPING_COMPANY] = $shippingCompany;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getShippingCompany()
+    {
+        return $this->data[self::SHIPPING_COMPANY];
     }
 
     /**

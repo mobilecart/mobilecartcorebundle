@@ -66,12 +66,12 @@ class CategoryList
             [
                 'key' => 'id',
                 'label' => 'ID',
-                'sort' => 1,
+                'sort' => true,
             ],
             [
                 'key' => 'name',
                 'label' => 'Name',
-                'sort' => 1,
+                'sort' => true,
             ],
         ];
 
@@ -122,7 +122,10 @@ class CategoryList
                             ? $event->getCustomTemplate()
                             : 'Category:index.html.twig';
 
-                        $event->setResponse($this->getThemeService()->render('admin', $template, $event->getReturnData()));
+                        $event->setResponse($this->getThemeService()->renderAdmin(
+                            $template,
+                            $event->getReturnData()
+                        ));
 
                         break;
                     case CoreEvent::SECTION_FRONTEND:
@@ -131,7 +134,10 @@ class CategoryList
                             ? $event->getCustomTemplate()
                             : 'Category:index.html.twig';
 
-                        $event->setResponse($this->getThemeService()->render('frontend', $template, $event->getReturnData()));
+                        $event->setResponse($this->getThemeService()->renderFrontend(
+                            $template,
+                            $event->getReturnData()
+                        ));
 
                         break;
                     default:
@@ -140,7 +146,10 @@ class CategoryList
                             ? $event->getCustomTemplate()
                             : 'Category:index.html.twig';
 
-                        $event->setResponse($this->getThemeService()->render('frontend', $template, $event->getReturnData()));
+                        $event->setResponse($this->getThemeService()->renderFrontend(
+                            $template,
+                            $event->getReturnData()
+                        ));
 
                         break;
                 }

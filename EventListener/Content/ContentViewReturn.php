@@ -85,29 +85,33 @@ class ContentViewReturn
      */
     public function onContentViewReturn(CoreEvent $event)
     {
-        $entity = $event->getEntity();
-        $event->setReturnData('entity', $entity);
+        $event->flashMessages();
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
-                $event->setResponse(new JsonResponse([
-                    'success' => true,
-                    'entity' => $entity->getData(),
-                ]));
-                break;
-            default:
+        $event->setReturnData('entity', $event->getEntity());
 
-                $customTpl = $event->getCustomTemplate();
-                if (!$customTpl && $event->getEntity()->getCustomTemplate()) {
-                    $customTpl = $event->getEntity()->getCustomTemplate();
-                }
+        if ($event->isJsonResponse()) {
 
-                $template = $customTpl
-                    ? $customTpl
-                    : 'Content:view.html.twig';
+            $event->setResponse(new JsonResponse([
+                'success' => $event->getSuccess(),
+                'entity' => $event->getEntity()->getData(),
+                'messages' => $event->getMessages(),
+            ]));
 
-                $event->setResponse($this->getThemeService()->render('frontend', $template, $event->getReturnData()));
-                break;
+        } else {
+
+            $customTpl = $event->getCustomTemplate();
+            if (!$customTpl && $event->getEntity()->getCustomTemplate()) {
+                $customTpl = $event->getEntity()->getCustomTemplate();
+            }
+
+            $template = $customTpl
+                ? $customTpl
+                : 'Content:view.html.twig';
+
+            $event->setResponse($this->getThemeService()->renderFrontend(
+                $template,
+                $event->getReturnData()
+            ));
         }
     }
 }

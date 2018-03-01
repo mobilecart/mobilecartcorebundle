@@ -51,7 +51,7 @@ class OrderUpdate
     }
 
     /**
-     * @return \MobileCart\CoreBundle\Service\CurrencyService
+     * @return \MobileCart\CoreBundle\Service\CurrencyServiceInterface
      */
     public function getCurrencyService()
     {
@@ -84,13 +84,29 @@ class OrderUpdate
             }
         }
 
-        $this->getEntityService()->persist($entity);
+        $this->getEntityService()->beginTransaction();
+
+        try {
+            $this->getEntityService()->persist($entity);
+            $event->setSuccess(true);
+        } catch(\Exception $e) {
+            $this->getEntityService()->rollBack();
+            $event->addErrorMessage('An error occurred while saving the Order');
+            return;
+        }
 
         if ($formData) {
-
-            $this->getEntityService()
-                ->persistVariants($entity, $formData);
+            try {
+                $this->getEntityService()->persistVariants($entity, $formData);
+            } catch(\Exception $e) {
+                $this->getEntityService()->rollBack();
+                $event->addErrorMessage('An error occurred while saving the Order');
+            }
         }
+
+        $this->getEntityService()->commit();
+        $event->setSuccess(true);
+        $event->addSuccessMessage('Order Updated !');
 
         $username = $event->getUser()
             ? $event->getUser()->getEmail()
@@ -104,6 +120,12 @@ class OrderUpdate
             ->setMessage('Order Updated')
             ->setHistoryType(\MobileCart\CoreBundle\Entity\OrderHistory::TYPE_STATUS);
 
+        try {
+            $this->getEntityService()->persist($history);
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while saving Order History');
+        }
+
         // update tracking numbers on shipments, if necessary
         $request = $event->getRequest();
         $tracking = $request->get('tracking', []);
@@ -115,11 +137,13 @@ class OrderUpdate
                     && $shipment->getTracking() != $tracking[$shipment->getId()]
                 ) {
                     $shipment->setTracking($tracking[$shipment->getId()]);
-                    $this->getEntityService()->persist($shipment);
+                    try {
+                        $this->getEntityService()->persist($shipment);
+                    } catch(\Exception $e) {
+                        $event->addErrorMessage('An error occurred while saving Tracking on a Shipment');
+                    }
                 }
             }
         }
-
-        $event->addSuccessMessage('Order Updated!');
     }
 }

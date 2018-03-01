@@ -68,10 +68,7 @@ class OrderAddItem
         $qty = $item->getQty();
 
         if ($this->getCartService()->hasProductId($productId)) {
-
-            $this->getCartService()
-                ->setProductQty($productId, $qty);
-
+            $this->getCartService()->setProductQty($productId, $qty);
         } elseif ($productId) {
             $this->getCartService()->addItem($item);
         }

@@ -426,6 +426,7 @@
         <parameter key="cart.listener.shipping_method.create.return.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodCreateReturn</parameter>
         <parameter key="cart.listener.shipping_method.insert.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodInsert</parameter>
         <parameter key="cart.listener.shipping_method.edit.return.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodEditReturn</parameter>
+        <parameter key="cart.listener.shipping_method.update.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodUpdate</parameter>
         <parameter key="cart.listener.shipping_method.update.return.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodUpdateReturn</parameter>
         <parameter key="cart.listener.shipping_method.delete.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodDelete</parameter>
         <parameter key="cart.listener.shipping_rate.flatrate.class">MobileCart\CoreBundle\Shipping\FlatRate</parameter>
@@ -3184,9 +3185,6 @@
         </service>
         <service id="cart.listener.order_payment.insert" lazy="true" class="%cart.listener.order_payment.insert.class%">
             <tag name="kernel.event_listener" event="order_payment.insert" method="onOrderPaymentInsert" priority="50" />
-            <call method="setEntityService">
-                <argument type="service" id="cart.entity" />
-            </call>
             <call method="setCartService">
                 <argument type="service" id="cart" />
             </call>
@@ -3208,9 +3206,6 @@
         </service>
         <service id="cart.listener.order_payment.update" lazy="true" class="%cart.listener.order_payment.update.class%">
             <tag name="kernel.event_listener" event="order_payment.update" method="onOrderPaymentUpdate" priority="50" />
-            <call method="setEntityService">
-                <argument type="service" id="cart.entity" />
-            </call>
             <call method="setCartService">
                 <argument type="service" id="cart" />
             </call>
@@ -3268,9 +3263,6 @@
         </service>
         <service id="cart.listener.order_shipment.insert" lazy="true" class="%cart.listener.order_shipment.insert.class%">
             <tag name="kernel.event_listener" event="order_shipment.insert" method="onOrderShipmentInsert" priority="50" />
-            <call method="setEntityService">
-                <argument type="service" id="cart.entity" />
-            </call>
             <call method="setCartService">
                 <argument type="service" id="cart" />
             </call>
@@ -3292,9 +3284,6 @@
         </service>
         <service id="cart.listener.order_shipment.update" lazy="true" class="%cart.listener.order_shipment.update.class%">
             <tag name="kernel.event_listener" event="order_shipment.update" method="onOrderShipmentUpdate" priority="50" />
-            <call method="setEntityService">
-                <argument type="service" id="cart.entity" />
-            </call>
             <call method="setCartService">
                 <argument type="service" id="cart" />
             </call>
@@ -3448,14 +3437,18 @@
         <!-- Shipping Method admin -->
         <service id="cart.listener.shipping_method.search" lazy="true" class="%cart.listener.shipping_method.search.class%">
             <tag name="kernel.event_listener" event="shipping_method.search" method="onShippingMethodSearch" priority="50" />
+            <call method="setSearch">
+                <argument type="service" id="cart.search.admin" />
+                <argument type="string">shipping_method</argument>
+            </call>
         </service>
         <service id="cart.listener.shipping_method.list" lazy="true" class="%cart.listener.shipping_method.list.class%">
             <tag name="kernel.event_listener" event="shipping_method.search" method="onShippingMethodList" priority="40" />
             <call method="setRouter">
                 <argument type="service" id="router"/>
             </call>
-            <call method="setShippingService">
-                <argument type="service" id="cart.shipping" />
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
             </call>
         </service>
         <service id="cart.form.type.shipping_method" lazy="true" class="%cart.form.type.shipping_method.class%">
@@ -3507,6 +3500,12 @@
             </call>
             <call method="setThemeService">
                 <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.shipping_method.update" lazy="true" class="%cart.listener.shipping_method.update.class%">
+            <tag name="kernel.event_listener" event="shipping_method.update" method="onShippingMethodUpdate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
             </call>
         </service>
         <service id="cart.listener.shipping_method.update.return" lazy="true" class="%cart.listener.shipping_method.update.return.class%">

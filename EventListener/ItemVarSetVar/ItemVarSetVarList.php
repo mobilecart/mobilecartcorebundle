@@ -97,14 +97,17 @@ class ItemVarSetVarList
 
         switch($event->getRequestAccept()) {
             case CoreEvent::JSON:
+
                 $event->setResponse(new JsonResponse($event->getReturnData()));
+
                 break;
             default:
-                $event->setResponse($this->getThemeService()->render(
-                    'admin',
+
+                $event->setResponse($this->getThemeService()->renderAdmin(
                     'ItemVarSetVar:index.html.twig',
                     $event->getReturnData()
                 ));
+
                 break;
         }
     }
