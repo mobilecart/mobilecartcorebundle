@@ -105,9 +105,8 @@ class ExportRun
     public function onExportRun(CoreEvent $event)
     {
         $request = $event->getRequest();
-        $url = $this->getRouter()->generate('cart_admin_export_run', []);
         $form = $this->getFormFactory()->create($this->getFormTypeClass(), new \stdClass(), [
-            'action' => $url,
+            'action' => $this->getRouter()->generate('cart_admin_export_run', []),
             'method' => 'POST',
         ]);
 

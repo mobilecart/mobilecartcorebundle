@@ -40,7 +40,7 @@ class ItemVarSetVarCreateReturn
      */
     public function onItemVarSetVarCreateReturn(CoreEvent $event)
     {
-        $url = $this->getRouter()->generate('cart_admin_item_var_set_var_edit', [
+        $redirectUrl = $this->getRouter()->generate('cart_admin_item_var_set_var_edit', [
             'id' => $event->getEntity()->getId()
         ]);
 
@@ -52,7 +52,7 @@ class ItemVarSetVarCreateReturn
                 $event->setResponse(new JsonResponse([
                     'success' => $event->getSuccess(),
                     'entity' => $event->getEntity()->getData(),
-                    'redirect_url' => $url,
+                    'redirect_url' => $redirectUrl,
                     'messages' => $event->getMessages(),
                 ]));
 

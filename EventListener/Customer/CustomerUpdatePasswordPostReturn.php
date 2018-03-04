@@ -86,18 +86,18 @@ class CustomerUpdatePasswordPostReturn
      */
     public function onCustomerUpdatePasswordPostReturn(CoreEvent $event)
     {
-        $url = $this->getRouter()->generate('login_route', []);
+        $redirectUrl = $this->getRouter()->generate('login_route', []);
         $event->flashMessages();
 
         if ($event->isJsonResponse()) {
             // security risk . be careful what we return here
             $event->setResponse(new JsonResponse([
                 'success' => $event->getSuccess(),
-                'redirect_url' => $url,
+                'redirect_url' => $redirectUrl,
                 'messages' => $event->getMessages(),
             ]));
         } else {
-            $event->setResponse(new RedirectResponse($url));
+            $event->setResponse(new RedirectResponse($redirectUrl));
         }
     }
 }

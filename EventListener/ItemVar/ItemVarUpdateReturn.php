@@ -40,7 +40,7 @@ class ItemVarUpdateReturn
      */
     public function onItemVarUpdateReturn(CoreEvent $event)
     {
-        $url = $this->getRouter()->generate('cart_admin_item_var_edit', [
+        $redirectUrl = $this->getRouter()->generate('cart_admin_item_var_edit', [
             'id' => $event->getEntity()->getId()
         ]);
 
@@ -52,14 +52,14 @@ class ItemVarUpdateReturn
                 $event->setResponse(new JsonResponse([
                     'success' => $event->getSuccess(),
                     'entity' => $event->getEntity()->getData(),
-                    'redirect_url' => $url,
+                    'redirect_url' => $redirectUrl,
                     'messages' => $event->getMessages(),
                 ]));
 
                 break;
             default:
 
-                $event->setResponse(new RedirectResponse($url));
+                $event->setResponse(new RedirectResponse($redirectUrl));
 
                 break;
         }

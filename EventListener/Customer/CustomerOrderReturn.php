@@ -121,17 +121,17 @@ class CustomerOrderReturn
             // redirect to order listing
             $event->addErrorMessage('Order not found');
 
-            $url = $this->getRouter()->generate('customer_orders', []);
+            $redirectUrl = $this->getRouter()->generate('customer_orders', []);
 
             if ($event->isJsonResponse()) {
 
                 $event->setResponse(new JsonResponse([
                     'success' => $event->getSuccess(),
-                    'redirect_url' => $url,
+                    'redirect_url' => $redirectUrl,
                     'messages' => $event->getMessages(),
                 ]));
             } else {
-                $event->setResponse(new RedirectResponse($url));
+                $event->setResponse(new RedirectResponse($redirectUrl));
             }
         }
     }

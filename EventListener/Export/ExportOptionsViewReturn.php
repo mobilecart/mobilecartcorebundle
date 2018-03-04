@@ -105,19 +105,18 @@ class ExportOptionsViewReturn
     public function onExportOptionsViewReturn(CoreEvent $event)
     {
         $returnData = $event->getReturnData();
-        $route = 'cart_admin_export_run';
-        $params = [];
-        $url = $this->getRouter()->generate($route, $params);
 
         $form = $this->getFormFactory()->create($this->getFormTypeClass(), new \stdClass(), [
-            'action' => $url,
+            'action' => $this->getRouter()->generate('cart_admin_export_run', []),
             'method' => 'POST',
         ]);
 
         $returnData['form'] = $form->createView();
 
-        $response = $this->getThemeService()
-            ->render('admin', 'Export:options.html.twig', $returnData);
+        $response = $this->getThemeService()->renderAdmin(
+            'Export:options.html.twig',
+            $returnData
+        );
 
         $event->setReturnData($returnData)
             ->setResponse($response);

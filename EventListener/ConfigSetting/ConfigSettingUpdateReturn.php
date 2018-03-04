@@ -41,7 +41,7 @@ class ConfigSettingUpdateReturn
      */
     public function onConfigSettingUpdateReturn(CoreEvent $event)
     {
-        $url = $this->getRouter()->generate('cart_admin_config_setting_edit', [
+        $redirectUrl = $this->getRouter()->generate('cart_admin_config_setting_edit', [
             'id' => $event->getEntity()->getId()
         ]);
 
@@ -53,14 +53,14 @@ class ConfigSettingUpdateReturn
                 $event->setResponse(new JsonResponse([
                     'success' => $event->getSuccess(),
                     'entity' => $event->getEntity()->getData(),
-                    'redirect_url' => $url,
+                    'redirect_url' => $redirectUrl,
                     'messages' => $event->getMessages(),
                 ]));
 
                 break;
             default:
 
-                $event->setResponse(new RedirectResponse($url));
+                $event->setResponse(new RedirectResponse($redirectUrl));
 
                 break;
         }

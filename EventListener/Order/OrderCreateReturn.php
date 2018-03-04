@@ -40,7 +40,7 @@ class OrderCreateReturn
      */
     public function onOrderCreateReturn(CoreEvent $event)
     {
-        $url = $this->getRouter()->generate('cart_admin_order_edit', [
+        $redirectUrl = $this->getRouter()->generate('cart_admin_order_edit', [
             'id' => $event->getEntity()->getId()
         ]);
 
@@ -52,14 +52,14 @@ class OrderCreateReturn
                 $event->setResponse(new JsonResponse([
                     'success' => $event->getSuccess(),
                     'entity' => $event->getEntity()->getData(),
-                    'redirect_url' => $url,
+                    'redirect_url' => $redirectUrl,
                     'messages' => $event->getMessages(),
                 ]));
 
                 break;
             default:
 
-                $event->setResponse(new RedirectResponse($url));
+                $event->setResponse(new RedirectResponse($redirectUrl));
 
                 break;
         }

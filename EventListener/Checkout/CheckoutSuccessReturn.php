@@ -106,8 +106,8 @@ class CheckoutSuccessReturn
         $orderId = $this->getCartService()->getSession()->get('order_id', 0);
         if (!$orderId) {
             // redirect to checkout page
-            $url = $this->getRouter()->generate('cart_checkout', []);
-            $response = new RedirectResponse($url);
+            $redirectUrl = $this->getRouter()->generate('cart_checkout', []);
+            $response = new RedirectResponse($redirectUrl);
             $event->setResponse($response);
             return false;
         }

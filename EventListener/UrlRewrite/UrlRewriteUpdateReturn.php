@@ -42,7 +42,7 @@ class UrlRewriteUpdateReturn
     public function onUrlRewriteUpdateReturn(CoreEvent $event)
     {
         $entity = $event->getEntity();
-        $url = $this->getRouter()->generate('cart_admin_url_rewrite_edit', ['id' => $entity->getId()]);
+        $redirectUrl = $this->getRouter()->generate('cart_admin_url_rewrite_edit', ['id' => $entity->getId()]);
 
         if ($event->hasFlashMessages()) {
             $event->flashMessages();
@@ -53,11 +53,11 @@ class UrlRewriteUpdateReturn
                 $event->setResponse(new JsonResponse([
                     'success' => true,
                     'entity' => $entity->getData(),
-                    'redirect_url' => $url,
+                    'redirect_url' => $redirectUrl,
                 ]));
                 break;
             default:
-                $event->setResponse(new RedirectResponse($url));
+                $event->setResponse(new RedirectResponse($redirectUrl));
                 break;
         }
     }

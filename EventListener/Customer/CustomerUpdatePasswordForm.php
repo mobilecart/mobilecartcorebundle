@@ -108,13 +108,13 @@ class CustomerUpdatePasswordForm
      */
     public function onCustomerUpdatePasswordForm(CoreEvent $event)
     {
-        $url = $this->getRouter()->generate('customer_update_password_post', [
+        $redirectUrl = $this->getRouter()->generate('customer_update_password_post', [
             'id' => $event->getEntity()->getId(),
             'hash' => $event->getEntity()->getConfirmHash()
         ]);
 
         $event->setReturnData('form', $this->getFormFactory()->create($this->getFormTypeClass(), $event->getEntity(), [
-            'action' => $url,
+            'action' => $redirectUrl,
             'method' => 'POST',
         ]));
 

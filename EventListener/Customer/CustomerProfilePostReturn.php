@@ -89,20 +89,20 @@ class CustomerProfilePostReturn
         /** @var \MobileCart\CoreBundle\Entity\Customer $customer */
         $event->flashMessages();
 
-        $url = $this->getRouter()->generate('customer_profile', []);
+        $redirectUrl = $this->getRouter()->generate('customer_profile', []);
 
         if ($event->isJsonResponse()) {
 
             $event->setResponse(new JsonResponse([
                 'success' => true,
                 'entity' => $event->getEntity()->getData(),
-                'redirect_url' => $url,
+                'redirect_url' => $redirectUrl,
                 'messages' => $event->getMessages(),
             ]));
 
         } else {
 
-            $event->setResponse(new RedirectResponse($url));
+            $event->setResponse(new RedirectResponse($redirectUrl));
 
         }
     }
