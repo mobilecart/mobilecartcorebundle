@@ -50,7 +50,6 @@ class ContentCreateReturn
 
             $event->setResponse(new JsonResponse([
                 'success' => $event->getSuccess(),
-                'entity' => $event->getEntity()->getData(),
                 'redirect_url' => $redirectUrl,
                 'messages' => $event->getMessages(),
             ]));
@@ -58,7 +57,6 @@ class ContentCreateReturn
         } else {
 
             $event->setResponse(new RedirectResponse($redirectUrl));
-
         }
     }
 }

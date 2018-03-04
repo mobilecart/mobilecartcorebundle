@@ -51,7 +51,6 @@ class ContentUpdateReturn
 
             $event->setResponse(new JsonResponse([
                 'success' => $event->getSuccess(),
-                'entity' => $event->getEntity()->getData(),
                 'redirect_url' => $redirectUrl,
                 'messages' => $event->getMessages(),
             ]));
@@ -59,7 +58,6 @@ class ContentUpdateReturn
         } else {
 
             $event->setResponse(new RedirectResponse($redirectUrl));
-
         }
     }
 }

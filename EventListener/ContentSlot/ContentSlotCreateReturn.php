@@ -40,24 +40,23 @@ class ContentSlotCreateReturn
      */
     public function onContentSlotCreateReturn(CoreEvent $event)
     {
-        $entity = $event->getEntity();
-        $redirectUrl = $this->getRouter()->generate('cart_admin_content_slot_edit', ['id' => $entity->getId()]);
+        $redirectUrl = $this->getRouter()->generate('cart_admin_content_slot_edit', [
+            'id' => $event->getEntity()->getId()
+        ]);
 
-        if ($event->hasFlashMessages()) {
-            $event->flashMessages();
-        }
+        $event->flashMessages();
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
-                $event->setResponse(new JsonResponse([
-                    'success' => true,
-                    'entity' => $entity->getData(),
-                    'redirect_url' => $redirectUrl,
-                ]));
-                break;
-            default:
-                $event->setResponse(new RedirectResponse($redirectUrl));
-                break;
+        if ($event->isJsonResponse()) {
+
+            $event->setResponse(new JsonResponse([
+                'success' => $event->getSuccess(),
+                'redirect_url' => $redirectUrl,
+                'messages' => $event->getMessages(),
+            ]));
+
+        } else {
+
+            $event->setResponse(new RedirectResponse($redirectUrl));
         }
     }
 }

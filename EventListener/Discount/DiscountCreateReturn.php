@@ -46,22 +46,17 @@ class DiscountCreateReturn
 
         $event->flashMessages();
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
+        if ($event->isJsonResponse()) {
 
-                $event->setResponse(new JsonResponse([
-                    'success' => $event->getSuccess(),
-                    'entity' => $event->getEntity()->getData(),
-                    'redirect_url' => $redirectUrl,
-                    'messages' => $event->getMessages(),
-                ]));
+            $event->setResponse(new JsonResponse([
+                'success' => $event->getSuccess(),
+                'redirect_url' => $redirectUrl,
+                'messages' => $event->getMessages(),
+            ]));
 
-                break;
-            default:
+        } else {
 
-                $event->setResponse(new RedirectResponse($redirectUrl));
-
-                break;
+            $event->setResponse(new RedirectResponse($redirectUrl));
         }
     }
 }

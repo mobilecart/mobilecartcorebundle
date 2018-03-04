@@ -41,28 +41,23 @@ class ShippingMethodUpdateReturn
      */
     public function onShippingMethodUpdateReturn(CoreEvent $event)
     {
-        $url = $this->getRouter()->generate('cart_admin_shipping_method_edit', [
+        $redirectUrl = $this->getRouter()->generate('cart_admin_shipping_method_edit', [
             'id' => $event->getEntity()->getId()
         ]);
 
         $event->flashMessages();
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
+        if ($event->isJsonResponse()) {
 
-                $event->setResponse(new JsonResponse([
-                    'success' => $event->getSuccess(),
-                    'entity' => $event->getEntity()->getData(),
-                    'redirect_url' => $url,
-                    'messages' => $event->getMessages(),
-                ]));
+            $event->setResponse(new JsonResponse([
+                'success' => $event->getSuccess(),
+                'redirect_url' => $redirectUrl,
+                'messages' => $event->getMessages(),
+            ]));
 
-                break;
-            default:
+        } else {
 
-                $event->setResponse(new RedirectResponse($url));
-
-                break;
+            $event->setResponse(new RedirectResponse($redirectUrl));
         }
     }
 }

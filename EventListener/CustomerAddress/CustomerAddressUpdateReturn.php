@@ -40,7 +40,7 @@ class CustomerAddressUpdateReturn
      */
     public function onCustomerAddressUpdateReturn(CoreEvent $event)
     {
-        $url = $this->getRouter()->generate('customer_address_edit', [
+        $redirectUrl = $this->getRouter()->generate('customer_address_edit', [
             'id' => $event->getEntity()->getId()
         ]);
 
@@ -50,15 +50,13 @@ class CustomerAddressUpdateReturn
 
             $event->setResponse(new JsonResponse([
                 'success' => $event->getSuccess(),
-                'entity' => $event->getEntity()->getData(),
-                'redirect_url' => $url,
+                'redirect_url' => $redirectUrl,
                 'messages' => $event->getMessages(),
             ]));
 
         } else {
 
-            $event->setResponse(new RedirectResponse($url));
-
+            $event->setResponse(new RedirectResponse($redirectUrl));
         }
     }
 }

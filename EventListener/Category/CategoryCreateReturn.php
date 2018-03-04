@@ -50,9 +50,8 @@ class CategoryCreateReturn
 
             $event->setResponse(new JsonResponse([
                 'success' => $event->getSuccess(),
-                'entity' => $event->getEntity()->getData(),
                 'redirect_url' => $redirectUrl,
-                'messages' => $event->getMessages()
+                'messages' => $event->getMessages(),
             ]));
 
         } else {

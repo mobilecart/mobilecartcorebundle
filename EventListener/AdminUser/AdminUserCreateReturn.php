@@ -41,7 +41,7 @@ class AdminUserCreateReturn
      */
     public function onAdminUserCreateReturn(CoreEvent $event)
     {
-        $url = $this->getRouter()->generate('cart_admin_admin_user_edit', [
+        $redirectUrl = $this->getRouter()->generate('cart_admin_admin_user_edit', [
             'id' => $event->getEntity()->getId()
         ]);
 
@@ -51,14 +51,13 @@ class AdminUserCreateReturn
 
             $event->setResponse(new JsonResponse([
                 'success' => $event->getSuccess(),
-                'entity' => $event->getEntity()->getData(),
-                'redirect_url' => $url,
+                'redirect_url' => $redirectUrl,
                 'messages' => $event->getMessages(),
             ]));
 
         } else {
 
-            $event->setResponse(new RedirectResponse($url));
+            $event->setResponse(new RedirectResponse($redirectUrl));
         }
     }
 }

@@ -49,12 +49,13 @@ class CustomerUpdateReturn
         if ($event->isJsonResponse()) {
 
             $event->setResponse(new JsonResponse([
-                'success' => true,
-                'entity' => $event->getEntity()->getData(),
+                'success' => $event->getSuccess(),
                 'redirect_url' => $redirectUrl,
                 'messages' => $event->getMessages(),
             ]));
+
         } else {
+
             $event->setResponse(new RedirectResponse($redirectUrl));
         }
     }
