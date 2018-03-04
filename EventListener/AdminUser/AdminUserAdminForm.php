@@ -1,15 +1,15 @@
 <?php
 
-namespace MobileCart\CoreBundle\EventListener\ConfigSetting;
+namespace MobileCart\CoreBundle\EventListener\AdminUser;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
-use MobileCart\CoreBundle\Form\ConfigSettingType;
+use MobileCart\CoreBundle\Form\AdminUserType;
 
 /**
- * Class ConfigSettingAdminForm
- * @package MobileCart\CoreBundle\EventListener\ConfigSetting
+ * Class AdminUserAdminForm
+ * @package MobileCart\CoreBundle\EventListener\AdminUser
  */
-class ConfigSettingAdminForm
+class AdminUserAdminForm
 {
     /**
      * @var \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
@@ -106,7 +106,7 @@ class ConfigSettingAdminForm
     /**
      * @param CoreEvent $event
      */
-    public function onConfigSettingAdminForm(CoreEvent $event)
+    public function onAdminUserAdminForm(CoreEvent $event)
     {
         $entity = $event->getEntity();
         $form = $this->getFormFactory()->create($this->getFormTypeClass(), $entity, [
@@ -120,9 +120,15 @@ class ConfigSettingAdminForm
                 'label' => 'General',
                 'id' => 'general',
                 'fields' => [
-                    'code',
-                    'label',
-                    'value',
+                    'is_enabled',
+                    'email',
+                    'firstname',
+                    'lastname',
+                    'password',
+                    'is_locked',
+                    'is_expired',
+                    'is_password_expired',
+                    'api_key',
                 ],
             ],
         ]);

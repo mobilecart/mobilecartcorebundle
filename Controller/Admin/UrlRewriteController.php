@@ -187,45 +187,42 @@ class UrlRewriteController extends Controller
      */
     public function deleteAction(Request $request, $id)
     {
-        $form = $this->createDeleteForm($id);
-        $form->handleRequest($request);
+        $entity = $this->get('cart.entity')->find($this->objectType, $id);
+        if (!$entity) {
+            throw $this->createNotFoundException('Unable to find UrlRewrite entity.');
+        }
 
-        if ($form->isValid()) {
-            $entity = $this->get('cart.entity')->find($this->objectType, $id);
-            if (!$entity) {
-                throw $this->createNotFoundException('Unable to find UrlRewrite entity.');
-            }
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
+            ->setEntity($entity)
+            ->setRequest($request);
 
-            $event = new CoreEvent();
-            $event->setObjectType($this->objectType)
-                ->setEntity($entity)
-                ->setRequest($request);
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::URL_REWRITE_DELETE, $event);
 
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::URL_REWRITE_DELETE, $event);
+        $event->flashMessages();
 
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'UrlRewrite Successfully Deleted!'
-            );
+        if ($event->isJsonResponse()) {
+            return new JsonResponse($event->getSuccess());
         }
 
         return $this->redirect($this->generateUrl('cart_admin_url_rewrite'));
     }
 
     /**
-     * Mass-Delete Url Rewrite entities
+     * Mass-Delete UrlRewrites
      */
     public function massDeleteAction(Request $request)
     {
-        $itemIds = $request->get('item_ids', []);
-        $returnData = ['item_ids' => []];
+        $ids = $request->get('ids', []);
+        $counter = 0;
 
-        if ($itemIds) {
-            foreach($itemIds as $itemId) {
-                $entity = $this->get('cart.entity')->find($this->objectType, $itemId);
+        if ($ids) {
+            foreach($ids as $id) {
+
+                $id = (int) $id;
+                $entity = $this->get('cart.entity')->find($this->objectType, $id);
                 if (!$entity) {
-                    $returnData['error'][] = $itemId;
                     continue;
                 }
 
@@ -237,31 +234,35 @@ class UrlRewriteController extends Controller
                 $this->get('event_dispatcher')
                     ->dispatch(CoreEvents::URL_REWRITE_DELETE, $event);
 
-                $returnData['item_ids'][] = $itemId;
-            }
+                if ($event->getSuccess()) {
+                    $counter++;
+                } else {
 
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                count($returnData['item_ids']) . ' UrlRewrites Successfully Deleted'
-            );
+                    $event->addSuccessMessage("{$counter} UrlRewrites deleted !");
+                    $event->addErrorMessage("UrlRewrite ID: {$id} could not be deleted");
+
+                    if ($event->isJsonResponse()) {
+
+                        return new JsonResponse([
+                            'success' => false,
+                            'messages' => $event->getMessages(),
+                        ]);
+                    } else {
+
+                        return $this->redirect($this->generateUrl('cart_admin_url_rewrite'));
+                    }
+                }
+            }
         }
 
-        return new JsonResponse($returnData);
-    }
+        $event = new CoreEvent();
+        $event->addSuccessMessage("{$counter} UrlRewrites deleted !");
+        $event->flashMessages();
 
-    /**
-     * Creates a form to delete an entity by id.
-     *
-     * @param mixed $id The entity id
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    protected function createDeleteForm($id)
-    {
-        return $this->createFormBuilder()
-            ->setAction($this->generateUrl('cart_admin_url_rewrite_delete', array('id' => $id)))
-            ->setMethod('DELETE')
-            ->add('submit', 'submit', ['label' => 'Delete'])
-            ->getForm();
+        if ($event->isJsonResponse()) {
+            return new JsonResponse(true);
+        }
+
+        return $this->redirect($this->generateUrl('cart_admin_url_rewrite'));
     }
 }

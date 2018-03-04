@@ -1,14 +1,14 @@
 <?php
 
-namespace MobileCart\CoreBundle\EventListener\Customer;
+namespace MobileCart\CoreBundle\EventListener\AdminUser;
 
 use MobileCart\CoreBundle\Event\CoreEvent;
 
 /**
- * Class CustomerInsert
- * @package MobileCart\CoreBundle\EventListener\Customer
+ * Class AdminUserInsert
+ * @package MobileCart\CoreBundle\EventListener\AdminUser
  */
-class CustomerInsert
+class AdminUserInsert
 {
     /**
      * @var \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
@@ -59,16 +59,11 @@ class CustomerInsert
     /**
      * @param CoreEvent $event
      */
-    public function onCustomerInsert(CoreEvent $event)
+    public function onAdminUserInsert(CoreEvent $event)
     {
-        /** @var \MobileCart\CoreBundle\Entity\Customer $entity */
+        /** @var \MobileCart\CoreBundle\Entity\AdminUser $entity */
         $entity = $event->getEntity();
         $formData = $event->getFormData();
-
-        if ($event->getFormData('is_shipping_same', false)) {
-            $entity->setIsShippingSame(true);
-            $entity->copyBillingToShipping();
-        }
 
         // encode password, handle hash
         if (isset($formData['password']['first']) && $formData['password']['first']) {
@@ -77,17 +72,12 @@ class CustomerInsert
             $entity->setHash($encoded);
         }
 
-        $entity->setCreatedAt(new \DateTime('now'));
-
         try {
             $this->getEntityService()->persist($entity);
             $event->setSuccess(true);
-            $event->addSuccessMessage('Customer Created !');
-            if ($formData) {
-                $this->getEntityService()->persistVariants($entity, $formData);
-            }
+            $event->addSuccessMessage('Admin User Created !');
         } catch(\Exception $e) {
-            $event->addErrorMessage('An error occurred while saving the Customer');
+            $event->addErrorMessage('An error occurred while saving Admin User');
         }
     }
 }

@@ -15,14 +15,24 @@ class CustomerUpdate
      */
     protected $cartService;
 
+    /**
+     * @var \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface
+     */
     protected $securityPasswordEncoder;
 
-    public function setSecurityPasswordEncoder($encoder)
+    /**
+     * @param \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $encoder
+     * @return $this
+     */
+    public function setSecurityPasswordEncoder(\Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $encoder)
     {
         $this->securityPasswordEncoder = $encoder;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface
+     */
     public function getSecurityPasswordEncoder()
     {
         return $this->securityPasswordEncoder;

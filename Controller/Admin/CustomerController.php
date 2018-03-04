@@ -192,39 +192,37 @@ class CustomerController extends Controller
             throw $this->createNotFoundException('Unable to find Customer entity.');
         }
 
-        $form = $this->createDeleteForm($id);
-        if ($form->handleRequest($request)->isValid()) {
+        $event = new CoreEvent();
+        $event->setObjectType($this->objectType)
+            ->setEntity($entity)
+            ->setRequest($request);
 
-            $event = new CoreEvent();
-            $event->setObjectType($this->objectType)
-                ->setEntity($entity)
-                ->setRequest($request);
+        $this->get('event_dispatcher')
+            ->dispatch(CoreEvents::CUSTOMER_DELETE, $event);
 
-            $this->get('event_dispatcher')
-                ->dispatch(CoreEvents::CUSTOMER_DELETE, $event);
+        $event->flashMessages();
 
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                'Customer Successfully Deleted!'
-            );
+        if ($event->isJsonResponse()) {
+            return new JsonResponse($event->getSuccess());
         }
 
         return $this->redirect($this->generateUrl('cart_admin_customer'));
     }
 
     /**
-     * Mass-Delete Category entities
+     * Mass-Delete Customers
      */
     public function massDeleteAction(Request $request)
     {
-        $itemIds = $request->get('item_ids', []);
-        $returnData = ['item_ids' => []];
+        $ids = $request->get('ids', []);
+        $counter = 0;
 
-        if ($itemIds) {
-            foreach($itemIds as $itemId) {
-                $entity = $this->get('cart.entity')->find($this->objectType, $itemId);
+        if ($ids) {
+            foreach($ids as $id) {
+
+                $id = (int) $id;
+                $entity = $this->get('cart.entity')->find($this->objectType, $id);
                 if (!$entity) {
-                    $returnData['error'][] = $itemId;
                     continue;
                 }
 
@@ -236,31 +234,35 @@ class CustomerController extends Controller
                 $this->get('event_dispatcher')
                     ->dispatch(CoreEvents::CUSTOMER_DELETE, $event);
 
-                $returnData['item_ids'][] = $itemId;
-            }
+                if ($event->getSuccess()) {
+                    $counter++;
+                } else {
 
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                count($returnData['item_ids']) . ' Customers Successfully Deleted'
-            );
+                    $event->addSuccessMessage("{$counter} Customers deleted !");
+                    $event->addErrorMessage("Customer ID: {$id} could not be deleted");
+
+                    if ($event->isJsonResponse()) {
+
+                        return new JsonResponse([
+                            'success' => false,
+                            'messages' => $event->getMessages(),
+                        ]);
+                    } else {
+
+                        return $this->redirect($this->generateUrl('cart_admin_customer'));
+                    }
+                }
+            }
         }
 
-        return new JsonResponse($returnData);
-    }
+        $event = new CoreEvent();
+        $event->addSuccessMessage("{$counter} Customers deleted !");
+        $event->flashMessages();
 
-    /**
-     * Creates a form to delete an entity by id.
-     *
-     * @param mixed $id The entity id
-     *
-     * @return \Symfony\Component\Form\Form
-     */
-    protected function createDeleteForm($id)
-    {
-        return $this->createFormBuilder()
-            ->setAction($this->generateUrl('cart_admin_customer_delete', ['id' => $id]))
-            ->setMethod('DELETE')
-            ->add('submit', 'submit', ['label' => 'Delete'])
-            ->getForm();
+        if ($event->isJsonResponse()) {
+            return new JsonResponse(true);
+        }
+
+        return $this->redirect($this->generateUrl('cart_admin_customer'));
     }
 }

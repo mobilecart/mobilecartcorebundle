@@ -11,6 +11,10 @@
 
 namespace MobileCart\CoreBundle\Constants;
 
+/**
+ * Class EntityConstants
+ * @package MobileCart\CoreBundle\Constants
+ */
 class EntityConstants
 {
     // EAV objects

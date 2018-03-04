@@ -57,6 +57,7 @@
         <parameter key="cart.auth.token.class">MobileCart\CoreBundle\Service\GuardTokenAuthService</parameter>
         <parameter key="cart.auth.token.allow.admin">0</parameter><!-- Enable GuardTokenAuth for Admin access -->
         <!-- Forms -->
+        <parameter key="cart.form.type.admin_user.class">MobileCart\CoreBundle\Form\AdminUserType</parameter>
         <parameter key="cart.form.type.category.class">MobileCart\CoreBundle\Form\CategoryType</parameter>
         <parameter key="cart.form.type.checkout.billing_address.class">MobileCart\CoreBundle\Form\CheckoutBillingAddressType</parameter>
         <parameter key="cart.form.type.checkout.shipping_address.class">MobileCart\CoreBundle\Form\CheckoutShippingAddressType</parameter>
@@ -189,13 +190,11 @@
         <parameter key="cart.listener.checkout.form.billing_address.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutBillingAddressForm</parameter>
         <parameter key="cart.listener.checkout.form.shipping_address.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutShippingAddressForm</parameter>
         <parameter key="cart.listener.checkout.form.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutForm</parameter>
-        <!--<parameter key="cart.listener.checkout.form.totals_discounts.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutTotalsDiscountsViewReturn</parameter>-->
         <parameter key="cart.listener.checkout.form.payment_method.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutPaymentMethods</parameter>
         <parameter key="cart.listener.checkout.update.billing_address.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdateBillingAddress</parameter>
         <parameter key="cart.listener.checkout.confirm.order.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutConfirmOrder</parameter>
         <parameter key="cart.listener.checkout.update.payment_methods.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdatePaymentMethods</parameter>
         <parameter key="cart.listener.checkout.update.shipping_address.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdateShippingAddress</parameter>
-        <!--<parameter key="cart.listener.checkout.update.totals_discounts.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdateTotalsDiscounts</parameter>-->
         <parameter key="cart.listener.checkout.update.payment_method.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutUpdatePaymentMethod</parameter>
         <parameter key="cart.listener.checkout.submit.order.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutSubmitOrder</parameter>
         <parameter key="cart.listener.checkout.submit.order.return.class">MobileCart\CoreBundle\EventListener\Checkout\CheckoutSubmitOrderReturn</parameter>
@@ -219,19 +218,17 @@
         <parameter key="cart.listener.cart.total.tax.class">MobileCart\CoreBundle\EventListener\Cart\TaxTotal</parameter>
         <parameter key="cart.listener.cart.total.discount.class">MobileCart\CoreBundle\EventListener\Cart\DiscountTotal</parameter>
         <parameter key="cart.listener.cart.total.grand.class">MobileCart\CoreBundle\EventListener\Cart\GrandTotal</parameter>
-        <!-- Product Handlers -->
-        <parameter key="cart.listener.product.search.class">MobileCart\CoreBundle\EventListener\Product\ProductSearch</parameter>
-        <parameter key="cart.listener.product.list.class">MobileCart\CoreBundle\EventListener\Product\ProductList</parameter>
-        <parameter key="cart.listener.product.admin.form.class">MobileCart\CoreBundle\EventListener\Product\ProductAdminForm</parameter>
-        <parameter key="cart.listener.product.create.return.class">MobileCart\CoreBundle\EventListener\Product\ProductCreateReturn</parameter>
-        <parameter key="cart.listener.product.update.return.class">MobileCart\CoreBundle\EventListener\Product\ProductUpdateReturn</parameter>
-        <parameter key="cart.listener.product.edit.return.class">MobileCart\CoreBundle\EventListener\Product\ProductEditReturn</parameter>
-        <parameter key="cart.listener.product.new.return.class">MobileCart\CoreBundle\EventListener\Product\ProductNewReturn</parameter>
-        <parameter key="cart.listener.product.view.return.class">MobileCart\CoreBundle\EventListener\Product\ProductViewReturn</parameter>
-        <parameter key="cart.listener.product.update.class">MobileCart\CoreBundle\EventListener\Product\ProductUpdate</parameter>
-        <parameter key="cart.listener.product.insert.class">MobileCart\CoreBundle\EventListener\Product\ProductInsert</parameter>
-        <parameter key="cart.listener.product.delete.class">MobileCart\CoreBundle\EventListener\Product\ProductDelete</parameter>
-        <parameter key="cart.listener.product.duplicate.class">MobileCart\CoreBundle\EventListener\Product\ProductDuplicate</parameter>
+        <!-- Admin User Handlers -->
+        <parameter key="cart.listener.admin_user.search.class">MobileCart\CoreBundle\EventListener\AdminUser\AdminUserSearch</parameter>
+        <parameter key="cart.listener.admin_user.list.class">MobileCart\CoreBundle\EventListener\AdminUser\AdminUserList</parameter>
+        <parameter key="cart.listener.admin_user.edit.return.class">MobileCart\CoreBundle\EventListener\AdminUser\AdminUserEditReturn</parameter>
+        <parameter key="cart.listener.admin_user.new.return.class">MobileCart\CoreBundle\EventListener\AdminUser\AdminUserNewReturn</parameter>
+        <parameter key="cart.listener.admin_user.create.return.class">MobileCart\CoreBundle\EventListener\AdminUser\AdminUserCreateReturn</parameter>
+        <parameter key="cart.listener.admin_user.update.return.class">MobileCart\CoreBundle\EventListener\AdminUser\AdminUserUpdateReturn</parameter>
+        <parameter key="cart.listener.admin_user.update.class">MobileCart\CoreBundle\EventListener\AdminUser\AdminUserUpdate</parameter>
+        <parameter key="cart.listener.admin_user.insert.class">MobileCart\CoreBundle\EventListener\AdminUser\AdminUserInsert</parameter>
+        <parameter key="cart.listener.admin_user.delete.class">MobileCart\CoreBundle\EventListener\AdminUser\AdminUserDelete</parameter>
+        <parameter key="cart.listener.admin_user.admin.form.class">MobileCart\CoreBundle\EventListener\AdminUser\AdminUserAdminForm</parameter>
         <!-- Category Handlers -->
         <parameter key="cart.listener.category.search.class">MobileCart\CoreBundle\EventListener\Category\CategorySearch</parameter>
         <parameter key="cart.listener.category.list.class">MobileCart\CoreBundle\EventListener\Category\CategoryList</parameter>
@@ -418,6 +415,19 @@
         <parameter key="cart.listener.order_shipment.insert.class">MobileCart\CoreBundle\EventListener\OrderShipment\OrderShipmentInsert</parameter>
         <parameter key="cart.listener.order_shipment.create.return.class">MobileCart\CoreBundle\EventListener\OrderShipment\OrderShipmentCreateReturn</parameter>
         <parameter key="cart.listener.order_shipment.update.return.class">MobileCart\CoreBundle\EventListener\OrderShipment\OrderShipmentUpdateReturn</parameter>
+        <!-- Product Handlers -->
+        <parameter key="cart.listener.product.search.class">MobileCart\CoreBundle\EventListener\Product\ProductSearch</parameter>
+        <parameter key="cart.listener.product.list.class">MobileCart\CoreBundle\EventListener\Product\ProductList</parameter>
+        <parameter key="cart.listener.product.admin.form.class">MobileCart\CoreBundle\EventListener\Product\ProductAdminForm</parameter>
+        <parameter key="cart.listener.product.create.return.class">MobileCart\CoreBundle\EventListener\Product\ProductCreateReturn</parameter>
+        <parameter key="cart.listener.product.update.return.class">MobileCart\CoreBundle\EventListener\Product\ProductUpdateReturn</parameter>
+        <parameter key="cart.listener.product.edit.return.class">MobileCart\CoreBundle\EventListener\Product\ProductEditReturn</parameter>
+        <parameter key="cart.listener.product.new.return.class">MobileCart\CoreBundle\EventListener\Product\ProductNewReturn</parameter>
+        <parameter key="cart.listener.product.view.return.class">MobileCart\CoreBundle\EventListener\Product\ProductViewReturn</parameter>
+        <parameter key="cart.listener.product.update.class">MobileCart\CoreBundle\EventListener\Product\ProductUpdate</parameter>
+        <parameter key="cart.listener.product.insert.class">MobileCart\CoreBundle\EventListener\Product\ProductInsert</parameter>
+        <parameter key="cart.listener.product.delete.class">MobileCart\CoreBundle\EventListener\Product\ProductDelete</parameter>
+        <parameter key="cart.listener.product.duplicate.class">MobileCart\CoreBundle\EventListener\Product\ProductDuplicate</parameter>
         <!-- Payment and Shipping Handlers -->
         <parameter key="cart.listener.shipping_method.search.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodSearch</parameter>
         <parameter key="cart.listener.shipping_method.list.class">MobileCart\CoreBundle\EventListener\ShippingMethod\ShippingMethodList</parameter>
@@ -582,6 +592,14 @@
 
         <!-- Theme Config : (de-coupled from cart.theme to avoid circular references) -->
         <service id="cart.theme.config" lazy="true" class="%cart.theme.config.class%">
+            <call method="addAdminEditRoute">
+                <argument type="string">admin_user</argument>
+                <argument type="string">cart_admin_admin_user_edit</argument>
+            </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">admin_user</argument>
+                <argument type="string">cart_admin_admin_user_delete</argument>
+            </call>
             <call method="addAdminEditRoute">
                 <argument type="string">category</argument>
                 <argument type="string">cart_admin_category_edit</argument>
@@ -961,24 +979,9 @@
             </call>
         </service>
 
-        <!-- Event Listener: render Totals and Discounts section of checkout -->
-        <!--<service id="cart.listener.checkout.form.totals_discounts" lazy="true" class="%cart.listener.checkout.form.totals_discounts.class%">-->
-            <!--<tag name="kernel.event_listener" event="checkout.form" method="onCheckoutForm" priority="70" />-->
-            <!--<call method="setOrderService">-->
-                <!--<argument type="service" id="cart.order" />-->
-            <!--</call>-->
-            <!--<call method="setRouter">-->
-                <!--<argument type="service" id="router" />-->
-            <!--</call>-->
-            <!--<call method="setThemeService">-->
-                <!--<argument type="service" id="cart.theme" />-->
-            <!--</call>-->
-        <!--</service>-->
-
         <!-- Event Listener: build payment form -->
         <service id="cart.listener.checkout.form.payment_method" lazy="true" class="%cart.listener.checkout.form.payment_method.class%">
             <tag name="kernel.event_listener" event="checkout.form" method="onCheckoutForm" priority="60" />
-            <!--<tag name="kernel.event_listener" event="checkout.form.config" method="onCheckoutFormConfig" priority="60" />-->
             <call method="setFormFactory">
                 <argument type="service" id="form.factory" />
             </call>
@@ -1043,17 +1046,6 @@
                 <argument type="service" id="logger" />
             </call>
         </service>
-
-        <!-- Event Listener: update/validate cart changes, totals, discounts being submitted in checkout -->
-        <!--<service id="cart.listener.checkout.update.totals_discounts" lazy="true" class="%cart.listener.checkout.update.totals_discounts.class%">-->
-            <!--<tag name="kernel.event_listener" event="checkout.update.totals_discounts" method="onCheckoutUpdateTotalsDiscounts" priority="50" />-->
-            <!--<call method="setCartService">-->
-                <!--<argument type="service" id="cart" />-->
-            <!--</call>-->
-            <!--<call method="setRouter">-->
-                <!--<argument type="service" id="router" />-->
-            <!--</call>-->
-        <!--</service>-->
 
         <!-- Event Listener: update/validate payment data in checkout (prior to payment capture) -->
         <service id="cart.listener.checkout.update.payment_method" lazy="true" class="%cart.listener.checkout.update.payment_method.class%">
@@ -1729,6 +1721,99 @@
         <!-- Event Listener: Cart Total : Grand Total -->
         <service id="cart.listener.cart.total.grand" lazy="true" class="%cart.listener.cart.total.grand.class%">
             <tag name="kernel.event_listener" event="cart.total" method="onCartTotalCollect" priority="1" />
+        </service>
+
+        <!-- AdminUser Services and Listeners -->
+        <service id="cart.listener.admin_user.search" lazy="true" class="%cart.listener.admin_user.search.class%">
+            <tag name="kernel.event_listener" event="admin_user.search" method="onAdminUserSearch" priority="50" />
+            <call method="setSearch">
+                <argument type="service" id="cart.search.admin" />
+                <argument type="string">admin_user</argument>
+            </call>
+        </service>
+        <service id="cart.listener.admin_user.list" lazy="true" class="%cart.listener.admin_user.list.class%">
+            <tag name="kernel.event_listener" event="admin_user.search" method="onAdminUserList" priority="40" />
+            <call method="setRouter">
+                <argument type="service" id="router"/>
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.admin_user.edit.return" lazy="true" class="%cart.listener.admin_user.edit.return.class%">
+            <tag name="kernel.event_listener" event="admin_user.edit.return" method="onAdminUserEditReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setImageService">
+                <argument type="service" id="cart.image" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.admin_user.new.return" lazy="true" class="%cart.listener.admin_user.new.return.class%">
+            <tag name="kernel.event_listener" event="admin_user.new.return" method="onAdminUserNewReturn" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setImageService">
+                <argument type="service" id="cart.image" />
+            </call>
+            <call method="setThemeService">
+                <argument type="service" id="cart.theme"/>
+            </call>
+        </service>
+        <service id="cart.listener.admin_user.create.return" lazy="true" class="%cart.listener.admin_user.create.return.class%">
+            <tag name="kernel.event_listener" event="admin_user.create.return" method="onAdminUserCreateReturn" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.admin_user.update.return" lazy="true" class="%cart.listener.admin_user.update.return.class%">
+            <tag name="kernel.event_listener" event="admin_user.update.return" method="onAdminUserUpdateReturn" priority="50" />
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+        </service>
+        <service id="cart.listener.admin_user.update" lazy="true" class="%cart.listener.admin_user.update.class%">
+            <tag name="kernel.event_listener" event="admin_user.update" method="onAdminUserUpdate" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setSecurityPasswordEncoder">
+                <argument type="service" id="security.password_encoder" />
+            </call>
+        </service>
+        <service id="cart.listener.admin_user.insert" lazy="true" class="%cart.listener.admin_user.insert.class%">
+            <tag name="kernel.event_listener" event="admin_user.insert" method="onAdminUserInsert" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setSecurityPasswordEncoder">
+                <argument type="service" id="security.password_encoder" />
+            </call>
+        </service>
+        <service id="cart.listener.admin_user.delete" lazy="true" class="%cart.listener.admin_user.delete.class%">
+            <tag name="kernel.event_listener" event="admin_user.delete" method="onAdminUserDelete" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+        </service>
+        <service id="cart.listener.admin_user.admin.form" lazy="true" class="%cart.listener.admin_user.admin.form.class%">
+            <tag name="kernel.event_listener" event="admin_user.admin.form" method="onAdminUserAdminForm" priority="50" />
+            <call method="setEntityService">
+                <argument type="service" id="cart.entity" />
+            </call>
+            <call method="setFormFactory">
+                <argument type="service" id="form.factory" />
+            </call>
+            <call method="setFormTypeClass">
+                <argument type="string">%cart.form.type.admin_user.class%</argument>
+            </call>
+            <call method="setThemeConfig">
+                <argument type="service" id="cart.theme.config" />
+            </call>
         </service>
 
         <!-- Category Services and Listeners -->

@@ -1,3 +1,43 @@
+cart_admin_admin_user:
+    path: /admin/admin_user/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\AdminUser:index' }
+    methods: [GET]
+
+cart_admin_admin_user_create:
+    path: /admin/admin_user/
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\AdminUser:create' }
+    methods: [POST]
+
+cart_admin_admin_user_new:
+    path: /admin/admin_user/new
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\AdminUser:new' }
+    methods: [GET]
+
+cart_admin_admin_user_show:
+    path: /admin/admin_user/{id}
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\AdminUser:show' }
+    methods: [GET]
+
+cart_admin_admin_user_edit:
+    path: /admin/admin_user/{id}/edit
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\AdminUser:edit' }
+    methods: [GET]
+
+cart_admin_admin_user_update:
+    path: /admin/admin_user/{id}
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\AdminUser:update' }
+    methods: [PUT]
+
+cart_admin_admin_user_delete:
+    path: /admin/admin_user/{id}
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\AdminUser:delete' }
+    methods: [DELETE]
+
+cart_admin_admin_user_mass_delete:
+    path: /admin/admin_user/mass_delete
+    defaults: { _controller: 'MobileCartCoreBundle:Admin\AdminUser:massDelete' }
+    methods: [POST]
+
 cart_admin_category:
     path: /admin/category/
     defaults: { _controller: 'MobileCartCoreBundle:Admin\Category:index' }

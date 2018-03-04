@@ -3,7 +3,6 @@
 namespace MobileCart\CoreBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 
 
@@ -12,7 +11,7 @@ use Symfony\Component\Security\Core\User\AdvancedUserInterface;
  *
  * User Management for the Administration of the Store
  *
- * @ORM\Table(name="admin_user")
+ * @ORM\Table(name="admin_user", indexes={@ORM\Index(name="admin_user_email_idx", columns={"email"})})
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\AdminUserRepository")
  */
 class AdminUser
@@ -29,18 +28,18 @@ class AdminUser
     protected $id;
 
     /**
-     * @var string $first_name
+     * @var string $firstname
      *
-     * @ORM\Column(name="first_name", type="string", length=255, nullable=true)
+     * @ORM\Column(name="firstname", type="string", length=255, nullable=true)
      */
-    protected $first_name;
+    protected $firstname;
 
     /**
-     * @var string $last_name
+     * @var string $lastname
      *
-     * @ORM\Column(name="last_name", type="string", length=255, nullable=true)
+     * @ORM\Column(name="lastname", type="string", length=255, nullable=true)
      */
-    protected $last_name;
+    protected $lastname;
 
     /**
      * @var string $email
@@ -167,7 +166,7 @@ class AdminUser
 
     /**
      * @param string $str
-     * @return $this|void
+     * @return $this
      */
     public function unserialize($str)
     {
@@ -194,9 +193,8 @@ class AdminUser
             'email'               => $this->getEmail(),
             // 'hash'                => $this->getHash(), // security risk
             // 'confirm_hash'        => $this->getConfirmHash(), // security risk
-            'name'                => $this->getName(),
-            'first_name'          => $this->getFirstName(),
-            'last_name'           => $this->getLastName(),
+            'firstname'           => $this->getFirstname(),
+            'lastname'            => $this->getLastname(),
             'failed_logins'       => $this->getFailedLogins(),
             'locked_at'           => $this->getLockedAt(),
             'last_login_at'       => $this->getLastLoginAt(),
@@ -259,7 +257,7 @@ class AdminUser
     }
 
     /**
-     * @return bool|void
+     * @return bool
      */
     public function isAccountNonExpired()
     {
@@ -291,55 +289,47 @@ class AdminUser
     }
 
     /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->getFirstName() . ' ' . $this->getLastName();
-    }
-
-    /**
-     * Set first_name
+     * Set firstname
      *
-     * @param string $firstName
+     * @param string $firstname
      * @return $this
      */
-    public function setFirstName($firstName)
+    public function setFirstName($firstname)
     {
-        $this->first_name = $firstName;
+        $this->firstname = $firstname;
         return $this;
     }
 
     /**
-     * Get first_name
+     * Get firstname
      *
      * @return string 
      */
-    public function getFirstName()
+    public function getFirstname()
     {
-        return $this->first_name;
+        return $this->firstname;
     }
 
     /**
-     * Set last_name
+     * Set lastname
      *
-     * @param string $lastName
+     * @param string $lastname
      * @return $this
      */
-    public function setLastName($lastName)
+    public function setLastname($lastname)
     {
-        $this->last_name = $lastName;
+        $this->lastname = $lastname;
         return $this;
     }
 
     /**
-     * Get last_name
+     * Get lastname
      *
      * @return string 
      */
-    public function getLastName()
+    public function getLastname()
     {
-        return $this->last_name;
+        return $this->lastname;
     }
 
     /**

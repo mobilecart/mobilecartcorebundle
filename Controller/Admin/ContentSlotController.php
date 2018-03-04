@@ -183,16 +183,13 @@ class ContentSlotController extends Controller
     }
 
     /**
-     * Deletes a Content entity
+     * Deletes a ContentSlot entity
      */
     public function deleteAction(Request $request, $id)
     {
         $entity = $this->get('cart.entity')->find($this->objectType, $id);
         if (!$entity) {
-
-            return new JsonResponse([
-                'success' => false,
-            ]);
+            throw $this->createNotFoundException('Unable to find ContentSlot entity.');
         }
 
         $event = new CoreEvent();
@@ -203,34 +200,29 @@ class ContentSlotController extends Controller
         $this->get('event_dispatcher')
             ->dispatch(CoreEvents::CONTENT_SLOT_DELETE, $event);
 
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
+        $event->flashMessages();
 
-            return new JsonResponse([
-                'success' => true,
-            ]);
+        if ($event->isJsonResponse()) {
+            return new JsonResponse($event->getSuccess());
         }
-
-        $request->getSession()->getFlashBag()->add(
-            'success',
-            'Content Successfully Deleted!'
-        );
 
         return $this->redirect($this->generateUrl('cart_admin_content_slot'));
     }
 
     /**
-     * Mass-Delete Contents
+     * Mass-Delete ContentSlots
      */
     public function massDeleteAction(Request $request)
     {
-        $itemIds = $request->get('item_ids', []);
-        $returnData = ['item_ids' => []];
+        $ids = $request->get('ids', []);
+        $counter = 0;
 
-        if ($itemIds) {
-            foreach($itemIds as $itemId) {
-                $entity = $this->get('cart.entity')->find($this->objectType, $itemId);
+        if ($ids) {
+            foreach($ids as $id) {
+
+                $id = (int) $id;
+                $entity = $this->get('cart.entity')->find($this->objectType, $id);
                 if (!$entity) {
-                    $returnData['error'][] = $itemId;
                     continue;
                 }
 
@@ -242,31 +234,35 @@ class ContentSlotController extends Controller
                 $this->get('event_dispatcher')
                     ->dispatch(CoreEvents::CONTENT_SLOT_DELETE, $event);
 
-                $returnData['item_ids'][] = $itemId;
-            }
+                if ($event->getSuccess()) {
+                    $counter++;
+                } else {
 
-            $request->getSession()->getFlashBag()->add(
-                'success',
-                count($returnData['item_ids']) . ' Contents Successfully Deleted'
-            );
+                    $event->addSuccessMessage("{$counter} ContentSlots deleted !");
+                    $event->addErrorMessage("ContentSlot ID: {$id} could not be deleted");
+
+                    if ($event->isJsonResponse()) {
+
+                        return new JsonResponse([
+                            'success' => false,
+                            'messages' => $event->getMessages(),
+                        ]);
+                    } else {
+
+                        return $this->redirect($this->generateUrl('cart_admin_content_slot'));
+                    }
+                }
+            }
         }
 
-        return new JsonResponse($returnData);
-    }
+        $event = new CoreEvent();
+        $event->addSuccessMessage("{$counter} ContentSlots deleted !");
+        $event->flashMessages();
 
-    /**
-     * Creates a form to delete an entity by id.
-     *
-     * @param mixed $id The entity id
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    protected function createDeleteForm($id)
-    {
-        return $this->createFormBuilder()
-            ->setAction($this->generateUrl('cart_admin_content_delete', array('id' => $id)))
-            ->setMethod('DELETE')
-            ->add('submit', 'submit', ['label' => 'Delete', 'required' => false])
-            ->getForm();
+        if ($event->isJsonResponse()) {
+            return new JsonResponse(true);
+        }
+
+        return $this->redirect($this->generateUrl('cart_admin_content_slot'));
     }
 }

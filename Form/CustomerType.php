@@ -99,6 +99,7 @@ class CustomerType extends AbstractType
                 'label' => 'Billing Postal Code',
             ])
             ->add('billing_country_id', ChoiceType::class, [
+                'label' => 'Billing Country',
                 'choices' => array_flip($this->getCountries()),
                 'attr' => [
                     'class' => 'country-input',
@@ -107,26 +108,32 @@ class CustomerType extends AbstractType
             ])
             ->add('is_shipping_same', CheckboxType::class)
             ->add('shipping_firstname', TextType::class, [
+                'label' => 'Shipping First Name',
                 'required' => false,
                 'attr' => ['class' => 'shipping-input'],
             ])
             ->add('shipping_lastname', TextType::class, [
+                'label' => 'Shipping Last Name',
                 'required' => false,
                 'attr' => ['class' => 'shipping-input'],
             ])
             ->add('shipping_phone', TextType::class, [
+                'label' => 'Shipping Phone',
                 'required' => false,
                 'attr' => ['class' => 'shipping-input'],
             ])
             ->add('shipping_street', TextType::class, [
+                'label' => 'Shipping Street',
                 'required' => false,
                 'attr' => ['class' => 'shipping-input'],
             ])
             ->add('shipping_street2', TextType::class, [
+                'label' => 'Shipping Street 2',
                 'required' => false,
                 'attr' => ['class' => 'shipping-input'],
             ])
             ->add('shipping_city', TextType::class, [
+                'label' => 'Shipping City',
                 'required' => false,
                 'attr' => ['class' => 'shipping-input'],
             ])
@@ -141,6 +148,7 @@ class CustomerType extends AbstractType
                 'attr' => ['class' => 'shipping-input'],
             ])
             ->add('shipping_country_id', ChoiceType::class, [
+                'label' => 'Shipping Country',
                 'choices' => $this->getCountries(),
                 'required' => false,
                 'attr' => [
@@ -159,8 +167,7 @@ class CustomerType extends AbstractType
             ])
             ->add('api_key', TextType::class, [
                 'required' => false,
-            ])
-        ;
+            ]);
 
         // todo : ensure the validation messages for this make it into flash messages eg "Cannot be blank"
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {

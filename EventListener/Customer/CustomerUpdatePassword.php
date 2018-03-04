@@ -10,8 +10,6 @@ use MobileCart\CoreBundle\Event\CoreEvent;
  */
 class CustomerUpdatePassword
 {
-    protected $securityPasswordEncoder;
-
     protected $mailer;
 
     /**
@@ -33,6 +31,29 @@ class CustomerUpdatePassword
      * @var \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      */
     protected $entityService;
+
+    /**
+     * @var \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface
+     */
+    protected $securityPasswordEncoder;
+
+    /**
+     * @param \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $encoder
+     * @return $this
+     */
+    public function setSecurityPasswordEncoder(\Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $encoder)
+    {
+        $this->securityPasswordEncoder = $encoder;
+        return $this;
+    }
+
+    /**
+     * @return \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface
+     */
+    public function getSecurityPasswordEncoder()
+    {
+        return $this->securityPasswordEncoder;
+    }
 
     public function setMailer($mailer)
     {
@@ -93,17 +114,6 @@ class CustomerUpdatePassword
     public function getThemeService()
     {
         return $this->themeService;
-    }
-
-    public function setSecurityPasswordEncoder($encoder)
-    {
-        $this->securityPasswordEncoder = $encoder;
-        return $this;
-    }
-
-    public function getSecurityPasswordEncoder()
-    {
-        return $this->securityPasswordEncoder;
     }
 
     /**

@@ -11,8 +11,6 @@ use MobileCart\CoreBundle\Event\CoreEvent;
  */
 class CustomerRegister
 {
-    protected $passwordEncoder;
-
     /**
      * @var \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      */
@@ -23,15 +21,27 @@ class CustomerRegister
      */
     protected $currencyService;
 
-    public function setSecurityPasswordEncoder($passwordEncoder)
+    /**
+     * @var \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface
+     */
+    protected $securityPasswordEncoder;
+
+    /**
+     * @param \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $encoder
+     * @return $this
+     */
+    public function setSecurityPasswordEncoder(\Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $encoder)
     {
-        $this->passwordEncoder = $passwordEncoder;
+        $this->securityPasswordEncoder = $encoder;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface
+     */
     public function getSecurityPasswordEncoder()
     {
-        return $this->passwordEncoder;
+        return $this->securityPasswordEncoder;
     }
 
     /**

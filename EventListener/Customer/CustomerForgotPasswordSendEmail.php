@@ -10,8 +10,6 @@ use MobileCart\CoreBundle\Event\CoreEvent;
  */
 class CustomerForgotPasswordSendEmail
 {
-    protected $securityPasswordEncoder;
-
     protected $mailer;
 
     /**
@@ -28,6 +26,29 @@ class CustomerForgotPasswordSendEmail
      * @var \MobileCart\CoreBundle\Service\ThemeService
      */
     protected $themeService;
+
+    /**
+     * @var \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface
+     */
+    protected $securityPasswordEncoder;
+
+    /**
+     * @param \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $encoder
+     * @return $this
+     */
+    public function setSecurityPasswordEncoder(\Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface $encoder)
+    {
+        $this->securityPasswordEncoder = $encoder;
+        return $this;
+    }
+
+    /**
+     * @return \Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface
+     */
+    public function getSecurityPasswordEncoder()
+    {
+        return $this->securityPasswordEncoder;
+    }
 
     public function setMailer($mailer)
     {
@@ -88,17 +109,6 @@ class CustomerForgotPasswordSendEmail
     public function getThemeService()
     {
         return $this->themeService;
-    }
-
-    public function setSecurityPasswordEncoder($encoder)
-    {
-        $this->securityPasswordEncoder = $encoder;
-        return $this;
-    }
-
-    public function getSecurityPasswordEncoder()
-    {
-        return $this->securityPasswordEncoder;
     }
 
     /**
