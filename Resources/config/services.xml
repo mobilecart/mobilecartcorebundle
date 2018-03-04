@@ -586,81 +586,161 @@
                 <argument type="string">category</argument>
                 <argument type="string">cart_admin_category_edit</argument>
             </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">category</argument>
+                <argument type="string">cart_admin_category_delete</argument>
+            </call>
             <call method="addAdminEditRoute">
                 <argument type="string">config_setting</argument>
                 <argument type="string">cart_admin_config_setting_edit</argument>
+            </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">config_setting</argument>
+                <argument type="string">cart_admin_config_setting_delete</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">content</argument>
                 <argument type="string">cart_admin_content_edit</argument>
             </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">content</argument>
+                <argument type="string">cart_admin_content_delete</argument>
+            </call>
             <call method="addAdminEditRoute">
                 <argument type="string">customer</argument>
                 <argument type="string">cart_admin_customer_edit</argument>
+            </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">customer</argument>
+                <argument type="string">cart_admin_customer_delete</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">customer_address</argument>
                 <argument type="string">cart_admin_customer_address_edit</argument>
             </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">customer_address</argument>
+                <argument type="string">cart_admin_customer_address_delete</argument>
+            </call>
             <call method="addAdminEditRoute">
                 <argument type="string">discount</argument>
                 <argument type="string">cart_admin_discount_edit</argument>
+            </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">discount</argument>
+                <argument type="string">cart_admin_discount_delete</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">item_var</argument>
                 <argument type="string">cart_admin_item_var_edit</argument>
             </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">item_var</argument>
+                <argument type="string">cart_admin_item_var_delete</argument>
+            </call>
             <call method="addAdminEditRoute">
                 <argument type="string">item_var_option_datetime</argument>
                 <argument type="string">cart_admin_item_var_option_edit</argument>
+            </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">item_var_option_datetime</argument>
+                <argument type="string">cart_admin_item_var_option_delete</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">item_var_option_decimal</argument>
                 <argument type="string">cart_admin_item_var_option_edit</argument>
             </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">item_var_option_decimal</argument>
+                <argument type="string">cart_admin_item_var_option_delete</argument>
+            </call>
             <call method="addAdminEditRoute">
                 <argument type="string">item_var_option_int</argument>
                 <argument type="string">cart_admin_item_var_option_edit</argument>
+            </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">item_var_option_int</argument>
+                <argument type="string">cart_admin_item_var_option_delete</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">item_var_option_text</argument>
                 <argument type="string">cart_admin_item_var_option_edit</argument>
             </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">item_var_option_text</argument>
+                <argument type="string">cart_admin_item_var_option_delete</argument>
+            </call>
             <call method="addAdminEditRoute">
                 <argument type="string">item_var_option_varchar</argument>
                 <argument type="string">cart_admin_item_var_option_edit</argument>
+            </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">item_var_option_varchar</argument>
+                <argument type="string">cart_admin_item_var_option_delete</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">item_var_set</argument>
                 <argument type="string">cart_admin_item_var_set_edit</argument>
             </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">item_var_set</argument>
+                <argument type="string">cart_admin_item_var_set_delete</argument>
+            </call>
             <call method="addAdminEditRoute">
                 <argument type="string">item_var_set_var</argument>
                 <argument type="string">cart_admin_item_var_set_var_edit</argument>
+            </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">item_var_set_var</argument>
+                <argument type="string">cart_admin_item_var_set_var_delete</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">order</argument>
                 <argument type="string">cart_admin_order_edit</argument>
             </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">order</argument>
+                <argument type="string">cart_admin_order_delete</argument>
+            </call>
             <call method="addAdminEditRoute">
                 <argument type="string">order_payment</argument>
                 <argument type="string">cart_admin_order_payment_edit</argument>
+            </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">order_payment</argument>
+                <argument type="string">cart_admin_order_payment_delete</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">order_shipment</argument>
                 <argument type="string">cart_admin_order_shipment_edit</argument>
             </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">order_shipment</argument>
+                <argument type="string">cart_admin_order_shipment_delete</argument>
+            </call>
             <call method="addAdminEditRoute">
                 <argument type="string">product</argument>
                 <argument type="string">cart_admin_product_edit</argument>
+            </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">product</argument>
+                <argument type="string">cart_admin_product_delete</argument>
             </call>
             <call method="addAdminEditRoute">
                 <argument type="string">shipping_method</argument>
                 <argument type="string">cart_admin_shipping_method_edit</argument>
             </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">shipping_method</argument>
+                <argument type="string">cart_admin_shipping_method_delete</argument>
+            </call>
             <call method="addAdminEditRoute">
                 <argument type="string">url_rewrite</argument>
                 <argument type="string">cart_admin_url_rewrite_edit</argument>
+            </call>
+            <call method="addAdminDeleteRoute">
+                <argument type="string">url_rewrite</argument>
+                <argument type="string">cart_admin_url_rewrite_delete</argument>
             </call>
         </service>
 
@@ -997,8 +1077,8 @@
             <call method="setRouter">
                 <argument type="service" id="router" />
             </call>
-            <call method="setCartService">
-                <argument type="service" id="cart" />
+            <call method="setOrderService">
+                <argument type="service" id="cart.order" />
             </call>
         </service>
 

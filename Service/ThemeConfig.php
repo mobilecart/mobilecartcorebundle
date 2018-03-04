@@ -50,6 +50,11 @@ class ThemeConfig
     protected $adminEditRoutes = [];
 
     /**
+     * @var array
+     */
+    protected $adminDeleteRoutes = [];
+
+    /**
      * Template options for each object_type eg content, product, category, etc
      *  r[object_type][code] = value
      *
@@ -284,6 +289,28 @@ class ThemeConfig
     {
         return isset($this->adminEditRoutes[$objectType])
             ? $this->adminEditRoutes[$objectType]
+            : '';
+    }
+
+    /**
+     * @param $objectType
+     * @param $route
+     * @returns $this
+     */
+    public function addAdminDeleteRoute($objectType, $route)
+    {
+        $this->adminDeleteRoutes[$objectType] = $route;
+        return $this;
+    }
+
+    /**
+     * @param $objectType
+     * @return string
+     */
+    public function getAdminDeleteRoute($objectType)
+    {
+        return isset($this->adminDeleteRoutes[$objectType])
+            ? $this->adminDeleteRoutes[$objectType]
             : '';
     }
 

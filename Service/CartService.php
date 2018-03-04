@@ -1416,6 +1416,9 @@ class CartService
     }
 
     /**
+     * Remove an Item, if it meets criteria
+     *  Note : this would never delete items from someone else's cart
+     *
      * @param $key
      * @param $value
      * @return $this
@@ -1461,6 +1464,9 @@ class CartService
     }
 
     /**
+     * Delete a CartItem entity, if it meets criteria
+     *  Note : this would never delete items from someone else's cart
+     *
      * @param $key
      * @param $value
      * @return $this
@@ -1709,7 +1715,8 @@ class CartService
         $address = new CustomerAddress();
         $address->setId('main')
             ->setCustomerId($entity->getId())
-            ->setName($entity->getShippingName())
+            ->setFirstname($entity->getShippingFirstname())
+            ->setLastname($entity->getShippingLastname())
             ->setCompany($entity->getShippingCompany())
             ->setStreet($entity->getShippingStreet())
             ->setStreet2($entity->getShippingStreet2())
@@ -1728,7 +1735,8 @@ class CartService
                 $address = new CustomerAddress();
                 $address->setId($addressEntity->getId())
                     ->setCustomerId($entity->getId())
-                    ->setName($addressEntity->getName())
+                    ->setFirstname($addressEntity->getFirstname())
+                    ->setLastname($addressEntity->getLastname())
                     ->setCompany($addressEntity->getCompany())
                     ->setStreet($addressEntity->getStreet())
                     ->setStreet2($addressEntity->getStreet2())
