@@ -890,9 +890,8 @@ class CoreEvent extends Event
         switch($this->getContentType()) {
             case self::JSON:
                 if ($formData) {
-                    $this->getForm()->submit($formData);
                     $this->setFormData($formData);
-                } else {
+                } elseif (!$this->getFormData()) {
                     $formData = @ (array) json_decode($this->getRequest()->getContent());
                     if ($formData) {
                         foreach($formData as $key => $value) {
@@ -901,17 +900,14 @@ class CoreEvent extends Event
                             }
                         }
                     }
-                    $this->getForm()->submit($formData);
                     $this->setFormData($formData);
                 }
                 break;
             default:
                 if ($formData) {
-                    $this->getForm()->submit($formData);
                     $this->setFormData($formData);
-                } else {
-                    $formData = $this->getRequest()->request->get($this->getForm()->getName());
-                    $this->setFormData($formData);
+                } elseif (!$this->getFormData()) {
+                    $this->setFormData($this->getRequest()->request->get($this->getForm()->getName()));
                 }
                 break;
         }
