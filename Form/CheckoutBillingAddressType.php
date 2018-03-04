@@ -7,10 +7,10 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use MobileCart\CoreBundle\Constants\CheckoutConstants;
-use MobileCart\CoreBundle\Service\CheckoutSessionService;
 
 /**
  * Class CheckoutBillingAddressType
@@ -91,7 +91,7 @@ class CheckoutBillingAddressType extends AbstractType
 
             $builder->add('email', TextType::class, [
                 'attr' => ['class' => 'billing-input'],
-                'label' => 'email',
+                'label' => 'Email',
                 'required' => true,
                 'constraints' => [
                     new NotBlank(),
@@ -100,29 +100,33 @@ class CheckoutBillingAddressType extends AbstractType
         }
 
         $builder
-            ->add('billing_name', TextType::class, [
+            ->add('billing_firstname', TextType::class, [
                 'attr' => ['class' => 'billing-input'],
-                'label' => 'billing.name',
+                'label' => 'First Name',
+            ])
+            ->add('billing_lastname', TextType::class, [
+                'attr' => ['class' => 'billing-input'],
+                'label' => 'Last Name',
             ])
             ->add('billing_company', TextType::class, [
                 'attr' => ['class' => 'billing-input'],
-                'label' => 'billing.company',
+                'label' => 'Company',
             ])
             ->add('billing_street', TextType::class, [
                 'attr' => ['class' => 'billing-input'],
-                'label' => 'billing.street',
+                'label' => 'Street',
             ])
             ->add('billing_street2', TextType::class, [
                 'attr' => ['class' => 'billing-input'],
-                'label' => 'billing.street2',
+                'label' => 'Street 2',
             ])
             ->add('billing_city', TextType::class, [
                 'attr' => ['class' => 'billing-input'],
-                'label' => 'billing.city',
+                'label' => 'City',
             ])
             ->add('billing_region', TextType::class, [
                 'attr' => ['class' => 'billing-input region-input'],
-                'label' => 'billing.region',
+                'label' => 'State',
                 'required' => true,
                 'constraints' => [
                     new NotBlank(),
@@ -130,7 +134,7 @@ class CheckoutBillingAddressType extends AbstractType
             ])
             ->add('billing_postcode', TextType::class, [
                 'attr' => ['class' => 'billing-input'],
-                'label' => 'billing.postcode',
+                'label' => 'Postal Code',
                 'required' => true,
                 'constraints' => [
                     new NotBlank(),
@@ -138,7 +142,7 @@ class CheckoutBillingAddressType extends AbstractType
             ])
             ->add('billing_country_id', ChoiceType::class, [
                 'attr' => ['class' => 'billing-input country-input'],
-                'label' => 'billing.country',
+                'label' => 'Country',
                 'choices' => array_flip($this->getCountries()),
                 'required' => true,
                 'constraints' => [
@@ -148,7 +152,11 @@ class CheckoutBillingAddressType extends AbstractType
             ])
             ->add('billing_phone', TextType::class, [
                 'attr' => ['class' => 'billing-input'],
-                'label' => 'billing.phone',
+                'label' => 'Phone',
+            ])
+            ->add('is_shipping_same', CheckboxType::class, [
+                'required' => false,
+                'label' => 'Same as Shipping Address',
             ])
         ;
     }

@@ -108,7 +108,13 @@ class OrderType extends AbstractType
                 'choices_as_values' => true,
             ])
             ->add('json', HiddenType::class)
-            ->add('billing_name', TextType::class, [
+            ->add('billing_firstname', TextType::class, [
+                'required' => true,
+                'constraints' => [
+                    new NotBlank(),
+                ],
+            ])
+            ->add('billing_lastname', TextType::class, [
                 'required' => true,
                 'constraints' => [
                     new NotBlank(),
