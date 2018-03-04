@@ -42,7 +42,7 @@ class CartItem
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Cart", inversedBy="cart_items")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="cart_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="cart_id", referencedColumnName="id", onDelete="CASCADE")
      * })
      */
     protected $cart;

@@ -42,7 +42,7 @@ class Cart
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Customer")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="customer_id", referencedColumnName="id", nullable=true)
+     *   @ORM\JoinColumn(name="customer_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
      * })
      */
     protected $customer;

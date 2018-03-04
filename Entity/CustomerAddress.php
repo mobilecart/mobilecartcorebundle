@@ -36,9 +36,16 @@ class CustomerAddress
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=255, nullable=true)
+     * @ORM\Column(name="firstname", type="string", length=255, nullable=true)
      */
-    protected $name;
+    protected $firstname;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lastname", type="string", length=255, nullable=true)
+     */
+    protected $lastname;
 
     /**
      * @var string
@@ -154,7 +161,8 @@ class CustomerAddress
     {
         return [
             'id'         => $this->getId(),
-            'name'       => $this->getName(),
+            'firstname'  => $this->getFirstname(),
+            'lastname'   => $this->getLastname(),
             'company'    => $this->getCompany(),
             'phone'      => $this->getPhone(),
             'street'     => $this->getStreet(),
@@ -185,16 +193,43 @@ class CustomerAddress
     }
 
     /**
-     * Set name
+     * Set first name
      *
-     * @param string $name
+     * @param string $firstname
      * @return CustomerAddress
      */
-    public function setName($name)
+    public function setFirstname($firstname)
     {
-        $this->name = $name;
-
+        $this->firstname = $firstname;
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFirstname()
+    {
+        return $this->firstname;
+    }
+
+    /**
+     * Set last name
+     *
+     * @param string $lastname
+     * @return CustomerAddress
+     */
+    public function setLastname($lastname)
+    {
+        $this->lastname = $lastname;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLastname()
+    {
+        return $this->lastname;
     }
 
     /**
@@ -204,7 +239,7 @@ class CustomerAddress
      */
     public function getName()
     {
-        return $this->name;
+        return "{$this->getFirstname()} {$this->getLastname()}";
     }
 
     /**

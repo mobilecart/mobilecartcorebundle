@@ -34,7 +34,7 @@ class CustomerVarValueText
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\ItemVar")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="item_var_id", referencedColumnName="id", nullable=false)
+     *   @ORM\JoinColumn(name="item_var_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      */
     protected $item_var;
@@ -44,7 +44,7 @@ class CustomerVarValueText
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\ItemVarOptionText")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="item_var_option_id", referencedColumnName="id", nullable=true)
+     *   @ORM\JoinColumn(name="item_var_option_id", referencedColumnName="id", nullable=true, onDelete="CASCADE")
      * })
      */
     protected $item_var_option;

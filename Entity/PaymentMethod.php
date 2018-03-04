@@ -7,6 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * MobileCart\CoreBundle\Entity\PaymentMethod
  *
+ * The main point of this entity is to implement filters for certain countries, customer groups, etc
+ *
  * @ORM\Table(name="payment_method")
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\PaymentMethodRepository")
  */

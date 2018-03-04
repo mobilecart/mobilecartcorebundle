@@ -35,7 +35,7 @@ class ItemVarOptionVarchar
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\ItemVar", inversedBy="item_var_options_varchar")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="item_var_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="item_var_id", referencedColumnName="id", onDelete="CASCADE")
      * })
      */
     protected $item_var;

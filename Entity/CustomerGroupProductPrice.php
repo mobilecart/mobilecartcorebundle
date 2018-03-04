@@ -43,7 +43,7 @@ class CustomerGroupProductPrice
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Product", inversedBy="group_prices")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="product_id", referencedColumnName="id", nullable=false)
+     *   @ORM\JoinColumn(name="product_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      */
     protected $product;
@@ -53,7 +53,7 @@ class CustomerGroupProductPrice
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\CustomerGroup")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="customer_group_id", referencedColumnName="id", nullable=true)
+     *   @ORM\JoinColumn(name="customer_group_id", referencedColumnName="id", nullable=true, onDelete="CASCADE")
      * })
      */
     protected $customer_group;

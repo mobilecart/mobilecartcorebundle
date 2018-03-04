@@ -79,7 +79,7 @@ class OrderItem
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Order", inversedBy="items")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="order_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="order_id", referencedColumnName="id", onDelete="CASCADE")
      * })
      */
     protected $order;
@@ -89,7 +89,7 @@ class OrderItem
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\OrderShipment", inversedBy="items")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="order_shipment_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="order_shipment_id", referencedColumnName="id", onDelete="SET NULL")
      * })
      */
     protected $shipment;

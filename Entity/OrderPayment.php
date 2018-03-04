@@ -140,7 +140,7 @@ class OrderPayment
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Order", inversedBy="payments")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="order_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="order_id", referencedColumnName="id", onDelete="CASCADE")
      * })
      */
     protected $order;
@@ -150,7 +150,7 @@ class OrderPayment
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\OrderInvoice", inversedBy="payments")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="order_invoice_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="order_invoice_id", referencedColumnName="id", onDelete="SET NULL")
      * })
      */
     protected $invoice;

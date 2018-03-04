@@ -63,7 +63,7 @@ class OrderShipment
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Order", inversedBy="shipments")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="order_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="order_id", referencedColumnName="id", onDelete="CASCADE")
      * })
      */
     protected $order;
@@ -78,9 +78,16 @@ class OrderShipment
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=255, nullable=true)
+     * @ORM\Column(name="firstname", type="string", length=255, nullable=true)
      */
-    protected $name;
+    protected $firstname;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lastname", type="string", length=255, nullable=true)
+     */
+    protected $lastname;
 
     /**
      * @var string
@@ -265,7 +272,8 @@ class OrderShipment
             'company' => $this->getCompany(),
             'method' => $this->getMethod(),
             'tracking' => $this->getTracking(),
-            'name' => $this->getName(),
+            'firstname' => $this->getFirstname(),
+            'lastname' => $this->getLastname(),
             'company_name' => $this->getCompany(),
             'phone' => $this->getPhone(),
             'street' => $this->getStreet(),
@@ -331,13 +339,30 @@ class OrderShipment
     /**
      * Set name
      *
-     * @param string $name
+     * @param string $firstname
      * @return $this
      */
-    public function setName($name)
+    public function setFirstname($firstname)
     {
-        $this->name = $name;
+        $this->firstname = $firstname;
+        return $this;
+    }
 
+    /**
+     * @return string
+     */
+    public function getFirstname()
+    {
+        return $this->firstname;
+    }
+
+    /**
+     * @param $lastname
+     * @return $this
+     */
+    public function setLastname($lastname)
+    {
+        $this->lastname = $lastname;
         return $this;
     }
 
@@ -346,9 +371,9 @@ class OrderShipment
      *
      * @return string
      */
-    public function getName()
+    public function getLastname()
     {
-        return $this->name;
+        return $this->lastname;
     }
 
     /**

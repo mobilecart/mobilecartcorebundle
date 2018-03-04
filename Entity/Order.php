@@ -50,12 +50,20 @@ class Order
     protected $email;
 
     /**
-     * @var string $billing_name
+     * @var string $billing_firstname
      *
-     * @ORM\Column(name="billing_name", type="string", length=255, nullable=true)
+     * @ORM\Column(name="billing_firstname", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"billing_address"})
      */
-    protected $billing_name;
+    protected $billing_firstname;
+
+    /**
+     * @var string $billing_lastname
+     *
+     * @ORM\Column(name="billing_lastname", type="string", length=255, nullable=true)
+     * @Assert\NotBlank(groups={"billing_address"})
+     */
+    protected $billing_lastname;
 
     /**
      * @var string $billing_company
@@ -281,7 +289,7 @@ class Order
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Customer")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="customer_id", referencedColumnName="id", nullable=true)
+     *   @ORM\JoinColumn(name="customer_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
      * })
      */
     protected $customer;
@@ -291,7 +299,7 @@ class Order
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\ItemVarSet")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="item_var_set_id", referencedColumnName="id", nullable=true)
+     *   @ORM\JoinColumn(name="item_var_set_id", referencedColumnName="id", nullable=true, onDelete="SET NULL")
      * })
      */
     protected $item_var_set;
@@ -383,8 +391,6 @@ class Order
             'created_at' => $this->getCreatedAt(),
             'status' => $this->getStatus(),
             'reference_nbr' => $this->getReferenceNbr(),
-            'customer_id' => $this->getCustomer() ? $this->getCustomer()->getId() : 0,
-            'customer_name' => $this->getCustomer() ? $this->getCustomer()->getName() : '',
             'email' => $this->getEmail(),
             'currency' => $this->getCurrency(),
             'total' => $this->getTotal(),
@@ -400,7 +406,8 @@ class Order
             'base_discount_total' => $this->getBaseDiscountTotal(),
             'base_shipping_total' => $this->getBaseShippingTotal(),
             'base_refund_total' => $this->getBaseRefundTotal(),
-            'billing_name' => $this->getBillingName(),
+            'billing_firstname' => $this->getBillingFirstname(),
+            'billing_lastname' => $this->getBillingLastname(),
             'billing_company' => $this->getBillingCompany(),
             'billing_phone' => $this->getBillingPhone(),
             'billing_street' => $this->getBillingStreet(),
@@ -954,21 +961,39 @@ class Order
     }
 
     /**
-     * @param $name
+     * @param $firstname
      * @return $this
      */
-    public function setBillingName($name)
+    public function setBillingFirstname($firstname)
     {
-        $this->billing_name = $name;
+        $this->billing_firstname = $firstname;
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getBillingName()
+    public function getBillingFirstname()
     {
-        return $this->billing_name;
+        return $this->billing_firstname;
+    }
+
+    /**
+     * @param $lastname
+     * @return $this
+     */
+    public function setBillingLastname($lastname)
+    {
+        $this->billing_lastname = $lastname;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBillingLastname()
+    {
+        return $this->billing_lastname;
     }
 
     /**

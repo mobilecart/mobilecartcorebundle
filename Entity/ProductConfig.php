@@ -26,7 +26,7 @@ class ProductConfig
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Product", inversedBy="product_configs")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="product_id", referencedColumnName="id", nullable=false)
+     *   @ORM\JoinColumn(name="product_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      */
     protected $product;
@@ -36,7 +36,7 @@ class ProductConfig
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Product")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="child_product_id", referencedColumnName="id", nullable=false)
+     *   @ORM\JoinColumn(name="child_product_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      */
     protected $child_product;
@@ -46,7 +46,7 @@ class ProductConfig
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\ItemVar")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="item_var_id", referencedColumnName="id", nullable=false)
+     *   @ORM\JoinColumn(name="item_var_id", referencedColumnName="id", nullable=false, onDelete="CASCADE")
      * })
      */
     protected $item_var;

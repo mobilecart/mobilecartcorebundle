@@ -35,7 +35,7 @@ class ItemVarOptionDatetime
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\ItemVar", inversedBy="item_var_options_datetime")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="item_var_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="item_var_id", referencedColumnName="id", onDelete="CASCADE")
      * })
      */
     protected $item_var;

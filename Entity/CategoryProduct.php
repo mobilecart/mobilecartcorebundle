@@ -28,7 +28,7 @@ class CategoryProduct
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Product", inversedBy="category_products")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="product_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="product_id", referencedColumnName="id", onDelete="CASCADE")
      * })
      */
     protected $product;
@@ -38,7 +38,7 @@ class CategoryProduct
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\Category", inversedBy="category_products")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="category_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="category_id", referencedColumnName="id", onDelete="CASCADE")
      * })
      */
     protected $category;

@@ -27,7 +27,7 @@ class ItemVarSetVar extends AbstractCartEntity
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\ItemVarSet", inversedBy="item_var_set_vars")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="item_var_set_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="item_var_set_id", referencedColumnName="id", onDelete="CASCADE")
      * })
      */
     protected $item_var_set;
@@ -37,7 +37,7 @@ class ItemVarSetVar extends AbstractCartEntity
      *
      * @ORM\ManyToOne(targetEntity="MobileCart\CoreBundle\Entity\ItemVar", inversedBy="item_var_set_vars")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="item_var_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="item_var_id", referencedColumnName="id", onDelete="CASCADE")
      * })
      */
     protected $item_var;

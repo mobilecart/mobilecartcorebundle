@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 /**
  * MobileCart\CoreBundle\Entity\Customer
  *
- * @ORM\Table(name="customer")
+ * @ORM\Table(name="customer", indexes={@ORM\Index(name="customer_email_idx", columns={"email"})})
  * @ORM\Entity(repositoryClass="MobileCart\CoreBundle\Repository\CustomerRepository")
  */
 class Customer
@@ -48,20 +48,6 @@ class Customer
     protected $default_currency;
 
     /**
-     * @var string $first_name
-     *
-     * @ORM\Column(name="first_name", type="string", length=255, nullable=true)
-     */
-    protected $first_name;
-
-    /**
-     * @var string $last_name
-     *
-     * @ORM\Column(name="last_name", type="string", length=255, nullable=true)
-     */
-    protected $last_name;
-
-    /**
      * @var string $email
      *
      * @ORM\Column(name="email", type="string", length=255, unique=true)
@@ -83,11 +69,18 @@ class Customer
     protected $confirm_hash;
 
     /**
-     * @var string $billing_name
+     * @var string $billing_firstname
      *
-     * @ORM\Column(name="billing_name", type="string", length=255, nullable=true)
+     * @ORM\Column(name="billing_firstname", type="string", length=255, nullable=true)
      */
-    protected $billing_name;
+    protected $billing_firstname;
+
+    /**
+     * @var string $billing_lastname
+     *
+     * @ORM\Column(name="billing_lastname", type="string", length=255, nullable=true)
+     */
+    protected $billing_lastname;
 
     /**
      * @var string $billing_company
@@ -153,11 +146,18 @@ class Customer
     protected $is_shipping_same;
 
     /**
-     * @var string $shipping_name
+     * @var string $shipping_firstname
      *
-     * @ORM\Column(name="shipping_name", type="string", length=255, nullable=true)
+     * @ORM\Column(name="shipping_firstname", type="string", length=255, nullable=true)
      */
-    protected $shipping_name;
+    protected $shipping_firstname;
+
+    /**
+     * @var string $shipping_lastname
+     *
+     * @ORM\Column(name="shipping_lastname", type="string", length=255, nullable=true)
+     */
+    protected $shipping_lastname;
 
     /**
      * @var string $shipping_company
@@ -399,7 +399,7 @@ class Customer
      * Unserialize for Symfony session
      *
      * @param string $str
-     * @return $this|void
+     * @return $this
      */
     public function unserialize($str)
     {
@@ -433,10 +433,8 @@ class Customer
             'email'               => $this->getEmail(),
             // 'hash'                => $this->getHash(),
             // 'confirm_hash'        => $this->getConfirmHash(),
-            'name'                => $this->getName(),
-            'first_name'          => $this->getFirstName(),
-            'last_name'           => $this->getLastName(),
-            'billing_name'        => $this->getBillingName(),
+            'billing_firstname'   => $this->getBillingFirstname(),
+            'billing_lastname'    => $this->getBillingLastname(),
             'billing_company'     => $this->getBillingCompany(),
             'billing_phone'       => $this->getBillingPhone(),
             'billing_street'      => $this->getBillingStreet(),
@@ -446,7 +444,8 @@ class Customer
             'billing_postcode'    => $this->getBillingPostcode(),
             'billing_country_id'  => $this->getBillingCountryId(),
             'is_shipping_same'    => $this->getIsShippingSame(),
-            'shipping_name'       => $this->getShippingName(),
+            'shipping_firstname'  => $this->getShippingFirstname(),
+            'shipping_lastname'   => $this->getShippingLastname(),
             'shipping_company'    => $this->getShippingCompany(),
             'shipping_phone'      => $this->getShippingPhone(),
             'shipping_street'     => $this->getShippingStreet(),
@@ -517,7 +516,7 @@ class Customer
     }
 
     /**
-     * @return bool|void
+     * @return bool
      */
     public function isAccountNonExpired()
     {
@@ -609,71 +608,45 @@ class Customer
     /**
      * @return string
      */
-    public function getName()
+    public function getBillingName()
     {
-        return $this->getFirstName() . ' ' . $this->getLastName();
+        return $this->getBillingFirstname() . ' ' . $this->getBillingLastname();
     }
 
     /**
-     * Set first_name
-     *
-     * @param string $firstName
+     * @param string $firstname
      * @return $this
      */
-    public function setFirstName($firstName)
+    public function setBillingFirstname($firstname)
     {
-        $this->first_name = $firstName;
-        return $this;
-    }
-
-    /**
-     * Get first_name
-     *
-     * @return string 
-     */
-    public function getFirstName()
-    {
-        return $this->first_name;
-    }
-
-    /**
-     * Set last_name
-     *
-     * @param string $lastName
-     * @return $this
-     */
-    public function setLastName($lastName)
-    {
-        $this->last_name = $lastName;
-        return $this;
-    }
-
-    /**
-     * Get last_name
-     *
-     * @return string 
-     */
-    public function getLastName()
-    {
-        return $this->last_name;
-    }
-
-    /**
-     * @param $name
-     * @return $this
-     */
-    public function setBillingName($name)
-    {
-        $this->billing_name = $name;
+        $this->billing_firstname = $firstname;
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getBillingName()
+    public function getBillingFirstname()
     {
-        return $this->billing_name;
+        return $this->billing_firstname;
+    }
+
+    /**
+     * @param string $lastname
+     * @return $this
+     */
+    public function setBillingLastname($lastname)
+    {
+        $this->billing_lastname = $lastname;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBillingLastname()
+    {
+        return $this->billing_lastname;
     }
 
     /**
@@ -867,11 +840,13 @@ class Customer
      */
     public function copyBillingToShipping()
     {
-        $this->setIsShippingSame(1);
-        $this->setShippingName($this->getBillingName());
+        $this->setIsShippingSame(true);
+        $this->setShippingFirstname($this->getBillingFirstname());
+        $this->setShippingLastname($this->getBillingLastname());
         $this->setShippingCompany($this->getBillingCompany());
         $this->setShippingPhone($this->getBillingPhone());
         $this->setShippingStreet($this->getBillingStreet());
+        $this->setShippingStreet2($this->getBillingStreet2());
         $this->setShippingCity($this->getBillingCity());
         $this->setShippingRegion($this->getBillingRegion());
         $this->setShippingPostcode($this->getBillingPostcode());
@@ -880,21 +855,47 @@ class Customer
     }
 
     /**
-     * @param $name
+     * @return string
+     */
+    public function getShippingName()
+    {
+        return $this->getShippingFirstname() . ' ' . $this->getShippingLastname();
+    }
+
+    /**
+     * @param string $firstname
      * @return $this
      */
-    public function setShippingName($name)
+    public function setShippingFirstname($firstname)
     {
-        $this->shipping_name = $name;
+        $this->shipping_firstname = $firstname;
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getShippingName()
+    public function getShippingFirstname()
     {
-        return $this->shipping_name;
+        return $this->shipping_firstname;
+    }
+
+    /**
+     * @param string $lastname
+     * @return $this
+     */
+    public function setShippingLastname($lastname)
+    {
+        $this->shipping_lastname = $lastname;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getShippingLastname()
+    {
+        return $this->shipping_lastname;
     }
 
     /**
