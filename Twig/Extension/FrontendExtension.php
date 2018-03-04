@@ -84,6 +84,8 @@ class FrontendExtension extends \Twig_Extension
             'getRedirect' => new \Twig_SimpleFunction('getRedirect', [$this, 'getRedirect'], array('is_safe' => array('html'))),
             'cart' => new \Twig_SimpleFunction('cart', [$this, 'getCart'], array('is_safe' => array('html'))),
             'cartMenu' => new \Twig_SimpleFunction('cartMenu', [$this, 'cartMenu'], ['is_safe' => ['html']]),
+            'adminEditLink' => new \Twig_SimpleFunction('adminEditLink', [$this, 'adminEditLink'], array('is_safe' => array('html'))),
+            'adminDeleteLink' => new \Twig_SimpleFunction('adminDeleteLink', [$this, 'adminDeleteLink'], array('is_safe' => array('html'))),
             'renderGridField' => new \Twig_SimpleFunction('renderGridField', [$this, 'renderGridField'], array('is_safe' => array('html'))),
             'renderGridBackUrl' => new \Twig_SimpleFunction('renderGridBackUrl', [$this, 'renderGridBackUrl'], array('is_safe' => array('html'))),
             //'categoryList' => new \Twig_SimpleFunction('getCategories', [$this, 'getCategories'], array('is_safe' => array('html'))),
@@ -597,12 +599,43 @@ class FrontendExtension extends \Twig_Extension
 
     /**
      * @param $objectType
+     * @param $id
+     * @return string
+     */
+    public function adminEditLink($objectType, $id)
+    {
+        $routeId = $this->getThemeConfig()->getAdminEditRoute($objectType);
+        return $this->router->generate($routeId, ['id' => $id]);
+
+        /*
+        if (is_int(strpos($objectType, 'item_var_option_'))
+            && isset($_GET['datatype'])
+            && in_array($_GET['datatype'], ['datetime','decimal','int','text','varchar'])) {
+
+            $url = $this->router->generate($routeId, ['id' => $id, 'datatype' => $_GET['datatype']]);
+        } //*/
+    }
+
+    /**
+     * @param $objectType
+     * @param $id
+     * @return string
+     */
+    public function adminDeleteLink($objectType, $id)
+    {
+        $routeId = $this->getThemeConfig()->getAdminDeleteRoute($objectType);
+        return $this->router->generate($routeId, ['id' => $id]);
+    }
+
+    /**
+     * @param $objectType
      * @param $field
      * @param $value
      * @return mixed
      */
     public function renderGridField($objectType, $field, $value)
     {
+        /*
         if ($field == 'id' && $this->getThemeConfig()->getAdminEditRoute($objectType)) {
             $routeId = $this->getThemeConfig()->getAdminEditRoute($objectType);
             $url = $this->router->generate($routeId, ['id' => $value]);
@@ -613,7 +646,7 @@ class FrontendExtension extends \Twig_Extension
                 $url = $this->router->generate($routeId, ['id' => $value, 'datatype' => $_GET['datatype']]);
             }
             return '<a href="' . $url . '">' . $value . '</a>';
-        }
+        } //*/
 
         switch($objectType) {
             case EntityConstants::ITEM_VAR:

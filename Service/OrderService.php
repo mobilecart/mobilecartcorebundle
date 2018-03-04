@@ -1176,7 +1176,8 @@ class OrderService
 
             $order = $this->getEntityService()->getInstance(EntityConstants::ORDER);
             $order->setEmail($cartCustomer->getEmail())
-                ->setBillingName($cartCustomer->getBillingName())
+                ->setBillingFirstname($cartCustomer->getBillingFirstname())
+                ->setBillingLastname($cartCustomer->getBillingLastname())
                 ->setBillingCompany($cartCustomer->getBillingCompany())
                 ->setBillingPhone($cartCustomer->getBillingPhone())
                 ->setBillingStreet($cartCustomer->getBillingStreet())
@@ -1404,6 +1405,7 @@ class OrderService
                     $shipment->setCost('0.00');
                 }
 
+                /** @var \MobileCart\CoreBundle\Entity\OrderShipment $orderShipment */
                 $orderShipment = $this->getEntityService()->getInstance(EntityConstants::ORDER_SHIPMENT);
                 $orderShipment->fromArray($data);
                 $orderShipment->setOrder($this->getOrder());
@@ -1413,9 +1415,12 @@ class OrderService
 
                 if ($addressId == 'main') {
 
-                    $orderShipment->setName($customer->getShippingName())
+                    $orderShipment
+                        ->setFirstname($customer->getShippingFirstname())
+                        ->setLastname($customer->getShippingLastname())
                         ->setCompanyName($customer->getShippingCompany())
                         ->setStreet($customer->getShippingStreet())
+                        ->setStreet2($customer->getShippingStreet2())
                         ->setCity($customer->getShippingCity())
                         ->setRegion($customer->getShippingRegion())
                         ->setPostcode($customer->getShippingPostcode())
@@ -1443,7 +1448,9 @@ class OrderService
                             $address = new ArrayWrapper($address);
                         }
 
-                        $orderShipment->setName($address->getName())
+                        $orderShipment
+                            ->setFirstname($address->getFirstname())
+                            ->setLastname($address->getLastname())
                             ->setCompanyName($address->getCompany())
                             ->setStreet($address->getStreet())
                             ->setStreet2($address->getStreet2())
