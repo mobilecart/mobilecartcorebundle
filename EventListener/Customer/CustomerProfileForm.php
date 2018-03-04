@@ -155,8 +155,8 @@ class CustomerProfileForm
      */
     public function onCustomerProfileForm(CoreEvent $event)
     {
+        /** @var \MobileCart\CoreBundle\Entity\Customer $entity **/
         $entity = $event->getEntity();
-
         if (!is_bool($entity->getIsShippingSame())) {
             $entity->setIsShippingSame((bool) $entity->getIsShippingSame());
         }
@@ -171,10 +171,9 @@ class CustomerProfileForm
                 'label' => 'Billing',
                 'id' => 'general',
                 'fields' => [
-                    'first_name',
-                    'last_name',
                     'email',
-                    'billing_name',
+                    'billing_firstname',
+                    'billing_lastname',
                     'billing_company',
                     'billing_street',
                     'billing_street2',
@@ -183,14 +182,15 @@ class CustomerProfileForm
                     'billing_postcode',
                     'billing_country_id',
                     'billing_phone',
+                    'is_shipping_same',
                 ],
             ],
             'shipping' => [
                 'label' => 'Shipping Address',
                 'id' => 'shipping',
                 'fields' => [
-                    'is_shipping_same',
-                    'shipping_name',
+                    'shipping_firstname',
+                    'shipping_lastname',
                     'shipping_company',
                     'shipping_street',
                     'shipping_street2',

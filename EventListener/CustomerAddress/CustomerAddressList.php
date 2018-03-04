@@ -86,8 +86,13 @@ class CustomerAddressList
                 'sort' => true,
             ],
             [
-                'key' => 'name',
-                'label' => 'Name',
+                'key' => 'firstname',
+                'label' => 'First Name',
+                'sort' => true,
+            ],
+            [
+                'key' => 'lastname',
+                'label' => 'Last Name',
                 'sort' => true,
             ],
             [

@@ -17,18 +17,26 @@ class CheckoutSubmitOrderReturn
     protected $router;
 
     /**
-     * @var \MobileCart\CoreBundle\Service\CartService
+     * @var \MobileCart\CoreBundle\Service\OrderService
      */
-    protected $cartService;
+    protected $orderService;
 
     /**
-     * @param \MobileCart\CoreBundle\Service\CartService $cartService
+     * @param \MobileCart\CoreBundle\Service\OrderService $orderService
      * @return $this
      */
-    public function setCartService(\MobileCart\CoreBundle\Service\CartService $cartService)
+    public function setOrderService(\MobileCart\CoreBundle\Service\OrderService $orderService)
     {
-        $this->cartService = $cartService;
+        $this->orderService = $orderService;
         return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\OrderService
+     */
+    public function getOrderService()
+    {
+        return $this->orderService;
     }
 
     /**
@@ -36,7 +44,7 @@ class CheckoutSubmitOrderReturn
      */
     public function getCartService()
     {
-        return $this->cartService;
+        return $this->getOrderService()->getCartService();
     }
 
     /**

@@ -175,7 +175,8 @@ class CheckoutBillingAddressForm
         $billingFields = array_merge(
             $billingFields,
             [
-                'billing_name',
+                'billing_firstname',
+                'billing_lastname',
                 'billing_company',
                 'billing_street',
                 'billing_street2',
@@ -184,6 +185,7 @@ class CheckoutBillingAddressForm
                 'billing_postcode',
                 'billing_country_id',
                 'billing_phone',
+                'is_shipping_same',
             ]
         );
 
@@ -204,13 +206,6 @@ class CheckoutBillingAddressForm
                 case 'is_shipping_same':
                     // must be a new "feature" in Symfony? It won't take a '1' anymore?
                     $form->get($field)->setData((bool) $customerValue);
-                    break;
-                case 'billing_name':
-                    if ($customer->get('first_name') && !$customer->get('billing_name')) {
-                        $form->get($field)->setData("{$customer->get('first_name')} {$customer->get('last_name')}");
-                    } else {
-                        $form->get($field)->setData($customerValue);
-                    }
                     break;
                 default:
                     if (!is_null($customerValue)) {

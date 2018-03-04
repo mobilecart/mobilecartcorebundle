@@ -171,14 +171,15 @@ class OrderEditReturn
                 //'customer_id' => $customerId,
                 'form' => $event->getReturnData('form'),
                 'form_elements' => [
-                    'billing_name',
-                    'billing_phone',
+                    'billing_firstname',
+                    'billing_lastname',
                     'billing_street',
                     'billing_street2',
                     'billing_city',
                     'billing_region',
                     'billing_postcode',
                     'billing_country_id',
+                    'billing_phone',
                 ],
             ],
             'products' => [

@@ -132,6 +132,7 @@ class CheckoutUpdateBillingAddress
     public function onCheckoutUpdateBillingAddress(CoreEvent $event)
     {
         $isValid = false;
+        $isShippingSame = false;
 
         // todo : this should either be shipping_address or the step after if is_shipping_same = true
         $nextSection = CheckoutConstants::STEP_SHIPPING_ADDRESS;
@@ -155,7 +156,7 @@ class CheckoutUpdateBillingAddress
                     if (isset($apiRequest['address_id'])) {
                         // todo : handle submission of customer_address ID
                     } else {
-                        $event->submitForm($apiRequest);
+                        $event->setFormData($apiRequest);
                         $isValid = $event->isFormValid();
                     }
                 }
@@ -167,7 +168,7 @@ class CheckoutUpdateBillingAddress
                 if (isset($requestData['address_id'])) {
                     // todo : handle submission of customer_address ID
                 } else {
-                    $event->submitForm($requestData);
+                    $event->setFormData($requestData);
                     $isValid = $event->isFormValid();
                 }
 
@@ -190,6 +191,8 @@ class CheckoutUpdateBillingAddress
         }
 
         if ($isValid) {
+
+            $isShippingSame = (bool) $event->getForm()->get('is_shipping_same')->getData();
 
             // currently, there is only a customer entity when you are logged in
             //  but, the logic here is ready for customer registration during checkout also
@@ -258,48 +261,6 @@ class CheckoutUpdateBillingAddress
                             }
                         }
                         break;
-                    case 'billing_name':
-
-                        if (is_null($value)) {
-                            continue;
-                        }
-
-                        $parts = explode(' ', $value);
-                        $count = count($parts);
-                        $firstName = $parts[0];
-                        $lastName = '';
-                        if ($count == 2) {
-                            $lastName = $parts[1];
-                        } elseif ($count > 2) {
-                            unset($parts[0]);
-                            $lastName = implode(' ', $parts);
-                        }
-
-                        $this->getCartService()->getCustomer()->set('first_name', $firstName);
-                        $this->getCartService()->getCustomer()->set('last_name', $lastName);
-                        $this->getCartService()->getCustomer()->set('billing_name', $value);
-
-                        if ($this->getCartService()->getCustomerEntity()
-                            && !$this->getCartService()->getCustomerEntity()->getFirstName()
-                            && $firstName
-                        ) {
-                            $this->getCartService()->getCustomerEntity()->set('first_name', $firstName);
-                        }
-
-                        if ($this->getCartService()->getCustomerEntity()
-                            && !$this->getCartService()->getCustomerEntity()->getLastName()
-                            && $lastName
-                        ) {
-                            $this->getCartService()->getCustomerEntity()->set('last_name', $lastName);
-                        }
-
-                        if ($this->getCartService()->getCustomerEntity()
-                            && ($value != $this->getCartService()->getCustomerEntity()->getBillingName())
-                        ) {
-                            $this->getCartService()->getCustomerEntity()->set('billing_name', $value);
-                        }
-
-                        break;
                     case 'email':
 
                         // note: this logic isn't currently enabled,
@@ -331,7 +292,17 @@ class CheckoutUpdateBillingAddress
                 }
             }
 
+            // check is_shipping_same, copy values
+            if ($isShippingSame) {
+                $this->getCartService()->getCustomer()->copyBillingToShipping();
+            }
+
             if ($this->getCartService()->getCustomerEntity()) {
+
+                if ($isShippingSame) {
+                    $this->getCartService()->getCustomerEntity()->copyBillingToShipping();
+                }
+
                 try {
                     $this->getCartService()->saveCustomerEntity();
                 } catch(\Exception $e) {
@@ -347,6 +318,9 @@ class CheckoutUpdateBillingAddress
         }
 
         $this->getCartService()->setSectionIsValid(CheckoutConstants::STEP_BILLING_ADDRESS, $isValid);
+        if ($isShippingSame) {
+            $this->getCartService()->setSectionIsValid(CheckoutConstants::STEP_SHIPPING_ADDRESS, $isValid);
+        }
 
         // update the checkout_state whether the submission is valid or invalid
         $this->getCartService()->saveCart();

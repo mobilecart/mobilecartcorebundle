@@ -165,8 +165,8 @@ class CheckoutShippingAddressForm
         ]);
 
         $shippingFields = [
-            'is_shipping_same', // todo : move this to the billing step
-            'shipping_name',
+            'shipping_firstname',
+            'shipping_lastname',
             'shipping_company',
             'shipping_street',
             'shipping_street2',

@@ -158,7 +158,8 @@ class CustomerAddressForm
                 'label' => 'General',
                 'id' => 'general',
                 'fields' => [
-                    'name',
+                    'firstname',
+                    'lastname',
                     'company',
                     'street',
                     'street2',

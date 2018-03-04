@@ -153,16 +153,24 @@ class CheckoutUpdateShippingAddress
                         unset($apiRequest['cart_id']);
                     }
 
-                    $event->submitForm($apiRequest);
-                    $isValid = $event->isFormValid();
+                    if (isset($apiRequest['address_id'])) {
+                        // todo : handle submission of customer_address ID
+                    } else {
+                        $event->setFormData($apiRequest);
+                        $isValid = $event->isFormValid();
+                    }
                 }
 
                 break;
             default:
 
                 $requestData = $event->getRequest()->request->all();
-                $event->submitForm($requestData);
-                $isValid = $event->isFormValid();
+                if (isset($requestData['address_id'])) {
+                    // todo : handle submission of customer_address ID
+                } else {
+                    $event->setFormData($requestData);
+                    $isValid = $event->isFormValid();
+                }
 
                 break;
         }
@@ -175,8 +183,6 @@ class CheckoutUpdateShippingAddress
         // this step does not handle registrations
 
         // todo : handle submission of customer_address ID
-
-        $isShippingSame = false; // todo : populate this
 
         if ($isValid) {
 
@@ -210,48 +216,22 @@ class CheckoutUpdateShippingAddress
 
                 $value = $formData[$childKey];
 
-                switch($childKey) {
-                    case 'is_shipping_same':
-
-                        $isShippingSame = (bool) $value;
-
-                        $this->getCartService()->getCustomer()->set($childKey, $isShippingSame);
-                        if ($customerEntity) {
-                            $customerEntity->set($childKey, $isShippingSame);
-                        }
-                        break;
-                    default:
-
-                        if (is_null($value)) {
-                            continue;
-                        }
-
-                        $this->getCartService()->getCustomer()->set($childKey, $value);
-                        if ($customerEntity) {
-                            $customerEntity->set($childKey, $value);
-                        }
-                        break;
+                if (is_null($value)) {
+                    continue;
                 }
-            }
 
-            // check is_shipping_same, copy values
-            if ($isShippingSame) {
-                $this->getCartService()->getCustomer()->copyBillingToShipping();
-                $isShippingSame = true;
+                $this->getCartService()->getCustomer()->set($childKey, $value);
+                if ($customerEntity) {
+                    $customerEntity->set($childKey, $value);
+                }
             }
 
             // finally, if we have a registered customer, update our records with the submitted info
             if ($customerEntity) {
 
-                if ($isShippingSame) {
-                    $customerEntity->copyBillingToShipping();
-                }
-
                 try {
                     $this->getEntityService()->persist($customerEntity);
-                    if ($customerEntity->getId()) {
-                        $this->getCartService()->setCustomerEntity($customerEntity);
-                    }
+                    $this->getCartService()->setCustomerEntity($customerEntity);
                 } catch(\Exception $e) {
                     $isValid = false;
                     $event->addErrorMessage('An exception occurred while saving the customer.');

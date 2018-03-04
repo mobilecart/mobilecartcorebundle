@@ -78,8 +78,15 @@ class RemoveProduct
             $customerAddressId = $cartItem->get('customer_address_id', 'main');
             $srcAddressKey = $cartItem->get('source_address_key', 'main');
 
+            try {
+                $this->getCartService()->deleteItemEntity($key, $value);
+            } catch(\Exception $e) {
+                $event->addErrorMessage('An error occurred while deleting Cart Item');
+                return;
+            }
+
             $this->getCartService()->removeItem($key, $value);
-            $this->getCartService()->deleteItemEntity($key, $value);
+
 
             if ($this->getCartService()->getCart()->hasItems()) {
 

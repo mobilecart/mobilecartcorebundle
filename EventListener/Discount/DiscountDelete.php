@@ -39,8 +39,14 @@ class DiscountDelete
      */
     public function onDiscountDelete(CoreEvent $event)
     {
+        // Delete behavior : delete row . nothing else references Discount entity
         $entity = $event->getEntity();
-        $this->getEntityService()->remove($entity, EntityConstants::DISCOUNT);
-        $event->addSuccessMessage('Discount Deleted !');
+        try {
+            $this->getEntityService()->remove($entity, EntityConstants::DISCOUNT);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Discount Deleted !');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while deleting Discount');
+        }
     }
 }

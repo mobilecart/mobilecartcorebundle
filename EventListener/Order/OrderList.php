@@ -89,12 +89,17 @@ class OrderList
                 'sort' => true,
             ],
             [
-                'key' => 'billing_name',
-                'label' => 'Customer',
+                'key' => 'billing_firstname',
+                'label' => 'First Name',
                 'sort' => true,
             ],
             [
-                'key' => 'total',
+                'key' => 'billing_lastname',
+                'label' => 'Last Name',
+                'sort' => true,
+            ],
+            [
+                'key' => 'base_total',
                 'label' => 'Total',
                 'sort' => true,
             ],

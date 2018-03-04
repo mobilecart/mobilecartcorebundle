@@ -141,8 +141,8 @@ class CustomerRegisterForm
                 'label' => 'Register',
                 'id' => 'general',
                 'fields' => [
-                    'first_name',
-                    'last_name',
+                    'billing_firstname',
+                    'billing_lastname',
                     'email',
                     'password',
                 ],

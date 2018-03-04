@@ -141,7 +141,8 @@ class OrderNewReturn
                 'customer_id' => 0,
                 'form' => $event->getReturnData('form'),
                 'form_elements' => [
-                    'billing_name',
+                    'billing_firstname',
+                    'billing_lastname',
                     'billing_street',
                     'billing_street2',
                     'billing_city',

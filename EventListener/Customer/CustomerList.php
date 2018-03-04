@@ -84,12 +84,12 @@ class CustomerList
                 'sort' => true,
             ],
             [
-                'key' => 'first_name',
+                'key' => 'billing_firstname',
                 'label' => 'First Name',
                 'sort' => true,
             ],
             [
-                'key' => 'last_name',
+                'key' => 'billing_lastname',
                 'label' => 'Last Name',
                 'sort' => true,
             ],

@@ -39,23 +39,18 @@ class CategoryDelete
      */
     public function onCategoryDelete(CoreEvent $event)
     {
+        // Delete behavior : delete row and cascade delete rows in category_product
+
         /** @var \MobileCart\CoreBundle\Entity\Category $entity */
         $entity = $event->getEntity();
 
-        // remove category_product
-        $categoryProducts = $this->getEntityService()->findBy(EntityConstants::CATEGORY_PRODUCT, [
-            'category' => $entity->getId(),
-        ]);
-
-        if ($categoryProducts) {
-            foreach($categoryProducts as $categoryProduct) {
-                $this->getEntityService()->remove($categoryProduct, EntityConstants::CATEGORY_PRODUCT);
-            }
+        try {
+            $this->getEntityService()->remove($entity, EntityConstants::CATEGORY);
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Category Deleted !');
+        } catch(\Exception $e) {
+            $event->addErrorMessage('An error occurred while deleting Category');
         }
-
-        $this->getEntityService()->remove($entity, EntityConstants::CATEGORY);
-
-        $event->addSuccessMessage('Category Deleted !');
 
         $event->flashMessages();
     }

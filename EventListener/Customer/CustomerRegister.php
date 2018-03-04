@@ -108,10 +108,6 @@ class CustomerRegister
         $entity->setCreatedAt(new \DateTime('now'));
         $entity->setDefaultCurrency($this->getCurrencyService()->getBaseCurrency());
 
-        if ($entity->getFirstName()) {
-            $entity->setBillingName("{$entity->getFirstName()} {$entity->getLastName()}");
-        }
-
         try {
             $this->getEntityService()->persist($entity);
             $event->setSuccess(true);
