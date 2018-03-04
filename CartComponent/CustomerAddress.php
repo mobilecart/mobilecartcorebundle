@@ -10,7 +10,8 @@ class CustomerAddress extends ArrayWrapper
 {
     const ID = 'id';
     const CUSTOMER_ID = 'customer_id';
-    const NAME = 'name';
+    const FIRSTNAME = 'firstname';
+    const LASTNAME = 'lastname';
     const COMPANY = 'company';
     const STREET = 'street';
     const STREET2 = 'street2';
@@ -33,7 +34,8 @@ class CustomerAddress extends ArrayWrapper
         return [
             self::ID          => 0,
             self::CUSTOMER_ID => 0,
-            self::NAME        => '',
+            self::FIRSTNAME   => '',
+            self::LASTNAME    => '',
             self::COMPANY     => '',
             self::STREET      => '',
             self::STREET2     => '',
@@ -56,8 +58,11 @@ class CustomerAddress extends ArrayWrapper
                     case self::CUSTOMER_ID:
                         $this->setCustomerId($value);
                         break;
-                    case self::NAME:
-                        $this->setName($value);
+                    case self::FIRSTNAME:
+                        $this->setFirstname($value);
+                        break;
+                    case self::LASTNAME:
+                        $this->setLastname($value);
                         break;
                     case self::COMPANY:
                         $this->setCompany($value);
@@ -143,21 +148,39 @@ class CustomerAddress extends ArrayWrapper
     }
 
     /**
-     * @param string $name
+     * @param string $firstname
      * @return $this
      */
-    public function setName($name)
+    public function setFirstname($firstname)
     {
-        $this->data[self::NAME] = $name;
+        $this->data[self::FIRSTNAME] = $firstname;
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getName()
+    public function getFirstname()
     {
-        return $this->data[self::NAME];
+        return $this->data[self::FIRSTNAME];
+    }
+
+    /**
+     * @param string $lastname
+     * @return $this
+     */
+    public function setLastname($lastname)
+    {
+        $this->data[self::LASTNAME] = $lastname;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLastname()
+    {
+        return $this->data[self::LASTNAME];
     }
 
     /**

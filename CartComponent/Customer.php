@@ -20,9 +20,8 @@ class Customer extends ArrayWrapper
 {
     const ID = 'id';
     const EMAIL = 'email';
-    const FIRST_NAME = 'first_name';
-    const LAST_NAME = 'last_name';
-    const BILLING_NAME = 'billing_name';
+    const BILLING_FIRSTNAME = 'billing_firstname';
+    const BILLING_LASTNAME = 'billing_lastname';
     const BILLING_COMPANY = 'billing_company';
     const BILLING_STREET = 'billing_street';
     const BILLING_STREET2 = 'billing_street2';
@@ -32,7 +31,8 @@ class Customer extends ArrayWrapper
     const BILLING_COUNTRY_ID = 'billing_country_id';
     const BILLING_PHONE = 'billing_phone';
     const IS_SHIPPING_SAME = 'is_shipping_same';
-    const SHIPPING_NAME = 'shipping_name';
+    const SHIPPING_FIRSTNAME = 'shipping_firstname';
+    const SHIPPING_LASTNAME = 'shipping_lastname';
     const SHIPPING_COMPANY = 'shipping_company';
     const SHIPPING_STREET = 'shipping_street';
     const SHIPPING_STREET2 = 'shipping_street2';
@@ -59,9 +59,8 @@ class Customer extends ArrayWrapper
         return [
             self::ID                  => 0,
             self::EMAIL               => '',
-            self::FIRST_NAME          => '',
-            self::LAST_NAME           => '',
-            self::BILLING_NAME        => '',
+            self::BILLING_FIRSTNAME   => '',
+            self::BILLING_LASTNAME    => '',
             self::BILLING_COMPANY     => '',
             self::BILLING_PHONE       => '',
             self::BILLING_STREET      => '',
@@ -71,7 +70,8 @@ class Customer extends ArrayWrapper
             self::BILLING_POSTCODE    => '',
             self::BILLING_COUNTRY_ID  => '',
             self::IS_SHIPPING_SAME    => false,
-            self::SHIPPING_NAME       => '',
+            self::SHIPPING_FIRSTNAME  => '',
+            self::SHIPPING_LASTNAME   => '',
             self::SHIPPING_COMPANY    => '',
             self::SHIPPING_PHONE      => '',
             self::SHIPPING_STREET     => '',
@@ -101,14 +101,11 @@ class Customer extends ArrayWrapper
                     case self::EMAIL:
                         $this->setEmail($value);
                         break;
-                    case self::FIRST_NAME:
-                        $this->setFirstName($value);
+                    case self::BILLING_FIRSTNAME:
+                        $this->setBillingFirstname($value);
                         break;
-                    case self::LAST_NAME:
-                        $this->setLastName($value);
-                        break;
-                    case self::BILLING_NAME:
-                        $this->setBillingName($value);
+                    case self::BILLING_LASTNAME:
+                        $this->setBillingLastname($value);
                         break;
                     case self::BILLING_COMPANY:
                         $this->setBillingCompany($value);
@@ -137,8 +134,11 @@ class Customer extends ArrayWrapper
                     case self::IS_SHIPPING_SAME:
                         $this->setIsShippingSame($value);
                         break;
-                    case self::SHIPPING_NAME:
-                        $this->setShippingName($value);
+                    case self::SHIPPING_FIRSTNAME:
+                        $this->setShippingFirstname($value);
+                        break;
+                    case self::SHIPPING_LASTNAME:
+                        $this->setShippingLastname($value);
                         break;
                     case self::SHIPPING_COMPANY:
                         $this->setShippingCompany($value);
@@ -233,57 +233,39 @@ class Customer extends ArrayWrapper
     }
 
     /**
-     * @param string $firstName
+     * @param string $firstname
      * @return $this
      */
-    public function setFirstName($firstName)
+    public function setBillingFirstname($firstname)
     {
-        $this->data[self::FIRST_NAME] = $firstName;
+        $this->data[self::BILLING_FIRSTNAME] = $firstname;
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getFirstName()
+    public function getBillingFirstname()
     {
-        return $this->data[self::FIRST_NAME];
+        return $this->data[self::BILLING_FIRSTNAME];
     }
 
     /**
-     * @param string $lastName
+     * @param string $lastname
      * @return $this
      */
-    public function setLastName($lastName)
+    public function setBillingLastname($lastname)
     {
-        $this->data[self::LAST_NAME] = $lastName;
+        $this->data[self::BILLING_LASTNAME] = $lastname;
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getLastName()
+    public function getBillingLastname()
     {
-        return $this->data[self::LAST_NAME];
-    }
-
-    /**
-     * @param string $billingName
-     * @return $this
-     */
-    public function setBillingName($billingName)
-    {
-        $this->data[self::BILLING_NAME] = $billingName;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getBillingName()
-    {
-        return $this->data[self::BILLING_NAME];
+        return $this->data[self::BILLING_LASTNAME];
     }
 
     /**
@@ -449,21 +431,39 @@ class Customer extends ArrayWrapper
     }
 
     /**
-     * @param string $shippingName
+     * @param string $firstname
      * @return $this
      */
-    public function setShippingName($shippingName)
+    public function setShippingFirstname($firstname)
     {
-        $this->data[self::SHIPPING_NAME] = $shippingName;
+        $this->data[self::SHIPPING_FIRSTNAME] = $firstname;
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getShippingName()
+    public function getShippingFirstname()
     {
-        return $this->data[self::SHIPPING_NAME];
+        return $this->data[self::SHIPPING_FIRSTNAME];
+    }
+
+    /**
+     * @param string $lastname
+     * @return $this
+     */
+    public function setShippingLastname($lastname)
+    {
+        $this->data[self::SHIPPING_LASTNAME] = $lastname;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getShippingLastname()
+    {
+        return $this->data[self::SHIPPING_LASTNAME];
     }
 
     /**
@@ -528,6 +528,14 @@ class Customer extends ArrayWrapper
     {
         $this->data[self::SHIPPING_STREET2] = $shippingStreet2;
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getShippingStreet2()
+    {
+        return $this->data[self::SHIPPING_STREET2];
     }
 
     /**
@@ -679,7 +687,7 @@ class Customer extends ArrayWrapper
      */
     public function getName()
     {
-        return $this->getFirstName() . ' ' . $this->getLastName();
+        return $this->getBillingFirstname() . ' ' . $this->getBillingLastname();
     }
 
     /**
@@ -705,7 +713,7 @@ class Customer extends ArrayWrapper
     /**
      * Check whether this shipment validates a hierarchy of discount conditions
      *
-     * @param RuleConditionCompare
+     * @param RuleConditionCompare $compare
      * @return bool
      */
     public function isValidConditionCompare(RuleConditionCompare $compare)
@@ -719,7 +727,8 @@ class Customer extends ArrayWrapper
     public function copyBillingToShipping()
     {
         $this->setIsShippingSame(true);
-        $this->setShippingName($this->getBillingName());
+        $this->setShippingFirstname($this->getBillingFirstname());
+        $this->setShippingLastname($this->getBillingLastname());
         $this->setShippingStreet($this->getBillingStreet());
         $this->setShippingStreet2($this->getBillingStreet2());
         $this->setShippingCity($this->getBillingCity());
