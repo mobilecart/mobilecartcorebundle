@@ -273,8 +273,10 @@ class CheckoutPaymentMethods
 
                     $sectionData['javascripts'] = $javascripts;
 
-                    $response = $this->getThemeService()->render('frontend', $template, $sectionData);
-                    $event->setResponse($response);
+                    $event->setResponse($this->getThemeService()->renderFrontend(
+                        $template,
+                        $sectionData
+                    ));
                 }
             }
         } else {

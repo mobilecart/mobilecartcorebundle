@@ -114,8 +114,7 @@ class CheckoutForm
                 ? $event->get('template', '')
                 : 'Checkout:index.html.twig';
 
-            $event->setResponse($this->getThemeService()->render(
-                'frontend',
+            $event->setResponse($this->getThemeService()->renderFrontend(
                 $template,
                 $event->getReturnData()
             ));

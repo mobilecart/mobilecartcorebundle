@@ -229,8 +229,7 @@ class OrderEditReturn
             ],
         ]);
 
-        $event->setResponse($this->getThemeService()->render(
-            'admin',
+        $event->setResponse($this->getThemeService()->renderAdmin(
             'Order:edit.html.twig',
             $event->getReturnData()
         ));

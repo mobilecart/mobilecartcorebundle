@@ -63,8 +63,7 @@ class ViewReturn
     public function onHomeViewReturn(CoreEvent $event)
     {
         $event->setReturnData('search', $this->getSearchService());
-        $event->setResponse($this->getThemeService()->render(
-            'frontend',
+        $event->setResponse($this->getThemeService()->renderFrontend(
             'Home:index.html.twig',
             $event->getReturnData()
         ));

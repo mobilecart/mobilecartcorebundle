@@ -105,8 +105,7 @@ class UrlRewriteList
                 $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
-                $event->setResponse($this->getThemeService()->render(
-                    'admin',
+                $event->setResponse($this->getThemeService()->renderAdmin(
                     'UrlRewrite:index.html.twig',
                     $event->getReturnData()
                 ));

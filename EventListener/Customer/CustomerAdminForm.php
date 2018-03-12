@@ -165,6 +165,8 @@ class CustomerAdminForm
                 'label' => 'Billing Address',
                 'id' => 'billing',
                 'fields' => [
+                    'is_shipping_same',
+                    'billing_company',
                     'billing_street',
                     'billing_street2',
                     'billing_city',
@@ -172,7 +174,6 @@ class CustomerAdminForm
                     'billing_postcode',
                     'billing_country_id',
                     'billing_phone',
-                    'is_shipping_same',
                 ],
             ],
             'shipping' => [
@@ -181,6 +182,7 @@ class CustomerAdminForm
                 'fields' => [
                     'shipping_firstname',
                     'shipping_lastname',
+                    'shipping_company',
                     'shipping_street',
                     'shipping_street2',
                     'shipping_city',

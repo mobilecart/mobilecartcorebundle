@@ -240,7 +240,10 @@ class CheckoutShippingAddressForm
                     $sectionData['javascripts'] = $javascripts;
                     $sectionData['form_view'] = $form->createView();
 
-                    $event->setResponse($this->getThemeService()->render('frontend', $template, $sectionData));
+                    $event->setResponse($this->getThemeService()->renderFrontend(
+                        $template,
+                        $sectionData
+                    ));
                 }
             }
         } else {

@@ -61,20 +61,13 @@ class UrlRewriteEditReturn
      */
     public function onUrlRewriteEditReturn(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
-        $entity = $event->getEntity();
-        $typeSections = [];
+        $event->setReturnData('entity', $event->getEntity());
+        $event->setReturnData('form', $event->getForm()->createView());
+        $event->setReturnData('template_sections', []);
 
-        $returnData['template_sections'] = $typeSections;
-
-        $form = $returnData['form'];
-        $returnData['form'] = $form->createView();
-        $returnData['entity'] = $entity;
-
-        $response = $this->getThemeService()
-            ->render('admin', 'UrlRewrite:edit.html.twig', $returnData);
-
-        $event->setReturnData($returnData)
-            ->setResponse($response);
+        $event->setResponse($this->getThemeService()->renderAdmin(
+            'UrlRewrite:edit.html.twig',
+            $event->getReturnData()
+        ));
     }
 }

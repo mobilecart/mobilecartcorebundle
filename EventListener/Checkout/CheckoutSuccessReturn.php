@@ -126,8 +126,7 @@ class CheckoutSuccessReturn
 
         $event->setReturnData('order', $order);
 
-        $event->setResponse($this->getThemeService()->render(
-            'frontend',
+        $event->setResponse($this->getThemeService()->renderFrontend(
             'Checkout:success.html.twig',
             $event->getReturnData()
         ));

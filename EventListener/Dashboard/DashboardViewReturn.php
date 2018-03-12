@@ -65,8 +65,7 @@ class DashboardViewReturn
             $event->setReturnData('template_sections', []);
         }
 
-        $event->setResponse($this->getThemeService()->render(
-            'admin',
+        $event->setResponse($this->getThemeService()->renderAdmin(
             'Dashboard:index.html.twig',
             $event->getReturnData()
         ));

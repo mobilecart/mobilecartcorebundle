@@ -210,8 +210,7 @@ class CheckoutTotalsDiscountsViewReturn
                         ? $event->getTemplate()
                         : 'Checkout:totals_discounts.html.twig';
 
-                    $event->setResponse($this->getThemeService()->render(
-                        'frontend',
+                    $event->setResponse($this->getThemeService()->renderFrontend(
                         $template,
                         $sectionData
                     ));
@@ -227,8 +226,7 @@ class CheckoutTotalsDiscountsViewReturn
 
                     $sectionData['javascripts'] = $javascripts;
 
-                    $event->setResponse($this->getThemeService()->render(
-                        'frontend',
+                    $event->setResponse($this->getThemeService()->renderFrontend(
                         $template,
                         $sectionData
                     ));

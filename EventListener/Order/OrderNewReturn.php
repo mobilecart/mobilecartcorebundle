@@ -176,8 +176,7 @@ class OrderNewReturn
             ],
         ]);
 
-        $event->setResponse($this->getThemeService()->render(
-            'admin',
+        $event->setResponse($this->getThemeService()->renderAdmin(
             'Order:new.html.twig',
             $event->getReturnData()
         ));

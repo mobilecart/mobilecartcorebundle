@@ -18,11 +18,6 @@ class CheckoutConfirmOrder
     /**
      * @var string
      */
-    protected $layout = 'frontend';
-
-    /**
-     * @var string
-     */
     protected $defaultTemplate = 'Checkout:confirm_order.html.twig';
 
     /**
@@ -101,24 +96,6 @@ class CheckoutConfirmOrder
     }
 
     /**
-     * @param $layout
-     * @return $this
-     */
-    public function setLayout($layout)
-    {
-        $this->layout = $layout;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getLayout()
-    {
-        return $this->layout;
-    }
-
-    /**
      * @param CoreEvent $event
      */
     public function onCheckoutConfirmOrder(CoreEvent $event)
@@ -129,8 +106,7 @@ class CheckoutConfirmOrder
             ? $event->getTemplate()
             : $this->defaultTemplate;
 
-        $event->setResponse($this->getThemeService()->render(
-            $this->getLayout(),
+        $event->setResponse($this->getThemeService()->renderFrontend(
             $template,
             $event->getReturnData()
         ));

@@ -134,8 +134,7 @@ class CustomerRegisterConfirm
 
                 $tpl = 'Customer:register_confirm_success.html.twig';
                 $event->addReturnData($entity->getData());
-                $event->setResponse($this->getThemeService()->render(
-                    'frontend',
+                $event->setResponse($this->getThemeService()->renderFrontend(
                     $tpl,
                     $event->getReturnData()
                 ));
@@ -148,8 +147,7 @@ class CustomerRegisterConfirm
             } else {
 
                 $tpl = 'Customer:register_confirm_error.html.twig';
-                $event->setResponse($this->getThemeService()->render(
-                    'frontend',
+                $event->setResponse($this->getThemeService()->renderFrontend(
                     $tpl,
                     $event->getReturnData()
                 ));

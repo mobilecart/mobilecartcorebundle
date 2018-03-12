@@ -117,8 +117,7 @@ class ProductList
                         switch($event->getCategory()->getDisplayMode()) {
                             case EntityConstants::DISPLAY_TEMPLATE:
 
-                                $event->setResponse($this->getThemeService()->render(
-                                    'frontend',
+                                $event->setResponse($this->getThemeService()->renderFrontend(
                                     $event->getCategory()->getCustomTemplate(),
                                     $event->getReturnData()
                                 ));
@@ -126,8 +125,7 @@ class ProductList
                                 break;
                             case EntityConstants::DISPLAY_TEMPLATE_PRODUCTS:
 
-                                $event->setReturnData('custom_template_html', $this->getThemeService()->render(
-                                    'frontend',
+                                $event->setReturnData('custom_template_html', $this->getThemeService()->renderFrontend(
                                     $event->getCategory()->getCustomTemplate(),
                                     $event->getReturnData()
                                 ));
@@ -136,8 +134,7 @@ class ProductList
                                     ? $event->getTemplate()
                                     : 'Product:index.html.twig';
 
-                                $event->setResponse($this->getThemeService()->render(
-                                    'frontend',
+                                $event->setResponse($this->getThemeService()->renderFrontend(
                                     $template,
                                     $event->getReturnData()
                                 ));
@@ -149,8 +146,7 @@ class ProductList
                                     ? $event->getTemplate()
                                     : 'Product:index.html.twig';
 
-                                $event->setResponse($this->getThemeService()->render(
-                                    'frontend',
+                                $event->setResponse($this->getThemeService()->renderFrontend(
                                     $template,
                                     $event->getReturnData()
                                 ));
@@ -162,8 +158,7 @@ class ProductList
                                     ? $event->getTemplate()
                                     : 'Product:index.html.twig';
 
-                                $event->setResponse($this->getThemeService()->render(
-                                    'frontend',
+                                $event->setResponse($this->getThemeService()->renderFrontend(
                                     $template,
                                     $event->getReturnData()
                                 ));
@@ -177,8 +172,7 @@ class ProductList
                             ? $event->getTemplate()
                             : 'Product:index.html.twig';
 
-                        $event->setResponse($this->getThemeService()->render(
-                            'frontend',
+                        $event->setResponse($this->getThemeService()->renderFrontend(
                             $template,
                             $event->getReturnData()
                         ));
@@ -230,8 +224,7 @@ class ProductList
                         ? $event->getTemplate()
                         : 'Product:index.html.twig';
 
-                    $event->setResponse($this->getThemeService()->render(
-                        'admin',
+                    $event->setResponse($this->getThemeService()->renderAdmin(
                         $template,
                         $event->getReturnData()
                     ));

@@ -109,8 +109,7 @@ class OrderItemList
                 $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
-                $event->setResponse($this->getThemeService()->render(
-                    'admin',
+                $event->setResponse($this->getThemeService()->renderAdmin(
                     'OrderItem:index.html.twig',
                     $event->getReturnData()
                 ));

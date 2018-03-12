@@ -102,8 +102,7 @@ class OrderShipmentList
                 $event->setResponse(new JsonResponse($event->getReturnData()));
                 break;
             default:
-                $event->setResponse($this->getThemeService()->render(
-                    'admin',
+                $event->setResponse($this->getThemeService()->renderAdmin(
                     'OrderShipment:index.html.twig',
                     $event->getReturnData()
                 ));

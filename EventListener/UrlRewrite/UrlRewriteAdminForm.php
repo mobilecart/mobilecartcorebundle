@@ -21,9 +21,15 @@ class UrlRewriteAdminForm
      */
     protected $currencyService;
 
+    /**
+     * @var \Symfony\Component\Form\FormFactoryInterface
+     */
     protected $formFactory;
 
-    protected $router;
+    /**
+     * @var string
+     */
+    protected $formTypeClass = 'MobileCart\CoreBundle\Form\UrlRewriteType';
 
     /**
      * @param \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
@@ -61,26 +67,40 @@ class UrlRewriteAdminForm
         return $this->currencyService;
     }
 
-    public function setFormFactory($formFactory)
+    /**
+     * @param \Symfony\Component\Form\FormFactoryInterface $formFactory
+     * @return $this
+     */
+    public function setFormFactory(\Symfony\Component\Form\FormFactoryInterface $formFactory)
     {
         $this->formFactory = $formFactory;
         return $this;
     }
 
+    /**
+     * @return \Symfony\Component\Form\FormFactoryInterface
+     */
     public function getFormFactory()
     {
         return $this->formFactory;
     }
 
-    public function setRouter($router)
+    /**
+     * @param string $formTypeClass
+     * @return $this
+     */
+    public function setFormTypeClass($formTypeClass)
     {
-        $this->router = $router;
+        $this->formTypeClass = $formTypeClass;
         return $this;
     }
 
-    public function getRouter()
+    /**
+     * @return string
+     */
+    public function getFormTypeClass()
     {
-        return $this->router;
+        return $this->formTypeClass;
     }
 
     /**
@@ -88,16 +108,10 @@ class UrlRewriteAdminForm
      */
     public function onUrlRewriteAdminForm(CoreEvent $event)
     {
-        $returnData = $event->getReturnData();
+        /** @var \MobileCart\CoreBundle\Entity\UrlRewrite $entity */
         $entity = $event->getEntity();
 
-        $formTypeClass = 'MobileCart\CoreBundle\Form\UrlRewriteType';
-        $form = $this->getFormFactory()->create($formTypeClass, $entity, [
-            'action' => $event->getFormAction(),
-            'method' => $event->getFormMethod(),
-        ]);
-
-        $formSections = [
+        $event->setReturnData('form_sections', [
             'general' => [
                 'label' => 'General',
                 'id' => 'general',
@@ -110,12 +124,11 @@ class UrlRewriteAdminForm
                     'redirect_url',
                 ],
             ],
-        ];
+        ]);
 
-        $returnData['form_sections'] = $formSections;
-        $returnData['form'] = $form;
-
-        $event->setForm($form);
-        $event->setReturnData($returnData);
+        $event->setForm($this->getFormFactory()->create($this->getFormTypeClass(), $entity, [
+            'action' => $event->getFormAction(),
+            'method' => $event->getFormMethod(),
+        ]));
     }
 }

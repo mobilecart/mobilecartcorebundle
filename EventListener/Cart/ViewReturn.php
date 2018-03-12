@@ -72,8 +72,7 @@ class ViewReturn
             switch($event->getRequest()->get('ajax', '')) {
                 case '1':
 
-                    $event->setResponse($this->getThemeService()->render(
-                        'frontend',
+                    $event->setResponse($this->getThemeService()->renderFrontend(
                         'Cart:partial.html.twig',
                         $event->getReturnData()
                     ));
@@ -81,8 +80,7 @@ class ViewReturn
                     break;
                 case 'mini':
 
-                    $event->setResponse($this->getThemeService()->render(
-                        'frontend',
+                    $event->setResponse($this->getThemeService()->renderFrontend(
                         'Cart:mini.html.twig',
                         $event->getReturnData()
                     ));
@@ -90,8 +88,7 @@ class ViewReturn
                     break;
                 case 'confirm':
 
-                    $event->setResponse($this->getThemeService()->render(
-                        'frontend',
+                    $event->setResponse($this->getThemeService()->renderFrontend(
                         'Cart:confirm_modal.html.twig',
                         $event->getReturnData()
                     ));
@@ -99,8 +96,7 @@ class ViewReturn
                     break;
                 default:
 
-                    $event->setResponse($this->getThemeService()->render(
-                        'frontend',
+                    $event->setResponse($this->getThemeService()->renderFrontend(
                         'Cart:index.html.twig',
                         $event->getReturnData()
                     ));

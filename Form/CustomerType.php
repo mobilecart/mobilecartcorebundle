@@ -77,6 +77,9 @@ class CustomerType extends AbstractType
             ->add('billing_lastname', TextType::class, [
                 'label' => 'Last Name'
             ])
+            ->add('billing_company', TextType::class, [
+                'label' => 'Company'
+            ])
             ->add('billing_phone', TextType::class, [
                 'label' => 'Billing Phone'
             ])
@@ -114,6 +117,11 @@ class CustomerType extends AbstractType
             ])
             ->add('shipping_lastname', TextType::class, [
                 'label' => 'Shipping Last Name',
+                'required' => false,
+                'attr' => ['class' => 'shipping-input'],
+            ])
+            ->add('shipping_company', TextType::class, [
+                'label' => 'Company',
                 'required' => false,
                 'attr' => ['class' => 'shipping-input'],
             ])
