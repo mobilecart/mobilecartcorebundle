@@ -77,48 +77,49 @@ class ItemVarOptionList
             ],
         ]);
 
-        $event->setReturnData('columns', [
-            [
-                'key' => 'id',
-                'label' => 'ID',
-                'sort' => true,
-            ],
-            [
-                'key' => 'item_var_name',
-                'label' => 'Custom Field',
-                'sort' => true,
-            ],
-            [
-                'key' => 'value',
-                'label' => 'Value',
-                'sort' => true,
-            ],
-            [
-                'key' => 'url_value',
-                'label' => 'URL Value',
-                'sort' => true,
-            ],
-            [
-                'key' => 'is_in_stock',
-                'label' => 'Is In Stock',
-                'sort' => true,
-            ],
-        ]);
+        // allow a previous listener to define the columns
+        if (!$event->getReturnData('columns', [])) {
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
+            $event->setReturnData('columns', [
+                [
+                    'key' => 'id',
+                    'label' => 'ID',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'item_var_name',
+                    'label' => 'Custom Field',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'value',
+                    'label' => 'Value',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'url_value',
+                    'label' => 'URL Value',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'is_in_stock',
+                    'label' => 'Is In Stock',
+                    'sort' => true,
+                ],
+            ]);
+        }
 
-                $event->setResponse(new JsonResponse($event->getReturnData()));
+        if ($event->isJsonResponse()) {
 
-                break;
-            default:
+            $event->setResponse(new JsonResponse($event->getReturnData()));
 
-                $event->setResponse($this->getThemeService()->renderAdmin(
-                    'ItemVarOption:index.html.twig',
-                    $event->getReturnData()
-                ));
+        } else {
 
-                break;
+            $event->setResponse($this->getThemeService()->renderAdmin(
+                'ItemVarOption:index.html.twig',
+                $event->getReturnData()
+            ));
+
         }
     }
 }

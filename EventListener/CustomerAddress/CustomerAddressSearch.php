@@ -42,19 +42,11 @@ class CustomerAddressSearch
         $search = $this->getSearch()
             ->parseRequest($event->getRequest());
 
-        switch($event->getSection()) {
-            case CoreEvent::SECTION_FRONTEND:
-                $search->addFilter('customer_id', $event->getUser()->getId());
-                break;
-            case CoreEvent::SECTION_BACKEND:
-
-                break;
-            default:
-
-                break;
+        if ($event->isFrontendSection()) {
+            $search->addFilter('customer_id', $event->getUser()->getId());
         }
 
         $event->setReturnData('search', $search);
-        $event->setReturnData('result', $search->search());
+        $event->setReturnData('result', $search->search()->getResult());
     }
 }

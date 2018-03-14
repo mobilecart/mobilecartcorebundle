@@ -15,6 +15,17 @@ interface SearchServiceInterface
     public function setObjectType($objectType);
 
     /**
+     * @param string $format
+     * @return $this
+     */
+    public function setFormat($format);
+
+    /**
+     * @return string
+     */
+    public function getFormat();
+
+    /**
      * Parse Request , set filters, sort, and paginator parameters
      *
      * @param \Symfony\Component\HttpFoundation\Request $request
@@ -92,7 +103,7 @@ interface SearchServiceInterface
     public function getLimit();
 
     /**
-     * @return array|mixed
+     * @return $this
      */
     public function search();
 

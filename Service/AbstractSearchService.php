@@ -1142,7 +1142,7 @@ abstract class AbstractSearchService
     }
 
     /**
-     * @param $format
+     * @param string $format
      * @return $this
      */
     public function setFormat($format)
@@ -2105,7 +2105,7 @@ abstract class AbstractSearchService
     abstract protected function executeFacetCounts();
 
     /**
-     * @return mixed
+     * @return $this
      */
     abstract public function search();
 }

@@ -77,38 +77,39 @@ class ItemVarSetList
             ],
         ]);
 
-        $event->setReturnData('columns', [
-            [
-                'key' => 'id',
-                'label' => 'ID',
-                'sort' => true,
-            ],
-            [
-                'key' => 'name',
-                'label' => 'Name',
-                'sort' => true,
-            ],
-            [
-                'key' => 'object_type',
-                'label' => 'Object Type',
-                'sort' => true,
-            ],
-        ]);
+        // allow a previous listener to define the columns
+        if (!$event->getReturnData('columns', [])) {
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
+            $event->setReturnData('columns', [
+                [
+                    'key' => 'id',
+                    'label' => 'ID',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'name',
+                    'label' => 'Name',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'object_type',
+                    'label' => 'Object Type',
+                    'sort' => true,
+                ],
+            ]);
+        }
 
-                $event->setResponse(new JsonResponse($event->getReturnData()));
+        if ($event->isJsonResponse()) {
 
-                break;
-            default:
+            $event->setResponse(new JsonResponse($event->getReturnData()));
 
-                $event->setResponse($this->getThemeService()->renderAdmin(
-                    'ItemVarSet:index.html.twig',
-                    $event->getReturnData()
-                ));
+        } else {
 
-                break;
+            $event->setResponse($this->getThemeService()->renderAdmin(
+                'ItemVarSet:index.html.twig',
+                $event->getReturnData()
+            ));
+
         }
     }
 }

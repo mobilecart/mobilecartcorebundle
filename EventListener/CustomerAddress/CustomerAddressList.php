@@ -62,8 +62,6 @@ class CustomerAddressList
      */
     public function onCustomerAddressList(CoreEvent $event)
     {
-        $url = $this->getRouter()->generate('cart_admin_customer_mass_delete');
-
         $event->setReturnData('mass_actions', [
             [
                 'label'         => 'Delete Addresses',
@@ -74,62 +72,66 @@ class CustomerAddressList
                     ['value' => 0, 'label' => 'No'],
                     ['value' => 1, 'label' => 'Yes'],
                 ],
-                'url'      => $url,
+                'url'      => $this->getRouter()->generate('cart_admin_customer_mass_delete'),
                 'external' => 0,
             ],
         ]);
 
-        $event->setReturnData('columns', [
-            [
-                'key' => 'id',
-                'label' => 'ID',
-                'sort' => true,
-            ],
-            [
-                'key' => 'firstname',
-                'label' => 'First Name',
-                'sort' => true,
-            ],
-            [
-                'key' => 'lastname',
-                'label' => 'Last Name',
-                'sort' => true,
-            ],
-            [
-                'key' => 'city',
-                'label' => 'City',
-                'sort' => true,
-            ],
-            [
-                'key' => 'region',
-                'label' => 'Region/State',
-                'sort' => true,
-            ],
-            [
-                'key' => 'country_id',
-                'label' => 'Country',
-                'sort' => true,
-            ],
-        ]);
+        // allow a previous listener to define the columns
+        if (!$event->getReturnData('columns', [])) {
+
+            $event->setReturnData('columns', [
+                [
+                    'key' => 'id',
+                    'label' => 'ID',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'firstname',
+                    'label' => 'First Name',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'lastname',
+                    'label' => 'Last Name',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'city',
+                    'label' => 'City',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'region',
+                    'label' => 'State',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'country_id',
+                    'label' => 'Country',
+                    'sort' => true,
+                ],
+            ]);
+        }
 
         if ($event->isJsonResponse()) {
+
             $event->setResponse(new JsonResponse($event->getReturnData()));
+
         } else {
 
-            if ($event->getSection() == CoreEvent::SECTION_BACKEND) {
+            if ($event->isBackendSection()) {
 
                 $event->setResponse($this->getThemeService()->renderAdmin(
                     'CustomerAddress:index.html.twig',
                     $event->getReturnData()
                 ));
-
             } else {
 
                 $event->setResponse($this->getThemeService()->renderFrontend(
                     'CustomerAddress:index.html.twig',
                     $event->getReturnData()
                 ));
-
             }
         }
     }

@@ -62,6 +62,33 @@ class ConfigSettingList
      */
     public function onConfigSettingList(CoreEvent $event)
     {
+        // allow a previous listener to define the columns
+        if (!$event->getReturnData('columns', [])) {
+
+            $event->setReturnData('columns', [
+                [
+                    'key' => 'id',
+                    'label' => 'ID',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'label',
+                    'label' => 'Label',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'code',
+                    'label' => 'Code',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'value',
+                    'label' => 'Value',
+                    'sort' => true,
+                ],
+            ]);
+        }
+
         $event->setReturnData('mass_actions', [
             [
                 'label'         => 'Delete Config Settings',
@@ -77,43 +104,16 @@ class ConfigSettingList
             ],
         ]);
 
-        $event->setReturnData('columns', [
-            [
-                'key' => 'id',
-                'label' => 'ID',
-                'sort' => true,
-            ],
-            [
-                'key' => 'label',
-                'label' => 'Label',
-                'sort' => true,
-            ],
-            [
-                'key' => 'code',
-                'label' => 'Code',
-                'sort' => true,
-            ],
-            [
-                'key' => 'value',
-                'label' => 'Value',
-                'sort' => true,
-            ],
-        ]);
+        if ($event->isJsonResponse()) {
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
+            $event->setResponse(new JsonResponse($event->getReturnData()));
 
-                $event->setResponse(new JsonResponse($event->getReturnData()));
+        } else {
 
-                break;
-            default:
-
-                $event->setResponse($this->getThemeService()->renderAdmin(
-                    'ConfigSetting:index.html.twig',
-                    $event->getReturnData()
-                ));
-
-                break;
+            $event->setResponse($this->getThemeService()->renderAdmin(
+                'ConfigSetting:index.html.twig',
+                $event->getReturnData()
+            ));
         }
     }
 }

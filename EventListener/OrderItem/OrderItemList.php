@@ -61,59 +61,63 @@ class OrderItemList
     {
         $event->setReturnData('mass_actions', []);
 
-        $event->setReturnData('columns', [
-            [
-                'key' => 'id',
-                'label' => 'ID',
-                'sort' => true,
-            ],
-            [
-                'key' => 'reference_nbr',
-                'label' => 'Order #',
-                'sort' => true,
-            ],
-            [
-                'key' => 'sku',
-                'label' => 'SKU',
-                'sort' => true,
-            ],
-            [
-                'key' => 'name',
-                'label' => 'Name',
-                'sort' => true,
-            ],
-            [
-                'key' => 'price',
-                'label' => 'Price',
-                'sort' => true,
-            ],
-            [
-                'key' => 'qty',
-                'label' => 'Qty',
-                'sort' => true,
-            ],
-            [
-                'key' => 'shipping_method',
-                'label' => 'Shipping',
-                'sort' => true,
-            ],
-            [
-                'key' => 'order_created_at',
-                'label' => 'Created At',
-                'sort' => true,
-            ],
-        ]);
+        // allow a previous listener to define the columns
+        if (!$event->getReturnData('columns', [])) {
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
-                $event->setResponse(new JsonResponse($event->getReturnData()));
-                break;
-            default:
-                $event->setResponse($this->getThemeService()->renderAdmin(
-                    'OrderItem:index.html.twig',
-                    $event->getReturnData()
-                ));
-                break;
+            $event->setReturnData('columns', [
+                [
+                    'key' => 'id',
+                    'label' => 'ID',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'reference_nbr',
+                    'label' => 'Order #',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'sku',
+                    'label' => 'SKU',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'name',
+                    'label' => 'Name',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'price',
+                    'label' => 'Price',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'qty',
+                    'label' => 'Qty',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'shipping_method',
+                    'label' => 'Shipping',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'order_created_at',
+                    'label' => 'Created At',
+                    'sort' => true,
+                ],
+            ]);
+        }
+
+        if ($event->isJsonResponse()) {
+
+            $event->setResponse(new JsonResponse($event->getReturnData()));
+
+        } else {
+
+            $event->setResponse($this->getThemeService()->renderAdmin(
+                'OrderItem:index.html.twig',
+                $event->getReturnData()
+            ));
         }
     }
 }

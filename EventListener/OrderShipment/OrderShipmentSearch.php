@@ -45,7 +45,7 @@ class OrderShipmentSearch
             ->parseRequest($request);
 
         $event->setReturnData('search', $search);
-        $event->setReturnData('result', $search->search());
+        $event->setReturnData('result', $search->search()->getResult());
 
         if (in_array($search->getFormat(), ['', 'html'])) {
             // for storing the last grid filters in the url ; used in back links

@@ -62,60 +62,55 @@ class ContentList
      */
     public function onContentList(CoreEvent $event)
     {
-        $massActions = [
-            [
-                'label'         => 'Delete Contents',
-                'input_label'   => 'Confirm Mass-Delete ?',
-                'input'         => 'mass_delete',
-                'input_type'    => 'select',
-                'input_options' => [
-                    ['value' => 0, 'label' => 'No'],
-                    ['value' => 1, 'label' => 'Yes'],
-                ],
-                'url' => $this->getRouter()->generate('cart_admin_content_mass_delete'),
-                'external' => 0,
-            ],
-        ];
-
-        $columns = [
-            [
-                'key' => 'id',
-                'label' => 'ID',
-                'sort' => true,
-            ],
-            [
-                'key' => 'name',
-                'label' => 'Name',
-                'sort' => true,
-            ],
-            [
-                'key' => 'slug',
-                'label' => 'URL Slug',
-                'sort' => true,
-            ],
-        ];
-
         if ($event->isJsonResponse()) {
             $event->setResponse(new JsonResponse($event->getReturnData()));
         } else {
 
-            if ($event->getSection() == CoreEvent::SECTION_BACKEND) {
+            if ($event->isBackendSection()) {
 
-                $event->setReturnData('mass_actions', $massActions);
-                $event->setReturnData('columns', $columns);
+                $event->setReturnData('mass_actions', [
+                    [
+                        'label'         => 'Delete Contents',
+                        'input_label'   => 'Confirm Mass-Delete ?',
+                        'input'         => 'mass_delete',
+                        'input_type'    => 'select',
+                        'input_options' => [
+                            ['value' => 0, 'label' => 'No'],
+                            ['value' => 1, 'label' => 'Yes'],
+                        ],
+                        'url' => $this->getRouter()->generate('cart_admin_content_mass_delete'),
+                        'external' => 0,
+                    ],
+                ]);
+
+                $event->setReturnData('columns', [
+                    [
+                        'key' => 'id',
+                        'label' => 'ID',
+                        'sort' => true,
+                    ],
+                    [
+                        'key' => 'name',
+                        'label' => 'Name',
+                        'sort' => true,
+                    ],
+                    [
+                        'key' => 'slug',
+                        'label' => 'URL Slug',
+                        'sort' => true,
+                    ],
+                ]);
 
                 $event->setResponse($this->getThemeService()->renderAdmin(
                     'Content:index.html.twig',
                     $event->getReturnData()
                 ));
-
             } else {
 
                 $event->setResponse($this->getThemeService()->renderFrontend(
                     'Content:index.html.twig',
                     $event->getReturnData()
                 ));
-
             }
         }
     }

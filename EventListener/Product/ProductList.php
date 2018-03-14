@@ -63,48 +63,52 @@ class ProductList
      */
     public function onProductList(CoreEvent $event)
     {
-        $event->setReturnData('columns', [
-            [
-                'key' => 'id',
-                'label' => 'ID',
-                'sort' => true,
-            ],
-            [
-                'key' => 'type',
-                'label' => 'Type',
-                'sort' => true,
-            ],
-            [
-                'key' => 'name',
-                'label' => 'Name',
-                'sort' => true,
-            ],
-            [
-                'key' => 'sku',
-                'label' => 'SKU',
-                'sort' => true,
-            ],
-            [
-                'key' => 'price',
-                'label' => 'Price',
-                'sort' => true,
-            ],
-            [
-                'key' => 'qty',
-                'label' => 'Qty',
-                'sort' => true,
-            ],
-            [
-                'key' => 'is_in_stock',
-                'label' => 'In Stock',
-                'sort' => true,
-            ],
-            [
-                'key' => 'created_at',
-                'label' => 'Created At',
-                'sort' => true,
-            ],
-        ]);
+        // allow a previous listener to define the columns
+        if (!$event->getReturnData('columns', [])) {
+
+            $event->setReturnData('columns', [
+                [
+                    'key' => 'id',
+                    'label' => 'ID',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'type',
+                    'label' => 'Type',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'name',
+                    'label' => 'Name',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'sku',
+                    'label' => 'SKU',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'price',
+                    'label' => 'Price',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'qty',
+                    'label' => 'Qty',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'is_in_stock',
+                    'label' => 'In Stock',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'created_at',
+                    'label' => 'Created At',
+                    'sort' => true,
+                ],
+            ]);
+        }
 
         if ($event->isJsonResponse()) {
             $event->setResponse(new JsonResponse($event->getReturnData()));

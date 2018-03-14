@@ -64,49 +64,53 @@ class OrderShipmentList
     {
         $event->setReturnData('mass_actions', []);
 
-        $event->setReturnData('columns', [
-            [
-                'key' => 'id',
-                'label' => 'ID',
-                'sort' => true,
-            ],
-            [
-                'key' => 'name',
-                'label' => 'Name',
-                'sort' => true,
-            ],
-            [
-                'key' => 'company_name',
-                'label' => 'Company',
-                'sort' => true,
-            ],
-            [
-                'key' => 'company',
-                'label' => 'Provider',
-                'sort' => true,
-            ],
-            [
-                'key' => 'method',
-                'label' => 'Method',
-                'sort' => true,
-            ],
-            [
-                'key' => 'created_at',
-                'label' => 'Created At',
-                'sort' => true,
-            ],
-        ]);
+        // allow a previous listener to define the columns
+        if (!$event->getReturnData('columns', [])) {
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
-                $event->setResponse(new JsonResponse($event->getReturnData()));
-                break;
-            default:
-                $event->setResponse($this->getThemeService()->renderAdmin(
-                    'OrderShipment:index.html.twig',
-                    $event->getReturnData()
-                ));
-                break;
+            $event->setReturnData('columns', [
+                [
+                    'key' => 'id',
+                    'label' => 'ID',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'name',
+                    'label' => 'Name',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'company_name',
+                    'label' => 'Company',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'company',
+                    'label' => 'Provider',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'method',
+                    'label' => 'Method',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'created_at',
+                    'label' => 'Created At',
+                    'sort' => true,
+                ],
+            ]);
+        }
+
+        if ($event->isJsonResponse()) {
+
+            $event->setResponse(new JsonResponse($event->getReturnData()));
+
+        } else {
+
+            $event->setResponse($this->getThemeService()->renderAdmin(
+                'OrderShipment:index.html.twig',
+                $event->getReturnData()
+            ));
         }
     }
 }

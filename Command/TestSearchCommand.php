@@ -47,7 +47,7 @@ EOF
         $result = $this->getContainer()->get('cart.search')
             ->init('product')
             ->addAdvFilter(['field' => 'id', 'op' => 'in', 'value' => $productIds])
-            ->search()
+            ->search()->getResult()
         ;
 
         if ($result['entities']) {

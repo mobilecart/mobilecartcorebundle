@@ -64,43 +64,43 @@ class OrderPaymentList
     {
         $event->setReturnData('mass_actions', []);
 
-        $event->setReturnData('columns', [
-            [
-                'key' => 'id',
-                'label' => 'ID',
-                'sort' => true,
-            ],
-            [
-                'key' => 'label',
-                'label' => 'Service',
-                'sort' => true,
-            ],
-            [
-                'key' => 'base_amount',
-                'label' => 'Amount',
-                'sort' => true,
-            ],
-            [
-                'key' => 'created_at',
-                'label' => 'Created At',
-                'sort' => true,
-            ],
-        ]);
+        // allow a previous listener to define the columns
+        if (!$event->getReturnData('columns', [])) {
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
+            $event->setReturnData('columns', [
+                [
+                    'key' => 'id',
+                    'label' => 'ID',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'label',
+                    'label' => 'Service',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'base_amount',
+                    'label' => 'Amount',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'created_at',
+                    'label' => 'Created At',
+                    'sort' => true,
+                ],
+            ]);
+        }
 
-                $event->setResponse(new JsonResponse($event->getReturnData()));
+        if ($event->isJsonResponse()) {
 
-                break;
-            default:
+            $event->setResponse(new JsonResponse($event->getReturnData()));
 
-                $event->setResponse($this->getThemeService()->renderAdmin(
-                    'OrderPayment:index.html.twig',
-                    $event->getReturnData()
-                ));
+        } else {
 
-                break;
+            $event->setResponse($this->getThemeService()->renderAdmin(
+                'OrderPayment:index.html.twig',
+                $event->getReturnData()
+            ));
         }
     }
 }

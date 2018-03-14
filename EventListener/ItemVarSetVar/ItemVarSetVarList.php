@@ -77,38 +77,39 @@ class ItemVarSetVarList
             ],
         ]);
 
-        $event->setReturnData('columns', [
-            [
-                'key' => 'id',
-                'label' => 'ID',
-                'sort' => true,
-            ],
-            [
-                'key' => 'item_var_set_name',
-                'label' => 'Field Set',
-                'sort' => true,
-            ],
-            [
-                'key' => 'item_var_name',
-                'label' => 'Field',
-                'sort' => true,
-            ],
-        ]);
+        // allow a previous listener to define the columns
+        if (!$event->getReturnData('columns', [])) {
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
+            $event->setReturnData('columns', [
+                [
+                    'key' => 'id',
+                    'label' => 'ID',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'item_var_set_name',
+                    'label' => 'Field Set',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'item_var_name',
+                    'label' => 'Field',
+                    'sort' => true,
+                ],
+            ]);
+        }
 
-                $event->setResponse(new JsonResponse($event->getReturnData()));
+        if ($event->isJsonResponse()) {
 
-                break;
-            default:
+            $event->setResponse(new JsonResponse($event->getReturnData()));
 
-                $event->setResponse($this->getThemeService()->renderAdmin(
-                    'ItemVarSetVar:index.html.twig',
-                    $event->getReturnData()
-                ));
+        } else {
 
-                break;
+            $event->setResponse($this->getThemeService()->renderAdmin(
+                'ItemVarSetVar:index.html.twig',
+                $event->getReturnData()
+            ));
+
         }
     }
 }

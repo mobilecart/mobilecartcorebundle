@@ -62,99 +62,66 @@ class CategoryList
      */
     public function onCategoryList(CoreEvent $event)
     {
-        $columns = [
-            [
-                'key' => 'id',
-                'label' => 'ID',
-                'sort' => true,
-            ],
-            [
-                'key' => 'name',
-                'label' => 'Name',
-                'sort' => true,
-            ],
-        ];
+        // allow a previous listener to define the columns
+        if (!$event->getReturnData('columns', [])) {
 
-        $search = $event->getReturnData('search');
-        if ($search) {
-            $sortBy = $search->getSortBy();
-            $sortDir = $search->getSortDir();
-            if ($sortBy) {
-                foreach($columns as $k => $colData) {
-                    if ($colData['key'] == $sortBy) {
-                        $columns[$k]['isActive'] = 1;
-                        $columns[$k]['direction'] = $sortDir;
-                        break;
-                    }
-                }
-            }
+            $event->setReturnData('columns', [
+                [
+                    'key' => 'id',
+                    'label' => 'ID',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'name',
+                    'label' => 'Name',
+                    'sort' => true,
+                ],
+            ]);
         }
 
-        $event->setReturnData('columns', $columns);
+        if ($event->isJsonResponse()) {
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
-                $event->setResponse(new JsonResponse($event->getReturnData()));
-                break;
-            default:
+            $event->setResponse(new JsonResponse($event->getReturnData()));
 
-                switch($event->getSection()) {
-                    case CoreEvent::SECTION_BACKEND:
+        } else {
 
-                        $massActions = [
-                            [
-                                'label'         => 'Delete Categories',
-                                'input_label'   => 'Confirm Mass-Delete ?',
-                                'input'         => 'mass_delete',
-                                'input_type'    => 'select',
-                                'input_options' => [
-                                    ['value' => 0, 'label' => 'No'],
-                                    ['value' => 1, 'label' => 'Yes'],
-                                ],
-                                'url' => $this->router->generate('cart_admin_category_mass_delete'),
-                                'external' => 0,
-                            ],
-                        ];
+            if ($event->isBackendSection()) {
 
-                        $event->setReturnData('mass_actions', $massActions);
+                $event->setReturnData('mass_actions', [
+                    [
+                        'label'         => 'Delete Categories',
+                        'input_label'   => 'Confirm Mass-Delete ?',
+                        'input'         => 'mass_delete',
+                        'input_type'    => 'select',
+                        'input_options' => [
+                            ['value' => 0, 'label' => 'No'],
+                            ['value' => 1, 'label' => 'Yes'],
+                        ],
+                        'url' => $this->router->generate('cart_admin_category_mass_delete'),
+                        'external' => 0,
+                    ],
+                ]);
 
-                        $template = $event->getCustomTemplate()
-                            ? $event->getCustomTemplate()
-                            : 'Category:index.html.twig';
+                $template = $event->getCustomTemplate()
+                    ? $event->getCustomTemplate()
+                    : 'Category:index.html.twig';
 
-                        $event->setResponse($this->getThemeService()->renderAdmin(
-                            $template,
-                            $event->getReturnData()
-                        ));
+                $event->setResponse($this->getThemeService()->renderAdmin(
+                    $template,
+                    $event->getReturnData()
+                ));
 
-                        break;
-                    case CoreEvent::SECTION_FRONTEND:
+            } else {
 
-                        $template = $event->getCustomTemplate()
-                            ? $event->getCustomTemplate()
-                            : 'Category:index.html.twig';
+                $template = $event->getCustomTemplate()
+                    ? $event->getCustomTemplate()
+                    : 'Category:index.html.twig';
 
-                        $event->setResponse($this->getThemeService()->renderFrontend(
-                            $template,
-                            $event->getReturnData()
-                        ));
-
-                        break;
-                    default:
-
-                        $template = $event->getCustomTemplate()
-                            ? $event->getCustomTemplate()
-                            : 'Category:index.html.twig';
-
-                        $event->setResponse($this->getThemeService()->renderFrontend(
-                            $template,
-                            $event->getReturnData()
-                        ));
-
-                        break;
-                }
-
-                break;
+                $event->setResponse($this->getThemeService()->renderFrontend(
+                    $template,
+                    $event->getReturnData()
+                ));
+            }
         }
     }
 }

@@ -72,44 +72,54 @@ class CustomerType extends AbstractType
                 ],
             ])
             ->add('billing_firstname', TextType::class, [
-                'label' => 'First Name'
+                'label' => 'First Name',
+                'attr' => ['class' => 'billing-input'],
             ])
             ->add('billing_lastname', TextType::class, [
-                'label' => 'Last Name'
+                'label' => 'Last Name',
+                'attr' => ['class' => 'billing-input'],
             ])
             ->add('billing_company', TextType::class, [
-                'label' => 'Company'
+                'label' => 'Company',
+                'attr' => ['class' => 'billing-input'],
             ])
             ->add('billing_phone', TextType::class, [
-                'label' => 'Billing Phone'
+                'label' => 'Billing Phone',
+                'attr' => ['class' => 'billing-input'],
             ])
             ->add('billing_street', TextType::class, [
-                'label' => 'Billing Street'
+                'label' => 'Billing Street',
+                'attr' => ['class' => 'billing-input'],
             ])
             ->add('billing_street2', TextType::class, [
-                'label' => 'Billing Street 2'
+                'label' => 'Billing Street 2',
+                'attr' => ['class' => 'billing-input'],
             ])
             ->add('billing_city', TextType::class, [
-                'label' => 'Billing City'
+                'label' => 'Billing City',
+                'attr' => ['class' => 'billing-input'],
             ])
             ->add('billing_region', TextType::class, [
                 'label' => 'Billing State',
                 'attr' => [
-                    'class' => 'region-input',
+                    'class' => 'region-input billing-input',
                 ],
             ])
             ->add('billing_postcode', TextType::class, [
                 'label' => 'Billing Postal Code',
+                'attr' => ['class' => 'billing-input'],
             ])
             ->add('billing_country_id', ChoiceType::class, [
                 'label' => 'Billing Country',
                 'choices' => array_flip($this->getCountries()),
                 'attr' => [
-                    'class' => 'country-input',
+                    'class' => 'country-input billing-input',
                 ],
                 'choices_as_values' => true,
             ])
-            ->add('is_shipping_same', CheckboxType::class)
+            ->add('is_shipping_same', CheckboxType::class, [
+                'label' => 'Is Shipping Same as Billing ?'
+            ])
             ->add('shipping_firstname', TextType::class, [
                 'label' => 'Shipping First Name',
                 'required' => false,
@@ -148,7 +158,9 @@ class CustomerType extends AbstractType
             ->add('shipping_region', TextType::class, [
                 'label' => 'Shipping State',
                 'required' => false,
-                'attr' => ['class' => 'shipping-input region-input'],
+                'attr' => [
+                    'class' => 'region-input shipping-input'
+                ],
             ])
             ->add('shipping_postcode', TextType::class, [
                 'label' => 'Shipping Postal Code',
@@ -157,10 +169,10 @@ class CustomerType extends AbstractType
             ])
             ->add('shipping_country_id', ChoiceType::class, [
                 'label' => 'Shipping Country',
-                'choices' => $this->getCountries(),
+                'choices' => array_flip($this->getCountries()),
                 'required' => false,
                 'attr' => [
-                    'class' => 'country-input',
+                    'class' => 'country-input shipping-input',
                 ],
                 'choices_as_values' => true,
             ])

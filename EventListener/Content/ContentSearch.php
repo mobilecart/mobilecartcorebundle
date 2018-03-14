@@ -65,7 +65,7 @@ class ContentSearch
         }
 
         $event->setReturnData('search', $search);
-        $result = $search->search();
+        $result = $search->search()->getResult();
         $event->setReturnData('result', $result);
         $search->getEntityService()->populateData(EntityConstants::CONTENT_SLOT, $result['entities']);
 

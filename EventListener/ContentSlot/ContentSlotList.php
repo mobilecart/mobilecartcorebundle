@@ -95,14 +95,6 @@ class ContentSlotList
             ],
         ]);
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
-                $event->setResponse(new JsonResponse($event->getReturnData()));
-                break;
-            default:
-                // currently un-used
-                $event->setResponse(new JsonResponse([]));
-                break;
-        }
+        $event->setResponse(new JsonResponse($event->getReturnData()));
     }
 }

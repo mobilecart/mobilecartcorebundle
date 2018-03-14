@@ -77,38 +77,38 @@ class ShippingMethodList
             ],
         ]);
 
-        $event->setReturnData('columns', [
-            [
-                'key' => 'id',
-                'label' => 'ID',
-                'sort' => true,
-            ],
-            [
-                'key' => 'company',
-                'label' => 'Company',
-                'sort' => true,
-            ],
-            [
-                'key' => 'method',
-                'label' => 'Method',
-                'sort' => true,
-            ],
-        ]);
+        // allow a previous listener to define the columns
+        if (!$event->getReturnData('columns', [])) {
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
+            $event->setReturnData('columns', [
+                [
+                    'key' => 'id',
+                    'label' => 'ID',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'company',
+                    'label' => 'Company',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'method',
+                    'label' => 'Method',
+                    'sort' => true,
+                ],
+            ]);
+        }
 
-                $event->setResponse(new JsonResponse($event->getReturnData()));
+        if ($event->isJsonResponse()) {
 
-                break;
-            default:
+            $event->setResponse(new JsonResponse($event->getReturnData()));
 
-                $event->setResponse($this->getThemeService()->renderAdmin(
-                    'ShippingMethod:index.html.twig',
-                    $event->getReturnData()
-                ));
+        } else {
 
-                break;
+            $event->setResponse($this->getThemeService()->renderAdmin(
+                'ShippingMethod:index.html.twig',
+                $event->getReturnData()
+            ));
         }
     }
 }

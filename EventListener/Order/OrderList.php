@@ -77,53 +77,53 @@ class OrderList
             ],
         ]);
 
-        $event->setReturnData('columns', [
-            [
-                'key' => 'id',
-                'label' => 'ID',
-                'sort' => true,
-            ],
-            [
-                'key' => 'status',
-                'label' => 'Status',
-                'sort' => true,
-            ],
-            [
-                'key' => 'billing_firstname',
-                'label' => 'First Name',
-                'sort' => true,
-            ],
-            [
-                'key' => 'billing_lastname',
-                'label' => 'Last Name',
-                'sort' => true,
-            ],
-            [
-                'key' => 'base_total',
-                'label' => 'Total',
-                'sort' => true,
-            ],
-            [
-                'key' => 'created_at',
-                'label' => 'Created At',
-                'sort' => true,
-            ],
-        ]);
+        // allow a previous listener to define the columns
+        if (!$event->getReturnData('columns', [])) {
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
+            $event->setReturnData('columns', [
+                [
+                    'key' => 'id',
+                    'label' => 'ID',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'status',
+                    'label' => 'Status',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'billing_firstname',
+                    'label' => 'First Name',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'billing_lastname',
+                    'label' => 'Last Name',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'base_total',
+                    'label' => 'Total',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'created_at',
+                    'label' => 'Created At',
+                    'sort' => true,
+                ],
+            ]);
+        }
 
-                $event->setResponse(new JsonResponse($event->getReturnData()));
+        if ($event->isJsonResponse()) {
 
-                break;
-            default:
+            $event->setResponse(new JsonResponse($event->getReturnData()));
 
-                $event->setResponse($this->getThemeService()->renderAdmin(
-                    'Order:index.html.twig',
-                    $event->getReturnData()
-                ));
+        } else {
 
-                break;
+            $event->setResponse($this->getThemeService()->renderAdmin(
+                'Order:index.html.twig',
+                $event->getReturnData()
+            ));
         }
     }
 }

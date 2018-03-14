@@ -154,18 +154,17 @@ class CustomerAdminForm
                 'label' => 'General',
                 'id' => 'general',
                 'fields' => [
+                    'is_enabled',
                     'email',
                     'billing_firstname',
                     'billing_lastname',
                     'password',
-                    'is_enabled',
                 ],
             ],
             'billing' => [
                 'label' => 'Billing Address',
                 'id' => 'billing',
                 'fields' => [
-                    'is_shipping_same',
                     'billing_company',
                     'billing_street',
                     'billing_street2',
@@ -180,6 +179,7 @@ class CustomerAdminForm
                 'label' => 'Shipping Address',
                 'id' => 'shipping',
                 'fields' => [
+                    'is_shipping_same',
                     'shipping_firstname',
                     'shipping_lastname',
                     'shipping_company',

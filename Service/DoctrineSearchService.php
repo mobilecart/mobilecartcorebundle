@@ -665,12 +665,13 @@ class DoctrineSearchService
     }
 
     /**
-     * @return array|mixed
+     * @return $this
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function search()
     {
         if ($this->getExecutedFilters()) {
-            return $this->getResult();
+            return $this;
         }
 
         // todo: add sql filter strings, next to filteredIds[]
@@ -764,6 +765,6 @@ class DoctrineSearchService
             }
         }
 
-        return $this->getResult();
+        return $this;
     }
 }

@@ -26,14 +26,10 @@ class CoreEvent extends Event
 {
     const SECTION_BACKEND = 'backend';
     const SECTION_FRONTEND = 'frontend';
-    const SECTION_API = 'api';
-
-    // todo : remove SECTION_API
 
     static $sections = [
         self::SECTION_FRONTEND,
-        self::SECTION_BACKEND,
-        self::SECTION_API
+        self::SECTION_BACKEND
     ];
 
     const MSG_INFO = 'info';
@@ -490,6 +486,22 @@ class CoreEvent extends Event
     {
         return is_int(strpos($this->getRequestAccept(), self::JSON))
                 || $this->getContentType() == self::JSON;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isFrontendSection()
+    {
+        return $this->getSection() == self::SECTION_FRONTEND;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isBackendSection()
+    {
+        return $this->getSection() == self::SECTION_BACKEND;
     }
 
     /**

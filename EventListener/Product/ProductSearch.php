@@ -41,51 +41,30 @@ class ProductSearch
     {
         $request = $event->getRequest();
 
-        // custom logic . tweak as needed
-        $loadVarValues = false;
-
         $categoryId = $event->getCategory()
             ? $event->getCategory()->getId()
             : 0;
 
-        $filters = [];
-        switch($event->getSection()) {
-            case CoreEvent::SECTION_FRONTEND:
-
-                $filters = [
-                    'is_in_stock' => 1,
-                    'is_public' => 1,
-                    'is_enabled' => 1,
-                ];
-
-                break;
-            case CoreEvent::SECTION_BACKEND:
-                //$loadVarValues = true;
-                break;
-            case CoreEvent::SECTION_API:
-                $loadVarValues = true;
-                break;
-            default:
-
-                break;
-        }
-
-        if ($event->getRequestAccept() == CoreEvent::JSON) {
-            $loadVarValues = true;
-        }
+        $filters = $event->isFrontendSection()
+            ? [
+                'is_in_stock' => 1,
+                'is_public' => 1,
+                'is_enabled' => 1,
+            ]
+            : [];
 
         $search = $this->getSearch()
             ->setCategoryId($categoryId)
-            ->setPopulateVarValues($loadVarValues)
+            ->setPopulateVarValues($event->isJsonResponse())
             ->parseRequest($request)
             ->addFilters($filters);
 
-        if ($event->getSection() == CoreEvent::SECTION_FRONTEND) {
+        if ($event->isBackendSection()) {
             $search->setDefaultSort('sort_order', 'asc');
         }
 
         $event->setReturnData('search', $search);
-        $event->setReturnData('result', $search->search());
+        $event->setReturnData('result', $search->search()->getResult());
 
         if ($event->getCategory()) {
             $event->setReturnData('category', $event->getCategory());

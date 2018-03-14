@@ -92,7 +92,7 @@ class CustomerOrdersReturn
             ->addFilter('customer_id', $event->getCustomer()->getId());
 
         $event->setReturnData('search', $search);
-        $event->setReturnData('result', $search->search());
+        $event->setReturnData('result', $search->search()->getResult());
         $event->setReturnData('template_sections', []);
 
         if ($event->isJsonResponse()) {

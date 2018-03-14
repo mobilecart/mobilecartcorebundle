@@ -77,38 +77,42 @@ class CustomerList
             ],
         ]);
 
-        $event->setReturnData('columns', [
-            [
-                'key' => 'id',
-                'label' => 'ID',
-                'sort' => true,
-            ],
-            [
-                'key' => 'billing_firstname',
-                'label' => 'First Name',
-                'sort' => true,
-            ],
-            [
-                'key' => 'billing_lastname',
-                'label' => 'Last Name',
-                'sort' => true,
-            ],
-            [
-                'key' => 'email',
-                'label' => 'Email',
-                'sort' => true,
-            ],
-            [
-                'key' => 'created_at',
-                'label' => 'Created At',
-                'sort' => true,
-            ],
-        ]);
+        // allow a previous listener to define the columns
+        if (!$event->getReturnData('columns', [])) {
 
-        $event->flashMessages();
+            $event->setReturnData('columns', [
+                [
+                    'key' => 'id',
+                    'label' => 'ID',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'billing_firstname',
+                    'label' => 'First Name',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'billing_lastname',
+                    'label' => 'Last Name',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'email',
+                    'label' => 'Email',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'created_at',
+                    'label' => 'Created At',
+                    'sort' => true,
+                ],
+            ]);
+        }
 
         if ($event->isJsonResponse()) {
+
             $event->setResponse(new JsonResponse($event->getReturnData()));
+
         } else {
 
             $event->setResponse($this->getThemeService()->renderAdmin(

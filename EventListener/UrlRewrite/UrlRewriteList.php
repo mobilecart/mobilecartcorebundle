@@ -77,40 +77,43 @@ class UrlRewriteList
             ],
         ]);
 
-        $event->setReturnData('columns', [
-            [
-                'key' => 'id',
-                'label' => 'ID',
-                'sort' => 1,
-            ],
-            [
-                'key' => 'object_type',
-                'label' => 'Object Type',
-                'sort' => 1,
-            ],
-            [
-                'key' => 'object_action',
-                'label' => 'Action',
-                'sort' => 1,
-            ],
-            [
-                'key' => 'request_uri',
-                'label' => 'Request URI',
-                'sort' => 1,
-            ],
-        ]);
+        // allow a previous listener to define the columns
+        if (!$event->getReturnData('columns', [])) {
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
-                $event->setResponse(new JsonResponse($event->getReturnData()));
-                break;
-            default:
-                $event->setResponse($this->getThemeService()->renderAdmin(
-                    'UrlRewrite:index.html.twig',
-                    $event->getReturnData()
-                ));
+            $event->setReturnData('columns', [
+                [
+                    'key' => 'id',
+                    'label' => 'ID',
+                    'sort' => 1,
+                ],
+                [
+                    'key' => 'object_type',
+                    'label' => 'Object Type',
+                    'sort' => 1,
+                ],
+                [
+                    'key' => 'object_action',
+                    'label' => 'Action',
+                    'sort' => 1,
+                ],
+                [
+                    'key' => 'request_uri',
+                    'label' => 'Request URI',
+                    'sort' => 1,
+                ],
+            ]);
+        }
 
-                break;
+        if ($event->isJsonResponse()) {
+
+            $event->setResponse(new JsonResponse($event->getReturnData()));
+
+        } else {
+
+            $event->setResponse($this->getThemeService()->renderAdmin(
+                'UrlRewrite:index.html.twig',
+                $event->getReturnData()
+            ));
         }
     }
 }

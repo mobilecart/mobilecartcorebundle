@@ -77,43 +77,43 @@ class AdminUserList
             ],
         ]);
 
-        $event->setReturnData('columns', [
-            [
-                'key' => 'id',
-                'label' => 'ID',
-                'sort' => true,
-            ],
-            [
-                'key' => 'firstname',
-                'label' => 'First Name',
-                'sort' => true,
-            ],
-            [
-                'key' => 'lastname',
-                'label' => 'Last Name',
-                'sort' => true,
-            ],
-            [
-                'key' => 'email',
-                'label' => 'Email',
-                'sort' => true,
-            ],
-        ]);
+        // allow a previous listener to define the columns
+        if (!$event->getReturnData('columns', [])) {
 
-        switch($event->getRequestAccept()) {
-            case CoreEvent::JSON:
+            $event->setReturnData('columns', [
+                [
+                    'key' => 'id',
+                    'label' => 'ID',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'firstname',
+                    'label' => 'First Name',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'lastname',
+                    'label' => 'Last Name',
+                    'sort' => true,
+                ],
+                [
+                    'key' => 'email',
+                    'label' => 'Email',
+                    'sort' => true,
+                ],
+            ]);
+        }
 
-                $event->setResponse(new JsonResponse($event->getReturnData()));
+        if ($event->isJsonResponse()) {
 
-                break;
-            default:
+            $event->setResponse(new JsonResponse($event->getReturnData()));
 
-                $event->setResponse($this->getThemeService()->renderAdmin(
-                    'AdminUser:index.html.twig',
-                    $event->getReturnData()
-                ));
+        } else {
 
-                break;
+            $event->setResponse($this->getThemeService()->renderAdmin(
+                'AdminUser:index.html.twig',
+                $event->getReturnData()
+            ));
         }
     }
 }
