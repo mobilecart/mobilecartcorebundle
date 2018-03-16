@@ -21,6 +21,13 @@ namespace MobileCart\CoreBundle\Entity;
 interface CartEntityEAVInterface extends CartEntityInterface
 {
     /**
+     * Get item_var_set
+     *
+     * @return \MobileCart\CoreBundle\Entity\ItemVarSet
+     */
+    public function getItemVarSet();
+
+    /**
      * Get Var Values as Entities
      *
      * @return array

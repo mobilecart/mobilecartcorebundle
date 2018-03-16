@@ -91,6 +91,7 @@
         <parameter key="cart.entity.class">MobileCart\CoreBundle\Service\DoctrineEntityService</parameter>
         <parameter key="cart.entity.pdo.class">MobileCart\CoreBundle\Service\PdoEntityService</parameter>
         <parameter key="cart.export.class">MobileCart\CoreBundle\Service\ExportService</parameter>
+        <parameter key="cart.form.helper.class">MobileCart\CoreBundle\Service\FormHelperService</parameter>
         <parameter key="cart.geography.class">MobileCart\CoreBundle\Service\GeographyService</parameter>
         <parameter key="cart.image.class">MobileCart\CoreBundle\Service\ImageService</parameter>
         <parameter key="cart.locale.class">MobileCart\CoreBundle\Service\LocaleService</parameter>
@@ -133,11 +134,11 @@
         <parameter key="cart.repo.customer_address">MobileCartCoreBundle:CustomerAddress</parameter>
         <parameter key="cart.repo.customer_group_product_price">MobileCartCoreBundle:CustomerGroupProductPrice</parameter>
         <parameter key="cart.repo.customer_token">MobileCartCoreBundle:CustomerToken</parameter>
-        <parameter key="cart.repo.customer_var_value_datetime">MobileCartCoreBundle:CategoryVarValueDatetime</parameter>
-        <parameter key="cart.repo.customer_var_value_decimal">MobileCartCoreBundle:CategoryVarValueDecimal</parameter>
-        <parameter key="cart.repo.customer_var_value_int">MobileCartCoreBundle:CategoryVarValueInt</parameter>
-        <parameter key="cart.repo.customer_var_value_text">MobileCartCoreBundle:CategoryVarValueText</parameter>
-        <parameter key="cart.repo.customer_var_value_varchar">MobileCartCoreBundle:CategoryVarValueVarchar</parameter>
+        <parameter key="cart.repo.customer_var_value_datetime">MobileCartCoreBundle:CustomerVarValueDatetime</parameter>
+        <parameter key="cart.repo.customer_var_value_decimal">MobileCartCoreBundle:CustomerVarValueDecimal</parameter>
+        <parameter key="cart.repo.customer_var_value_int">MobileCartCoreBundle:CustomerVarValueInt</parameter>
+        <parameter key="cart.repo.customer_var_value_text">MobileCartCoreBundle:CustomerVarValueText</parameter>
+        <parameter key="cart.repo.customer_var_value_varchar">MobileCartCoreBundle:CustomerVarValueVarchar</parameter>
         <parameter key="cart.repo.discount">MobileCartCoreBundle:Discount</parameter>
         <parameter key="cart.repo.item">MobileCartCoreBundle:Item</parameter>
         <parameter key="cart.repo.item_var">MobileCartCoreBundle:ItemVar</parameter>
@@ -1532,6 +1533,11 @@
             </call>
         </service>
 
+        <!-- Form Helper Service -->
+        <service id="cart.form.helper" lazy="true" class="%cart.form.helper.class%">
+
+        </service>
+
         <!-- Dynamic Search Service : gets a new instance every time (Multi-Instance) -->
         <service id="cart.search" lazy="true" shared="false" class="%cart.search.class%">
             <call method="setEntityService">
@@ -1904,6 +1910,9 @@
             <call method="setFormTypeClass">
                 <argument type="string">%cart.form.type.category.class%</argument>
             </call>
+            <call method="setFormHelperService">
+                <argument type="service" id="cart.form.helper" />
+            </call>
         </service>
 
         <!-- ConfigSetting Services and Listeners -->
@@ -2133,6 +2142,9 @@
             <call method="setThemeConfig">
                 <argument type="service" id="cart.theme.config" />
             </call>
+            <call method="setFormHelperService">
+                <argument type="service" id="cart.form.helper" />
+            </call>
         </service>
 
         <!-- ContentSlot Services and Listeners -->
@@ -2322,6 +2334,9 @@
             </call>
             <call method="setFormTypeClass">
                 <argument type="string">%cart.form.type.customer.class%</argument>
+            </call>
+            <call method="setFormHelperService">
+                <argument type="service" id="cart.form.helper" />
             </call>
             <!-- For Allowed Country IDs -->
             <call method="setCartService">
@@ -3218,6 +3233,9 @@
             <call method="setFormTypeClass">
                 <argument type="string">%cart.form.type.order.class%</argument>
             </call>
+            <call method="setFormHelperService">
+                <argument type="service" id="cart.form.helper" />
+            </call>
         </service>
         <service id="cart.listener.order.new.return" lazy="true" class="%cart.listener.order.new.return.class%">
             <tag name="kernel.event_listener" event="order.new.return" method="onOrderNewReturn" priority="50" />
@@ -3596,6 +3614,9 @@
             </call>
             <call method="setFormTypeClass">
                 <argument type="string">%cart.form.type.product.class%</argument>
+            </call>
+            <call method="setFormHelperService">
+                <argument type="service" id="cart.form.helper" />
             </call>
         </service>
 

@@ -37,6 +37,11 @@ class CustomerAdminForm
     protected $cartService;
 
     /**
+     * @var \MobileCart\CoreBundle\Service\FormHelperService
+     */
+    protected $formHelperService;
+
+    /**
      * @param \MobileCart\CoreBundle\Service\RelationalDbEntityServiceInterface
      * @return $this
      */
@@ -127,6 +132,24 @@ class CustomerAdminForm
     }
 
     /**
+     * @param \MobileCart\CoreBundle\Service\FormHelperService $formHelperService
+     * @return $this
+     */
+    public function setFormHelperService(\MobileCart\CoreBundle\Service\FormHelperService $formHelperService)
+    {
+        $this->formHelperService = $formHelperService;
+        return $this;
+    }
+
+    /**
+     * @return \MobileCart\CoreBundle\Service\FormHelperService
+     */
+    public function getFormHelperService()
+    {
+        return $this->formHelperService;
+    }
+
+    /**
      * @param CoreEvent $event
      */
     public function onCustomerAdminForm(CoreEvent $event)
@@ -204,100 +227,7 @@ class CustomerAdminForm
             ],
         ];
 
-        $customFields = [];
-        $varSet = $entity->getItemVarSet();
-        $vars = $varSet
-            ? $varSet->getItemVars()
-            : [];
-
-        $varValues = $entity->getVarValues();
-
-        if ($varSet && $vars) {
-
-            foreach($vars as $var) {
-
-                $name = $var->getCode();
-
-                switch($var->getFormInput()) {
-                    case 'select':
-                    case 'multiselect':
-                        $options = $var->getItemVarOptions();
-                        $choices = [];
-                        if ($options) {
-                            foreach($options as $option) {
-                                $choices[$option->getValue()] = $option->getValue();
-                            }
-                        }
-
-                        $form->add($name, 'choice', [
-                            'mapped'    => false,
-                            'choices'   => $choices,
-                            'required'  => $var->getIsRequired(),
-                            'label'     => $var->getName(),
-                            'multiple'  => ($var->getFormInput() == 'multiselect'),
-                        ]);
-
-                        $customFields[] = $name;
-
-                        break;
-                    case 'checkbox':
-
-                        $form->add($name, 'checkbox', [
-                            'mapped' => false,
-                            'required' => false,
-                            'label' => $var->getName(),
-                        ]);
-
-                        $customFields[] = $name;
-                        break;
-                    default:
-                        $form->add($name, 'text', [
-                            'mapped' => false,
-                            'label'  => $var->getName(),
-                        ]);
-
-                        $customFields[] = $name;
-
-                        break;
-                }
-            }
-
-            if ($entity->getId()) {
-
-                $objectVars = [];
-                foreach($varValues as $varValue) {
-                    $var = $varValue->getItemVar();
-                    $name = $var->getCode();
-                    $isMultiple = ($var->getFormInput() == EntityConstants::INPUT_MULTISELECT);
-
-                    $value = ($varValue->getItemVarOption())
-                        ? $varValue->getItemVarOption()->getValue()
-                        : $varValue->getValue();
-
-                    if (isset($objectVars[$name])) {
-                        if ($isMultiple) {
-                            $objectVars[$name]['value'][] = $value;
-                        }
-                    } else {
-                        $value = $isMultiple ? [$value] : $value;
-                        $objectVars[$name] = [
-                            //'var' => $var,
-                            'value' => $value,
-                            'input' => $var->getFormInput(),
-                        ];
-                    }
-                }
-
-                foreach($objectVars as $name => $objectData) {
-                    //$var = $objectData['var'];
-                    $value = $objectData['value'];
-                    if ($objectData['input'] == 'checkbox') {
-                        $value = (bool) $value;
-                    }
-                    $form->get($name)->setData($value);
-                }
-            }
-        }
+        $customFields = $this->getFormHelperService()->addCustomFields($form, $entity);
 
         if ($customFields) {
 

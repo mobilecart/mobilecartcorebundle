@@ -661,11 +661,6 @@ class DoctrineEntityService
         // loop on variant data
         foreach($data as $k => $v) {
 
-            if (in_array($k, $baseDataKeys)) {
-                unset($data[$k]);
-                continue;
-            }
-
             // load variant and determine input type
             $itemVar = $this->findOneBy(EntityConstants::ITEM_VAR, [
                 'code' => $k,

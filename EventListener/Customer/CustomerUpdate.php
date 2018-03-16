@@ -88,12 +88,13 @@ class CustomerUpdate
 
         try {
             $this->getEntityService()->persist($entity);
-            $event->setSuccess(true);
-            $event->addSuccessMessage('Customer Updated !');
             if ($entity->getItemVarSet() && $formData) {
                 $this->getEntityService()->persistVariants($entity, $formData);
             }
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Customer Updated !');
         } catch(\Exception $e) {
+            $event->setSuccess(false);
             $event->addErrorMessage('An error occurred while saving Customer');
         }
 

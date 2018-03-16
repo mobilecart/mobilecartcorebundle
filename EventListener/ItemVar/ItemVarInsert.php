@@ -41,7 +41,8 @@ class ItemVarInsert
         /** @var \MobileCart\CoreBundle\Entity\ItemVar $entity */
         $entity = $event->getEntity();
         $entity->setUrlToken($this->getEntityService()->slugify($entity->getUrlToken()));
-        $entity->setCode($this->getEntityService()->slugify($entity->getCode()));
+        $code = str_replace('-', '_', $this->getEntityService()->slugify($entity->getCode()));
+        $entity->setCode($code);
 
         try {
             $this->getEntityService()->persist($entity);
