@@ -86,14 +86,18 @@ class CustomerUpdate
             $event->setIsPasswordChanged(true);
         }
 
+        $this->getEntityService()->beginTransaction();
+
         try {
             $this->getEntityService()->persist($entity);
             if ($entity->getItemVarSet() && $formData) {
                 $this->getEntityService()->persistVariants($entity, $formData);
             }
+            $this->getEntityService()->commit();
             $event->setSuccess(true);
             $event->addSuccessMessage('Customer Updated !');
         } catch(\Exception $e) {
+            $this->getEntityService()->rollBack();
             $event->setSuccess(false);
             $event->addErrorMessage('An error occurred while saving Customer');
         }

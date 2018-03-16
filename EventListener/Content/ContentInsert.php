@@ -47,22 +47,17 @@ class ContentInsert
 
         try {
             $this->getEntityService()->persist($entity);
+            if ($entity->getItemVarSet() && $event->getFormData()) {
+                $this->getEntityService()->persistVariants($entity, $event->getFormData());
+            }
+            $this->getEntityService()->commit();
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Content Created !');
         } catch(\Exception $e) {
             $this->getEntityService()->rollBack();
             $event->setSuccess(false);
             $event->addErrorMessage('An error occurred while saving Content');
             return;
-        }
-
-        if ($event->getFormData()) {
-            try {
-                $this->getEntityService()->persistVariants($entity, $event->getFormData());
-            } catch(\Exception $e) {
-                $this->getEntityService()->rollBack();
-                $event->setSuccess(false);
-                $event->addErrorMessage('An error occurred while saving Content');
-                return;
-            }
         }
 
         // update slots
@@ -92,10 +87,6 @@ class ContentInsert
                 }
             }
         }
-
-        $this->getEntityService()->commit();
-        $event->setSuccess(true);
-        $event->addSuccessMessage('Content Created !');
     }
 
     /**

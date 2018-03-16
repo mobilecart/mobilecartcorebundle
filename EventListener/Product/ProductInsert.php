@@ -86,6 +86,12 @@ class ProductInsert
 
         try {
             $this->getEntityService()->persist($entity);
+            if ($entity->getItemVarSet() && $formData) {
+                $this->getEntityService()->persistVariants($entity, $formData);
+            }
+            $this->getEntityService()->commit();
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Product Created !');
         } catch(\Exception $e) {
             $this->getEntityService()->rollBack();
             $event->setSuccess(false);
@@ -166,17 +172,6 @@ class ProductInsert
             }
         }
 
-        if ($formData) {
-            try {
-                $this->getEntityService()->persistVariants($entity, $formData);
-            } catch(\Exception $e) {
-                $this->getEntityService()->rollBack();
-                $event->setSuccess(false);
-                $event->addErrorMessage('An error occurred while saving the Product variants');
-                return;
-            }
-        }
-
         // update categories
         $postedIds = $request->get('category_ids', []);
         if ($postedIds) {
@@ -208,9 +203,5 @@ class ProductInsert
                 }
             }
         }
-
-        $this->getEntityService()->commit();
-        $event->setSuccess(true);
-        $event->addSuccessMessage('Product Created !');
     }
 }

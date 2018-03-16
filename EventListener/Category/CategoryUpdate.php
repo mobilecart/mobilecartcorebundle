@@ -49,22 +49,17 @@ class CategoryUpdate
 
         try {
             $this->getEntityService()->persist($entity);
+            if ($entity->getItemVarSet() && $event->getFormData()) {
+                $this->getEntityService()->persistVariants($entity, $event->getFormData());
+            }
+            $this->getEntityService()->commit();
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Category Updated !');
         } catch(\Exception $e) {
             $this->getEntityService()->rollBack();
             $this->setSuccess(false);
             $event->addErrorMessage('An error occurred while saving the Category');
             return;
-        }
-
-        if ($event->getFormData()) {
-            try {
-                $this->getEntityService()->persistVariants($entity, $event->getFormData());
-            } catch(\Exception $e) {
-                $this->getEntityService()->rollBack();
-                $this->setSuccess(false);
-                $event->addErrorMessage('An error occurred while saving the Category');
-                return;
-            }
         }
 
         // update images
@@ -78,9 +73,5 @@ class CategoryUpdate
                 }
             }
         }
-
-        $this->getEntityService()->commit();
-        $event->setSuccess(true);
-        $event->addSuccessMessage('Category Updated !');
     }
 }

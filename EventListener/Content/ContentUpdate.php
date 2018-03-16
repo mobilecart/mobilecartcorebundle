@@ -44,24 +44,21 @@ class ContentUpdate
         /** @var \MobileCart\CoreBundle\Entity\Content $entity */
         $entity = $event->getEntity();
 
+        $this->getEntityService()->beginTransaction();
+
         try {
             $this->getEntityService()->persist($entity);
+            if ($entity->getItemVarSet() && $event->getFormData()) {
+                $this->getEntityService()->persistVariants($entity, $event->getFormData());
+            }
+            $this->getEntityService()->commit();
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Content Updated !');
         } catch(\Exception $e) {
             $this->getEntityService()->rollBack();
             $event->setSuccess(false);
             $event->addErrorMessage('An error occurred while saving Content');
             return;
-        }
-
-        if ($event->getFormData()) {
-            try {
-                $this->getEntityService()->persistVariants($entity, $event->getFormData());
-            } catch(\Exception $e) {
-                $this->getEntityService()->rollBack();
-                $event->setSuccess(false);
-                $event->addErrorMessage('An error occurred while saving Content');
-                return;
-            }
         }
 
         // update slots
@@ -105,10 +102,6 @@ class ContentUpdate
                 }
             }
         }
-
-        $this->getEntityService()->commit();
-        $event->setSuccess(true);
-        $event->addSuccessMessage('Content Updated !');
     }
 
     /**

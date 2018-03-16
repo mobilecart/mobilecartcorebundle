@@ -73,7 +73,6 @@ class OrderUpdate
     {
         /** @var \MobileCart\CoreBundle\Entity\Order $entity */
         $entity = $event->getEntity();
-        $formData = $event->getFormData();
         $request = $event->getRequest();
         $customerId = $request->get('customer_id', 0);
 
@@ -88,25 +87,17 @@ class OrderUpdate
 
         try {
             $this->getEntityService()->persist($entity);
+            if ($entity->getItemVarSet() && $event->getFormData()) {
+                $this->getEntityService()->persistVariants($entity, $event->getFormData());
+            }
             $event->setSuccess(true);
+            $this->getEntityService()->commit();
+            $event->addSuccessMessage('Order Updated !');
         } catch(\Exception $e) {
             $this->getEntityService()->rollBack();
             $event->addErrorMessage('An error occurred while saving the Order');
             return;
         }
-
-        if ($formData) {
-            try {
-                $this->getEntityService()->persistVariants($entity, $formData);
-            } catch(\Exception $e) {
-                $this->getEntityService()->rollBack();
-                $event->addErrorMessage('An error occurred while saving the Order');
-            }
-        }
-
-        $this->getEntityService()->commit();
-        $event->setSuccess(true);
-        $event->addSuccessMessage('Order Updated !');
 
         $username = $event->getUser()
             ? $event->getUser()->getEmail()

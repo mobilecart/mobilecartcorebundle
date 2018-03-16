@@ -79,14 +79,18 @@ class CustomerInsert
 
         $entity->setCreatedAt(new \DateTime('now'));
 
+        $this->getEntityService()->beginTransaction();
+
         try {
             $this->getEntityService()->persist($entity);
-            $event->setSuccess(true);
-            $event->addSuccessMessage('Customer Created !');
-            if ($formData) {
+            if ($entity->getItemVarSet() && $formData) {
                 $this->getEntityService()->persistVariants($entity, $formData);
             }
+            $this->getEntityService()->commit();
+            $event->setSuccess(true);
+            $event->addSuccessMessage('Customer Created !');
         } catch(\Exception $e) {
+            $this->getEntityService()->rollBack();
             $event->addErrorMessage('An error occurred while saving the Customer');
         }
     }
