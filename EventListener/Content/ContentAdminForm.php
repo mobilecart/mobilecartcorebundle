@@ -138,7 +138,7 @@ class ContentAdminForm
         $entity = $event->getEntity();
 
         // find variant set
-        if (!$entity->getId() && !$entity->getItemVarSet()) {
+        if (!$entity->getItemVarSet()) {
             $varSet = $this->getEntityService()->findOneBy(EntityConstants::ITEM_VAR_SET, [
                 'object_type' => EntityConstants::CONTENT
             ]);
