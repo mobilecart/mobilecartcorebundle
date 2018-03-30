@@ -104,8 +104,8 @@ class Item extends ArrayWrapper
             self::IS_QTY_MANAGED  => false,
             self::IS_FLAT_SHIPPING => false,
             self::FLAT_SHIPPING_PRICE => 0.0,
-            self::CUSTOMER_ADDRESS_ID => '',
-            self::SOURCE_ADDRESS_KEY => '',
+            self::CUSTOMER_ADDRESS_ID => 'main', // "main" shipping address info in customer table
+            self::SOURCE_ADDRESS_KEY => 'main', // "main" address set on the cart.shipping service
         ];
     }
 
@@ -979,7 +979,11 @@ class Item extends ArrayWrapper
     public function isValidCondition(RuleCondition $condition)
     {
         $condition->setSourceValue($this->get($condition->getEntityField()));
-        return $condition->isValid();
+        try {
+            return $condition->isValid();
+        } catch(\Exception $e) {
+            return false;
+        }
     }
 
     /**
